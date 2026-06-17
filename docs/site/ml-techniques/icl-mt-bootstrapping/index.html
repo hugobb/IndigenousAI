@@ -1,0 +1,3098 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A practical guide for building AI for indigenous language revitalization">
+      
+      
+        <meta name="author" content="Mila — Indigenous AI">
+      
+      
+      
+        <link rel="prev" href="../cross-lingual-icl-query-alignment/">
+      
+      
+        <link rel="next" href="../back-translation-data-augmentation/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>ICL-MT Bootstrapping - Indigenous AI — Technique Guide</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#icl-mt-bootstrapping-dictionary-examples-synthetic-parallel-data-nmt" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Indigenous AI — Technique Guide" class="md-header__button md-logo" aria-label="Indigenous AI — Technique Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Indigenous AI — Technique Guide
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ICL-MT Bootstrapping
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../guide/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Guide
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+  ML Techniques
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../process-techniques/" class="md-tabs__link">
+          
+  
+  
+  Process & Methodology
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Indigenous AI — Technique Guide" class="md-nav__button md-logo" aria-label="Indigenous AI — Technique Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Indigenous AI — Technique Guide
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ML Techniques
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ML Techniques
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tokenization
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tokenization
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tokenizer-model-co-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tokenizer–Model Co-Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tokenizer-multidimensional-evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tokenizer Multi-Dimensional Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/tokenizer-reuse-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tokenizer Reuse Audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../compression-ratio-tokenizer-selection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compression Ratio as Tokenizer Selection Criterion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../morphscore-tokenizer-evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MorphScore Tokenizer Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../byte-premium-data-scaling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Byte-Premium Data Scaling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Morphological Analysis
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Morphological Analysis
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fst-morphological-segmentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FST Morphological Segmentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../neural-morphological-segmentation-polysynthetic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Neural Seq2Seq Morphological Segmentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unsupervised-morphological-segmentation-for-polysynthetic-mt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unsupervised Morphological Segmentation for Polysynthetic MT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompting & In-Context Learning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prompting & In-Context Learning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grammar-book-parallel-extraction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Grammar Book Parallel Data Extraction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../typological-feature-prompting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Typological Feature Prompting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chain-of-dictionary-prompting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chain-of-Dictionary (CoD) Prompting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../textbook-prompting-talent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Textbook Prompting (TALENT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cross-lingual-icl-query-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Lingual ICL with Query Alignment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ICL-MT Bootstrapping
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ICL-MT Bootstrapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-apply" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to Apply
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How to Apply">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stage-1-icl-mt-with-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage 1: ICL-MT with LLM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stage-2-nmt-fine-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage 2: NMT Fine-tuning
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pseudocode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pseudocode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#variations-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variations &amp; Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code &amp; Tools
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strengths-weaknesses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strengths &amp; Weaknesses
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Translation & MT
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Translation & MT
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../back-translation-data-augmentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Back-Translation Data Augmentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../back-translation-semantic-evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Back-Translation Semantic Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm-rbmt-hybrid-translation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM-RBMT Hybrid Translation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fine-Tuning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Fine-Tuning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tiny-data-llm-fine-tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tiny-Data LLM Fine-Tuning for Endangered Languages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language Tools
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language Tools
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../wordweaver-fst-conjugator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WordWeaver FST Verb Conjugator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../decentralized-predictive-text/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decentralized Predictive Text
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../read-along-audio-alignment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read-Along Audio Alignment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process & Methodology
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Process & Methodology
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Community Engagement
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Community Engagement
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/community-driven-goal-identification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Community-Driven Goal Identification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/yarning-as-research-engagement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Yarning as Research Engagement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/cyclical-engagement-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cyclical Engagement Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/master-speaker-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Master Speaker Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/indigenous-ai-development-cycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Indigenous AI Development Cycle
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Governance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Data Governance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/community-data-sovereignty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Community Data Sovereignty
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/ai-extraction-protection-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Extraction Protection Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/responsive-responsible-ilt-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Responsive and Responsible ILT Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Design
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Project Design
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/endangered-vs-low-resource-distinction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Endangered vs. Low-Resource Language Distinction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/endangered-language-nlp-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Endangered Language NLP Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/task-appropriate-data-selection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task-Appropriate Data Selection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/data-volume-as-primary-lever/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Volume as Primary Lever
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/listed-framework-deployment-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LISTED Framework for Culturally Aligned AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Evaluation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/realist-evaluation-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Realist Evaluation Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/thick-evaluation-cultural-representation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Thick Evaluation of Cultural Representation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/machine-in-the-loop-annotation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Machine-in-the-Loop Annotation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process-techniques/human-in-the-loop-ai-safety/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-Loop AI Safety Workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-apply" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to Apply
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How to Apply">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stage-1-icl-mt-with-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage 1: ICL-MT with LLM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stage-2-nmt-fine-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage 2: NMT Fine-tuning
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pseudocode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pseudocode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#variations-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variations &amp; Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code &amp; Tools
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strengths-weaknesses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strengths &amp; Weaknesses
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    ML Techniques
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../grammar-book-parallel-extraction/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Prompting & In-Context Learning
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="icl-mt-bootstrapping-dictionary-examples-synthetic-parallel-data-nmt">ICL-MT Bootstrapping: Dictionary + Examples → Synthetic Parallel Data → NMT<a class="headerlink" href="#icl-mt-bootstrapping-dictionary-examples-synthetic-parallel-data-nmt" title="Permanent link">&para;</a></h1>
+<p><strong>Category:</strong> ML Technique
+<strong>Data Regime:</strong> zero-resource to &lt;1K parallel sentences (requires a dictionary and monolingual corpus; no parallel corpus needed to start)
+<strong>Applicable Languages:</strong> Any extremely low-resource language effectively unseen by LLMs; demonstrated on Manchu (Tungusic, critically endangered); most applicable to agglutinative and polysynthetic languages with available dictionaries</p>
+<h2 id="description">Description<a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
+<p>ICL-MT Bootstrapping is a two-stage pipeline that converts zero or near-zero parallel data into a trained conventional MT model, using in-context learning (ICL) with an LLM as an intermediate translation step:</p>
+<p><strong>Stage 1 — ICL-MT:</strong> Use an LLM in-context with a structured prompt (morphological analysis + dictionary entries + parallel examples) to translate a large monolingual corpus, producing synthetic parallel data. No fine-tuning of the LLM is required.</p>
+<p><strong>Stage 2 — NMT fine-tuning:</strong> Use the synthetic parallel data to fine-tune a small encoder-decoder multilingual model (e.g., mT5-small, ~300M parameters), producing a dedicated low-resource MT model that is cheaper at inference time than the LLM and, when enough synthetic data is added, achieves comparable or better translation quality.</p>
+<p>The method exploits a key asymmetry: monolingual data in low-resource languages is often far more abundant than parallel data (e.g., 42,240 monolingual Manchu sentences vs. 3,520 parallel sentence pairs), but LLMs are too expensive to run at scale for production MT. ICL-MT bridges this gap by using the LLM once to generate training data.</p>
+<p><strong>Component ranking (from ablation study):</strong> The quality of Stage 1 ICL output depends critically on the prompt components. In order of measured impact (Pei et al. 2025):
+1. <strong>High-quality dictionary</strong> (lexical entries + suffix explanations + collocations): the single most impactful component
+2. <strong>BM25-retrieved parallel examples</strong> (semantically similar sentences to the input): second-most impactful
+3. <strong>Grammar excerpts:</strong> marginal benefit; sometimes neutral; never strongly positive
+4. <strong>Chain-of-Thought prompting:</strong> harmful — introduces errors at each reasoning step; do not use</p>
+<p><strong>Encipherment control methodology:</strong> To verify that LLM performance is genuinely due to in-context learning rather than pretraining knowledge of the target language, Pei et al. encipher all Manchu tokens by a character-level substitution cipher (vowels: a→e, e→i, i→o, o→u, u→a; consonants shifted similarly) and test whether the model can still translate using enciphered prompts. The enciphered performance is slightly lower but close to original performance, confirming that LLMs rely primarily on ICL ability rather than prior language knowledge. This methodology is useful for any language suspected of being partially in LLM pretraining data.</p>
+<h2 id="when-to-use">When to Use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The language has a dictionary (even partial) but very few or no parallel sentence pairs.</li>
+<li>A monolingual corpus in the language exists (oral transcriptions, digitized texts, web content) that can be used for Stage 2 fine-tuning.</li>
+<li>The production deployment scenario requires fast, low-cost inference — the ICL-MT step is expensive; the fine-tuned NMT model is much cheaper.</li>
+<li>You want to maximize the value of dictionary investment: the finding that dictionaries matter more than grammar books means that a high-quality dictionary is the highest-priority data resource.</li>
+<li>You need to verify whether an LLM's apparent capability with a language reflects genuine ICL or pretraining contamination — use the encipherment control.</li>
+</ul>
+<p><strong>Less applicable when:</strong>
+- No dictionary exists; grammar books alone are insufficient for quality ICL-MT.
+- The language is polysynthetic with extreme morphological complexity (Manchu is agglutinative; the approach is untested on fully polysynthetic languages like Mohawk where verb morphology would complicate sentence alignment).
+- The goal is community-facing translation — synthetic data from an LLM may introduce errors or culturally inappropriate usages; community validation is needed before deployment.</p>
+<h2 id="how-to-apply">How to Apply<a class="headerlink" href="#how-to-apply" title="Permanent link">&para;</a></h2>
+<h3 id="stage-1-icl-mt-with-llm">Stage 1: ICL-MT with LLM<a class="headerlink" href="#stage-1-icl-mt-with-llm" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Build the structured dictionary.</strong> Compile dictionary entries in three layers:</li>
+<li><strong>Lexical entries:</strong> word stems with their meaning(s) in the target language.</li>
+<li><strong>Suffix explanations:</strong> for each suffix/morpheme appearing in the input sentence, include a brief description of its function (e.g., "-ha: perfect participle").</li>
+<li>
+<p><strong>Collocations:</strong> common multi-word expressions involving dictionary entries.
+   This three-layer structure (D^l+s+c) provides the best translation quality; lexical entries alone (D^l) are substantially weaker.</p>
+</li>
+<li>
+<p><strong>Build a morphological analyzer.</strong> Implement a rule-based analyzer that splits input words into stems and suffixes by recursively stripping known suffixes (obtainable from the dictionary). This serves two purposes: it enables dictionary look-up of stems for inflected words, and it allows BM25 retrieval to operate over morphemes rather than surface forms.</p>
+</li>
+<li>
+<p><strong>Retrieve parallel examples.</strong> For each source sentence, retrieve the top-10 most similar parallel sentences from any available parallel corpus using BM25 (Rank-BM25 implementation). Retrieve on morpheme-segmented queries (output of the morphological analyzer). BM25-retrieved examples (P^bm) outperform random examples (P^r) and dictionary-sourced examples (P^d). Use the morpheme-segmented sentence as the BM25 query.</p>
+</li>
+<li>
+<p><strong>Construct the prompt.</strong> Combine components in this order:
+   <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>[Morphological analysis of input sentence]
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>[Dictionary entries: lexical + suffixes + collocations for morphemes in sentence]
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>[Top-10 BM25-retrieved parallel examples]
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>[Translation instruction]
+</span></code></pre></div>
+   Do <strong>not</strong> include grammar excerpts (marginal benefit) or Chain-of-Thought instructions (harmful).</p>
+</li>
+<li>
+<p><strong>Translate the monolingual corpus.</strong> Call the LLM (GPT-4o, DeepSeek-V3, or Llama3-70B) to translate each sentence from the monolingual corpus. Use the best-performing model available; DeepSeek-V3 achieves BLEU 12.35 / chrF 37.93 / SBERT 65.64 on Manchu-English (Table 5).</p>
+</li>
+</ol>
+<h3 id="stage-2-nmt-fine-tuning">Stage 2: NMT Fine-tuning<a class="headerlink" href="#stage-2-nmt-fine-tuning" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Combine real and synthetic parallel data.</strong> Mix the real parallel corpus (3,520 sentence pairs for Manchu) with the synthetic pairs generated in Stage 1 (up to 42,240 sentences translated × desired synthetic-to-real ratio).</p>
+</li>
+<li>
+<p><strong>Fine-tune mT5-small.</strong> Use the mT5-small encoder-decoder multilingual model (~300M parameters). Train on the combined real + synthetic corpus using standard seq2seq fine-tuning.</p>
+</li>
+<li>
+<p><strong>Select the optimal synthetic data ratio.</strong> The optimal mixing ratio is approximately 12× synthetic to 1× real (i.e., train on all 42,240 synthetic sentences plus 3,520 real sentences). At this ratio, the fine-tuned mT5-small achieves results comparable to or better than Llama3-70B ICL-MT (Figure 3 in Pei et al. 2025). Below 10× synthetic, the model underperforms ICL baselines.</p>
+</li>
+<li>
+<p><strong>Evaluate.</strong> Use BLEU, chrF, and SBERT on the held-out evaluation set (337 sentence pairs for Manchu). SBERT is more reliable than BLEU/chrF for evaluating low-resource translation quality because BLEU and chrF underestimate semantic equivalence when phrasing differs (Table 6, Pei et al. 2025).</p>
+</li>
+</ol>
+<h2 id="pseudocode">Pseudocode<a class="headerlink" href="#pseudocode" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a># ===== STAGE 1: ICL-MT with LLM =====
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a># Build morphological analyzer (rule-based, recursive suffix stripping)
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>def morphological_analysis(word, suffix_list, stem_dict):
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    for suffix in suffix_list:
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        if word.endswith(suffix) and word[:-len(suffix)] in stem_dict:
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>            return word[:-len(suffix)], [suffix]  # stem, [suffix]
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    return word, []  # unsegmented
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>def analyze_sentence(sentence, suffix_list, stem_dict):
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    return [morphological_analysis(w, suffix_list, stem_dict)
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>            for w in sentence.split()]
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a># Build dictionary prompt component
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>def build_dictionary_prompt(morpheme_analysis, dictionary, suffix_explanations, collocations):
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    entries = []
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    for stem, suffixes in morpheme_analysis:
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        if stem in dictionary:
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>            entry = f&quot;{stem}: {dictionary[stem][&#39;lexical_entry&#39;]}&quot;
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>            if &#39;collocations&#39; in dictionary[stem]:
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>                entry += f&quot;; collocations: {dictionary[stem][&#39;collocations&#39;]}&quot;
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>            entries.append(entry)
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>        for suffix in suffixes:
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>            if suffix in suffix_explanations:
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>                entries.append(f&quot;-{suffix}: {suffix_explanations[suffix]}&quot;)
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>    return &quot;\n&quot;.join(entries)
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a># BM25 retrieval of parallel examples
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>from rank_bm25 import BM25Okapi
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>
+</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>def retrieve_examples(query_morphemes, parallel_corpus_morphemized, parallel_corpus, k=10):
+</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>    bm25 = BM25Okapi([sent.split() for sent in parallel_corpus_morphemized])
+</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>    scores = bm25.get_scores(query_morphemes.split())
+</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>    top_k = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:k]
+</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>    return [parallel_corpus[i] for i in top_k]
+</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>
+</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a># Construct full ICL prompt
+</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>def build_icl_prompt(source_sentence, morpheme_analysis, dict_prompt, examples):
+</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>    morph_str = &quot; &quot;.join(f&quot;{stem}+{&#39;&#39;.join(sfx)}&quot; for stem, sfx in morpheme_analysis)
+</span><span id="__span-1-40"><a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>    examples_str = &quot;\n&quot;.join(f&quot;SRC: {ex[&#39;src&#39;]}\nTGT: {ex[&#39;tgt&#39;]}&quot; for ex in examples)
+</span><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>    return f&quot;&quot;&quot;Morphological analysis: {morph_str}
+</span><span id="__span-1-42"><a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>
+</span><span id="__span-1-43"><a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>Dictionary entries:
+</span><span id="__span-1-44"><a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>{dict_prompt}
+</span><span id="__span-1-45"><a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>
+</span><span id="__span-1-46"><a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>Parallel examples:
+</span><span id="__span-1-47"><a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>{examples_str}
+</span><span id="__span-1-48"><a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>
+</span><span id="__span-1-49"><a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>Translate the following sentence:
+</span><span id="__span-1-50"><a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>{source_sentence}
+</span><span id="__span-1-51"><a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a>Translation:&quot;&quot;&quot;
+</span><span id="__span-1-52"><a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a>
+</span><span id="__span-1-53"><a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a># Translate monolingual corpus
+</span><span id="__span-1-54"><a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a>synthetic_pairs = []
+</span><span id="__span-1-55"><a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a>for sentence in monolingual_corpus:
+</span><span id="__span-1-56"><a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a>    analysis = analyze_sentence(sentence, suffix_list, stem_dict)
+</span><span id="__span-1-57"><a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>    dict_prompt = build_dictionary_prompt(analysis, dictionary, suffix_explanations, collocations)
+</span><span id="__span-1-58"><a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>    morphemized_query = &quot; &quot;.join(stem for stem, _ in analysis)
+</span><span id="__span-1-59"><a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a>    examples = retrieve_examples(morphemized_query, parallel_morphemized, parallel_corpus, k=10)
+</span><span id="__span-1-60"><a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a>    prompt = build_icl_prompt(sentence, analysis, dict_prompt, examples)
+</span><span id="__span-1-61"><a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a>    translation = llm.generate(prompt)  # GPT-4o, DeepSeek-V3, or Llama3-70B
+</span><span id="__span-1-62"><a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a>    synthetic_pairs.append({&quot;src&quot;: sentence, &quot;tgt&quot;: translation})
+</span><span id="__span-1-63"><a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a>
+</span><span id="__span-1-64"><a id="__codelineno-1-64" name="__codelineno-1-64" href="#__codelineno-1-64"></a># ===== STAGE 2: NMT Fine-tuning =====
+</span><span id="__span-1-65"><a id="__codelineno-1-65" name="__codelineno-1-65" href="#__codelineno-1-65"></a>
+</span><span id="__span-1-66"><a id="__codelineno-1-66" name="__codelineno-1-66" href="#__codelineno-1-66"></a># Mix real and synthetic data (12:1 synthetic:real ratio)
+</span><span id="__span-1-67"><a id="__codelineno-1-67" name="__codelineno-1-67" href="#__codelineno-1-67"></a>training_data = real_parallel_corpus + synthetic_pairs  # ~42K + 3.5K
+</span><span id="__span-1-68"><a id="__codelineno-1-68" name="__codelineno-1-68" href="#__codelineno-1-68"></a>
+</span><span id="__span-1-69"><a id="__codelineno-1-69" name="__codelineno-1-69" href="#__codelineno-1-69"></a># Fine-tune mT5-small
+</span><span id="__span-1-70"><a id="__codelineno-1-70" name="__codelineno-1-70" href="#__codelineno-1-70"></a>from transformers import MT5ForConditionalGeneration, AutoTokenizer
+</span><span id="__span-1-71"><a id="__codelineno-1-71" name="__codelineno-1-71" href="#__codelineno-1-71"></a>
+</span><span id="__span-1-72"><a id="__codelineno-1-72" name="__codelineno-1-72" href="#__codelineno-1-72"></a>tokenizer = AutoTokenizer.from_pretrained(&quot;google/mt5-small&quot;)
+</span><span id="__span-1-73"><a id="__codelineno-1-73" name="__codelineno-1-73" href="#__codelineno-1-73"></a>model = MT5ForConditionalGeneration.from_pretrained(&quot;google/mt5-small&quot;)
+</span><span id="__span-1-74"><a id="__codelineno-1-74" name="__codelineno-1-74" href="#__codelineno-1-74"></a>
+</span><span id="__span-1-75"><a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a># Standard seq2seq fine-tuning
+</span><span id="__span-1-76"><a id="__codelineno-1-76" name="__codelineno-1-76" href="#__codelineno-1-76"></a>train_dataset = encode_pairs(training_data, tokenizer)
+</span><span id="__span-1-77"><a id="__codelineno-1-77" name="__codelineno-1-77" href="#__codelineno-1-77"></a>trainer = Seq2SeqTrainer(model=model, train_dataset=train_dataset, ...)
+</span><span id="__span-1-78"><a id="__codelineno-1-78" name="__codelineno-1-78" href="#__codelineno-1-78"></a>trainer.train()
+</span><span id="__span-1-79"><a id="__codelineno-1-79" name="__codelineno-1-79" href="#__codelineno-1-79"></a>
+</span><span id="__span-1-80"><a id="__codelineno-1-80" name="__codelineno-1-80" href="#__codelineno-1-80"></a># Evaluate with BLEU, chrF, SBERT
+</span><span id="__span-1-81"><a id="__codelineno-1-81" name="__codelineno-1-81" href="#__codelineno-1-81"></a>from sacrebleu import corpus_bleu, corpus_chrf
+</span><span id="__span-1-82"><a id="__codelineno-1-82" name="__codelineno-1-82" href="#__codelineno-1-82"></a>from sentence_transformers import SentenceTransformer, util
+</span><span id="__span-1-83"><a id="__codelineno-1-83" name="__codelineno-1-83" href="#__codelineno-1-83"></a>
+</span><span id="__span-1-84"><a id="__codelineno-1-84" name="__codelineno-1-84" href="#__codelineno-1-84"></a>sbert = SentenceTransformer(&quot;all-MiniLM-L6-v2&quot;)
+</span><span id="__span-1-85"><a id="__codelineno-1-85" name="__codelineno-1-85" href="#__codelineno-1-85"></a>hypotheses = [model.translate(s) for s in test_sources]
+</span><span id="__span-1-86"><a id="__codelineno-1-86" name="__codelineno-1-86" href="#__codelineno-1-86"></a>bleu = corpus_bleu(hypotheses, [test_references])
+</span><span id="__span-1-87"><a id="__codelineno-1-87" name="__codelineno-1-87" href="#__codelineno-1-87"></a>chrf = corpus_chrf(hypotheses, test_references)
+</span><span id="__span-1-88"><a id="__codelineno-1-88" name="__codelineno-1-88" href="#__codelineno-1-88"></a>sbert_scores = [util.cos_sim(sbert.encode(h), sbert.encode(r)).item() * 100
+</span><span id="__span-1-89"><a id="__codelineno-1-89" name="__codelineno-1-89" href="#__codelineno-1-89"></a>                for h, r in zip(hypotheses, test_references)]
+</span></code></pre></div>
+<h2 id="evidence">Evidence<a class="headerlink" href="#evidence" title="Permanent link">&para;</a></h2>
+<p><strong>Pei et al. (2025), ACL 2025 — Manchu-English translation, evaluation set of 337 parallel sentences:</strong></p>
+<p><strong>Encipherment control results (Table 7 — Direct Assessment by 3 human Manchu experts, Pearson r = 0.864 inter-rater agreement):</strong>
+| Variant | DA score (0–100) | z-score |
+|---|---|---|
+| Direct prompt π(x) | 29.04 | -0.63 |
+| Enciphered π(μ(x)_e, D^l+s+c, P^bm) | 56.12 | 0.19 |
+| Full pipeline π(μ(x), D^l+s+c, P^bm) | <strong>64.47</strong> | <strong>0.44</strong> |</p>
+<p>Human evaluation confirms that the full pipeline (real Manchu) outperforms enciphered (fake Manchu) but the gap is not statistically significant (p = 0.27), confirming that LLMs rely primarily on ICL ability rather than prior Manchu knowledge.</p>
+<p><strong>Dictionary ablation (Table 1, GPT-4o, automatic metrics):</strong>
+| Variant | BLEU | chrF | SBERT |
+|---|---|---|---|
+| Direct prompt π(x) | 3.44 | 21.86 | 34.21 |
+| + morphological analysis π(μ(x)) | 3.10 | 21.68 | 33.49 |
+| + lexical dictionary D^l | 7.40 | 31.84 | 58.91 |
+| + suffixes D^l+s | 7.47 | <strong>32.93</strong> | 59.78 |
+| + collocations D^l+s+c | <strong>7.55</strong> | 32.71 | <strong>61.07</strong> |</p>
+<p>Dictionary D^l+s+c is the new baseline; morphological analysis alone does not help without dictionary.</p>
+<p><strong>Parallel example retrieval ablation (Table 2, GPT-4o):</strong>
+| Variant | BLEU | chrF | SBERT |
+|---|---|---|---|
+| Baseline π(μ(x), D^l+s+c) | 7.55 | 32.71 | 61.07 |
+| + random examples P^r | 7.66 | 32.94 | 60.85 |
+| + dictionary-sourced examples P^d | 8.10 | 32.95 | 61.04 |
+| + BM25 examples P^bm | <strong>8.84</strong> | <strong>33.72</strong> | <strong>61.35</strong> |</p>
+<p>BM25-retrieved examples provide the most consistent gains across all three metrics.</p>
+<p><strong>Grammar book ablation (Table 3, GPT-4o):</strong>
+| Variant | BLEU | chrF | SBERT |
+|---|---|---|---|
+| Best baseline π(μ(x), D<em>, P</em>) | 8.84 | 33.72 | 61.35 |
+| + short grammar G^s | 8.26 | 33.12 | 60.70 |
+| + long grammar G^l | 8.46 | 33.79 | 61.17 |
+| + grammar + parallel G^l+p | <strong>8.90</strong> | 33.77 | 60.40 |</p>
+<p>Grammar book provides marginal benefit at best and is inconsistent across metrics. Grammar excerpts are excluded from the final recommended pipeline.</p>
+<p><strong>Chain-of-Thought ablation (Table 4, GPT-4o):</strong>
+| Variant | BLEU | chrF | SBERT |
+|---|---|---|---|
+| Best baseline (no CoT) | 8.90 | 33.77 | 60.40 |
+| + annotation CoT C^a | 8.01 | 33.13 | 59.81 |
+| + annotation+syntax CoT C^a+s | 8.49 | 33.43 | 59.01 |</p>
+<p>CoT hurts performance on all variants. Do not use CoT for translation.</p>
+<p><strong>Model comparison (Table 5, best prompt setting):</strong>
+| Model | BLEU | chrF | SBERT |
+|---|---|---|---|
+| Llama3-1B | 0.27 | 9.95 | 16.37 |
+| Llama3-3B | 1.81 | 21.95 | 38.46 |
+| Llama3-8B | 3.05 | 26.59 | 49.10 |
+| Llama3-70B | 6.31 | 31.01 | 56.82 |
+| GPT-4o | 8.84 | 33.72 | 61.35 |
+| DeepSeek-V3 | <strong>12.35</strong> | <strong>37.93</strong> | <strong>65.64</strong> |</p>
+<p>Model size strongly correlates with translation quality; minimum viable model is approximately Llama3-8B.</p>
+<p><strong>NMT bootstrapping results (Figure 3 — mT5-small fine-tuned on varying synthetic:real ratios):</strong>
+- Real data only (3,520 pairs): BLEU ≈ 4.0, chrF ≈ 22.5, SBERT ≈ 50.5 — insufficient for a useful model.
+- syn(2):real(1): BLEU ≈ 4.8, chrF ≈ 24.6
+- syn(4):real(1): BLEU ≈ 5.6, chrF ≈ 27.2
+- syn(6):real(1): BLEU ≈ 6.9, chrF ≈ 28.8
+- syn(8):real(1): BLEU ≈ 6.9, chrF ≈ 29.3
+- syn(10):real(1): BLEU ≈ 7.5, chrF ≈ 32.8
+- syn(12):real(1): BLEU ≈ 7.9, chrF ≈ 30.6, SBERT ≈ 55.9 — matches/exceeds Llama3-70B</p>
+<p>The fine-tuned mT5-small (~300M parameters) at 12× synthetic data matches or exceeds Llama3-70B (70B parameters) at approximately 1/233 the model size, making it ~233× more efficient at inference.</p>
+<p><strong>Relation to CoD (Lu et al. 2024):</strong> Both papers show dictionaries are the most impactful prompt component for low-resource LLM MT. Pei et al. add that (1) suffix/collocation information in the dictionary is important beyond just lexical entries, and (2) the bootstrapping pathway from ICL output to a conventional NMT model is viable and efficient.</p>
+<h2 id="variations-configuration">Variations &amp; Configuration<a class="headerlink" href="#variations-configuration" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Dictionary depth:</strong> Lexical entries alone provide a large baseline gain; adding suffix explanations (+suffix) and collocations (+colloc) incrementally improve both BLEU and SBERT. Invest in all three layers if resources allow.</li>
+<li><strong>Parallel example retrieval:</strong> BM25 over morpheme-segmented sentences is the best retrieval method. The retrieval library rank_bm25 is a drop-in implementation. Do not use random examples if any parallel data is available.</li>
+<li><strong>Model selection:</strong> Use the largest model affordable at ICL-MT time; the NMT stage reduces inference cost. DeepSeek-V3 outperforms GPT-4o in this experiment.</li>
+<li><strong>Synthetic:real ratio:</strong> 12:1 is the empirically optimal mixing ratio for Manchu; this will vary by language and parallel data size. Use the development set to tune the ratio.</li>
+<li><strong>Encipherment validation:</strong> Before deploying any ICL-MT system, run the encipherment control (character substitution cipher) to verify that apparent translation ability is genuinely from ICL rather than pretraining contamination. This takes ~1 hour of additional experiment and prevents false confidence.</li>
+<li><strong>mT5 model size:</strong> mT5-small works for this task. mT5-base or mT5-large may provide further gains but at higher training cost.</li>
+</ul>
+<h2 id="code-tools">Code &amp; Tools<a class="headerlink" href="#code-tools" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Official code (Pei et al. 2025):</strong> https://github.com/cisnlp/manchu-in-context-mt</li>
+<li><strong>Manchu-English parallel corpus and evaluation set:</strong> https://github.com/ulingga/Manchu-English_babyMT (70 sentences); https://gerel.net/ (additional Manchu resources)</li>
+<li><strong>Manchu dictionary (buleku.org):</strong> https://buleku.org/home — the comprehensive Norman (2020) Manchu-English dictionary used in the experiments</li>
+<li><strong>Rank-BM25 (retrieval):</strong> https://github.com/dorianbrown/rank_bm25 — BM25 implementation used for parallel example retrieval</li>
+<li><strong>mT5-small:</strong> https://huggingface.co/google/mt5-small — multilingual T5 encoder-decoder; ~300M parameters; fine-tuning target for Stage 2</li>
+<li><strong>sacreBLEU:</strong> https://github.com/mjpost/sacrebleu — BLEU + chrF evaluation</li>
+<li><strong>Sentence-BERT (SBERT):</strong> https://github.com/UKPLab/sentence-transformers — semantic similarity metric; more reliable than BLEU for low-resource MT evaluation</li>
+</ul>
+<h2 id="strengths-weaknesses">Strengths &amp; Weaknesses<a class="headerlink" href="#strengths-weaknesses" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Strengths</th>
+<th>Weaknesses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Converts zero parallel data into a trainable NMT model using only a dictionary and monolingual corpus</td>
+<td>Stage 1 LLM calls are expensive; cost scales linearly with monolingual corpus size</td>
+</tr>
+<tr>
+<td>Resulting mT5-small model is ~233× smaller than Llama3-70B with comparable performance</td>
+<td>Demonstrated only on Manchu (agglutinative, not polysynthetic); applicability to Mohawk/Iroquoian untested</td>
+</tr>
+<tr>
+<td>Component ranking is empirically verified: invest in dictionaries &gt; parallel examples &gt; grammar &gt; CoT (don't use)</td>
+<td>Dictionary must include suffix explanations and collocations — a plain word list is insufficient</td>
+</tr>
+<tr>
+<td>Encipherment methodology provides a rigorous test of whether ICL contributions are genuine</td>
+<td>Synthetic data quality depends on LLM quality; cultural fidelity and community appropriateness are not evaluated</td>
+</tr>
+<tr>
+<td>BM25 example retrieval is computationally cheap and outperforms random and dictionary-sourced examples</td>
+<td>Grammar book preparation (manually curating 26 feature–excerpt tuples) is labor-intensive even though it adds minimal MT benefit</td>
+</tr>
+<tr>
+<td>SBERT is a better metric than BLEU/chrF for low-resource translation evaluation</td>
+<td>No community involvement in evaluation; human raters were academic language experts, not community members</td>
+</tr>
+</tbody>
+</table>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Pei, R., Liu, Y., Lin, P., Yvon, F., &amp; Schütze, H. (2025). Understanding In-Context Machine Translation for Low-Resource Languages: A Case Study on Manchu. <em>Proceedings of ACL 2025 (Volume 1: Long Papers)</em>, pages 8767–8788.</li>
+<li>Xue, L., et al. (2021). mT5: A Massively Multilingual Pre-Trained Text-to-Text Transformer. <em>NAACL 2021</em>.</li>
+<li>Lu, H., et al. (2024). Chain-of-Dictionary Prompting Elicits Translation in Large Language Models. <em>EMNLP 2024</em>. — Convergent finding: dictionaries are the most impactful ICL-MT resource.</li>
+<li>Elsner, M., &amp; Needle, J. (2023). Translating a Low-Resource Language Using GPT-3 and a Human-Readable Dictionary. <em>SIGMORPHON 2023</em>.</li>
+<li>Robertson, S. E., et al. (1995). Okapi at TREC-3. — BM25 algorithm used for parallel example retrieval.</li>
+<li>Reimers, N., &amp; Gurevych, I. (2019). Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks. <em>EMNLP 2019</em>. — SBERT metric for translation quality evaluation.</li>
+</ul>
+<details class="note">
+<summary>📋 Self-Review Notes</summary>
+<p><strong>Reviewed:</strong> 2026-06-11</p>
+<p><strong>Criterion 1 — Implementable from scratch:</strong> PASS — Both stages are concretely described. Stage 1: morphological analyzer (recursive suffix stripping), three-layer dictionary construction (lexical + suffix + collocations), BM25 retrieval over morpheme-segmented queries, prompt assembly order, and explicit warnings against CoT and grammar excerpts. Stage 2: mT5-small fine-tuning with the 12:1 synthetic:real ratio, evaluation with BLEU/chrF/SBERT. The encipherment control methodology is also fully specified. A practitioner could implement this without reading the original paper.</p>
+<p><strong>Criterion 2 — Empirical results with numbers:</strong> PASS — Five ablation tables (dictionary layers, retrieval methods, grammar book, CoT, model comparison) plus Figure 3 bootstrapping curve data points at each synthetic:real ratio (2×–12×). Human evaluation DA scores with inter-rater agreement (Pearson r = 0.864) and p-values are included. Evaluation set size (337 pairs), training corpus sizes (3,520 real + 42,240 synthetic), and model names are all explicit.</p>
+<p><strong>Criterion 3 — Data regime clarity:</strong> PASS — Zero-resource to &lt;1K parallel sentences. Manchu-specific corpus sizes stated precisely. The 12:1 ratio recommendation and its dev-set tuning caveat are present. Distinction between LLM cost (scales with monolingual corpus) and NMT inference cost (~233× smaller model) is quantified. "Less applicable" section explicitly flags missing-dictionary and polysynthetic-complexity cases.</p>
+<p><strong>Criterion 4 — Pseudocode completeness:</strong> PARTIAL — Stage 1 pseudocode is detailed and runnable (BM25 retrieval, prompt construction, morphological analysis). Stage 2 uses a placeholder <code>encode_pairs(training_data, tokenizer)</code> and <code>Seq2SeqTrainer(model=model, train_dataset=train_dataset, ...)</code> with ellipsis — standard HuggingFace patterns, but training hyperparameters (learning rate, batch size, epochs) are not specified anywhere in the doc. The SBERT evaluation uses <code>"all-MiniLM-L6-v2"</code> but the paper likely used a different model; this could produce non-comparable scores if a reader reproduces the experiment.</p>
+<p><strong>Criterion 5 — Failure modes:</strong> PASS — Well documented: CoT harmfulness (empirically quantified), grammar book marginal/inconsistent benefit, cost scaling of Stage 1, plain word-list dictionary insufficiency, polysynthetic language applicability limits (agglutinative vs. polysynthetic distinction), LLM quality floor (~Llama3-8B minimum), and community fidelity gaps. The Strengths &amp; Weaknesses table is thorough and honest.</p>
+<p><strong>Overall:</strong> Very strong doc. Two minor gaps: (1) Stage 2 training hyperparameters are missing — adding a note that Pei et al. use standard HuggingFace seq2seq defaults with a specific lr/batch would close this; (2) the SBERT model identifier in pseudocode (<code>all-MiniLM-L6-v2</code>) should be flagged as a placeholder rather than the exact model used in the paper, to prevent reproducibility confusion.</p>
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../cross-lingual-icl-query-alignment/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Cross-Lingual ICL with Query Alignment">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Cross-Lingual ICL with Query Alignment
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../back-translation-data-augmentation/" class="md-footer__link md-footer__link--next" aria-label="Next: Back-Translation Data Augmentation">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Back-Translation Data Augmentation
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

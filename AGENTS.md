@@ -14,8 +14,24 @@ IndigenousAI/
 ├── CLAUDE.md                   # Claude Code config
 ├── README.md                   # Project overview
 ├── Draft.md                    # Living research draft
+├── reports/                    # Deep-dive technical and conceptual reports
+│   ├── README.md               # Reports index and naming conventions
+│   └── *.md                    # One report per focused topic
+├── docs/                       # Docusaurus technique guide (pnpm start to run)
+│   ├── docusaurus.config.ts
+│   ├── sidebars.ts
+│   └── docs/
+│       ├── guide/              # End-to-end framework for building Indigenous language AI
+│       ├── ml-techniques/      # ML/NLP technique docs (21 docs + index)
+│       └── process-techniques/ # Process & methodology technique docs (18 docs + index)
+├── tasks/                      # Task records — one dated subfolder per task
+│   └── YYYY-MM-DD-task-name/
+│       ├── PLAN.md             # Task prompt and methodology (reusable)
+│       ├── PROGRESS.md         # Live progress tracker
+│       └── papers-analyzed.md  # Paper-level extraction status (task-specific)
 └── litterature_review/
     ├── README.md               # Literature review instructions
+    ├── OVERVIEW.md             # Systematic review synthesis (all papers)
     ├── papers/                 # Source papers (PDF or plain text)
     └── summaries/              # One summary file per paper
 ```
@@ -27,6 +43,7 @@ You assist with research ideation and project tracking. Concretely, you:
 - Help develop and refine research questions, ideas, and directions in `Draft.md`
 - Maintain the literature review by generating paper summaries
 - Keep documentation accurate and up to date
+- Maintain and extend the technique guide in `docs/`
 
 ## Literature Review — Auto-Summarization
 
@@ -169,6 +186,35 @@ A paper can be cited in more than one theme section.
 
 ---
 
+## Reports
+
+### What reports are
+
+`reports/` contains deep-dive research reports on specific technical or conceptual topics. A report synthesizes multiple sources, working discussions, and technical reasoning on a single focused question — going deeper than a literature review summary or `OVERVIEW.md` can cover. Reports are not tied to individual papers.
+
+### When to write a report
+
+Write a new report (a new `.md` file in `reports/`) when:
+
+- A specific technical question requires systematic analysis before a research or implementation decision (e.g., tokenization strategies, morphological analysis tools)
+- A design decision requires comparing multiple approaches in depth
+- Background knowledge on a topic needs thorough documentation that would be too long for `Draft.md`
+
+### Report format
+
+Reports have no fixed template — structure them to serve the question. A report typically includes:
+
+- A summary section (3–5 bullet headline findings)
+- Numbered sections developing the analysis
+- A synthesis section drawing conclusions
+- A references section
+
+### Naming convention
+
+Use lowercase kebab-case filenames that describe the topic (e.g., `tokenizer.md`, `mohawk-morphology.md`). Add an entry to the table in `reports/README.md` whenever a new report is created.
+
+---
+
 ## Draft Maintenance
 
 `Draft.md` is a living research document. When assisting with research ideation:
@@ -180,6 +226,80 @@ A paper can be cited in more than one theme section.
 - Preserve all existing content — do not remove or rewrite sections without explicit instruction.
 
 When editing `Draft.md`, keep a neutral, academic tone. Use first-person plural ("we") when describing the project's goals or methods.
+
+---
+
+## Technique Guide (`docs/`)
+
+The MkDocs Material site at `docs/` is the primary output of the technique extraction workflow. It contains two inventories built from the literature review:
+
+- **`docs/docs/ml-techniques/`** — 21 ML/NLP technique docs + `index.md`
+- **`docs/docs/process-techniques/`** — 18 process & methodology technique docs + `index.md`
+
+Each technique doc follows a fixed structure: Description → When to Use → How to Apply → Pseudocode → Evidence → Variations → Code & Tools → Strengths & Weaknesses → References → Self-Review Notes.
+
+**To run the site locally:** `cd docs && mkdocs serve`
+
+**To build the site:** `cd docs && mkdocs build` (output in `docs/site/`)
+
+**To add a new technique doc:**
+
+1. Create `docs/docs/ml-techniques/[slug].md` or `docs/docs/process-techniques/[slug].md` using the structure above.
+2. Add a row to the corresponding `index.md` table (use `[slug.md](slug.md)` links — MkDocs requires `.md` extensions).
+3. Add the technique to the `nav:` section in `docs/mkdocs.yml` under the appropriate category.
+4. Use `&lt;` instead of bare `<` before digits in prose (e.g., `&lt;1K`) — Markdown parsers may misinterpret them.
+5. Use `??? note "Title"` syntax for collapsible Self-Review Notes blocks (MkDocs Material `details` extension).
+
+---
+
+## Tasks (`tasks/`)
+
+`tasks/` records multi-step agent workflows. Each task lives in its own dated subfolder:
+
+```text
+tasks/YYYY-MM-DD-task-name/
+├── PLAN.md             # Reusable task prompt and methodology
+├── PROGRESS.md         # Live step-by-step tracker
+└── [task-specific files]
+```
+
+**Existing tasks:**
+
+| Folder | Description | Status |
+| --- | --- | --- |
+| `2026-06-11-technique-inventory` | Extract technique docs from top 26 papers; 63 medium-priority papers deferred | ✅ Done (first pass) |
+
+To continue the technique inventory (process the 63 deferred papers), see `tasks/2026-06-11-technique-inventory/PLAN.md` — Step 3 instructions and `papers-analyzed.md` contain everything needed to resume.
+
+---
+
+## Repository Navigation
+
+Use this map to find the right file for the information you need.
+
+| I am looking for… | Go to |
+| --- | --- |
+| Project overview and research goal | [README.md](README.md) |
+| Research questions, ideas, and framework | [Draft.md](Draft.md) — `## Research Questions`, `## Research Ideas` |
+| Reading list / papers to read | [Draft.md](Draft.md) — `## Reading List` |
+| Notes on a specific paper | [Draft.md](Draft.md) — `## Paper Notes` → `### Notes: [Title]` |
+| Summary of a specific paper | [litterature_review/summaries/](litterature_review/summaries/) — `[author-year-slug].md` |
+| Synthesis of the full literature | [litterature_review/OVERVIEW.md](litterature_review/OVERVIEW.md) |
+| Deep-dive on a specific technical topic | [reports/](reports/) — `[topic-slug].md` |
+| ML or process technique documentation | [docs/docs/ml-techniques/](docs/docs/ml-techniques/) or [docs/docs/process-techniques/](docs/docs/process-techniques/) |
+| Technique extraction task plan / progress | [tasks/2026-06-11-technique-inventory/](tasks/2026-06-11-technique-inventory/) |
+| AI agent workflows and conventions | [AGENTS.md](AGENTS.md) — this file |
+| How to add a paper | [litterature_review/README.md](litterature_review/README.md) |
+
+**Decision guide — where to put new content:**
+
+- New paper to read → add to reading list in `Draft.md`
+- New paper just read → add summary to `litterature_review/summaries/`, update `OVERVIEW.md`
+- New research question or idea → add to `Draft.md` under the appropriate section
+- Deep technical analysis (multi-source, substantial length) → new file in `reports/`, add to `reports/README.md` table
+- Cross-paper pattern or emerging synthesis point → add to `litterature_review/OVERVIEW.md`
+- New technique extracted from a paper → new doc in `docs/docs/ml-techniques/` or `docs/docs/process-techniques/`, row in the corresponding `index.md`
+- New multi-step agent task → new folder in `tasks/YYYY-MM-DD-task-name/` with `PLAN.md` and `PROGRESS.md`
 
 ---
 

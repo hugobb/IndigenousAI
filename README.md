@@ -14,18 +14,25 @@ IndigenousAI/
 ├── CLAUDE.md                   # Claude Code config (references AGENTS.md)
 ├── README.md                   # This file
 ├── Draft.md                    # Living research draft: questions, ideas, directions
+├── reports/                    # Deep-dive technical and conceptual reports
+│   ├── README.md               # Reports index and naming conventions
+│   └── *.md                    # One report per focused topic
 └── litterature_review/
     ├── README.md               # How to add papers and trigger auto-summarization
+    ├── OVERVIEW.md             # Systematic review synthesis across all papers
     ├── papers/                 # Source papers (PDF or text)
     └── summaries/              # Auto-generated summaries, one per paper
 ```
 
 ## Key Documents
 
-| Document                                                     | Purpose                                                                                        |
-| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| [Draft.md](Draft.md)                                         | Main research document: project context, research questions, framework, ideas, and paper notes |
-| [litterature_review/README.md](litterature_review/README.md) | Instructions for the literature review workflow                                                |
+| Document                                                                 | Purpose                                                                                        |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| [Draft.md](Draft.md)                                                     | Main research document: project context, research questions, framework, ideas, and paper notes |
+| [litterature_review/OVERVIEW.md](litterature_review/OVERVIEW.md)         | Systematic review synthesis integrating findings across all papers                             |
+| [reports/](reports/)                                                     | Deep-dive reports on specific technical or conceptual topics                                   |
+| [litterature_review/README.md](litterature_review/README.md)             | Instructions for the literature review workflow                                                |
+| [AGENTS.md](AGENTS.md)                                                   | AI agent workflows, navigation guide, and documentation conventions                            |
 
 ## Literature Review Workflow
 

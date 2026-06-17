@@ -1,0 +1,120 @@
+site_name: Indigenous AI — Technique Guide
+site_description: A practical guide for building AI for indigenous language revitalization
+site_author: Mila — Indigenous AI
+
+docs_dir: docs
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+      toc_depth: 3
+
+nav:
+  - Home: index.md
+  - Guide: guide/index.md
+  - ML Techniques:
+    - Overview: ml-techniques/index.md
+    - Tokenization:
+      - Tokenizer–Model Co-Design: ml-techniques/tokenizer-model-co-design.md
+      - Tokenizer Multi-Dimensional Evaluation: ml-techniques/tokenizer-multidimensional-evaluation.md
+      - Tokenizer Reuse Audit: process-techniques/tokenizer-reuse-audit.md
+      - Compression Ratio as Tokenizer Selection Criterion: ml-techniques/compression-ratio-tokenizer-selection.md
+      - MorphScore Tokenizer Evaluation: ml-techniques/morphscore-tokenizer-evaluation.md
+      - Byte-Premium Data Scaling: ml-techniques/byte-premium-data-scaling.md
+    - Morphological Analysis:
+      - FST Morphological Segmentation: ml-techniques/fst-morphological-segmentation.md
+      - Neural Seq2Seq Morphological Segmentation: ml-techniques/neural-morphological-segmentation-polysynthetic.md
+      - Unsupervised Morphological Segmentation for Polysynthetic MT: ml-techniques/unsupervised-morphological-segmentation-for-polysynthetic-mt.md
+    - Prompting & In-Context Learning:
+      - Grammar Book Parallel Data Extraction: ml-techniques/grammar-book-parallel-extraction.md
+      - Typological Feature Prompting: ml-techniques/typological-feature-prompting.md
+      - Chain-of-Dictionary (CoD) Prompting: ml-techniques/chain-of-dictionary-prompting.md
+      - Textbook Prompting (TALENT): ml-techniques/textbook-prompting-talent.md
+      - Cross-Lingual ICL with Query Alignment: ml-techniques/cross-lingual-icl-query-alignment.md
+      - ICL-MT Bootstrapping: ml-techniques/icl-mt-bootstrapping.md
+    - Translation & MT:
+      - Back-Translation Data Augmentation: ml-techniques/back-translation-data-augmentation.md
+      - Back-Translation Semantic Evaluation: ml-techniques/back-translation-semantic-evaluation.md
+      - LLM-RBMT Hybrid Translation: ml-techniques/llm-rbmt-hybrid-translation.md
+    - Fine-Tuning:
+      - Tiny-Data LLM Fine-Tuning for Endangered Languages: ml-techniques/tiny-data-llm-fine-tuning.md
+    - Language Tools:
+      - WordWeaver FST Verb Conjugator: ml-techniques/wordweaver-fst-conjugator.md
+      - Decentralized Predictive Text: ml-techniques/decentralized-predictive-text.md
+      - Read-Along Audio Alignment: ml-techniques/read-along-audio-alignment.md
+  - Process & Methodology:
+    - Overview: process-techniques/index.md
+    - Community Engagement:
+      - Community-Driven Goal Identification: process-techniques/community-driven-goal-identification.md
+      - Yarning as Research Engagement: process-techniques/yarning-as-research-engagement.md
+      - Cyclical Engagement Process: process-techniques/cyclical-engagement-process.md
+      - Master Speaker Protocol: process-techniques/master-speaker-protocol.md
+      - Indigenous AI Development Cycle: process-techniques/indigenous-ai-development-cycle.md
+    - Data Governance:
+      - Community Data Sovereignty: process-techniques/community-data-sovereignty.md
+      - AI Extraction Protection Protocol: process-techniques/ai-extraction-protection-protocol.md
+      - Responsive and Responsible ILT Design: process-techniques/responsive-responsible-ilt-design.md
+    - Project Design:
+      - Endangered vs. Low-Resource Language Distinction: process-techniques/endangered-vs-low-resource-distinction.md
+      - Endangered Language NLP Roadmap: process-techniques/endangered-language-nlp-roadmap.md
+      - Task-Appropriate Data Selection: process-techniques/task-appropriate-data-selection.md
+      - Data Volume as Primary Lever: process-techniques/data-volume-as-primary-lever.md
+      - LISTED Framework for Culturally Aligned AI: process-techniques/listed-framework-deployment-design.md
+    - Evaluation:
+      - Realist Evaluation Framework: process-techniques/realist-evaluation-framework.md
+      - Thick Evaluation of Cultural Representation: process-techniques/thick-evaluation-cultural-representation.md
+      - Machine-in-the-Loop Annotation: process-techniques/machine-in-the-loop-annotation.md
+      - Human-in-the-Loop AI Safety Workflows: process-techniques/human-in-the-loop-ai-safety.md
