@@ -8,7 +8,7 @@ const lang = (over: Partial<Language> = {}): Language => ({
   id: 'kanienkeha', name: "Kanien'kéha", also_known_as: [], glottocode: null, iso639_3: null,
   tier: 'indigenous', family: 'Iroquoian', subfamily: null, typology: ['polysynthetic'],
   endangerment: null, speakers: null, region: 'north-america', countries: ['CA'],
-  area: null, status: 'verified', ...over,
+  centre: null, status: 'verified', ...over,
 })
 
 const init = (over: Partial<Initiative> = {}): Initiative => ({

@@ -13,10 +13,15 @@ const SpeakerCountSchema = z.object({
     .default([]),
 })
 
-const AreaSchema = z.object({
-  source: z.literal('native-land-digital'),
-  nld_id: z.string().min(1),
-  present: z.boolean(),
+/** ONE point, never a boundary. Rendered as a soft edgeless blob.
+ *  Native Land Digital's territory polygons were withdrawn (spec §3a): their
+ *  Data Sovereignty Treaty forbids redistributing their data and forbids
+ *  altering Indigenous land boundaries, which feathering a polygon does.
+ *  A cited centre point makes neither claim. */
+const CentreSchema = z.object({
+  lat: z.number().min(-90).max(90),
+  lon: z.number().min(-180).max(180),
+  source: SourceSchema,
 })
 
 export const LanguageSchema = z
@@ -41,17 +46,17 @@ export const LanguageSchema = z
     speakers: SpeakerCountSchema.nullable().default(null),
     region: z.enum(REGIONS),
     countries: z.array(z.string().length(2)).default([]),
-    area: AreaSchema.nullable().default(null),
+    centre: CentreSchema.nullable().default(null),
     status: z.enum(RECORD_STATUS),
   })
   .superRefine((v, ctx) => {
-    // Spec D5: fields are an indigenous-tier feature. An adjacent language
-    // must not be able to acquire a shaded region by accident.
-    if (v.tier === 'adjacent' && v.area !== null) {
+    // Spec D5: soft fields are an indigenous-tier feature. An adjacent language
+    // must not be able to acquire one by accident.
+    if (v.tier === 'adjacent' && v.centre !== null) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ['area'],
-        message: 'an adjacent-tier language must not carry an area (spec D5): the adjacent tier is pins only',
+        path: ['centre'],
+        message: 'an adjacent-tier language must not carry a centre (spec D5): the adjacent tier is pins only',
       })
     }
   })

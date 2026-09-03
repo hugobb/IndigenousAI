@@ -12,7 +12,7 @@ const language = {
   region: 'north-america',
   countries: ['CA', 'US'],
   endangerment: { status: 'definitely-endangered', scale: 'unesco-2010', source: src },
-  area: { source: 'native-land-digital', nld_id: 'x1', present: true },
+  centre: { lat: 43.0, lon: -74.5, source: src },
   status: 'verified',
 }
 
@@ -46,16 +46,24 @@ describe('LanguageSchema', () => {
     if (r.success) expect(r.data.speakers?.conflicts).toHaveLength(1)
   })
 
-  it('rejects an adjacent-tier language carrying an area (spec D5)', () => {
+  it('rejects an adjacent-tier language carrying a centre (spec D5)', () => {
     const r = LanguageSchema.safeParse({ ...language, id: 'manchu', tier: 'adjacent' })
     expect(r.success).toBe(false)
     if (!r.success) expect(r.error.issues[0]?.message).toMatch(/adjacent/i)
   })
 
-  it('accepts an adjacent-tier language with no area', () => {
-    const { area: _area, ...rest } = language
+  it('accepts an adjacent-tier language with no centre', () => {
+    const { centre: _centre, ...rest } = language
     const r = LanguageSchema.safeParse({ ...rest, id: 'manchu', tier: 'adjacent' })
     expect(r.success).toBe(true)
+  })
+
+  it('rejects an out-of-range centre latitude', () => {
+    const r = LanguageSchema.safeParse({
+      ...language,
+      centre: { lat: 143.0, lon: -74.5, source: src },
+    })
+    expect(r.success).toBe(false)
   })
 })
 

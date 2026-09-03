@@ -15,7 +15,6 @@
     "build:data": "pnpm extract:methods && pnpm extract:papers && pnpm validate && pnpm bundle"
   },
   "devDependencies": {
-    "@turf/simplify": "^7.1.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.10.0",
     "js-yaml": "^4.1.0",
