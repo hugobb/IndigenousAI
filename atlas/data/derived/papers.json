@@ -1,0 +1,1198 @@
+[
+  {
+    "id": "adilazuarda-et-al-2024-culture-llm",
+    "title": "Towards Measuring and Modeling \"Culture\" in LLMs: A Survey",
+    "authors": "Adilazuarda et al.",
+    "year": 2024,
+    "venue": "Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing (EMNLP), pages 15763–15784",
+    "themes": [
+      "epistemic-justice",
+      "evaluation",
+      "representation"
+    ],
+    "summary_url": "litterature_review/summaries/adilazuarda-et-al-2024-culture-llm.md"
+  },
+  {
+    "id": "ansari-et-al-2026-persian-poetry",
+    "title": "Multi-modal NMT for Low-Resource Classical Persian Poetry: A Culture-Aware Evaluation",
+    "authors": "Ansari et al.",
+    "year": 2026,
+    "venue": "Proceedings of the First Workshop on NLP and LLMs for the Iranian Language Family (SilkRoadNLP), ACL",
+    "themes": [
+      "low-resource-nlp",
+      "evaluation",
+      "culture-specific-items"
+    ],
+    "summary_url": "litterature_review/summaries/ansari-et-al-2026-persian-poetry.md"
+  },
+  {
+    "id": "barman-et-al-2025-whose-culture",
+    "title": "Reinforcement Learning from Human Feedback in LLMs: Whose Culture, Whose Values, Whose Perspectives?",
+    "authors": "Barman et al.",
+    "year": 2025,
+    "venue": "Philosophy & Technology, vol. 38, article 35",
+    "themes": [
+      "epistemic-justice",
+      "rlhf",
+      "representation"
+    ],
+    "summary_url": "litterature_review/summaries/barman-et-al-2025-whose-culture.md"
+  },
+  {
+    "id": "bhagat-et-al-2026-tales",
+    "title": "TALES: A Taxonomy and Analysis of Cultural Representations in LLM-generated Stories",
+    "authors": "Bhagat et al.",
+    "year": 2026,
+    "venue": "Proceedings of the 2026 CHI Conference on Human Factors in Computing Systems (CHI '26), Barcelona, Spain",
+    "themes": [
+      "evaluation",
+      "representation",
+      "low-resource-nlp"
+    ],
+    "summary_url": "litterature_review/summaries/bhagat-et-al-2026-tales.md"
+  },
+  {
+    "id": "bird-et-al-2020-decolonising-nlp",
+    "title": "Decolonising Speech and Language Technology",
+    "authors": "Bird",
+    "year": 2020,
+    "venue": "Proceedings of the 28th International Conference on Computational Linguistics (COLING 2020), pages 3504–3519, Barcelona, Spain (Online)",
+    "themes": [
+      "methodology",
+      "co-construction",
+      "language-revitalization"
+    ],
+    "summary_url": "litterature_review/summaries/bird-et-al-2020-decolonising-nlp.md"
+  },
+  {
+    "id": "branco-2026-et-al-cultural-alignment",
+    "title": "Progressing beyond Art Masterpieces or Touristic Clichés: how to assess your LLMs for cultural alignment?",
+    "authors": "Branco et al.",
+    "year": 2026,
+    "venue": "arXiv preprint arXiv:2604.25654v2 (submitted May 2026)",
+    "themes": [
+      "evaluation",
+      "benchmarking",
+      "cultural-alignment"
+    ],
+    "summary_url": "litterature_review/summaries/branco-2026-et-al-cultural-alignment.md"
+  },
+  {
+    "id": "cooper-et-al-2024-indigenous-communities",
+    "title": "\"It's how you do things that matters\": Attending to Process to Better Serve Indigenous Communities",
+    "authors": "Cooper et al.",
+    "year": 2024,
+    "venue": "Proceedings of the 18th Conference of the European Chapter of the Association for Computational Linguistics (EACL), Volume 2: Short Papers, pages 204–211",
+    "themes": [
+      "methodology",
+      "co-construction",
+      "data-sovereignty"
+    ],
+    "summary_url": "litterature_review/summaries/cooper-et-al-2024-indigenous-communities.md"
+  },
+  {
+    "id": "ebrahimi-et-al-2023-americas-nlp",
+    "title": "Findings of the AmericasNLP 2023 Shared Task on Machine Translation into Indigenous Languages",
+    "authors": "Ebrahimi et al.",
+    "year": 2023,
+    "venue": "Proceedings of the Workshop on Natural Language Processing for Indigenous Languages of the Americas (AmericasNLP), ACL 2023, pages 206–219",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "polysynthetic"
+    ],
+    "summary_url": "litterature_review/summaries/ebrahimi-et-al-2023-americas-nlp.md"
+  },
+  {
+    "id": "feng-et-al-2025-culfit",
+    "title": "CulFiT: A Fine-grained Cultural-aware LLM Training Paradigm via Multilingual Critique Data Synthesis",
+    "authors": "Feng et al.",
+    "year": 2025,
+    "venue": "Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL 2025), Volume 1: Long Papers, pages 22413–22430",
+    "themes": [
+      "cultural-alignment",
+      "fine-tuning",
+      "evaluation"
+    ],
+    "summary_url": "litterature_review/summaries/feng-et-al-2025-culfit.md"
+  },
+  {
+    "id": "gibert-et-al-2025-americas-nlp",
+    "title": "Findings of the AmericasNLP 2025 Shared Tasks on MT, Educational Material, and Translation Metrics",
+    "authors": "de Gibert et al.",
+    "year": 2025,
+    "venue": "Proceedings of the Fifth Workshop on NLP for Indigenous Languages of the Americas (AmericasNLP), ACL 2025, pages 134–152",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "evaluation"
+    ],
+    "summary_url": "litterature_review/summaries/gibert-et-al-2025-americas-nlp.md"
+  },
+  {
+    "id": "jarrahi-2025-interviewing-ai",
+    "title": "Interviewing AI: Using qualitative methods to explore machines' characteristics and behaviors",
+    "authors": "Jarrahi",
+    "year": 2025,
+    "venue": "Big Data & Society, July–September 2025, pages 1–15 (Sage). DOI: 10.1177/20539517251381697",
+    "themes": [
+      "methodology",
+      "evaluation",
+      "qualitative"
+    ],
+    "summary_url": "litterature_review/summaries/jarrahi-2025-interviewing-ai.md"
+  },
+  {
+    "id": "kay-et-al-2024-epistemic-injustice",
+    "title": "Epistemic Injustice in Generative AI",
+    "authors": "Kay et al.",
+    "year": 2024,
+    "venue": "arXiv preprint (arXiv:2408.11441v1), submitted August 2024",
+    "themes": [
+      "epistemic-justice",
+      "representation",
+      "data-sovereignty"
+    ],
+    "summary_url": "litterature_review/summaries/kay-et-al-2024-epistemic-injustice.md"
+  },
+  {
+    "id": "khan-et-al-2025-cultural-alignment-evaluation",
+    "title": "Randomness, Not Representation: The Unreliability of Evaluating Cultural Alignment in LLMs",
+    "authors": "Khan et al.",
+    "year": 2025,
+    "venue": "FAccT 2025 (ACM Conference on Fairness, Accountability, and Transparency), Athens, Greece",
+    "themes": [
+      "evaluation",
+      "benchmarking",
+      "cultural-alignment"
+    ],
+    "summary_url": "litterature_review/summaries/khan-et-al-2025-cultural-alignment-evaluation.md"
+  },
+  {
+    "id": "khanuja-et-al-2026-llm-culture",
+    "title": "Steering LLMs for Culturally Localized Generation",
+    "authors": "Khanuja et al.",
+    "year": 2026,
+    "venue": "arXiv preprint (arXiv:2603.23301v1), March 2026; Google DeepMind / Carnegie Mellon University",
+    "themes": [
+      "cultural-alignment",
+      "representation",
+      "fine-tuning"
+    ],
+    "summary_url": "litterature_review/summaries/khanuja-et-al-2026-llm-culture.md"
+  },
+  {
+    "id": "liu-et-al-2022-not-about-you",
+    "title": "Not always about you: Prioritizing community needs when developing endangered language technology",
+    "authors": "Liu et al.",
+    "year": 2022,
+    "venue": "Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (ACL 2022), Volume 1: Long Papers, pp. 3933–3944",
+    "themes": [
+      "methodology",
+      "language-revitalization",
+      "co-construction"
+    ],
+    "summary_url": "litterature_review/summaries/liu-et-al-2022-not-about-you.md"
+  },
+  {
+    "id": "liu-et-al-2025-culturally-aware",
+    "title": "Culturally Aware and Adapted NLP: A Taxonomy and a Survey of the State of the Art",
+    "authors": "Liu et al.",
+    "year": 2025,
+    "venue": "Transactions of the Association for Computational Linguistics (TACL), vol. 13, pp. 652–689",
+    "themes": [
+      "representation",
+      "evaluation",
+      "cultural-alignment"
+    ],
+    "summary_url": "litterature_review/summaries/liu-et-al-2025-culturally-aware.md"
+  },
+  {
+    "id": "monazzah-et-al-2025-percurl",
+    "title": "PERCUL: A Story-Driven Cultural Evaluation of LLMs in Persian",
+    "authors": "Monazzah et al.",
+    "year": 2025,
+    "venue": null,
+    "themes": [
+      "evaluation",
+      "benchmarking",
+      "cultural-alignment"
+    ],
+    "summary_url": "litterature_review/summaries/monazzah-et-al-2025-percurl.md"
+  },
+  {
+    "id": "pawar-et-al-2025-cultural-awareness-llm",
+    "title": "Survey of Cultural Awareness in Language Models: Text and Beyond",
+    "authors": "Pawar et al.",
+    "year": 2025,
+    "venue": null,
+    "themes": [
+      "representation",
+      "evaluation",
+      "low-resource-nlp"
+    ],
+    "summary_url": "litterature_review/summaries/pawar-et-al-2025-cultural-awareness-llm.md"
+  },
+  {
+    "id": "qadri-et-al-2025-cultural-representation-ai",
+    "title": "The Case for \"Thick Evaluations\" of Cultural Representation in AI",
+    "authors": "Qadri et al.",
+    "year": 2025,
+    "venue": null,
+    "themes": [
+      "evaluation",
+      "methodology",
+      "co-construction"
+    ],
+    "summary_url": "litterature_review/summaries/qadri-et-al-2025-cultural-representation-ai.md"
+  },
+  {
+    "id": "rai-and-pal-2025-amharic",
+    "title": "A Transformer-Based Framework for Domain-Sensitive Amharic to English MT with Character-Aware Subword Encoding",
+    "authors": "Rai & Pal",
+    "year": 2025,
+    "venue": null,
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "tokenization"
+    ],
+    "summary_url": "litterature_review/summaries/rai-and-pal-2025-amharic.md"
+  },
+  {
+    "id": "sadr-et-al-2025-taarof",
+    "title": "We Politely Insist: Your LLM Must Learn the Persian Art of Taarof",
+    "authors": "Sadr et al.",
+    "year": 2025,
+    "venue": null,
+    "themes": [
+      "evaluation",
+      "cultural-alignment",
+      "fine-tuning"
+    ],
+    "summary_url": "litterature_review/summaries/sadr-et-al-2025-taarof.md"
+  },
+  {
+    "id": "sakhaeirad-et-al-2026-persian-llm",
+    "title": "Unmasking the Factual-Conceptual Gap in Persian Language Models",
+    "authors": "Sakhaeirad et al.",
+    "year": 2026,
+    "venue": "Proceedings of the First Workshop on NLP and LLMs for the Iranian Language Family (SilkRoadNLP), ACL",
+    "themes": [
+      "evaluation",
+      "cultural-alignment",
+      "benchmarking"
+    ],
+    "summary_url": "litterature_review/summaries/sakhaeirad-et-al-2026-persian-llm.md"
+  },
+  {
+    "id": "singh-et-al-2025-global-mmlu",
+    "title": "Global MMLU: Understanding and Addressing Cultural and Linguistic Biases in Multilingual Evaluation",
+    "authors": "Singh et al.",
+    "year": 2025,
+    "venue": "Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL 2025), Long Papers",
+    "themes": [
+      "evaluation",
+      "benchmarking",
+      "representation"
+    ],
+    "summary_url": "litterature_review/summaries/singh-et-al-2025-global-mmlu.md"
+  },
+  {
+    "id": "zhang-et-al-2022-cherokee-nlp",
+    "title": "How can NLP Help Revitalize Endangered Languages? A Case Study and Roadmap for the Cherokee Language",
+    "authors": "Zhang et al.",
+    "year": 2022,
+    "venue": "Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (ACL 2022), Long Papers",
+    "themes": [
+      "language-revitalization",
+      "low-resource-nlp",
+      "co-construction"
+    ],
+    "summary_url": "litterature_review/summaries/zhang-et-al-2022-cherokee-nlp.md"
+  },
+  {
+    "id": "zhang-et-al-2025-culture-scope",
+    "title": "CultureScope: A Dimensional Lens for Probing Cultural Understanding in LLMs",
+    "authors": "Zhang et al.",
+    "year": 2025,
+    "venue": "arXiv preprint (arXiv:2509.16188v1); submitted September 2025",
+    "themes": [
+      "evaluation",
+      "benchmarking",
+      "cultural-alignment"
+    ],
+    "summary_url": "litterature_review/summaries/zhang-et-al-2025-culture-scope.md"
+  },
+  {
+    "id": "zhao-et-al-2026-ai-auditing-tools",
+    "title": "Whose Knowledge Counts? Co-Designing Community-Centered AI Auditing Tools with Educators in Hawai'i",
+    "authors": "Zhao et al.",
+    "year": 2026,
+    "venue": "Proceedings of the 2026 CHI Conference on Human Factors in Computing Systems (CHI '26), Barcelona, Spain",
+    "themes": [
+      "methodology",
+      "co-construction",
+      "evaluation"
+    ],
+    "summary_url": "litterature_review/summaries/zhao-et-al-2026-ai-auditing-tools.md"
+  },
+  {
+    "id": "aycock-et-al-2025-grammar-book",
+    "title": "Can LLMs Really Learn to Translate A Low-Resource Language from One Grammar Book?",
+    "authors": "Aycock et al.",
+    "year": 2025,
+    "venue": "ICLR 2025",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "in-context-learning"
+    ],
+    "summary_url": "litterature_review/summaries/aycock-et-al-2025-grammar-book.md"
+  },
+  {
+    "id": "bean-et-al-2024-lingoly",
+    "title": "LingOly: A Benchmark of Olympiad-Level Linguistic Reasoning Puzzles in Low-Resource and Extinct Languages",
+    "authors": "Bean et al.",
+    "year": 2024,
+    "venue": "NeurIPS 2024 (University of Oxford, Stanford University, Meedan; arXiv:2406.06196)",
+    "themes": [
+      "evaluation",
+      "benchmarking",
+      "low-resource-nlp"
+    ],
+    "summary_url": "litterature_review/summaries/bean-et-al-2024-lingoly.md"
+  },
+  {
+    "id": "coleman-et-al-2026-llm-extreme-low-ressource",
+    "title": "Comparing LLM-Based Translation Approaches for Extremely Low-Resource Languages",
+    "authors": "Coleman et al.",
+    "year": 2026,
+    "venue": "Preprint / Conference proceedings (2026)",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "hybrid-systems"
+    ],
+    "summary_url": "litterature_review/summaries/coleman-et-al-2026-llm-extreme-low-ressource.md"
+  },
+  {
+    "id": "court-and-elsner-et-al-2024-llm-low-ressource",
+    "title": "Shortcomings of LLMs for Low-Resource Translation: Retrieval and Understanding are Both the Problem",
+    "authors": "Court & Elsner",
+    "year": 2024,
+    "venue": "Proceedings of the Ninth Conference on Machine Translation (WMT 2024)",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "in-context-learning"
+    ],
+    "summary_url": "litterature_review/summaries/court-and-elsner-et-al-2024-llm-low-ressource.md"
+  },
+  {
+    "id": "haddow-et-al-2022-survey-low-ressource",
+    "title": "Survey of Low-Resource Machine Translation",
+    "authors": "Haddow et al.",
+    "year": 2022,
+    "venue": "Computational Linguistics, Volume 48, Number 3",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "tokenization"
+    ],
+    "summary_url": "litterature_review/summaries/haddow-et-al-2022-survey-low-ressource.md"
+  },
+  {
+    "id": "pei-et-al-2025-in-context-learning",
+    "title": "Understanding In-Context Machine Translation for Low-Resource Languages: A Case Study on Manchu",
+    "authors": "Pei et al.",
+    "year": 2025,
+    "venue": "Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL 2025)",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "in-context-learning"
+    ],
+    "summary_url": "litterature_review/summaries/pei-et-al-2025-in-context-learning.md"
+  },
+  {
+    "id": "sanchez-et-al-2025-linguini",
+    "title": "Linguini: A Benchmark for Language-Agnostic Linguistic Reasoning",
+    "authors": "Sánchez et al.",
+    "year": 2025,
+    "venue": "NeurIPS 2025 (Meta AI, University College London, University of the Basque Country)",
+    "themes": [
+      "evaluation",
+      "benchmarking",
+      "low-resource-nlp"
+    ],
+    "summary_url": "litterature_review/summaries/sanchez-et-al-2025-linguini.md"
+  },
+  {
+    "id": "song-et-al-2026-slm",
+    "title": "Are Small Language Models the Silver Bullet to Low-Resource Languages Machine Translation?",
+    "authors": "Song et al.",
+    "year": 2026,
+    "venue": "Proceedings of the Ninth Workshop on Technologies for Machine Translation of Low Resource Languages (LoResMT 2026)",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "knowledge-distillation"
+    ],
+    "summary_url": "litterature_review/summaries/song-et-al-2026-slm.md"
+  },
+  {
+    "id": "tanzer-et-al-2024-grammar-book",
+    "title": "A Grammar Book as the Prompt: Machine Translation from One Book",
+    "authors": "Tanzer et al.",
+    "year": 2024,
+    "venue": "ICLR 2024",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "in-context-learning"
+    ],
+    "summary_url": "litterature_review/summaries/tanzer-et-al-2024-grammar-book.md"
+  },
+  {
+    "id": "zebaze-et-al-2025-in-context-learning",
+    "title": "In-Context Example Selection via Similarity Search Improves Low-Resource Machine Translation",
+    "authors": "Zebaze et al.",
+    "year": 2025,
+    "venue": "Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL 2025) (Inria, Paris)",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "in-context-learning"
+    ],
+    "summary_url": "litterature_review/summaries/zebaze-et-al-2025-in-context-learning.md"
+  },
+  {
+    "id": "zhang-et-al-2024-hire-a-linguist",
+    "title": "Hire a Linguist!: Learning Endangered Languages in LLMs with In-Context Linguistic Descriptions",
+    "authors": "Zhang et al.",
+    "year": 2024,
+    "venue": "Findings of the Association for Computational Linguistics: ACL 2024",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "in-context-learning"
+    ],
+    "summary_url": "litterature_review/summaries/zhang-et-al-2024-hire-a-linguist.md"
+  },
+  {
+    "id": "zhang-et-al-2025-grammar-bboks",
+    "title": "Read it in Two Steps: Translating Extremely Low-Resource Languages with Code-Augmented Grammar Books",
+    "authors": "Zhang et al.",
+    "year": 2025,
+    "venue": "Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL 2025, Volume 1: Long Papers)",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "in-context-learning"
+    ],
+    "summary_url": "litterature_review/summaries/zhang-et-al-2025-grammar-bboks.md"
+  },
+  {
+    "id": "zhu-et-al-2025-llm-low-ressource-evaluation",
+    "title": "Evaluating Large Language Models for In-Context Learning of Linguistic Patterns In Unseen Low Resource Languages",
+    "authors": "Zhu et al.",
+    "year": 2025,
+    "venue": "Proceedings of the First Workshop on Language Models for Low-Resource Languages (LoResLM 2025), co-located with COLING 2025",
+    "themes": [
+      "evaluation",
+      "low-resource-nlp",
+      "in-context-learning"
+    ],
+    "summary_url": "litterature_review/summaries/zhu-et-al-2025-llm-low-ressource-evaluation.md"
+  },
+  {
+    "id": "cahyawijaya-et-al-2025-icl",
+    "title": "LLMs Are Few-Shot In-Context Low-Resource Language Learners",
+    "authors": "Cahyawijaya et al.",
+    "year": 2025,
+    "venue": "Preprint / Conference (HKUST, AI Singapore)",
+    "themes": [
+      "low-resource-nlp",
+      "in-context-learning",
+      "machine-translation"
+    ],
+    "summary_url": "litterature_review/summaries/cahyawijaya-et-al-2025-icl.md"
+  },
+  {
+    "id": "guo-et-al-2024-textbook-prompting",
+    "title": "Teaching Large Language Models to Translate on Low-Resource Languages with Textbook Prompting",
+    "authors": "Guo et al.",
+    "year": 2024,
+    "venue": "Preprint (Institute of Information Engineering, Chinese Academy of Sciences; Beijing Institute of Technology)",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "structured-prompting"
+    ],
+    "summary_url": "litterature_review/summaries/guo-et-al-2024-textbook-prompting.md"
+  },
+  {
+    "id": "krasner-et-al-2025-semantic-embeddings",
+    "title": "Machine Translation Metrics for Indigenous Languages Using Fine-tuned Semantic Embeddings",
+    "authors": "Krasner et al.",
+    "year": 2025,
+    "venue": "AmericasNLP 2025 Shared Task on Machine Translation Metrics for Indigenous Languages (George Mason University, NAIST, National Research Council Canada)",
+    "themes": [
+      "evaluation",
+      "machine-translation",
+      "low-resource-nlp"
+    ],
+    "summary_url": "litterature_review/summaries/krasner-et-al-2025-semantic-embeddings.md"
+  },
+  {
+    "id": "li-et-al-2025-icl",
+    "title": "It's All About In-Context Learning! Teaching Extremely Low-Resource Languages to LLMs",
+    "authors": "Li et al.",
+    "year": 2025,
+    "venue": "Preprint (University of Sheffield)",
+    "themes": [
+      "low-resource-nlp",
+      "in-context-learning",
+      "tokenization"
+    ],
+    "summary_url": "litterature_review/summaries/li-et-al-2025-icl.md"
+  },
+  {
+    "id": "lu-et-al-2024-chain-of-dictionary",
+    "title": "Chain-of-Dictionary Prompting Elicits Translation in Large Language Models",
+    "authors": "Lu et al.",
+    "year": 2024,
+    "venue": "Preprint (The Chinese University of Hong Kong, Microsoft Corporation)",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "in-context-learning"
+    ],
+    "summary_url": "litterature_review/summaries/lu-et-al-2024-chain-of-dictionary.md"
+  },
+  {
+    "id": "ma-et-al-2025-icl",
+    "title": "Exploring the Role of Transliteration in In-Context Learning for Low-Resource Languages Written in Non-Latin Scripts",
+    "authors": "Ma et al.",
+    "year": 2025,
+    "venue": "Preprint (Center for Information and Language Processing, LMU Munich; Munich Center for Machine Learning)",
+    "themes": [
+      "low-resource-nlp",
+      "in-context-learning",
+      "tokenization"
+    ],
+    "summary_url": "litterature_review/summaries/ma-et-al-2025-icl.md"
+  },
+  {
+    "id": "nguyen-et-al-2024-democratizing-llm",
+    "title": "Democratizing LLMs for Low-Resource Languages by Leveraging their English Dominant Abilities with Linguistically-Diverse Prompts",
+    "authors": "Nguyen et al.",
+    "year": 2024,
+    "venue": "Preprint (DAMO Academy, Alibaba Group; Nanyang Technological University)",
+    "themes": [
+      "low-resource-nlp",
+      "in-context-learning",
+      "machine-translation"
+    ],
+    "summary_url": "litterature_review/summaries/nguyen-et-al-2024-democratizing-llm.md"
+  },
+  {
+    "id": "yahan-and-islam-2025-fine-tuning",
+    "title": "Harnessing NLP for Indigenous Language Education: Fine-Tuning Large Language Models for Sentence Transformation",
+    "authors": "Yahan & Islam",
+    "year": 2025,
+    "venue": "AmericasNLP 2025 Shared Task 2 (Uttara University, Bangladesh)",
+    "themes": [
+      "low-resource-nlp",
+      "fine-tuning",
+      "language-revitalization"
+    ],
+    "summary_url": "litterature_review/summaries/yahan-and-islam-2025-fine-tuning.md"
+  },
+  {
+    "id": "zhang-et-al-2024-llm-unseen-language",
+    "title": "Teaching Large Language Models an Unseen Language on the Fly",
+    "authors": "Zhang et al.",
+    "year": 2024,
+    "venue": "Preprint (Peking University)",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "in-context-learning"
+    ],
+    "summary_url": "litterature_review/summaries/zhang-et-al-2024-llm-unseen-language.md"
+  },
+  {
+    "id": "brinklow-et-al-2019-reclamation",
+    "title": "Indigenous Language Technologies & Language Reclamation in Canada",
+    "authors": "Brinklow et al.",
+    "year": 2019,
+    "venue": "LREC 2019 Workshop on Computationally Assisted Language Documentation and Description (or associated NRC conference proceedings)",
+    "themes": [
+      "methodology",
+      "language-revitalization",
+      "data-sovereignty"
+    ],
+    "summary_url": "litterature_review/summaries/brinklow-et-al-2019-reclamation.md"
+  },
+  {
+    "id": "brinklow-2021-anti-colonial",
+    "title": "Indigenous Language Technologies: Anti-Colonial Oases in a Colonizing (Digital) World",
+    "authors": "Brinklow",
+    "year": 2021,
+    "venue": "WINHEC: International Journal of Indigenous Education Scholarship, 16(1), pp. 239–266 (Special Issue on Indigenous Language Revitalization)",
+    "themes": [
+      "methodology",
+      "language-revitalization",
+      "co-construction"
+    ],
+    "summary_url": "litterature_review/summaries/brinklow-2021-anti-colonial.md"
+  },
+  {
+    "id": "ajani-et-al-2024-revitalizing",
+    "title": "Revitalizing Indigenous Knowledge Systems via Digital Media Technologies",
+    "authors": "Ajani et al.",
+    "year": 2024,
+    "venue": "PDT&C — Preservation, Digital Technology & Culture, 53(1): 35–44 (De Gruyter)",
+    "themes": [
+      "language-revitalization",
+      "co-construction",
+      "digital-preservation"
+    ],
+    "summary_url": "litterature_review/summaries/ajani-et-al-2024-revitalizing.md"
+  },
+  {
+    "id": "alqahtani-et-al-2026-tokenizer",
+    "title": "Stop Taking Tokenizers for Granted: They Are Core Design Decisions in LLMs",
+    "authors": "Alqahtani et al.",
+    "year": 2026,
+    "venue": "EACL 2026 — 19th Conference of the European Chapter of the ACL, Long Papers, pages 8410–8432",
+    "themes": [
+      "tokenization",
+      "low-resource-nlp",
+      "fairness"
+    ],
+    "summary_url": "litterature_review/summaries/alqahtani-et-al-2026-tokenizer.md"
+  },
+  {
+    "id": "anik-et-al-2025-cultural-identity",
+    "title": "Preserving Cultural Identity with Context-Aware Translation Through Multi-Agent AI Systems",
+    "authors": "Anik et al.",
+    "year": 2025,
+    "venue": "LM4UC 2025 — 1st Workshop on Language Models for Underserved Communities (co-located with ACL 2025), pages 51–60",
+    "themes": [
+      "machine-translation",
+      "cultural-alignment",
+      "multi-agent"
+    ],
+    "summary_url": "litterature_review/summaries/anik-et-al-2025-cultural-identity.md"
+  },
+  {
+    "id": "arabzadeh-et-al-2025-ir-rag",
+    "title": "IR-RAG @SIGIR25: The Second Edition of the Workshop on Information Retrieval's Role in RAG Systems",
+    "authors": "Arabzadeh et al.",
+    "year": 2025,
+    "venue": "SIGIR 2025 — 48th International ACM SIGIR Conference, Workshop Description, pages 4168–4171",
+    "themes": [
+      "rag",
+      "information-retrieval",
+      "workshop"
+    ],
+    "summary_url": "litterature_review/summaries/arabzadeh-et-al-2025-ir-rag.md"
+  },
+  {
+    "id": "arnett-and-bergen-2025-morphologically-complex",
+    "title": "Why Do Language Models Perform Worse for Morphologically Complex Languages?",
+    "authors": "Arnett & Bergen",
+    "year": 2025,
+    "venue": "COLING 2025 — 31st International Conference on Computational Linguistics, pages 6607–6623",
+    "themes": [
+      "tokenization",
+      "morphology",
+      "low-resource-nlp"
+    ],
+    "summary_url": "litterature_review/summaries/arnett-and-bergen-2025-morphologically-complex.md"
+  },
+  {
+    "id": "arnett-et-al-2025-morphscore",
+    "title": "Evaluating Morphological Alignment of Tokenizers in 70 Languages",
+    "authors": "Arnett et al.",
+    "year": 2025,
+    "venue": "ICML 2025 Tokenization Workshop (TokShop), Vancouver, Canada",
+    "themes": [
+      "tokenization",
+      "evaluation",
+      "morphology"
+    ],
+    "summary_url": "litterature_review/summaries/arnett-et-al-2025-morphscore.md"
+  },
+  {
+    "id": "cadotte-et-al-2022-innu-aimmun",
+    "title": "Natural Language Processing for the Innu-Aimun Language",
+    "authors": "Cadotte et al.",
+    "year": 2022,
+    "venue": "Conference proceedings (computational linguistics / Indigenous language NLP)",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "polysynthetic"
+    ],
+    "summary_url": "litterature_review/summaries/cadotte-et-al-2022-innu-aimmun.md"
+  },
+  {
+    "id": "dehal-et-al-2025-knowledge-graph",
+    "title": "LLM-Knowledge Graph Integration: A Systematic Survey",
+    "authors": "Dehal et al.",
+    "year": 2025,
+    "venue": "Systematic review (Cape Breton University)",
+    "themes": [
+      "knowledge-graph",
+      "llm",
+      "rag"
+    ],
+    "summary_url": "litterature_review/summaries/dehal-et-al-2025-knowledge-graph.md"
+  },
+  {
+    "id": "dennison-et-al-2026-culturally-aligned",
+    "title": "LISTED: Community-Centered AI for Cultural Contexts",
+    "authors": "Dennison et al.",
+    "year": 2026,
+    "venue": "CHI 2026 (ACM Conference on Human Factors in Computing Systems)",
+    "themes": [
+      "methodology",
+      "co-construction",
+      "evaluation"
+    ],
+    "summary_url": "litterature_review/summaries/dennison-et-al-2026-culturally-aligned.md"
+  },
+  {
+    "id": "godwin-jones-2025-ai-pedagogical-tools",
+    "title": "AI as Pedagogical Tools for Less Commonly Taught Languages",
+    "authors": "Godwin-Jones",
+    "year": 2025,
+    "venue": "Language Learning & Technology (or similar applied linguistics journal)",
+    "themes": [
+      "language-revitalization",
+      "pedagogy",
+      "low-resource-nlp"
+    ],
+    "summary_url": "litterature_review/summaries/godwin-jones-2025-ai-pedagogical-tools.md"
+  },
+  {
+    "id": "goldman-et-al-2024-tokenizer",
+    "title": "Tokenization Compression as Predictor of Downstream Performance",
+    "authors": "Goldman et al.",
+    "year": 2024,
+    "venue": "ACL 2024 Findings",
+    "themes": [
+      "tokenization",
+      "compression",
+      "evaluation"
+    ],
+    "summary_url": "litterature_review/summaries/goldman-et-al-2024-tokenizer.md"
+  },
+  {
+    "id": "han-et-al-2026-rag-vs-graphrag",
+    "title": "RAG vs. GraphRAG: A Systematic Evaluation and Hybrid Approach",
+    "authors": "Han et al.",
+    "year": 2026,
+    "venue": "Preprint / conference proceedings (AI / NLP)",
+    "themes": [
+      "rag",
+      "knowledge-graph",
+      "evaluation"
+    ],
+    "summary_url": "litterature_review/summaries/han-et-al-2026-rag-vs-graphrag.md"
+  },
+  {
+    "id": "herrera-et-al-2022-revitalisation",
+    "title": "Technology, Identity, and Indigenous Language Revitalization",
+    "authors": "Herrera et al.",
+    "year": 2022,
+    "venue": "Journal of Global Indigeneity, Vol. 6, No. 1",
+    "themes": [
+      "language-revitalization",
+      "methodology",
+      "identity"
+    ],
+    "summary_url": "litterature_review/summaries/herrera-et-al-2022-revitalisation.md"
+  },
+  {
+    "id": "hutson-et-al-2024-linguistic-diversity",
+    "title": "AI, Linguistic Diversity, and the Digital Divide",
+    "authors": "Hutson et al.",
+    "year": 2024,
+    "venue": "Journal of Contemporary Language Research, Vol. 3, No. 1",
+    "themes": [
+      "language-revitalization",
+      "low-resource-nlp",
+      "representation"
+    ],
+    "summary_url": "litterature_review/summaries/hutson-et-al-2024-linguistic-diversity.md"
+  },
+  {
+    "id": "junker-2024-extraction",
+    "title": "Data Extraction and the AI Gold Rush on Algonquian Languages",
+    "authors": "Junker",
+    "year": 2024,
+    "venue": "Proceedings of the Seventh Workshop on the Use of Computational Methods in the Study of Endangered Languages (ComputEL-7), ACL 2024",
+    "themes": [
+      "data-sovereignty",
+      "methodology",
+      "co-construction"
+    ],
+    "summary_url": "litterature_review/summaries/junker-2024-extraction.md"
+  },
+  {
+    "id": "kann-et-al-2018-polysynthetic",
+    "title": "Morphological Analysis of Polysynthetic Languages via Multi-task Learning",
+    "authors": "Kann et al.",
+    "year": 2018,
+    "venue": "NAACL-HLT 2018",
+    "themes": [
+      "low-resource-nlp",
+      "morphology",
+      "polysynthetic"
+    ],
+    "summary_url": "litterature_review/summaries/kann-et-al-2018-polysynthetic.md"
+  },
+  {
+    "id": "khandagale-et-al-2022-polysynthetic",
+    "title": "Unsupervised Morphological Segmentation for Polysynthetic Languages",
+    "authors": "Khandagale et al.",
+    "year": 2022,
+    "venue": "AACL-IJCNLP 2022 (Short Papers)",
+    "themes": [
+      "low-resource-nlp",
+      "morphology",
+      "polysynthetic"
+    ],
+    "summary_url": "litterature_review/summaries/khandagale-et-al-2022-polysynthetic.md"
+  },
+  {
+    "id": "kuhn-et-al-2020-nrc-canada",
+    "title": "NRC Canada Indigenous Language Technology: Phase I",
+    "authors": "Kuhn et al.",
+    "year": 2020,
+    "venue": "COLING 2020 (Proceedings of the 28th International Conference on Computational Linguistics)",
+    "themes": [
+      "language-revitalization",
+      "low-resource-nlp",
+      "co-construction"
+    ],
+    "summary_url": "litterature_review/summaries/kuhn-et-al-2020-nrc-canada.md"
+  },
+  {
+    "id": "le-and-sadat-2021-canada",
+    "title": "NMT for Inuktitut and Inuinnaqtun with Morphological Segmentation",
+    "authors": "Le & Sadat",
+    "year": 2021,
+    "venue": "TAL (Traitement Automatique des Langues), Vol. 62, No. 3",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "morphology"
+    ],
+    "summary_url": "litterature_review/summaries/le-and-sadat-2021-canada.md"
+  },
+  {
+    "id": "le-et-al-2022-innu-aimun",
+    "title": "Deep Learning Morphological Segmentation for Innu-Aimun",
+    "authors": "Le et al.",
+    "year": 2022,
+    "venue": "Third Workshop on Deep Learning for Low-Resource NLP (ACL 2022)",
+    "themes": [
+      "low-resource-nlp",
+      "morphology",
+      "polysynthetic"
+    ],
+    "summary_url": "litterature_review/summaries/le-et-al-2022-innu-aimun.md"
+  },
+  {
+    "id": "liu-et-al-2021-morphological-segmentation",
+    "title": "Morphological Segmentation for Seneca (Iroquoian)",
+    "authors": "Liu et al.",
+    "year": 2021,
+    "venue": "First Workshop on NLP for Indigenous Languages of the Americas (AmericasNLP 2021), ACL",
+    "themes": [
+      "low-resource-nlp",
+      "morphology",
+      "polysynthetic"
+    ],
+    "summary_url": "litterature_review/summaries/liu-et-al-2021-morphological-segmentation.md"
+  },
+  {
+    "id": "mager-et-al-2022-bpe-polysynthetic",
+    "title": "BPE vs. Morphological Segmentation for Polysynthetic NMT",
+    "authors": "Mager et al.",
+    "year": 2022,
+    "venue": "Findings of ACL 2022",
+    "themes": [
+      "tokenization",
+      "morphology",
+      "polysynthetic"
+    ],
+    "summary_url": "litterature_review/summaries/mager-et-al-2022-bpe-polysynthetic.md"
+  },
+  {
+    "id": "mager-et-al-2023-americas",
+    "title": "NMT for Indigenous Languages of the Americas: A Survey",
+    "authors": "Mager et al.",
+    "year": 2023,
+    "venue": "AmericasNLP Workshop, ACL 2023",
+    "themes": [
+      "low-resource-nlp",
+      "machine-translation",
+      "polysynthetic"
+    ],
+    "summary_url": "litterature_review/summaries/mager-et-al-2023-americas.md"
+  },
+  {
+    "id": "mcgiff-and-nikolov-2025-low-resource",
+    "title": "Data Scarcity Strategies for Low-Resource Language Generative Modelling",
+    "authors": "McGiff & Nikolov",
+    "year": 2025,
+    "venue": "arXiv preprint (University of Limerick, Ireland)",
+    "themes": [
+      "low-resource-nlp",
+      "data-augmentation",
+      "machine-translation"
+    ],
+    "summary_url": "litterature_review/summaries/mcgiff-and-nikolov-2025-low-resource.md"
+  },
+  {
+    "id": "mei-et-al-2025-context-engineering-survey",
+    "title": "Context Engineering: A Survey",
+    "authors": "Mei et al.",
+    "year": 2025,
+    "venue": "arXiv preprint (Institute of Computing Technology, Chinese Academy of Sciences; July 2025)",
+    "themes": [
+      "rag",
+      "in-context-learning",
+      "survey"
+    ],
+    "summary_url": "litterature_review/summaries/mei-et-al-2025-context-engineering-survey.md"
+  },
+  {
+    "id": "meighan-2021-decolonizing",
+    "title": "Decolonizing Indigenous Language Technologies",
+    "authors": "Meighan",
+    "year": 2021,
+    "venue": "AlterNative: An International Journal of Indigenous Peoples, Vol. 17(3)",
+    "themes": [
+      "methodology",
+      "language-revitalization",
+      "co-construction"
+    ],
+    "summary_url": "litterature_review/summaries/meighan-2021-decolonizing.md"
+  },
+  {
+    "id": "ngoc-et-al-2021-inuinnaqtun",
+    "title": "Unsupervised Morphological Segmentation for Inuinnaqtun",
+    "authors": "Ngoc et al.",
+    "year": 2021,
+    "venue": "First Workshop on NLP for Indigenous Languages of the Americas (AmericasNLP 2021), ACL",
+    "themes": [
+      "low-resource-nlp",
+      "morphology",
+      "polysynthetic"
+    ],
+    "summary_url": "litterature_review/summaries/ngoc-et-al-2021-inuinnaqtun.md"
+  },
+  {
+    "id": "peng-et-al-2025-graphrag-survey",
+    "title": "GraphRAG: A Survey on Graph-Retrieval-Augmented Generation",
+    "authors": "Peng et al.",
+    "year": 2025,
+    "venue": "ACM Transactions on Information Systems, Vol. 44, No. 2 (December 2025)",
+    "themes": [
+      "rag",
+      "knowledge-graph",
+      "survey"
+    ],
+    "summary_url": "litterature_review/summaries/peng-et-al-2025-graphrag-survey.md"
+  },
+  {
+    "id": "pinhanez-and-wornyo-2025-co-development",
+    "title": "Ethical Co-Development of AI Applications with Indigenous Communities",
+    "authors": "Pinhanez & Wornyo",
+    "year": 2025,
+    "venue": "Extended Abstracts of CHI 2025 (Course description)",
+    "themes": [
+      "methodology",
+      "co-construction",
+      "data-sovereignty"
+    ],
+    "summary_url": "litterature_review/summaries/pinhanez-and-wornyo-2025-co-development.md"
+  },
+  {
+    "id": "pinhanez-et-al-2024-vitalize",
+    "title": "Harnessing AI to Vitalize Endangered Indigenous Languages",
+    "authors": "Pinhanez et al.",
+    "year": 2024,
+    "venue": "arXiv preprint (IBM Research Brazil + University of São Paulo, July 2024)",
+    "themes": [
+      "language-revitalization",
+      "low-resource-nlp",
+      "fine-tuning"
+    ],
+    "summary_url": "litterature_review/summaries/pinhanez-et-al-2024-vitalize.md"
+  },
+  {
+    "id": "poelman-et-al-2025-morphology",
+    "title": "Confounding Factors in Relating Model Performance to Morphology",
+    "authors": "Poelman et al.",
+    "year": 2025,
+    "venue": "EMNLP 2025 (KU Leuven)",
+    "themes": [
+      "tokenization",
+      "morphology",
+      "evaluation"
+    ],
+    "summary_url": "litterature_review/summaries/poelman-et-al-2025-morphology.md"
+  },
+  {
+    "id": "salemi-and-zamani-2024-rag-evaluation",
+    "title": "Evaluating Retrieval Quality in Retrieval-Augmented Generation",
+    "authors": "Salemi & Zamani",
+    "year": 2024,
+    "venue": "SIGIR 2024 (University of Massachusetts Amherst)",
+    "themes": [
+      "rag",
+      "evaluation",
+      "information-retrieval"
+    ],
+    "summary_url": "litterature_review/summaries/salemi-and-zamani-2024-rag-evaluation.md"
+  },
+  {
+    "id": "schmidt-et-al-2024-tokenizatioon",
+    "title": "Tokenization Is More Than Compression",
+    "authors": "Schmidt et al.",
+    "year": 2024,
+    "venue": "EMNLP 2024 (Kensho Technologies, Harvard, Ben-Gurion University, MIT)",
+    "themes": [
+      "tokenization",
+      "evaluation",
+      "compression"
+    ],
+    "summary_url": "litterature_review/summaries/schmidt-et-al-2024-tokenizatioon.md"
+  },
+  {
+    "id": "stenlund-et-al-2025-inuktitut",
+    "title": "LLM-Based Morphological Segmentation for Inuktitut Syllabics",
+    "authors": "Stenlund et al.",
+    "year": 2025,
+    "venue": "NoDaLiDa 2025 (University of Iceland)",
+    "themes": [
+      "low-resource-nlp",
+      "morphology",
+      "polysynthetic"
+    ],
+    "summary_url": "litterature_review/summaries/stenlund-et-al-2025-inuktitut.md"
+  },
+  {
+    "id": "tonja-et-al-2024-latin-american",
+    "title": "NLP for Indigenous Latin American Languages: A Survey",
+    "authors": "Tonja et al.",
+    "year": 2024,
+    "venue": "NAACL 2024",
+    "themes": [
+      "low-resource-nlp",
+      "survey",
+      "indigenous"
+    ],
+    "summary_url": "litterature_review/summaries/tonja-et-al-2024-latin-american.md"
+  },
+  {
+    "id": "uemura-et-al-2024-afriinstruct",
+    "title": "AfriInstruct: Instruction Tuning of LLMs for African Languages",
+    "authors": "Uemura et al.",
+    "year": 2024,
+    "venue": "EMNLP Findings 2024",
+    "themes": [
+      "low-resource-nlp",
+      "fine-tuning",
+      "multilingual"
+    ],
+    "summary_url": "litterature_review/summaries/uemura-et-al-2024-afriinstruct.md"
+  },
+  {
+    "id": "uemura-et-al-2026-merlin",
+    "title": "MERLIN: Cross-Lingual Reasoning in Low-Resource Languages",
+    "authors": "Uemura et al.",
+    "year": 2026,
+    "venue": "EACL 2026",
+    "themes": [
+      "low-resource-nlp",
+      "fine-tuning",
+      "cross-lingual"
+    ],
+    "summary_url": "litterature_review/summaries/uemura-et-al-2026-merlin.md"
+  },
+  {
+    "id": "vasques-et-al-2023-bpe-compression",
+    "title": "BPE Compression and Morphological Typology",
+    "authors": "Vasques et al.",
+    "year": 2023,
+    "venue": "Computational Linguistics 2023",
+    "themes": [
+      "tokenization",
+      "morphology",
+      "typology"
+    ],
+    "summary_url": "litterature_review/summaries/vasques-et-al-2023-bpe-compression.md"
+  },
+  {
+    "id": "wang-et-al-2024-r3ag",
+    "title": "R3AG: First Workshop on Refined and Reliable RAG",
+    "authors": "Wang et al.",
+    "year": 2024,
+    "venue": "SIGIR-AP 2024 (University of Amsterdam, University of Glasgow, University of Tsukuba, Tsinghua University, Leiden University, Shandong University)",
+    "themes": [
+      "rag",
+      "workshop",
+      "evaluation"
+    ],
+    "summary_url": "litterature_review/summaries/wang-et-al-2024-r3ag.md"
+  },
+  {
+    "id": "wang-et-al-2025-chain-of-retrieval",
+    "title": "CoRAG: Chain-of-Retrieval Augmented Generation",
+    "authors": "Wang et al.",
+    "year": 2025,
+    "venue": "NeurIPS 2025 (Microsoft Research + Renmin University of China)",
+    "themes": [
+      "rag",
+      "multi-step-reasoning",
+      "fine-tuning"
+    ],
+    "summary_url": "litterature_review/summaries/wang-et-al-2025-chain-of-retrieval.md"
+  },
+  {
+    "id": "yu-et-al-2025-r3ag",
+    "title": "R3AG 2025: Second Workshop on Refined and Reliable RAG",
+    "authors": "Yu et al.",
+    "year": 2025,
+    "venue": "SIGIR-AP 2025 (University of Tsukuba, Shandong University, University of Glasgow, University of Amsterdam, Leiden University, Tsinghua University)",
+    "themes": [
+      "rag",
+      "workshop",
+      "evaluation"
+    ],
+    "summary_url": "litterature_review/summaries/yu-et-al-2025-r3ag.md"
+  },
+  {
+    "id": "yu-et-al-2026-afriquellm",
+    "title": "AfriqueLLM: CPT for African Languages",
+    "authors": "Yu et al.",
+    "year": 2026,
+    "venue": "arXiv 2026 (McGill University + Mila-Quebec AI Institute + LMU Munich + Microsoft AI for Good)",
+    "themes": [
+      "low-resource-nlp",
+      "fine-tuning",
+      "data-mixture"
+    ],
+    "summary_url": "litterature_review/summaries/yu-et-al-2026-afriquellm.md"
+  }
+]
