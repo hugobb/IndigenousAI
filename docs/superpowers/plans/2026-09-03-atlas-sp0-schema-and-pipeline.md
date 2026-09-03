@@ -81,9 +81,13 @@ this file, pnpm's pre-script dependency check re-runs `install`, hits
 fails on every task. esbuild is vitest's bundler; approve nothing else.
 
 ```yaml
-onlyBuiltDependencies:
-  - esbuild
+allowBuilds:
+  esbuild: true
 ```
+
+Note the spelling: pnpm 11 uses `allowBuilds` (a map of package to boolean).
+`onlyBuiltDependencies` (a list) is the pnpm 10 form and is silently ignored by
+pnpm 11 — the install appears to succeed and `pnpm test` still fails.
 
 `atlas/tsconfig.json`:
 ```json
