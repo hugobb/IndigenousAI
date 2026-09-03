@@ -1880,29 +1880,33 @@ cd .. && git add atlas && git commit -m "feat(atlas): seed draft Language record
 
 ---
 
-### Task 10: Bundle, hand-verified seed set, green pipeline
+### Task 10: Bundler, gate proof, and the review queue
 
-Closes SP0. Delivers `bundle.ts`, a small hand-verified dataset that exercises every code path, and a passing end-to-end run — plus the gate's mutation test, which belongs here because it needs a real verified record to mutate.
+**Scope revised 2026-09-03.** The spec says SP0 is done when the pipeline is green against a *hand-verified*
+seed set, and decision D9's whole point is that promoting a record from `draft` to `verified` is **human**
+review. A subagent stamping `verified` on records about real Indigenous organisations would hollow out the
+exact guarantee this artifact sells. So this task delivers the pipeline and a populated review queue; the
+promotion pass belongs to the maintainer.
 
 **Files:**
 - Create: `atlas/scripts/bundle.ts`
-- Create: `atlas/src/data/.gitkeep`
-- Create: `atlas/data/languages/*.yml` (5 hand-verified), `atlas/data/initiatives/*.yml` (5 hand-verified)
-- Test: `atlas/tests/gate.test.ts`
+- Create: `atlas/tests/fixtures/records/languages/*.yml`, `atlas/tests/fixtures/records/initiatives/*.yml`
+- Create: `atlas/tests/gate.test.ts`
+- Create: `atlas/data/languages/*.yml` (5, all `status: draft`), `atlas/data/initiatives/*.yml` (5, all `status: draft`)
 
 **Interfaces:**
 - Consumes: everything above.
-- Produces: `src/data/atlas.json` shaped `{ generated: string; languages: Language[]; initiatives: Initiative[]; methods: Method[]; papers: Paper[] }` — the single file SP1's app imports.
+- Produces: `src/data/atlas.json` shaped `{ generated, languages, initiatives, methods, papers }` — the single file SP1's app imports.
 
 - [ ] **Step 1: Write the bundler**
 
 `atlas/scripts/bundle.ts`:
+
 ```ts
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { loadInitiatives, loadLanguages } from './lib/load-records.js'
-
 import type { Method, Paper } from '../src/schema/index.js'
+import { loadInitiatives, loadLanguages } from './lib/load-records.js'
 
 const url = (p: string): string => fileURLToPath(new URL(p, import.meta.url))
 const readJson = <T>(p: string): T => JSON.parse(readFileSync(url(p), 'utf8')) as T
@@ -1923,137 +1927,187 @@ console.log(
 )
 ```
 
-- [ ] **Step 2: Hand-verify five languages and five initiatives**
+- [ ] **Step 2: Create fixture records the gate test can own**
 
-This is research, not typing. For each record, read the initiative's own public materials, fill every field you can support, leave the rest null, and cite each claim.
+The gate's mutation test needs **verified** records to demote. The real `data/` directories will hold only
+drafts (Step 4), so the test operates on its own fixtures copied to a temp directory. Create two files.
 
-The five must together exercise every code path: **at least one adjacent-tier initiative** (so `transferability` is exercised), **at least one adjacent-tier language** (so the D5 no-area rule is exercised), and **at least one indigenous language with `area.present: false`** (so the "not mapped" path is exercised).
+`atlas/tests/fixtures/records/languages/testlang.yml`:
+```yaml
+id: testlang
+name: Test Language
+also_known_as: []
+glottocode: null
+iso639_3: null
+tier: indigenous
+family: Test Family
+subfamily: null
+typology: [polysynthetic]
+endangerment: null
+speakers: null
+region: north-america
+countries: [CA]
+centre: null
+status: verified
+```
 
-Suggested set, all named in the brainstorm or already in the corpus:
-
-| Record | Tier | Exercises |
-| --- | --- | --- |
-| `te-hiku-media` (initiative) + `te-reo-maori` | indigenous | governance: community-controlled, a real licence |
-| `onkwawenna-kentyohkwa` (initiative) + `kanienkeha` | indigenous | the project's own focus language |
-| `myaamia-center` (initiative) + `myaamia` | indigenous | TTS; profile already drafted in `Draft.md` |
-| `americasnlp` (initiative, shared-task) + `choctaw` | indigenous | multi-language initiative; speaker-count conflict; **`area.present: false`** |
-| `masakhane` (initiative) + `amharic` | **adjacent** | **`transferability` required; language must carry no area** |
-
-Set `status: verified` only on records you have actually checked. Anything else stays `draft`.
+`atlas/tests/fixtures/records/initiatives/testinit.yml`:
+```yaml
+id: testinit
+name: Test Initiative
+kind: project
+tier: indigenous
+languages: [testlang]
+started: 2020
+ended: null
+site:
+  lat: 45.5
+  lon: -73.6
+  place: Test Place
+  source: {kind: doc, ref: fixture, retrieved: null, quote: null}
+applications: [mt]
+methods: []
+models: []
+data_regime: null
+governance: null
+papers: []
+links: []
+transferability: null
+status: verified
+```
 
 - [ ] **Step 3: Write the gate mutation test**
 
-This is the test the spec calls for by name. It mutates a **real** record on disk, asserts the gate rejects it, and restores it — proving the gate consumes `status`, not merely that a fixture parses.
+This is the test the spec calls for by name. It mutates the **production value** — the `status` field a real
+loader reads from a real YAML file — not a constant, and not a hand-built object.
 
 `atlas/tests/gate.test.ts`:
 ```ts
 import { afterEach, describe, expect, it } from 'vitest'
-import { copyFileSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import yaml from 'js-yaml'
 import { validate } from '../scripts/validate.js'
-import { loadInitiatives, loadLanguages } from '../scripts/lib/load-records.js'
+import { findStrayFiles, loadInitiatives, loadLanguages } from '../scripts/lib/load-records.js'
 
+const FIXTURES = fileURLToPath(new URL('./fixtures/records', import.meta.url))
 const url = (p: string): string => fileURLToPath(new URL(p, import.meta.url))
-const LANG_DIR = url('../data/languages')
 const readIds = (p: string): Set<string> =>
   new Set((JSON.parse(readFileSync(url(p), 'utf8')) as { id: string }[]).map((x) => x.id))
 
-const input = () => ({
-  languages: loadLanguages(LANG_DIR),
-  initiatives: loadInitiatives(url('../data/initiatives')),
-  methodIds: readIds('../data/derived/methods.json'),
-  paperIds: readIds('../data/derived/papers.json'),
-})
+let dir: string | null = null
 
-let backup: string | null = null
-let target: string | null = null
+function stage(): string {
+  dir = mkdtempSync(join(tmpdir(), 'atlas-gate-'))
+  cpSync(FIXTURES, dir, { recursive: true })
+  return dir
+}
+
+function inputFrom(d: string) {
+  return {
+    languages: loadLanguages(join(d, 'languages')),
+    initiatives: loadInitiatives(join(d, 'initiatives')),
+    methodIds: readIds('../data/derived/methods.json'),
+    paperIds: readIds('../data/derived/papers.json'),
+    strayFiles: [...findStrayFiles(join(d, 'languages')), ...findStrayFiles(join(d, 'initiatives'))],
+  }
+}
 
 afterEach(() => {
-  if (backup && target) {
-    copyFileSync(backup, target)
-    rmSync(backup)
-    backup = null
-    target = null
-  }
+  if (dir) rmSync(dir, { recursive: true, force: true })
+  dir = null
 })
 
-describe('the build gate, against the real dataset', () => {
-  it('passes on the committed dataset', () => {
-    expect(validate(input())).toEqual([])
+describe('the build gate, against real YAML records on disk', () => {
+  it('passes on a verified dataset loaded from disk', () => {
+    expect(validate(inputFrom(stage()))).toEqual([])
   })
 
-  it('fails when a real verified record is demoted to draft', () => {
-    const file = readdirSync(LANG_DIR).find((f) => f.endsWith('.yml'))
-    expect(file, 'no language records — Task 10 Step 2 is incomplete').toBeDefined()
+  it('fails when a real verified record on disk is demoted to draft', () => {
+    const d = stage()
+    const file = join(d, 'languages', 'testlang.yml')
+    const record = yaml.load(readFileSync(file, 'utf8')) as Record<string, unknown>
+    expect(record['status'], 'fixture must start verified or this proves nothing').toBe('verified')
 
-    target = join(LANG_DIR, file!)
-    backup = `${target}.bak`
-    copyFileSync(target, backup)
-
-    const record = yaml.load(readFileSync(target, 'utf8')) as Record<string, unknown>
-    expect(record['status'], 'the chosen record was not verified to begin with').toBe('verified')
-
-    // Mutate the PRODUCTION value, not a copy: this is what proves the gate
-    // reads status rather than merely that a fixture parses.
+    // Mutate the PRODUCTION value the loader actually reads.
     record['status'] = 'draft'
-    writeFileSync(target, yaml.dump(record))
+    writeFileSync(file, yaml.dump(record))
 
-    const problems = validate(input())
-    expect(problems.length).toBeGreaterThan(0)
-    expect(problems.some((p) => p.includes('draft'))).toBe(true)
+    const problems = validate(inputFrom(d))
+    expect(problems.some((p) => p.includes('draft') && p.includes('testlang'))).toBe(true)
   })
 
-  it('restores cleanly', () => {
-    // The mutated record is whichever sorts first, so assert on the class of
-    // leftovers rather than on one filename.
-    expect(readdirSync(LANG_DIR).filter((f) => f.endsWith('.bak'))).toEqual([])
-    expect(validate(input())).toEqual([])
+  it('fails when a stray file is dropped into a record directory', () => {
+    const d = stage()
+    writeFileSync(join(d, 'languages', 'notes.txt'), 'scratch')
+    expect(validate(inputFrom(d)).some((p) => p.includes('notes.txt'))).toBe(true)
   })
 })
 ```
 
-- [ ] **Step 4: Run the whole pipeline green**
+- [ ] **Step 4: Run the tests**
+
+Run: `pnpm test`
+Expected: **55** tests pass (52 before, plus these 3). Typecheck clean.
+
+- [ ] **Step 5: Research and write the review queue**
+
+Ten records — 5 languages, 5 initiatives — researched from each initiative's **own public materials**, with
+a `source` on every claim. **Every one gets `status: draft`.** You are populating a review queue, not
+certifying anything: a human promotes these, and the gate exists to make sure that happens.
+
+The set must exercise every code path: at least one adjacent-tier initiative (so `transferability` is
+required), at least one adjacent-tier language (which must carry **no** `centre`, per D5), and at least one
+Indigenous language with `centre: null` (the "not mapped" case).
+
+| Record | Tier | Exercises |
+| --- | --- | --- |
+| `te-hiku-media` + `te-reo-maori` | indigenous | community-controlled governance, a real licence |
+| `onkwawenna-kentyohkwa` + `kanienkeha` | indigenous | the project's own focus language |
+| `myaamia-center` + `myaamia` | indigenous | TTS; profile partly drafted in the review paper |
+| `americasnlp` + `choctaw` | indigenous | multi-language initiative; speaker-count conflict; **`centre: null`** |
+| `masakhane` + `amharic` | **adjacent** | **`transferability` required; language carries no `centre`** |
+
+Rules for this step, and they matter more than completeness:
+- **Never invent a value to make a record look finished.** Unknown is `null`. A fabricated speaker count or
+  coordinate in a research artifact is worse than an absent one.
+- Where sources disagree (Choctaw speakers are recorded as both 9,600 and 1,000), record the first in
+  `speakers.value` and the rest in `speakers.conflicts` — the schema keeps disagreement rather than resolving it.
+- `site` coordinates are the initiative's **own stated** location, from its own materials. We site the people
+  doing the work, never the language.
+- `centre`, where present, is an approximate centre from Glottolog (CC-BY-4.0) — never a territory or boundary.
+- `methods` and `papers` entries must resolve against `data/derived/methods.json` and `papers.json`, or the
+  gate rejects them. Leave the arrays empty rather than guessing an id.
+
+- [ ] **Step 6: Prove the gate holds**
 
 ```bash
-export PATH="$HOME/.nvm/versions/node/v22.22.2/bin:$PATH"
-cd atlas
-pnpm build:data
+pnpm build:data; echo "exit=$?"
 ```
-Expected, in order:
-```
-extract-methods: 39 methods -> data/derived/methods.json
-extract-papers: 92 papers -> data/derived/papers.json
-validate: ok
-bundle: 5 languages, 5 initiatives, 39 methods, 92 papers -> src/data/atlas.json
-```
+Expected: `extract-methods: 39 …`, `extract-papers: 92 …`, then `validate` **exits 1** listing all 10 drafts.
 
-If `validate` exits 1, read the list: every line names a record and what is wrong with it. Records you have not reviewed should be `status: draft` and are *supposed* to block — either review them or mark them `rejected`. Do not weaken the gate to get a green run.
+**That failure is this step's deliverable.** It demonstrates the gate refusing to ship unreviewed records —
+the property the whole artifact rests on. Do not promote records to make it pass.
 
-- [ ] **Step 5: Run the full suite and typecheck**
-
-Run: `pnpm test && pnpm typecheck`
-Expected: all tests PASS (vocab 3, source 5, data-regime 7, schema 10, extract-methods 8, extract-papers 7, validate 8, seed 6, gate 3 = 57), typecheck clean.
-
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-cd .. && git add atlas && git commit -m "feat(atlas): bundler, hand-verified seed set, and the gate mutation test
+cd .. && git add atlas && git commit -m "feat(atlas): bundler, gate mutation test, and the review queue
 
-Closes SP0. The pipeline runs green against 5 verified languages and 5 verified
-initiatives spanning both tiers; every remaining record sits in the review queue
-as a draft, which the gate refuses to ship."
+Ten researched records land as status: draft. build:data correctly exits 1
+and lists them: the gate refusing to ship unreviewed records is the property
+this artifact rests on. Promotion to verified is human review, per D9."
 ```
-
----
 
 ## Done when
 
-- `pnpm build:data` exits 0 and writes `src/data/atlas.json`.
-- `pnpm test` and `pnpm typecheck` are green.
-- Five languages and five initiatives are `verified`, covering both tiers, a `transferability` note, a speaker-count conflict, and one `area.present: false`.
-- Every other seeded record is `draft` and visibly blocks the build.
+- `pnpm test` (55) and `pnpm typecheck` are green.
+- The gate mutation test demotes a real on-disk record and proves the gate catches it.
+- Ten researched records sit in the queue at `status: draft`, covering both tiers, a `transferability` note, a speaker-count conflict, and one `centre: null`.
+- `pnpm build:data` exits 1 and lists them. **This is success, not failure** — the gate is refusing to ship unreviewed records.
+- SP0 completes when the maintainer promotes those records; `pnpm build:data` then exits 0 and writes `src/data/atlas.json`.
 
 ## Explicitly NOT in SP0
 
