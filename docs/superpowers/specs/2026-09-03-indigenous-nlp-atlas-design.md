@@ -141,10 +141,10 @@ status: verified
   (requires a dictionary and monolingual corpus)"*). `extract-methods.ts` therefore maps each doc onto a small
   controlled ladder, retaining the original prose as `data_regime_note`.
 
-  An audit of the 39 docs (2026-09-03) found **26 distinct prose values**, which forces three corrections to
+  An audit of the 39 docs (2026-09-03) found **25 distinct prose values**, which forces three corrections to
   the naive ladder:
 
-  - The ladder is `any · zero · <1k · 1k-10k · 10k+`. `any` is needed: 11 of the 26 values read
+  - The ladder is `any · zero · <1k · 1k-10k · 10k+`. `any` is needed: 13 of the 25 values read
     *"any (applies before any technical decision is made)"* and similar — most process techniques genuinely
     have no data regime, and coercing them into `zero` would be false.
   - `Method.data_regime` is a **set** of buckets, not one value. Several docs span a range
