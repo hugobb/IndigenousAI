@@ -139,11 +139,29 @@ status: verified
   `{id, name, category, data_regime, applicable_languages, doc_url}`. Controlled vocabulary for `Initiative.methods`.
   The docs' `Data Regime` field is prose, not a vocabulary (e.g. *"zero-resource to <1K parallel sentences
   (requires a dictionary and monolingual corpus)"*). `extract-methods.ts` therefore maps each doc onto a small
-  controlled ladder — `zero` · `<1k` · `1k-10k` · `10k+` — retaining the original prose as `data_regime_note`.
-  The mapping table is committed and reviewable; a doc that cannot be mapped fails the build rather than
-  defaulting to a bucket.
-- **`Paper`** — parsed from the `OVERVIEW.md` index table plus summary headers:
-  `{id, title, authors, year, venue, themes, summary_url}`.
+  controlled ladder, retaining the original prose as `data_regime_note`.
+
+  An audit of the 39 docs (2026-09-03) found **26 distinct prose values**, which forces three corrections to
+  the naive ladder:
+
+  - The ladder is `any · zero · <1k · 1k-10k · 10k+`. `any` is needed: 11 of the 26 values read
+    *"any (applies before any technical decision is made)"* and similar — most process techniques genuinely
+    have no data regime, and coercing them into `zero` would be false.
+  - `Method.data_regime` is a **set** of buckets, not one value. Several docs span a range
+    (*"&lt;1K sentences / 1K–10K sentences"* → `["<1k", "1k-10k"]`). `Initiative.data_regime` stays single-valued.
+  - The docs contain literal HTML entities (`&lt;`) left over from the Docusaurus scaffold, so the parser must
+    decode entities before matching.
+
+  The mapping table is committed and reviewable. **Unmappable prose fails the build**; a *missing* `Data Regime`
+  line resolves to `["any"]` with a build warning — `task-appropriate-data-selection.md` is the one such doc,
+  and it should not redden the build on day one.
+- **`Paper`** — `{id, title, authors, year, venue, themes, summary_url}`. **`OVERVIEW.md`'s index table is the
+  authoritative source**: it carries all 92 rows with title, authors, year, themes and summary link. Summary
+  headers only supply `venue`, and are secondary because they are not uniform — 87 use
+  `**Authors:** / **Year:** / **Venue:**`, while 5 use a single APA `**Citation:**` line
+  (`monazzah-2025-percurl`, `pawar-2025-cultural-awareness-llm`, `qadri-2025-cultural-representation-ai`,
+  `rai-and-pal-2025-amharic`, `sadr-et-al-2025-taarof`). The parser handles both forms and leaves `venue`
+  null rather than guessing.
 `Language` records exist for both tiers, because adjacent initiatives reference languages such as Manchu and
 Amharic. Per D5, a `tier: adjacent` language never carries an `area` — the gate enforces this, so an adjacent
 language cannot acquire a field by accident.
@@ -167,6 +185,8 @@ regenerable from the markdown at any time and is never edited by hand.
    `data/language-areas.geojson`. Committed; re-run deliberately, not per build.
 4. **`sample-fields.ts`** — sample each polygon into a weighted point grid clipped to its shape, for the
    heatmap render (see §6). Grid spacing scales with polygon area, with a hard point cap.
+   **SP1, not SP0** — its output shape depends on the outcome of the feathering spike, so building it now
+   would be guessing. SP0 delivers the polygons; SP1 decides what to do with them.
 5. **`validate.ts`** — the gate (§5.1).
 6. **`bundle.ts`** — emit `src/data/atlas.json` for the app.
 
@@ -269,6 +289,13 @@ IndigenousAI/
   `AGENTS.md` and `docs/README.md`.
 
 SP1 gets its spec written against real data rather than imagined data, once SP0 lands.
+
+## 9a. Toolchain note
+
+The repo is Python/mkdocs today and has no Node tooling. `node`, `npm` and `pnpm` are **not on PATH** on this
+machine; they live under nvm (`~/.nvm/versions/node/`, with v22.18.0, v22.22.2 and v25.1.0 installed).
+`atlas/` pins **Node 22.22.2** via `.nvmrc`, and its README states the PATH caveat so a fresh session does not
+conclude Node is missing.
 
 ## 10. Obligations carried by this design
 
