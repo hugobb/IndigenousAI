@@ -12,6 +12,7 @@
 
 ## Global Constraints
 
+- **Native Land Digital is NOT used.** See spec §3a. No polygons, no GeoJSON, no `@turf/simplify`.
 - **Node 22.22.2**, pinned in `atlas/.nvmrc`. Node is **not on PATH** on the dev machine; it lives under nvm. Every command below assumes `export PATH="$HOME/.nvm/versions/node/v22.22.2/bin:$PATH"` has been run in the shell first. Do not conclude Node is missing.
 - **All commands run from `atlas/`** unless stated otherwise.
 - **TypeScript strict mode.** No `any`. Nullable fields are `| null`, not optional-and-undefined, wherever the YAML will carry an explicit null.
@@ -1533,190 +1534,154 @@ cd .. && git add atlas && git commit -m "feat(atlas): record loader and the draf
 
 ---
 
-### Task 8: Fetch Native Land language polygons
+### Task 8: Replace `area` with a single soft centre point
 
-Fetches the polygons that become the feathered fields. The network call is isolated from the transformation so the transformation is testable offline; the output is committed so the published page never calls the API.
+**Design change, 2026-09-03.** Native Land Digital is withdrawn. Their Data Sovereignty Treaty forbids
+storing or redistributing their API data without explicit permission, and forbids altering Indigenous land
+boundaries without consultation — and simplifying plus feathering a polygon does exactly that. See §3a of
+the spec. There is no fetch script, no GeoJSON, no simplification, and no `@turf/simplify` dependency.
+
+Each language instead carries **one centre point**, hand-curated and cited like every other claim, rendered
+later as a single soft edgeless blob. A point is not a boundary.
 
 **Files:**
-- Create: `atlas/scripts/fetch-areas.ts`
-- Create: `atlas/tests/fixtures/nld-languages.geojson`
-- Test: `atlas/tests/fetch-areas.test.ts`
+- Modify: `atlas/src/schema/language.ts` — replace `AreaSchema`/`area` with `CentreSchema`/`centre`
+- Modify: `atlas/tests/schema.test.ts` — update the two D5 tests and the fixture
+- Modify: `atlas/package.json` — remove the now-unused `@turf/simplify` dependency
+- Modify: `atlas/README.md` — replace the "Native Land" section with a note on centre points
 
 **Interfaces:**
-- Consumes: `loadLanguages` from `scripts/lib/load-records.ts`; `@turf/simplify`.
-- Produces: `selectAreas(raw: NldCollection, languages: Language[]): NldCollection` from `scripts/fetch-areas.ts`, plus a CLI entry that fetches, selects and writes `data/language-areas.geojson`. `NldCollection` is `{ type: 'FeatureCollection'; features: { type: 'Feature'; properties: Record<string, unknown>; geometry: unknown }[] }`.
+- Consumes: `SourceSchema`.
+- Produces: `Language.centre` of type `{ lat: number; lon: number; source: Source } | null`. `Language.area`
+  no longer exists. Task 10 must not reference it.
 
-- [ ] **Step 1: Verify the current Native Land endpoint before writing any URL into the code**
+- [ ] **Step 1: Update the failing tests first**
 
-Native Land Digital has changed its API shape over time, and this plan does not hard-code an endpoint it has not confirmed.
+In `atlas/tests/schema.test.ts`, replace the `area` line in the `language` fixture with:
 
-Open `https://native-land.ca/resources/api-docs/` and record the current Languages-layer endpoint and whether it requires a key. Write what you find into `atlas/README.md` under a `## Native Land` heading, together with:
-
-```markdown
-Territory data © Native Land Digital (native-land.ca). Not authoritative;
-does not represent official or legal boundaries. Educational use, attributed.
-```
-
-If the API is unavailable or requires an application, download the Languages GeoJSON by hand, save it to `atlas/data/raw/nld-languages.geojson`, and note that in the README. Either path is fine — the committed output is what matters, and Step 4's logic is identical.
-
-- [ ] **Step 2: Create a fixture standing in for the API response**
-
-`atlas/tests/fixtures/nld-languages.geojson`:
-```json
-{
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "properties": { "Name": "Kanien'kéha (Mohawk)", "ID": "nld-moh", "description": "…" },
-      "geometry": { "type": "Polygon", "coordinates": [[[-74.6,43.0],[-74.0,43.0],[-74.0,43.6],[-74.3,43.6],[-74.6,43.6],[-74.6,43.0]]] }
-    },
-    {
-      "type": "Feature",
-      "properties": { "Name": "Some Other Language", "ID": "nld-other" },
-      "geometry": { "type": "Polygon", "coordinates": [[[0,0],[1,0],[1,1],[0,1],[0,0]]] }
-    }
-  ]
-}
-```
-
-- [ ] **Step 3: Write the failing test**
-
-`atlas/tests/fetch-areas.test.ts`:
 ```ts
-import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
-import { selectAreas } from '../scripts/fetch-areas.js'
-import type { Language } from '../src/schema/index.js'
-
-const raw = JSON.parse(readFileSync(fileURLToPath(new URL('./fixtures/nld-languages.geojson', import.meta.url)), 'utf8'))
-
-const lang = (over: Partial<Language>): Language => ({
-  id: 'kanienkeha', name: "Kanien'kéha", also_known_as: [], glottocode: null, iso639_3: null,
-  tier: 'indigenous', family: 'Iroquoian', subfamily: null, typology: [], endangerment: null,
-  speakers: null, region: 'north-america', countries: ['CA'],
-  area: { source: 'native-land-digital', nld_id: 'nld-moh', present: true },
-  status: 'verified', ...over,
-})
-
-describe('selectAreas', () => {
-  it('keeps only polygons a language record claims by nld_id', () => {
-    const fc = selectAreas(raw, [lang({})])
-    expect(fc.features).toHaveLength(1)
-    expect(fc.features[0]?.properties?.language_id).toBe('kanienkeha')
-  })
-
-  it('stamps our language id onto the feature so the map can join on it', () => {
-    const fc = selectAreas(raw, [lang({})])
-    expect(fc.features[0]?.properties?.nld_id).toBe('nld-moh')
-  })
-
-  // [-74.3,43.6] is exactly collinear between [-74.0,43.6] and [-74.6,43.6],
-  // so simplification must drop it: 6 vertices in, 5 out.
-  it('simplifies geometry, dropping redundant vertices', () => {
-    const fc = selectAreas(raw, [lang({})])
-    const ring = (fc.features[0]?.geometry as { coordinates: number[][][] }).coordinates[0]
-    expect(ring!.length).toBeLessThan(6)
-  })
-
-  it('skips languages with area.present false', () => {
-    const l = lang({ area: { source: 'native-land-digital', nld_id: 'nld-moh', present: false } })
-    expect(selectAreas(raw, [l]).features).toHaveLength(0)
-  })
-
-  it('skips adjacent-tier languages, which never carry an area', () => {
-    expect(selectAreas(raw, [lang({ tier: 'adjacent', area: null })]).features).toHaveLength(0)
-  })
-
-  it('throws when a language claims an nld_id the source does not contain', () => {
-    const l = lang({ area: { source: 'native-land-digital', nld_id: 'nld-missing', present: true } })
-    expect(() => selectAreas(raw, [l])).toThrow(/nld-missing/)
-  })
-})
+  centre: { lat: 43.0, lon: -74.5, source: src },
 ```
 
-- [ ] **Step 4: Run it and verify it fails**
+Replace the two D5 tests with these, keeping every other test untouched:
 
-Run: `pnpm vitest run tests/fetch-areas.test.ts`
-Expected: FAIL — cannot resolve `../scripts/fetch-areas.js`.
-
-- [ ] **Step 5: Write the selector and CLI**
-
-`atlas/scripts/fetch-areas.ts`:
 ```ts
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
-import simplify from '@turf/simplify'
-import type { Language } from '../src/schema/index.js'
-import { loadLanguages } from './lib/load-records.js'
+  it('rejects an adjacent-tier language carrying a centre (spec D5)', () => {
+    const r = LanguageSchema.safeParse({ ...language, id: 'manchu', tier: 'adjacent' })
+    expect(r.success).toBe(false)
+    if (!r.success) expect(r.error.issues[0]?.message).toMatch(/adjacent/i)
+  })
 
-interface NldFeature { type: 'Feature'; properties: Record<string, unknown>; geometry: unknown }
-export interface NldCollection { type: 'FeatureCollection'; features: NldFeature[] }
+  it('accepts an adjacent-tier language with no centre', () => {
+    const { centre: _centre, ...rest } = language
+    const r = LanguageSchema.safeParse({ ...rest, id: 'manchu', tier: 'adjacent' })
+    expect(r.success).toBe(true)
+  })
+```
 
-/** Keeps only the polygons our language records actually claim, stamps our own
- *  id onto each, and simplifies. Adjacent-tier languages carry no area by
- *  schema rule (spec D5), so they are never selected. */
-export function selectAreas(raw: NldCollection, languages: Language[]): NldCollection {
-  const byNldId = new Map<string, NldFeature>()
-  for (const f of raw.features) {
-    const id = f.properties['ID']
-    if (typeof id === 'string') byNldId.set(id, f)
-  }
+Add one test, because a centre is a coordinate and coordinates can be nonsense:
 
-  const features: NldFeature[] = []
-  for (const l of languages) {
-    if (l.area === null || !l.area.present) continue
-    const f = byNldId.get(l.area.nld_id)
-    if (!f) throw new Error(`language ${l.id}: no Native Land feature with ID "${l.area.nld_id}"`)
-
-    const simplified = simplify(
-      { type: 'Feature', properties: {}, geometry: f.geometry } as never,
-      { tolerance: 0.01, highQuality: true, mutate: false },
-    ) as { geometry: unknown }
-
-    features.push({
-      type: 'Feature',
-      properties: { language_id: l.id, language_name: l.name, nld_id: l.area.nld_id },
-      geometry: simplified.geometry,
+```ts
+  it('rejects an out-of-range centre latitude', () => {
+    const r = LanguageSchema.safeParse({
+      ...language,
+      centre: { lat: 143.0, lon: -74.5, source: src },
     })
-  }
-  return { type: 'FeatureCollection', features }
-}
-
-const url = (p: string): string => fileURLToPath(new URL(p, import.meta.url))
-
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const rawPath = url('../data/raw/nld-languages.geojson')
-  if (!existsSync(rawPath)) {
-    console.error(
-      `Missing ${rawPath}\n` +
-        `Fetch the Native Land Languages layer (see atlas/README.md, "Native Land")\n` +
-        `and save it there. It is deliberately a manual, dated step: the published\n` +
-        `page must never call the API at runtime.`,
-    )
-    process.exit(1)
-  }
-  const raw = JSON.parse(readFileSync(rawPath, 'utf8')) as NldCollection
-  const fc = selectAreas(raw, loadLanguages(url('../data/languages')))
-  mkdirSync(new URL('../data/', import.meta.url), { recursive: true })
-  writeFileSync(url('../data/language-areas.geojson'), `${JSON.stringify(fc)}\n`)
-  console.log(`fetch-areas: ${fc.features.length} language areas -> data/language-areas.geojson`)
-}
+    expect(r.success).toBe(false)
+  })
 ```
 
-- [ ] **Step 6: Run tests**
+- [ ] **Step 2: Run and verify the new tests fail**
 
-Run: `pnpm vitest run tests/fetch-areas.test.ts`
-Expected: 6 tests PASS.
+Run: `pnpm vitest run tests/schema.test.ts`
+Expected: FAIL — `centre` is not yet a field, so the adjacent-tier rejection and the latitude check do not fire.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 3: Change the schema**
+
+In `atlas/src/schema/language.ts`, delete `AreaSchema` entirely and put this in its place:
+
+```ts
+/** ONE point, never a boundary. Rendered as a soft edgeless blob.
+ *  Native Land Digital's territory polygons were withdrawn (spec §3a): their
+ *  Data Sovereignty Treaty forbids redistributing their data and forbids
+ *  altering Indigenous land boundaries, which feathering a polygon does.
+ *  A cited centre point makes neither claim. */
+const CentreSchema = z.object({
+  lat: z.number().min(-90).max(90),
+  lon: z.number().min(-180).max(180),
+  source: SourceSchema,
+})
+```
+
+Replace the `area` field with:
+
+```ts
+    centre: CentreSchema.nullable().default(null),
+```
+
+And replace the `superRefine` body with:
+
+```ts
+    // Spec D5: soft fields are an indigenous-tier feature. An adjacent language
+    // must not be able to acquire one by accident.
+    if (v.tier === 'adjacent' && v.centre !== null) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['centre'],
+        message: 'an adjacent-tier language must not carry a centre (spec D5): the adjacent tier is pins only',
+      })
+    }
+```
+
+- [ ] **Step 4: Run tests**
+
+Run: `pnpm vitest run tests/schema.test.ts`
+Expected: 10 tests PASS (the 9 from Task 4, plus the new latitude-range test).
+
+- [ ] **Step 5: Drop the now-unused dependency**
+
+Remove `"@turf/simplify": "^7.1.0",` from `devDependencies` in `atlas/package.json`, then:
 
 ```bash
-cd .. && git add atlas && git commit -m "feat(atlas): select and simplify Native Land language polygons"
+export PATH="$HOME/.nvm/versions/node/v22.22.2/bin:$PATH"
+pnpm install
 ```
 
----
+Confirm nothing imports it: `grep -r "turf" src scripts tests` must return nothing.
+
+- [ ] **Step 6: Update the README**
+
+Replace any "Native Land" section in `atlas/README.md` with:
+
+```markdown
+## Language centre points
+
+Each language record may carry one `centre` — a single coordinate, cited like every
+other claim, rendered as a soft edgeless blob. It is an approximate centre, **not a
+territory and not a boundary**. Glottolog (CC-BY-4.0) is the default source.
+
+Native Land Digital's territory polygons were considered and withdrawn: their Data
+Sovereignty Treaty forbids storing or redistributing their data without explicit
+permission, and forbids altering Indigenous land boundaries without consultation —
+and simplifying and feathering a polygon does exactly that. See §3a of the design spec.
+This project holds no geometry and depends on no third-party map data.
+```
+
+- [ ] **Step 7: Run the full suite and typecheck**
+
+Run: `pnpm test && pnpm typecheck`
+Expected: 48 tests PASS (47 before, plus the new latitude test), typecheck clean.
+
+- [ ] **Step 8: Commit**
+
+```bash
+cd .. && git add atlas && git commit -m "feat(atlas): replace area polygons with a single cited centre point
+
+Native Land Digital withdrawn: their Data Sovereignty Treaty forbids
+redistributing their data and forbids altering Indigenous land boundaries,
+which is what simplifying and feathering a polygon does. A cited centre
+point makes neither claim. See spec section 3a."
+```
 
 ### Task 9: Seeding pass
 
@@ -2069,7 +2034,7 @@ If `validate` exits 1, read the list: every line names a record and what is wron
 - [ ] **Step 5: Run the full suite and typecheck**
 
 Run: `pnpm test && pnpm typecheck`
-Expected: all tests PASS (vocab 3, source 5, data-regime 7, schema 9, extract-methods 8, extract-papers 7, validate 8, fetch-areas 6, seed 6, gate 3 = 62), typecheck clean.
+Expected: all tests PASS (vocab 3, source 5, data-regime 7, schema 10, extract-methods 8, extract-papers 7, validate 8, seed 6, gate 3 = 57), typecheck clean.
 
 - [ ] **Step 6: Commit**
 
