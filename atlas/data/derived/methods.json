@@ -1,0 +1,441 @@
+[
+  {
+    "id": "back-translation-data-augmentation",
+    "name": "Back-Translation Data Augmentation",
+    "category": "ml",
+    "data_regime": [
+      "<1k",
+      "1k-10k"
+    ],
+    "data_regime_note": "<1K sentences / 1K–10K sentences (requires at least minimal translation quality as a seed)",
+    "applicable_languages": "Any low-resource language pair; most effective when monolingual target-side data is available",
+    "doc_url": "/ml-techniques/back-translation-data-augmentation/"
+  },
+  {
+    "id": "back-translation-semantic-evaluation",
+    "name": "Back-Translation Semantic Evaluation",
+    "category": "ml",
+    "data_regime": [
+      "zero"
+    ],
+    "data_regime_note": "Zero-resource (no reference translations available)",
+    "applicable_languages": "Any language for which no parallel test set or reference translations exist; especially critically endangered languages with few fluent speakers",
+    "doc_url": "/ml-techniques/back-translation-semantic-evaluation/"
+  },
+  {
+    "id": "byte-premium-data-scaling",
+    "name": "Byte-Premium Data Scaling",
+    "category": "ml",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any (especially relevant when comparing data budgets across languages)",
+    "applicable_languages": "all; most impactful for languages with non-Latin scripts or morphologically long words",
+    "doc_url": "/ml-techniques/byte-premium-data-scaling/"
+  },
+  {
+    "id": "chain-of-dictionary-prompting",
+    "name": "Chain-of-Dictionary (CoD) Prompting for Low-Resource MT",
+    "category": "ml",
+    "data_regime": [
+      "zero",
+      "<1k"
+    ],
+    "data_regime_note": "zero-resource / <1K sentences (requires only a bilingual or multilingual dictionary; no parallel corpus)",
+    "applicable_languages": "Any low-resource language pair for which a dictionary exists; especially effective for non-Latin-script languages and languages with baseline chrF++ < 20",
+    "doc_url": "/ml-techniques/chain-of-dictionary-prompting/"
+  },
+  {
+    "id": "compression-ratio-tokenizer-selection",
+    "name": "Compression Ratio as Tokenizer Selection Criterion",
+    "category": "ml",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "Any — the metric is computed on a text sample of the target language; even small samples (hundreds of sentences) are sufficient for ranking",
+    "applicable_languages": "All languages; especially important for morphologically complex and polysynthetic languages that are underrepresented in standard tokenizer training corpora",
+    "doc_url": "/ml-techniques/compression-ratio-tokenizer-selection/"
+  },
+  {
+    "id": "cross-lingual-icl-query-alignment",
+    "name": "Cross-Lingual In-Context Learning with Query Alignment",
+    "category": "ml",
+    "data_regime": [
+      "zero",
+      "<1k"
+    ],
+    "data_regime_note": "zero-resource / <1K sentences",
+    "applicable_languages": "all low-resource; especially languages absent from LLM pretraining data",
+    "doc_url": "/ml-techniques/cross-lingual-icl-query-alignment/"
+  },
+  {
+    "id": "decentralized-predictive-text",
+    "name": "Decentralized Predictive Text for Indigenous Languages",
+    "category": "ml",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any (word-list based; works with as few as a few hundred words; no parallel data required)",
+    "applicable_languages": "Any Indigenous language with a standardized or semi-standardized orthography; demonstrated on SENĆOŦEN (Saanich); designed for communities that cannot or will not share text data with a central server",
+    "doc_url": "/ml-techniques/decentralized-predictive-text/"
+  },
+  {
+    "id": "fst-morphological-segmentation",
+    "name": "FST Morphological Segmentation for Polysynthetic MT",
+    "category": "ml",
+    "data_regime": [
+      "<1k",
+      "1k-10k"
+    ],
+    "data_regime_note": "<1K sentences / 1K–10K sentences",
+    "applicable_languages": "polysynthetic; especially Algonquian, Iroquoian, and other languages with extreme OOV rates",
+    "doc_url": "/ml-techniques/fst-morphological-segmentation/"
+  },
+  {
+    "id": "grammar-book-parallel-extraction",
+    "name": "Grammar Book Parallel Data Extraction",
+    "category": "ml",
+    "data_regime": [
+      "zero",
+      "<1k"
+    ],
+    "data_regime_note": "zero-resource / <1K sentences",
+    "applicable_languages": "all low-resource; especially XLR (extremely low-resource) languages with existing grammar books",
+    "doc_url": "/ml-techniques/grammar-book-parallel-extraction/"
+  },
+  {
+    "id": "icl-mt-bootstrapping",
+    "name": "ICL-MT Bootstrapping: Dictionary + Examples → Synthetic Parallel Data → NMT",
+    "category": "ml",
+    "data_regime": [
+      "zero",
+      "<1k"
+    ],
+    "data_regime_note": "zero-resource to <1K parallel sentences (requires a dictionary and monolingual corpus; no parallel corpus needed to start)",
+    "applicable_languages": "Any extremely low-resource language effectively unseen by LLMs; demonstrated on Manchu (Tungusic, critically endangered); most applicable to agglutinative and polysynthetic languages with available dictionaries",
+    "doc_url": "/ml-techniques/icl-mt-bootstrapping/"
+  },
+  {
+    "id": "llm-rbmt-hybrid-translation",
+    "name": "LLM-RBMT Hybrid Translation",
+    "category": "ml",
+    "data_regime": [
+      "zero"
+    ],
+    "data_regime_note": "Zero-resource (no parallel corpus required)",
+    "applicable_languages": "Any language with existing grammar documentation and a dictionary; especially suited to critically endangered languages with no parallel corpora",
+    "doc_url": "/ml-techniques/llm-rbmt-hybrid-translation/"
+  },
+  {
+    "id": "morphscore-tokenizer-evaluation",
+    "name": "MorphScore Tokenizer Evaluation",
+    "category": "ml",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any",
+    "applicable_languages": "all; designed for cross-linguistic comparison, especially agglutinative and polysynthetic languages",
+    "doc_url": "/ml-techniques/morphscore-tokenizer-evaluation/"
+  },
+  {
+    "id": "neural-morphological-segmentation-polysynthetic",
+    "name": "Neural Seq2Seq Morphological Segmentation for Polysynthetic Languages",
+    "category": "ml",
+    "data_regime": [
+      "<1k"
+    ],
+    "data_regime_note": "<1K labeled examples (minimal-resource: fewer than 1,000 annotated word-segmentation pairs)",
+    "applicable_languages": "Polysynthetic languages; demonstrated on Uto-Aztecan (Mexicanero, Nahuatl, Wixarika, Yorem Nokki); applicable to Iroquoian and Algonquian with caveats",
+    "doc_url": "/ml-techniques/neural-morphological-segmentation-polysynthetic/"
+  },
+  {
+    "id": "read-along-audio-alignment",
+    "name": "Read-Along Audio Alignment (Zero-Shot Forced Alignment)",
+    "category": "ml",
+    "data_regime": [
+      "zero"
+    ],
+    "data_regime_note": "zero-resource (no training data in the target language required); requires only a text transcript and an audio recording",
+    "applicable_languages": "Any language that can be phonetically transcribed to IPA; demonstrated on 22 languages including Kanyen'kéha, Inuktut, East Cree, SENĆOŦEN, Seneca, and 13 other Indigenous languages of Canada",
+    "doc_url": "/ml-techniques/read-along-audio-alignment/"
+  },
+  {
+    "id": "textbook-prompting-talent",
+    "name": "Textbook Prompting (TALENT) for Low-Resource MT",
+    "category": "ml",
+    "data_regime": [
+      "zero",
+      "<1k"
+    ],
+    "data_regime_note": "Zero-resource / <1K sentences — no parallel corpus required; requires only monolingual text in the target language and a dictionary or word-level translation resource",
+    "applicable_languages": "Any low-resource language for which: (a) a monolingual text corpus exists (even small), (b) a bilingual dictionary or BabelNet coverage exists for key vocabulary, and (c) an LLM with some multilingual capability is used",
+    "doc_url": "/ml-techniques/textbook-prompting-talent/"
+  },
+  {
+    "id": "tiny-data-llm-fine-tuning",
+    "name": "Tiny-Data LLM Fine-Tuning for Endangered Languages",
+    "category": "ml",
+    "data_regime": [
+      "<1k",
+      "1k-10k"
+    ],
+    "data_regime_note": "<1K–10K sentences (fine-tuning); as few as ~245 sentences minimum observed",
+    "applicable_languages": "Endangered languages with 1K–100K speakers and partial written documentation; especially analytic/weakly-inflected languages (Nheengatu, Guarani Mbya); less tested on heavily polysynthetic languages",
+    "doc_url": "/ml-techniques/tiny-data-llm-fine-tuning/"
+  },
+  {
+    "id": "tokenizer-model-co-design",
+    "name": "Tokenizer–Model Co-Design",
+    "category": "ml",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any",
+    "applicable_languages": "all low-resource / polysynthetic / morphologically rich",
+    "doc_url": "/ml-techniques/tokenizer-model-co-design/"
+  },
+  {
+    "id": "tokenizer-multidimensional-evaluation",
+    "name": "Tokenizer Multi-Dimensional Evaluation",
+    "category": "ml",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any",
+    "applicable_languages": "all low-resource / polysynthetic / any",
+    "doc_url": "/ml-techniques/tokenizer-multidimensional-evaluation/"
+  },
+  {
+    "id": "typological-feature-prompting",
+    "name": "Typological Feature Prompting",
+    "category": "ml",
+    "data_regime": [
+      "zero",
+      "<1k"
+    ],
+    "data_regime_note": "zero-resource / <1K sentences",
+    "applicable_languages": "all low-resource; especially useful for languages with typological profiles in Grambank or WALS",
+    "doc_url": "/ml-techniques/typological-feature-prompting/"
+  },
+  {
+    "id": "unsupervised-morphological-segmentation-for-polysynthetic-mt",
+    "name": "Unsupervised Morphological Segmentation for Polysynthetic MT",
+    "category": "ml",
+    "data_regime": [
+      "<1k",
+      "1k-10k"
+    ],
+    "data_regime_note": "<1K sentences / 1K–10K sentences (ELR: fewer than a few thousand parallel sentences)",
+    "applicable_languages": "Polysynthetic languages in extremely low-resource (ELR) settings; demonstrated on Nahuatl, Raramuri (Tarahumara), Shipibo-Konibo, and Wixarika vs. Spanish; applicable to other polysynthetic language families with caveats",
+    "doc_url": "/ml-techniques/unsupervised-morphological-segmentation-for-polysynthetic-mt/"
+  },
+  {
+    "id": "wordweaver-fst-conjugator",
+    "name": "WordWeaver FST Verb Conjugator Framework",
+    "category": "ml",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any (rule-based; no training data required — requires linguistic expertise and FST grammar)",
+    "applicable_languages": "Polysynthetic languages with highly inflected verbal morphology; demonstrated on Kanyen'kéha (Mohawk) and Michif; designed for extensibility to any language with a verb paradigm expressible as an FST",
+    "doc_url": "/ml-techniques/wordweaver-fst-conjugator/"
+  },
+  {
+    "id": "ai-extraction-protection-protocol",
+    "name": "AI Extraction Protection Protocol",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any",
+    "applicable_languages": "Any Indigenous language with digital resources (dictionaries, corpora, conjugation tools, audio archives, linguistic atlases)",
+    "doc_url": "/process-techniques/ai-extraction-protection-protocol/"
+  },
+  {
+    "id": "community-data-sovereignty",
+    "name": "Community Data Sovereignty",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any",
+    "applicable_languages": "Any Indigenous language project where language data is collected, stored, or used to train models",
+    "doc_url": "/process-techniques/community-data-sovereignty/"
+  },
+  {
+    "id": "community-driven-goal-identification",
+    "name": "Community-Driven Goal Identification",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any",
+    "applicable_languages": "Any endangered or Indigenous language where an external researcher or technologist is initiating a project",
+    "doc_url": "/process-techniques/community-driven-goal-identification/"
+  },
+  {
+    "id": "cyclical-engagement-process",
+    "name": "Cyclical Engagement Process",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any",
+    "applicable_languages": "Any Indigenous or under-served language where an external researcher or technologist is seeking community partnership",
+    "doc_url": "/process-techniques/cyclical-engagement-process/"
+  },
+  {
+    "id": "data-volume-as-primary-lever",
+    "name": "Data Volume as Primary Lever",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any (guides investment decisions across all regimes)",
+    "applicable_languages": "all low-resource; most directly applicable to morphologically rich / agglutinative / polysynthetic languages",
+    "doc_url": "/process-techniques/data-volume-as-primary-lever/"
+  },
+  {
+    "id": "endangered-language-nlp-roadmap",
+    "name": "Endangered Language NLP Roadmap",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any (a sequencing framework; applies before any technical work begins)",
+    "applicable_languages": "Critically and severely endangered North American Indigenous languages; applicable by analogy to other endangered languages with small speaker communities and minimal digital infrastructure",
+    "doc_url": "/process-techniques/endangered-language-nlp-roadmap/"
+  },
+  {
+    "id": "endangered-vs-low-resource-distinction",
+    "name": "Endangered vs. Low-Resource Language Distinction",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any (applies before any technical decision is made)",
+    "applicable_languages": "All — this technique determines the correct category for the target language before method selection",
+    "doc_url": "/process-techniques/endangered-vs-low-resource-distinction/"
+  },
+  {
+    "id": "human-in-the-loop-ai-safety",
+    "name": "Human-in-the-Loop AI Safety Workflows",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "Any — applies at deployment regardless of training data regime",
+    "applicable_languages": "All low-resource, multilingual, and high-stakes language contexts; especially relevant where off-the-shelf safety models fail on non-English or code-mixed inputs",
+    "doc_url": "/process-techniques/human-in-the-loop-ai-safety/"
+  },
+  {
+    "id": "indigenous-ai-development-cycle",
+    "name": "Indigenous AI Development Cycle",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any",
+    "applicable_languages": "Endangered Indigenous languages with 1K–100K speakers where digital text tools are feasible but community trust must be built and maintained",
+    "doc_url": "/process-techniques/indigenous-ai-development-cycle/"
+  },
+  {
+    "id": "listed-framework-deployment-design",
+    "name": "LISTED Framework for Culturally Aligned AI Deployment",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "Any — applies before and during deployment regardless of data availability",
+    "applicable_languages": "All low-resource and non-Western language contexts; especially applicable to high-stakes domains (health, education, agriculture, law)",
+    "doc_url": "/process-techniques/listed-framework-deployment-design/"
+  },
+  {
+    "id": "machine-in-the-loop-annotation",
+    "name": "Machine-in-the-Loop Annotation",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any (applies to any data collection effort; most valuable when human annotator time is the binding constraint)",
+    "applicable_languages": "Endangered or low-resource languages where the speaker/annotator community is small and human effort is scarce; especially polysynthetic languages requiring expert morphological annotation",
+    "doc_url": "/process-techniques/machine-in-the-loop-annotation/"
+  },
+  {
+    "id": "master-speaker-protocol",
+    "name": "Master Speaker Protocol",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any (applies regardless of data availability; structures the human relationship at the center of language work)",
+    "applicable_languages": "Critically endangered languages with few remaining fluent speakers; most applicable when speakers are elders and the oral tradition is the primary transmission mechanism",
+    "doc_url": "/process-techniques/master-speaker-protocol/"
+  },
+  {
+    "id": "realist-evaluation-framework",
+    "name": "Realist Evaluation Framework",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any",
+    "applicable_languages": "Any Indigenous or low-resource language project where technology is being evaluated for impact",
+    "doc_url": "/process-techniques/realist-evaluation-framework/"
+  },
+  {
+    "id": "responsive-responsible-ilt-design",
+    "name": "Responsive and Responsible ILT Design",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any",
+    "applicable_languages": "Any Indigenous language where technology is being designed or evaluated",
+    "doc_url": "/process-techniques/responsive-responsible-ilt-design/"
+  },
+  {
+    "id": "task-appropriate-data-selection",
+    "name": "Task-Appropriate Data Selection for XLR Languages",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": null,
+    "applicable_languages": null,
+    "doc_url": "/process-techniques/task-appropriate-data-selection/"
+  },
+  {
+    "id": "thick-evaluation-cultural-representation",
+    "name": "Thick Evaluation of Cultural Representation",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any (evaluation methodology, not a training technique)",
+    "applicable_languages": "Any language community whose cultural representation is at stake in AI outputs; especially non-Western, Indigenous, and minority communities underrepresented in AI training data",
+    "doc_url": "/process-techniques/thick-evaluation-cultural-representation/"
+  },
+  {
+    "id": "tokenizer-reuse-audit",
+    "name": "Tokenizer Reuse Audit",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any",
+    "applicable_languages": "all low-resource / polysynthetic / any underrepresented language",
+    "doc_url": "/process-techniques/tokenizer-reuse-audit/"
+  },
+  {
+    "id": "yarning-as-research-engagement",
+    "name": "Yarning as Research Engagement",
+    "category": "process",
+    "data_regime": [
+      "any"
+    ],
+    "data_regime_note": "any",
+    "applicable_languages": "Any Indigenous language project; originates in Australian Aboriginal research contexts but applies broadly",
+    "doc_url": "/process-techniques/yarning-as-research-engagement/"
+  }
+]
