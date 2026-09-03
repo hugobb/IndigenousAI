@@ -1,0 +1,27 @@
+# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+id: te-reo-maori
+name: Te Reo Māori
+also_known_as: [Māori, Maori]
+glottocode: maor1246
+iso639_3: mri
+tier: indigenous
+family: Austronesian
+subfamily: Polynesian
+# Left empty deliberately: the schema has no source slot for typology and no
+# citation was gathered for it. A reviewer fills this, or it stays empty.
+typology: []
+# UNESCO 2010 is the only scale the schema accepts; no verifiable UNESCO Atlas
+# citation was gathered, so this is null rather than guessed.
+endangerment: null
+speakers: null
+region: oceania
+countries: [NZ]
+centre:
+  lat: -38.2881
+  lon: 176.541
+  source:
+    kind: url
+    ref: https://glottolog.org/resource/languoid/id/maor1246
+    retrieved: "2026-09-03"
+    quote: "Maori maor1246 mri latitude -38.2881 longitude 176.541 (Glottolog, CC-BY-4.0)"
+status: draft

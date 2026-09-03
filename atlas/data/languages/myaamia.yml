@@ -1,0 +1,33 @@
+# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+id: myaamia
+name: Myaamia
+also_known_as: [Miami, Miami-Illinois, myaamiataweenki, Peewaalia]
+glottocode: miam1252
+iso639_3: mia
+tier: indigenous
+family: Algic
+subfamily: Algonquian
+typology: []
+endangerment: null
+speakers: null
+region: north-america
+countries: [US]
+# NOTE for the reviewer: Glottolog's point for miam1252 is the round pair
+# (40.0, -90.0). That is a coarse placeholder-looking centroid, not a
+# researched location. Keep it, replace it, or null it — but decide knowingly.
+centre:
+  lat: 40.0
+  lon: -90.0
+  source:
+    kind: url
+    ref: https://glottolog.org/resource/languoid/id/miam1252
+    retrieved: "2026-09-03"
+    quote: "Miami miam1252 mia latitude 40.0 longitude -90.0 (Glottolog, CC-BY-4.0)"
+# js-yaml drops comments, so the curator hedges written as comments in this
+# file are repeated here as a field. This is the copy that reaches the bundle
+# and the reviewer; a hedge that does not travel is not a hedge.
+caveat: >-
+  The centre is Glottolog's point for miam1252, the round pair (40.0, -90.0). That is a
+  coarse placeholder-looking centroid, not a researched location, and it must not be read
+  as a cited coordinate. A reviewer should keep it, replace it, or null it — knowingly.
+status: draft

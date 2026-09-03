@@ -12,6 +12,7 @@
 
 ## Global Constraints
 
+- **Native Land Digital is NOT used.** See spec §3a. No polygons, no GeoJSON, no `@turf/simplify`.
 - **Node 22.22.2**, pinned in `atlas/.nvmrc`. Node is **not on PATH** on the dev machine; it lives under nvm. Every command below assumes `export PATH="$HOME/.nvm/versions/node/v22.22.2/bin:$PATH"` has been run in the shell first. Do not conclude Node is missing.
 - **All commands run from `atlas/`** unless stated otherwise.
 - **TypeScript strict mode.** No `any`. Nullable fields are `| null`, not optional-and-undefined, wherever the YAML will carry an explicit null.
@@ -73,6 +74,21 @@ Establishes the Node package so every later task has a test runner. Delivers not
   }
 }
 ```
+
+`atlas/pnpm-workspace.yaml` — pnpm 11's settings file. **Not optional**, and *not* a `pnpm`
+field in `package.json`: pnpm 11 ignores that field entirely and says so in a warning. Without
+this file, pnpm's pre-script dependency check re-runs `install`, hits
+`ERR_PNPM_IGNORED_BUILDS` on esbuild, and `pnpm test` — this plan's verification command —
+fails on every task. esbuild is vitest's bundler; approve nothing else.
+
+```yaml
+allowBuilds:
+  esbuild: true
+```
+
+Note the spelling: pnpm 11 uses `allowBuilds` (a map of package to boolean).
+`onlyBuiltDependencies` (a list) is the pnpm 10 form and is silently ignored by
+pnpm 11 — the install appears to succeed and `pnpm test` still fails.
 
 `atlas/tsconfig.json`:
 ```json
@@ -149,6 +165,11 @@ export PATH="$HOME/.nvm/versions/node/v22.22.2/bin:$PATH"
 cd atlas && pnpm install
 ```
 Expected: installs cleanly, `node -v` prints `v22.22.2`.
+
+If this errors with `ERR_PNPM_IGNORED_BUILDS`, `pnpm-workspace.yaml` is missing or
+malformed — go back and create it. Do not run `pnpm approve-builds`: that writes a
+machine-local setting that does not survive a clone, so the next person to check out
+this repo hits the same failure.
 
 - [ ] **Step 3: Write the failing vocabulary test**
 
@@ -817,7 +838,7 @@ until then `index.ts` carries only the first four.
 - [ ] **Step 5: Run tests and typecheck**
 
 Run: `pnpm test && pnpm typecheck`
-Expected: all PASS (3 + 5 + 7 + 10 = 25 tests), typecheck clean.
+Expected: all PASS (3 + 5 + 7 + 9 = 24 tests), typecheck clean.
 
 - [ ] **Step 6: Commit**
 
@@ -1513,190 +1534,154 @@ cd .. && git add atlas && git commit -m "feat(atlas): record loader and the draf
 
 ---
 
-### Task 8: Fetch Native Land language polygons
+### Task 8: Replace `area` with a single soft centre point
 
-Fetches the polygons that become the feathered fields. The network call is isolated from the transformation so the transformation is testable offline; the output is committed so the published page never calls the API.
+**Design change, 2026-09-03.** Native Land Digital is withdrawn. Their Data Sovereignty Treaty forbids
+storing or redistributing their API data without explicit permission, and forbids altering Indigenous land
+boundaries without consultation — and simplifying plus feathering a polygon does exactly that. See §3a of
+the spec. There is no fetch script, no GeoJSON, no simplification, and no `@turf/simplify` dependency.
+
+Each language instead carries **one centre point**, hand-curated and cited like every other claim, rendered
+later as a single soft edgeless blob. A point is not a boundary.
 
 **Files:**
-- Create: `atlas/scripts/fetch-areas.ts`
-- Create: `atlas/tests/fixtures/nld-languages.geojson`
-- Test: `atlas/tests/fetch-areas.test.ts`
+- Modify: `atlas/src/schema/language.ts` — replace `AreaSchema`/`area` with `CentreSchema`/`centre`
+- Modify: `atlas/tests/schema.test.ts` — update the two D5 tests and the fixture
+- Modify: `atlas/package.json` — remove the now-unused `@turf/simplify` dependency
+- Modify: `atlas/README.md` — replace the "Native Land" section with a note on centre points
 
 **Interfaces:**
-- Consumes: `loadLanguages` from `scripts/lib/load-records.ts`; `@turf/simplify`.
-- Produces: `selectAreas(raw: NldCollection, languages: Language[]): NldCollection` from `scripts/fetch-areas.ts`, plus a CLI entry that fetches, selects and writes `data/language-areas.geojson`. `NldCollection` is `{ type: 'FeatureCollection'; features: { type: 'Feature'; properties: Record<string, unknown>; geometry: unknown }[] }`.
+- Consumes: `SourceSchema`.
+- Produces: `Language.centre` of type `{ lat: number; lon: number; source: Source } | null`. `Language.area`
+  no longer exists. Task 10 must not reference it.
 
-- [ ] **Step 1: Verify the current Native Land endpoint before writing any URL into the code**
+- [ ] **Step 1: Update the failing tests first**
 
-Native Land Digital has changed its API shape over time, and this plan does not hard-code an endpoint it has not confirmed.
+In `atlas/tests/schema.test.ts`, replace the `area` line in the `language` fixture with:
 
-Open `https://native-land.ca/resources/api-docs/` and record the current Languages-layer endpoint and whether it requires a key. Write what you find into `atlas/README.md` under a `## Native Land` heading, together with:
-
-```markdown
-Territory data © Native Land Digital (native-land.ca). Not authoritative;
-does not represent official or legal boundaries. Educational use, attributed.
-```
-
-If the API is unavailable or requires an application, download the Languages GeoJSON by hand, save it to `atlas/data/raw/nld-languages.geojson`, and note that in the README. Either path is fine — the committed output is what matters, and Step 4's logic is identical.
-
-- [ ] **Step 2: Create a fixture standing in for the API response**
-
-`atlas/tests/fixtures/nld-languages.geojson`:
-```json
-{
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "properties": { "Name": "Kanien'kéha (Mohawk)", "ID": "nld-moh", "description": "…" },
-      "geometry": { "type": "Polygon", "coordinates": [[[-74.6,43.0],[-74.0,43.0],[-74.0,43.6],[-74.3,43.6],[-74.6,43.6],[-74.6,43.0]]] }
-    },
-    {
-      "type": "Feature",
-      "properties": { "Name": "Some Other Language", "ID": "nld-other" },
-      "geometry": { "type": "Polygon", "coordinates": [[[0,0],[1,0],[1,1],[0,1],[0,0]]] }
-    }
-  ]
-}
-```
-
-- [ ] **Step 3: Write the failing test**
-
-`atlas/tests/fetch-areas.test.ts`:
 ```ts
-import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
-import { selectAreas } from '../scripts/fetch-areas.js'
-import type { Language } from '../src/schema/index.js'
-
-const raw = JSON.parse(readFileSync(fileURLToPath(new URL('./fixtures/nld-languages.geojson', import.meta.url)), 'utf8'))
-
-const lang = (over: Partial<Language>): Language => ({
-  id: 'kanienkeha', name: "Kanien'kéha", also_known_as: [], glottocode: null, iso639_3: null,
-  tier: 'indigenous', family: 'Iroquoian', subfamily: null, typology: [], endangerment: null,
-  speakers: null, region: 'north-america', countries: ['CA'],
-  area: { source: 'native-land-digital', nld_id: 'nld-moh', present: true },
-  status: 'verified', ...over,
-})
-
-describe('selectAreas', () => {
-  it('keeps only polygons a language record claims by nld_id', () => {
-    const fc = selectAreas(raw, [lang({})])
-    expect(fc.features).toHaveLength(1)
-    expect(fc.features[0]?.properties?.language_id).toBe('kanienkeha')
-  })
-
-  it('stamps our language id onto the feature so the map can join on it', () => {
-    const fc = selectAreas(raw, [lang({})])
-    expect(fc.features[0]?.properties?.nld_id).toBe('nld-moh')
-  })
-
-  // [-74.3,43.6] is exactly collinear between [-74.0,43.6] and [-74.6,43.6],
-  // so simplification must drop it: 6 vertices in, 5 out.
-  it('simplifies geometry, dropping redundant vertices', () => {
-    const fc = selectAreas(raw, [lang({})])
-    const ring = (fc.features[0]?.geometry as { coordinates: number[][][] }).coordinates[0]
-    expect(ring!.length).toBeLessThan(6)
-  })
-
-  it('skips languages with area.present false', () => {
-    const l = lang({ area: { source: 'native-land-digital', nld_id: 'nld-moh', present: false } })
-    expect(selectAreas(raw, [l]).features).toHaveLength(0)
-  })
-
-  it('skips adjacent-tier languages, which never carry an area', () => {
-    expect(selectAreas(raw, [lang({ tier: 'adjacent', area: null })]).features).toHaveLength(0)
-  })
-
-  it('throws when a language claims an nld_id the source does not contain', () => {
-    const l = lang({ area: { source: 'native-land-digital', nld_id: 'nld-missing', present: true } })
-    expect(() => selectAreas(raw, [l])).toThrow(/nld-missing/)
-  })
-})
+  centre: { lat: 43.0, lon: -74.5, source: src },
 ```
 
-- [ ] **Step 4: Run it and verify it fails**
+Replace the two D5 tests with these, keeping every other test untouched:
 
-Run: `pnpm vitest run tests/fetch-areas.test.ts`
-Expected: FAIL — cannot resolve `../scripts/fetch-areas.js`.
-
-- [ ] **Step 5: Write the selector and CLI**
-
-`atlas/scripts/fetch-areas.ts`:
 ```ts
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
-import simplify from '@turf/simplify'
-import type { Language } from '../src/schema/index.js'
-import { loadLanguages } from './lib/load-records.js'
+  it('rejects an adjacent-tier language carrying a centre (spec D5)', () => {
+    const r = LanguageSchema.safeParse({ ...language, id: 'manchu', tier: 'adjacent' })
+    expect(r.success).toBe(false)
+    if (!r.success) expect(r.error.issues[0]?.message).toMatch(/adjacent/i)
+  })
 
-interface NldFeature { type: 'Feature'; properties: Record<string, unknown>; geometry: unknown }
-export interface NldCollection { type: 'FeatureCollection'; features: NldFeature[] }
+  it('accepts an adjacent-tier language with no centre', () => {
+    const { centre: _centre, ...rest } = language
+    const r = LanguageSchema.safeParse({ ...rest, id: 'manchu', tier: 'adjacent' })
+    expect(r.success).toBe(true)
+  })
+```
 
-/** Keeps only the polygons our language records actually claim, stamps our own
- *  id onto each, and simplifies. Adjacent-tier languages carry no area by
- *  schema rule (spec D5), so they are never selected. */
-export function selectAreas(raw: NldCollection, languages: Language[]): NldCollection {
-  const byNldId = new Map<string, NldFeature>()
-  for (const f of raw.features) {
-    const id = f.properties['ID']
-    if (typeof id === 'string') byNldId.set(id, f)
-  }
+Add one test, because a centre is a coordinate and coordinates can be nonsense:
 
-  const features: NldFeature[] = []
-  for (const l of languages) {
-    if (l.area === null || !l.area.present) continue
-    const f = byNldId.get(l.area.nld_id)
-    if (!f) throw new Error(`language ${l.id}: no Native Land feature with ID "${l.area.nld_id}"`)
-
-    const simplified = simplify(
-      { type: 'Feature', properties: {}, geometry: f.geometry } as never,
-      { tolerance: 0.01, highQuality: true, mutate: false },
-    ) as { geometry: unknown }
-
-    features.push({
-      type: 'Feature',
-      properties: { language_id: l.id, language_name: l.name, nld_id: l.area.nld_id },
-      geometry: simplified.geometry,
+```ts
+  it('rejects an out-of-range centre latitude', () => {
+    const r = LanguageSchema.safeParse({
+      ...language,
+      centre: { lat: 143.0, lon: -74.5, source: src },
     })
-  }
-  return { type: 'FeatureCollection', features }
-}
-
-const url = (p: string): string => fileURLToPath(new URL(p, import.meta.url))
-
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const rawPath = url('../data/raw/nld-languages.geojson')
-  if (!existsSync(rawPath)) {
-    console.error(
-      `Missing ${rawPath}\n` +
-        `Fetch the Native Land Languages layer (see atlas/README.md, "Native Land")\n` +
-        `and save it there. It is deliberately a manual, dated step: the published\n` +
-        `page must never call the API at runtime.`,
-    )
-    process.exit(1)
-  }
-  const raw = JSON.parse(readFileSync(rawPath, 'utf8')) as NldCollection
-  const fc = selectAreas(raw, loadLanguages(url('../data/languages')))
-  mkdirSync(new URL('../data/', import.meta.url), { recursive: true })
-  writeFileSync(url('../data/language-areas.geojson'), `${JSON.stringify(fc)}\n`)
-  console.log(`fetch-areas: ${fc.features.length} language areas -> data/language-areas.geojson`)
-}
+    expect(r.success).toBe(false)
+  })
 ```
 
-- [ ] **Step 6: Run tests**
+- [ ] **Step 2: Run and verify the new tests fail**
 
-Run: `pnpm vitest run tests/fetch-areas.test.ts`
-Expected: 6 tests PASS.
+Run: `pnpm vitest run tests/schema.test.ts`
+Expected: FAIL — `centre` is not yet a field, so the adjacent-tier rejection and the latitude check do not fire.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 3: Change the schema**
+
+In `atlas/src/schema/language.ts`, delete `AreaSchema` entirely and put this in its place:
+
+```ts
+/** ONE point, never a boundary. Rendered as a soft edgeless blob.
+ *  Native Land Digital's territory polygons were withdrawn (spec §3a): their
+ *  Data Sovereignty Treaty forbids redistributing their data and forbids
+ *  altering Indigenous land boundaries, which feathering a polygon does.
+ *  A cited centre point makes neither claim. */
+const CentreSchema = z.object({
+  lat: z.number().min(-90).max(90),
+  lon: z.number().min(-180).max(180),
+  source: SourceSchema,
+})
+```
+
+Replace the `area` field with:
+
+```ts
+    centre: CentreSchema.nullable().default(null),
+```
+
+And replace the `superRefine` body with:
+
+```ts
+    // Spec D5: soft fields are an indigenous-tier feature. An adjacent language
+    // must not be able to acquire one by accident.
+    if (v.tier === 'adjacent' && v.centre !== null) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['centre'],
+        message: 'an adjacent-tier language must not carry a centre (spec D5): the adjacent tier is pins only',
+      })
+    }
+```
+
+- [ ] **Step 4: Run tests**
+
+Run: `pnpm vitest run tests/schema.test.ts`
+Expected: 10 tests PASS (the 9 from Task 4, plus the new latitude-range test).
+
+- [ ] **Step 5: Drop the now-unused dependency**
+
+Remove `"@turf/simplify": "^7.1.0",` from `devDependencies` in `atlas/package.json`, then:
 
 ```bash
-cd .. && git add atlas && git commit -m "feat(atlas): select and simplify Native Land language polygons"
+export PATH="$HOME/.nvm/versions/node/v22.22.2/bin:$PATH"
+pnpm install
 ```
 
----
+Confirm nothing imports it: `grep -r "turf" src scripts tests` must return nothing.
+
+- [ ] **Step 6: Update the README**
+
+Replace any "Native Land" section in `atlas/README.md` with:
+
+```markdown
+## Language centre points
+
+Each language record may carry one `centre` — a single coordinate, cited like every
+other claim, rendered as a soft edgeless blob. It is an approximate centre, **not a
+territory and not a boundary**. Glottolog (CC-BY-4.0) is the default source.
+
+Native Land Digital's territory polygons were considered and withdrawn: their Data
+Sovereignty Treaty forbids storing or redistributing their data without explicit
+permission, and forbids altering Indigenous land boundaries without consultation —
+and simplifying and feathering a polygon does exactly that. See §3a of the design spec.
+This project holds no geometry and depends on no third-party map data.
+```
+
+- [ ] **Step 7: Run the full suite and typecheck**
+
+Run: `pnpm test && pnpm typecheck`
+Expected: 48 tests PASS (47 before, plus the new latitude test), typecheck clean.
+
+- [ ] **Step 8: Commit**
+
+```bash
+cd .. && git add atlas && git commit -m "feat(atlas): replace area polygons with a single cited centre point
+
+Native Land Digital withdrawn: their Data Sovereignty Treaty forbids
+redistributing their data and forbids altering Indigenous land boundaries,
+which is what simplifying and feathering a polygon does. A cited centre
+point makes neither claim. See spec section 3a."
+```
 
 ### Task 9: Seeding pass
 
@@ -1895,29 +1880,33 @@ cd .. && git add atlas && git commit -m "feat(atlas): seed draft Language record
 
 ---
 
-### Task 10: Bundle, hand-verified seed set, green pipeline
+### Task 10: Bundler, gate proof, and the review queue
 
-Closes SP0. Delivers `bundle.ts`, a small hand-verified dataset that exercises every code path, and a passing end-to-end run — plus the gate's mutation test, which belongs here because it needs a real verified record to mutate.
+**Scope revised 2026-09-03.** The spec says SP0 is done when the pipeline is green against a *hand-verified*
+seed set, and decision D9's whole point is that promoting a record from `draft` to `verified` is **human**
+review. A subagent stamping `verified` on records about real Indigenous organisations would hollow out the
+exact guarantee this artifact sells. So this task delivers the pipeline and a populated review queue; the
+promotion pass belongs to the maintainer.
 
 **Files:**
 - Create: `atlas/scripts/bundle.ts`
-- Create: `atlas/src/data/.gitkeep`
-- Create: `atlas/data/languages/*.yml` (5 hand-verified), `atlas/data/initiatives/*.yml` (5 hand-verified)
-- Test: `atlas/tests/gate.test.ts`
+- Create: `atlas/tests/fixtures/records/languages/*.yml`, `atlas/tests/fixtures/records/initiatives/*.yml`
+- Create: `atlas/tests/gate.test.ts`
+- Create: `atlas/data/languages/*.yml` (5, all `status: draft`), `atlas/data/initiatives/*.yml` (5, all `status: draft`)
 
 **Interfaces:**
 - Consumes: everything above.
-- Produces: `src/data/atlas.json` shaped `{ generated: string; languages: Language[]; initiatives: Initiative[]; methods: Method[]; papers: Paper[] }` — the single file SP1's app imports.
+- Produces: `src/data/atlas.json` shaped `{ generated, languages, initiatives, methods, papers }` — the single file SP1's app imports.
 
 - [ ] **Step 1: Write the bundler**
 
 `atlas/scripts/bundle.ts`:
+
 ```ts
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { loadInitiatives, loadLanguages } from './lib/load-records.js'
-
 import type { Method, Paper } from '../src/schema/index.js'
+import { loadInitiatives, loadLanguages } from './lib/load-records.js'
 
 const url = (p: string): string => fileURLToPath(new URL(p, import.meta.url))
 const readJson = <T>(p: string): T => JSON.parse(readFileSync(url(p), 'utf8')) as T
@@ -1938,137 +1927,187 @@ console.log(
 )
 ```
 
-- [ ] **Step 2: Hand-verify five languages and five initiatives**
+- [ ] **Step 2: Create fixture records the gate test can own**
 
-This is research, not typing. For each record, read the initiative's own public materials, fill every field you can support, leave the rest null, and cite each claim.
+The gate's mutation test needs **verified** records to demote. The real `data/` directories will hold only
+drafts (Step 4), so the test operates on its own fixtures copied to a temp directory. Create two files.
 
-The five must together exercise every code path: **at least one adjacent-tier initiative** (so `transferability` is exercised), **at least one adjacent-tier language** (so the D5 no-area rule is exercised), and **at least one indigenous language with `area.present: false`** (so the "not mapped" path is exercised).
+`atlas/tests/fixtures/records/languages/testlang.yml`:
+```yaml
+id: testlang
+name: Test Language
+also_known_as: []
+glottocode: null
+iso639_3: null
+tier: indigenous
+family: Test Family
+subfamily: null
+typology: [polysynthetic]
+endangerment: null
+speakers: null
+region: north-america
+countries: [CA]
+centre: null
+status: verified
+```
 
-Suggested set, all named in the brainstorm or already in the corpus:
-
-| Record | Tier | Exercises |
-| --- | --- | --- |
-| `te-hiku-media` (initiative) + `te-reo-maori` | indigenous | governance: community-controlled, a real licence |
-| `onkwawenna-kentyohkwa` (initiative) + `kanienkeha` | indigenous | the project's own focus language |
-| `myaamia-center` (initiative) + `myaamia` | indigenous | TTS; profile already drafted in `Draft.md` |
-| `americasnlp` (initiative, shared-task) + `choctaw` | indigenous | multi-language initiative; speaker-count conflict; **`area.present: false`** |
-| `masakhane` (initiative) + `amharic` | **adjacent** | **`transferability` required; language must carry no area** |
-
-Set `status: verified` only on records you have actually checked. Anything else stays `draft`.
+`atlas/tests/fixtures/records/initiatives/testinit.yml`:
+```yaml
+id: testinit
+name: Test Initiative
+kind: project
+tier: indigenous
+languages: [testlang]
+started: 2020
+ended: null
+site:
+  lat: 45.5
+  lon: -73.6
+  place: Test Place
+  source: {kind: doc, ref: fixture, retrieved: null, quote: null}
+applications: [mt]
+methods: []
+models: []
+data_regime: null
+governance: null
+papers: []
+links: []
+transferability: null
+status: verified
+```
 
 - [ ] **Step 3: Write the gate mutation test**
 
-This is the test the spec calls for by name. It mutates a **real** record on disk, asserts the gate rejects it, and restores it — proving the gate consumes `status`, not merely that a fixture parses.
+This is the test the spec calls for by name. It mutates the **production value** — the `status` field a real
+loader reads from a real YAML file — not a constant, and not a hand-built object.
 
 `atlas/tests/gate.test.ts`:
 ```ts
 import { afterEach, describe, expect, it } from 'vitest'
-import { copyFileSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import yaml from 'js-yaml'
 import { validate } from '../scripts/validate.js'
-import { loadInitiatives, loadLanguages } from '../scripts/lib/load-records.js'
+import { findStrayFiles, loadInitiatives, loadLanguages } from '../scripts/lib/load-records.js'
 
+const FIXTURES = fileURLToPath(new URL('./fixtures/records', import.meta.url))
 const url = (p: string): string => fileURLToPath(new URL(p, import.meta.url))
-const LANG_DIR = url('../data/languages')
 const readIds = (p: string): Set<string> =>
   new Set((JSON.parse(readFileSync(url(p), 'utf8')) as { id: string }[]).map((x) => x.id))
 
-const input = () => ({
-  languages: loadLanguages(LANG_DIR),
-  initiatives: loadInitiatives(url('../data/initiatives')),
-  methodIds: readIds('../data/derived/methods.json'),
-  paperIds: readIds('../data/derived/papers.json'),
-})
+let dir: string | null = null
 
-let backup: string | null = null
-let target: string | null = null
+function stage(): string {
+  dir = mkdtempSync(join(tmpdir(), 'atlas-gate-'))
+  cpSync(FIXTURES, dir, { recursive: true })
+  return dir
+}
+
+function inputFrom(d: string) {
+  return {
+    languages: loadLanguages(join(d, 'languages')),
+    initiatives: loadInitiatives(join(d, 'initiatives')),
+    methodIds: readIds('../data/derived/methods.json'),
+    paperIds: readIds('../data/derived/papers.json'),
+    strayFiles: [...findStrayFiles(join(d, 'languages')), ...findStrayFiles(join(d, 'initiatives'))],
+  }
+}
 
 afterEach(() => {
-  if (backup && target) {
-    copyFileSync(backup, target)
-    rmSync(backup)
-    backup = null
-    target = null
-  }
+  if (dir) rmSync(dir, { recursive: true, force: true })
+  dir = null
 })
 
-describe('the build gate, against the real dataset', () => {
-  it('passes on the committed dataset', () => {
-    expect(validate(input())).toEqual([])
+describe('the build gate, against real YAML records on disk', () => {
+  it('passes on a verified dataset loaded from disk', () => {
+    expect(validate(inputFrom(stage()))).toEqual([])
   })
 
-  it('fails when a real verified record is demoted to draft', () => {
-    const file = readdirSync(LANG_DIR).find((f) => f.endsWith('.yml'))
-    expect(file, 'no language records — Task 10 Step 2 is incomplete').toBeDefined()
+  it('fails when a real verified record on disk is demoted to draft', () => {
+    const d = stage()
+    const file = join(d, 'languages', 'testlang.yml')
+    const record = yaml.load(readFileSync(file, 'utf8')) as Record<string, unknown>
+    expect(record['status'], 'fixture must start verified or this proves nothing').toBe('verified')
 
-    target = join(LANG_DIR, file!)
-    backup = `${target}.bak`
-    copyFileSync(target, backup)
-
-    const record = yaml.load(readFileSync(target, 'utf8')) as Record<string, unknown>
-    expect(record['status'], 'the chosen record was not verified to begin with').toBe('verified')
-
-    // Mutate the PRODUCTION value, not a copy: this is what proves the gate
-    // reads status rather than merely that a fixture parses.
+    // Mutate the PRODUCTION value the loader actually reads.
     record['status'] = 'draft'
-    writeFileSync(target, yaml.dump(record))
+    writeFileSync(file, yaml.dump(record))
 
-    const problems = validate(input())
-    expect(problems.length).toBeGreaterThan(0)
-    expect(problems.some((p) => p.includes('draft'))).toBe(true)
+    const problems = validate(inputFrom(d))
+    expect(problems.some((p) => p.includes('draft') && p.includes('testlang'))).toBe(true)
   })
 
-  it('restores cleanly', () => {
-    // The mutated record is whichever sorts first, so assert on the class of
-    // leftovers rather than on one filename.
-    expect(readdirSync(LANG_DIR).filter((f) => f.endsWith('.bak'))).toEqual([])
-    expect(validate(input())).toEqual([])
+  it('fails when a stray file is dropped into a record directory', () => {
+    const d = stage()
+    writeFileSync(join(d, 'languages', 'notes.txt'), 'scratch')
+    expect(validate(inputFrom(d)).some((p) => p.includes('notes.txt'))).toBe(true)
   })
 })
 ```
 
-- [ ] **Step 4: Run the whole pipeline green**
+- [ ] **Step 4: Run the tests**
+
+Run: `pnpm test`
+Expected: **55** tests pass (52 before, plus these 3). Typecheck clean.
+
+- [ ] **Step 5: Research and write the review queue**
+
+Ten records — 5 languages, 5 initiatives — researched from each initiative's **own public materials**, with
+a `source` on every claim. **Every one gets `status: draft`.** You are populating a review queue, not
+certifying anything: a human promotes these, and the gate exists to make sure that happens.
+
+The set must exercise every code path: at least one adjacent-tier initiative (so `transferability` is
+required), at least one adjacent-tier language (which must carry **no** `centre`, per D5), and at least one
+Indigenous language with `centre: null` (the "not mapped" case).
+
+| Record | Tier | Exercises |
+| --- | --- | --- |
+| `te-hiku-media` + `te-reo-maori` | indigenous | community-controlled governance, a real licence |
+| `onkwawenna-kentyohkwa` + `kanienkeha` | indigenous | the project's own focus language |
+| `myaamia-center` + `myaamia` | indigenous | TTS; profile partly drafted in the review paper |
+| `americasnlp` + `choctaw` | indigenous | multi-language initiative; speaker-count conflict; **`centre: null`** |
+| `masakhane` + `amharic` | **adjacent** | **`transferability` required; language carries no `centre`** |
+
+Rules for this step, and they matter more than completeness:
+- **Never invent a value to make a record look finished.** Unknown is `null`. A fabricated speaker count or
+  coordinate in a research artifact is worse than an absent one.
+- Where sources disagree (Choctaw speakers are recorded as both 9,600 and 1,000), record the first in
+  `speakers.value` and the rest in `speakers.conflicts` — the schema keeps disagreement rather than resolving it.
+- `site` coordinates are the initiative's **own stated** location, from its own materials. We site the people
+  doing the work, never the language.
+- `centre`, where present, is an approximate centre from Glottolog (CC-BY-4.0) — never a territory or boundary.
+- `methods` and `papers` entries must resolve against `data/derived/methods.json` and `papers.json`, or the
+  gate rejects them. Leave the arrays empty rather than guessing an id.
+
+- [ ] **Step 6: Prove the gate holds**
 
 ```bash
-export PATH="$HOME/.nvm/versions/node/v22.22.2/bin:$PATH"
-cd atlas
-pnpm build:data
+pnpm build:data; echo "exit=$?"
 ```
-Expected, in order:
-```
-extract-methods: 39 methods -> data/derived/methods.json
-extract-papers: 92 papers -> data/derived/papers.json
-validate: ok
-bundle: 5 languages, 5 initiatives, 39 methods, 92 papers -> src/data/atlas.json
-```
+Expected: `extract-methods: 39 …`, `extract-papers: 92 …`, then `validate` **exits 1** listing all 10 drafts.
 
-If `validate` exits 1, read the list: every line names a record and what is wrong with it. Records you have not reviewed should be `status: draft` and are *supposed* to block — either review them or mark them `rejected`. Do not weaken the gate to get a green run.
+**That failure is this step's deliverable.** It demonstrates the gate refusing to ship unreviewed records —
+the property the whole artifact rests on. Do not promote records to make it pass.
 
-- [ ] **Step 5: Run the full suite and typecheck**
-
-Run: `pnpm test && pnpm typecheck`
-Expected: all tests PASS (vocab 3, source 5, data-regime 7, schema 10, extract-methods 8, extract-papers 7, validate 8, fetch-areas 6, seed 6, gate 3 = 63), typecheck clean.
-
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-cd .. && git add atlas && git commit -m "feat(atlas): bundler, hand-verified seed set, and the gate mutation test
+cd .. && git add atlas && git commit -m "feat(atlas): bundler, gate mutation test, and the review queue
 
-Closes SP0. The pipeline runs green against 5 verified languages and 5 verified
-initiatives spanning both tiers; every remaining record sits in the review queue
-as a draft, which the gate refuses to ship."
+Ten researched records land as status: draft. build:data correctly exits 1
+and lists them: the gate refusing to ship unreviewed records is the property
+this artifact rests on. Promotion to verified is human review, per D9."
 ```
-
----
 
 ## Done when
 
-- `pnpm build:data` exits 0 and writes `src/data/atlas.json`.
-- `pnpm test` and `pnpm typecheck` are green.
-- Five languages and five initiatives are `verified`, covering both tiers, a `transferability` note, a speaker-count conflict, and one `area.present: false`.
-- Every other seeded record is `draft` and visibly blocks the build.
+- `pnpm test` (55) and `pnpm typecheck` are green.
+- The gate mutation test demotes a real on-disk record and proves the gate catches it.
+- Ten researched records sit in the queue at `status: draft`, covering both tiers, a `transferability` note, a speaker-count conflict, and one `centre: null`.
+- `pnpm build:data` exits 1 and lists them. **This is success, not failure** — the gate is refusing to ship unreviewed records.
+- SP0 completes when the maintainer promotes those records; `pnpm build:data` then exits 0 and writes `src/data/atlas.json`.
 
 ## Explicitly NOT in SP0
 

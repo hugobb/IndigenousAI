@@ -1,0 +1,21 @@
+id: testinit
+name: Test Initiative
+kind: project
+tier: indigenous
+languages: [testlang]
+started: 2020
+ended: null
+site:
+  lat: 45.5
+  lon: -73.6
+  place: Test Place
+  source: {kind: doc, ref: fixture, retrieved: null, quote: null}
+applications: [mt]
+methods: []
+models: []
+data_regime: null
+governance: null
+papers: []
+links: []
+transferability: null
+status: verified

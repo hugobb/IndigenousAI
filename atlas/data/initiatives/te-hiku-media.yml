@@ -1,0 +1,58 @@
+# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+id: te-hiku-media
+name: Te Hiku Media
+kind: organisation
+tier: indigenous
+languages: [te-reo-maori]
+# `started` is now nullable, so the inferred 1991 has been retired rather than
+# shipped as a cited claim. The inference is recorded in `caveat` below.
+started: null
+ended: null
+site:
+  # Geocoded (~2 dp) from the street address Te Hiku Media publishes itself.
+  lat: -35.11
+  lon: 173.26
+  place: "1 Melba Street, Level 2, Kaitaia 0410, Aotearoa New Zealand"
+  source:
+    kind: url
+    ref: https://tehiku.nz/about/
+    retrieved: "2026-09-03"
+    quote: "1 Melba Street, Level 2, Kaitaia 0410"
+applications: [asr, tts]
+methods: []
+models: [PiperTTS]
+data_regime: null
+governance:
+  posture: community-controlled
+  licence: Kaitiakitanga License
+  source:
+    kind: url
+    ref: https://tehiku.nz/about/
+    retrieved: "2026-09-03"
+    quote: "a charitable media organisation, collectively belonging to the Far North iwi of Ngāti Kuri, Te Aupouri, Ngai Takoto, Te Rārawa and Ngāti Kahu"
+papers: []
+links:
+  - label: About Te Hiku Media
+    url: https://tehiku.nz/about/
+    retrieved: "2026-09-03"
+  - label: "Te Hiku Tech — ASR and te reo Māori synthetic voice"
+    url: https://tehiku.nz/te-hiku-tech/
+    retrieved: "2026-09-03"
+  - label: "Data Sovereignty and the Kaitiakitanga License"
+    url: https://tehiku.nz/te-hiku-tech/te-hiku-dev-korero/25141/data-sovereignty-and-the-kaitiakitanga-license
+    retrieved: "2026-09-03"
+  - label: Kaitiakitanga License repository
+    url: https://github.com/TeHikuMedia/Kaitiakitanga-License
+    retrieved: "2026-09-03"
+transferability: null
+# js-yaml drops comments, so the curator hedges written as comments in this
+# file are repeated here as a field. This is the copy that reaches the bundle
+# and the reviewer; a hedge that does not travel is not a hedge.
+caveat: >-
+  Start year unknown. The only candidate found was 1991, read off the copyright range on
+  Te Hiku Media's own About page, which would date the MEDIA organisation and not the
+  speech technology work; none of the Te Hiku or Papa Reo pages read on 2026-09-03 date
+  the ASR/TTS work at all. It was the weakest claim in this record, so `started` is null
+  rather than inferred. A reviewer should set the year Kōrero Māori / Papa Reo began, or
+  confirm 1991 against a source that states it.
+status: draft

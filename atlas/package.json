@@ -1,0 +1,25 @@
+{
+  "name": "@indigenous-ai/atlas",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "extract:methods": "tsx scripts/extract-methods.ts",
+    "extract:papers": "tsx scripts/extract-papers.ts",
+    "validate": "tsx scripts/validate.ts",
+    "bundle": "tsx scripts/bundle.ts",
+    "seed": "tsx scripts/seed.ts",
+    "build:data": "pnpm extract:methods && pnpm extract:papers && pnpm validate && pnpm bundle"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.10.0",
+    "js-yaml": "^4.1.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0",
+    "zod": "^3.24.0"
+  }
+}

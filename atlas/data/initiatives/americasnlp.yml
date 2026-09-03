@@ -1,0 +1,56 @@
+# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+id: americasnlp
+name: "AmericasNLP — Workshop on NLP for Indigenous Languages of the Americas"
+kind: workshop
+tier: indigenous
+# AmericasNLP spans many languages; this atlas holds a Language record for only
+# one of them so far. Choctaw is linked because Choctaw work appears in the
+# AmericasNLP proceedings (IndigiEval, 2026) — see links. The shared tasks
+# themselves centre on other languages (Quechua, Aymara, Bribri, Guarani,
+# Nahuatl and more) which have no Language record here yet.
+languages: [choctaw]
+started: 2021
+ended: null
+site:
+  # A workshop has no fixed venue — it is co-located with a different
+  # conference each year (ACL 2026 San Diego, NAACL 2025 Albuquerque,
+  # NAACL 2024 Mexico City, ACL 2023 Toronto). The only standing location in
+  # its own materials is an organiser's stated affiliation, geocoded (~2 dp).
+  lat: 40.01
+  lon: -105.27
+  place: "University of Colorado Boulder, Colorado, United States (organiser affiliation stated on americasnlp.org; the workshop itself is co-located with a different conference each year)"
+  source:
+    kind: url
+    ref: https://americasnlp.org/
+    retrieved: "2026-09-03"
+    quote: "katharina.kann@colorado.edu — University of Colorado"
+applications: [mt, evaluation, education]
+methods: []
+models: []
+data_regime: null
+governance: null
+# Both resolve against data/derived/papers.json.
+papers:
+  - ebrahimi-et-al-2023-americas-nlp
+  - gibert-et-al-2025-americas-nlp
+links:
+  - label: AmericasNLP
+    url: https://americasnlp.org/
+    retrieved: "2026-09-03"
+  - label: "First Workshop on NLP for Indigenous Languages of the Americas (2021)"
+    url: https://americasnlp.org/americasnlp_2021.html
+    retrieved: "2026-09-03"
+  - label: "Sixth Workshop proceedings — includes IndigiEval, covering Choctaw"
+    url: https://aclanthology.org/volumes/2026.americasnlp-6/
+    retrieved: "2026-09-03"
+transferability: null
+# js-yaml drops comments, so the curator hedges written as comments in this
+# file are repeated here as a field. This is the copy that reaches the bundle
+# and the reviewer; a hedge that does not travel is not a hedge.
+caveat: >-
+  The `languages` list is incomplete, not a claim about scope. AmericasNLP spans many
+  languages (Quechua, Aymara, Bribri, Guarani, Nahuatl and more); Choctaw is the only one
+  with a Language record in this atlas so far, linked because Choctaw work appears in the
+  2026 proceedings. The site is an organiser's stated affiliation, not a venue: the
+  workshop is co-located with a different conference each year.
+status: draft

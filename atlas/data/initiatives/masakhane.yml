@@ -1,0 +1,76 @@
+# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+# tier: adjacent -> the schema REQUIRES a transferability note (spec D2). The
+# adjacent tier exists to answer "does this transfer?", and the gate refuses to
+# let that question go unanswered.
+id: masakhane
+name: Masakhane
+kind: organisation
+tier: adjacent
+languages: [amharic]
+# "Founded at the Deep Learning Indaba 2019, Masakhane constitutes an
+# open-source, continent-wide, distributed, online research effort"
+started: 2019
+ended: null
+site:
+  # READ THE PLACE STRING BEFORE TRUSTING THIS PIN. Masakhane states it is
+  # distributed and online with no base; `site` is not nullable, so the pin
+  # marks the founding event's venue, geocoded (~2 dp), and says so.
+  lat: -1.18
+  lon: 36.93
+  place: "No stated base: Masakhane describes itself as continent-wide, distributed and online. Pin marks its founding venue, the Deep Learning Indaba 2019 at Kenyatta University, Nairobi, Kenya."
+  source:
+    kind: url
+    ref: https://arxiv.org/abs/2003.11529
+    retrieved: "2026-09-03"
+    quote: "Founded at the Deep Learning Indaba 2019, Masakhane constitutes an open-source, continent-wide, distributed, online research effort"
+applications: [mt, corpus]
+methods: []
+models: []
+data_regime: null
+governance:
+  posture: open
+  licence: "MIT (masakhane-mt code); CC-BY-4.0-NC (MasakhaNER dataset)"
+  source:
+    kind: url
+    ref: https://github.com/masakhane-io/masakhane-ner
+    retrieved: "2026-09-03"
+    quote: "The license of the NER dataset is in CC-BY-4.0-NC."
+papers: []
+links:
+  - label: Masakhane
+    url: https://www.masakhane.io/
+    retrieved: "2026-09-03"
+  - label: "Masakhane — Machine Translation For Africa (their own paper)"
+    url: https://arxiv.org/abs/2003.11529
+    retrieved: "2026-09-03"
+  - label: "MasakhaNER (MasakhaNER 1.0 covers Amharic; 2.0 drops it)"
+    url: https://github.com/masakhane-io/masakhane-ner
+    retrieved: "2026-09-03"
+  - label: masakhane-mt
+    url: https://github.com/masakhane-io/masakhane-mt
+    retrieved: "2026-09-03"
+transferability:
+  transfers:
+    - "Participatory, distributed research practice: weekly open meetings, a public Slack and a public GitHub, with no prerequisite for joining beyond a code of conduct."
+    - "Building benchmarks across many languages at once (MasakhaNER, LAFAND-MT) rather than one language in isolation."
+    - "Publishing code and data openly, and refusing to put community contributions behind a paywall."
+  does_not_transfer:
+    - "The open/MIT+CC-BY posture. It is the opposite of the sovereignty posture several Indigenous initiatives in this atlas take — compare Te Hiku Media's Kaitiakitanga License, under which data is never released for unrestricted or commercial reuse."
+    - "Data-scale assumptions. Amharic has orders of magnitude more digital text, speakers and institutional support than the Indigenous languages here; methods tuned to Amharic's regime may assume corpora that do not exist."
+    - "'For Africans, by Africans' names a continental research community. It is not a substitute for consent from, and control by, a specific language community, which is what the Indigenous tier turns on."
+  note: >-
+    Masakhane is in the adjacent tier because it is grassroots and community-organised but
+    not Indigenous-governed in the sense this atlas uses. What transfers is the organising
+    model — distributed, participatory, open-by-default, benchmark-first. What does not
+    transfer is the licensing posture: open release is a reasonable default for a
+    widely-spoken national language and an unreasonable one where a community asserts
+    kaitiakitanga over recordings of its last first-language speakers. Read Masakhane for
+    how to build a community, not for how to license its outputs.
+# js-yaml drops comments, so the curator hedges written as comments in this
+# file are repeated here as a field. This is the copy that reaches the bundle
+# and the reviewer; a hedge that does not travel is not a hedge.
+caveat: >-
+  The pin is not a base. Masakhane states it is continent-wide, distributed and online
+  with no stated location; `site` is not nullable, so the coordinate marks its founding
+  venue (Deep Learning Indaba 2019, Kenyatta University, Nairobi) and nothing more.
+status: draft
