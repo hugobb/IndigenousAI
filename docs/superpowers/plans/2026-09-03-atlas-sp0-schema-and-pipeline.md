@@ -61,6 +61,9 @@ Establishes the Node package so every later task has a test runner. Delivers not
     "seed": "tsx scripts/seed.ts",
     "build:data": "pnpm extract:methods && pnpm extract:papers && pnpm validate && pnpm bundle"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  },
   "devDependencies": {
     "@turf/simplify": "^7.1.0",
     "@types/js-yaml": "^4.0.9",
@@ -149,6 +152,12 @@ export PATH="$HOME/.nvm/versions/node/v22.22.2/bin:$PATH"
 cd atlas && pnpm install
 ```
 Expected: installs cleanly, `node -v` prints `v22.22.2`.
+
+`pnpm.onlyBuiltDependencies` is not optional. pnpm 11 runs a dependency-status
+check before every script, which re-runs `install` and exits with
+`ERR_PNPM_IGNORED_BUILDS` if any package has an unapproved build script. Without
+that field, `pnpm test` fails on this and every other task. esbuild is vitest's
+bundler; nothing else is approved.
 
 - [ ] **Step 3: Write the failing vocabulary test**
 
