@@ -1,7 +1,0 @@
-# Disable optional dependency and build approval requirements
-auto-install-peers=false
-shamefully-hoist=true
-# Avoid module removal prompts
-confirm-modules-purge=false
-# Skip optional deps entirely
-optional=false
