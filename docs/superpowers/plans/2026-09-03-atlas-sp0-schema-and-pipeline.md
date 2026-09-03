@@ -61,9 +61,6 @@ Establishes the Node package so every later task has a test runner. Delivers not
     "seed": "tsx scripts/seed.ts",
     "build:data": "pnpm extract:methods && pnpm extract:papers && pnpm validate && pnpm bundle"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
-  },
   "devDependencies": {
     "@turf/simplify": "^7.1.0",
     "@types/js-yaml": "^4.0.9",
@@ -75,6 +72,17 @@ Establishes the Node package so every later task has a test runner. Delivers not
     "zod": "^3.24.0"
   }
 }
+```
+
+`atlas/pnpm-workspace.yaml` — pnpm 11's settings file. **Not optional**, and *not* a `pnpm`
+field in `package.json`: pnpm 11 ignores that field entirely and says so in a warning. Without
+this file, pnpm's pre-script dependency check re-runs `install`, hits
+`ERR_PNPM_IGNORED_BUILDS` on esbuild, and `pnpm test` — this plan's verification command —
+fails on every task. esbuild is vitest's bundler; approve nothing else.
+
+```yaml
+onlyBuiltDependencies:
+  - esbuild
 ```
 
 `atlas/tsconfig.json`:
@@ -153,11 +161,10 @@ cd atlas && pnpm install
 ```
 Expected: installs cleanly, `node -v` prints `v22.22.2`.
 
-`pnpm.onlyBuiltDependencies` is not optional. pnpm 11 runs a dependency-status
-check before every script, which re-runs `install` and exits with
-`ERR_PNPM_IGNORED_BUILDS` if any package has an unapproved build script. Without
-that field, `pnpm test` fails on this and every other task. esbuild is vitest's
-bundler; nothing else is approved.
+If this errors with `ERR_PNPM_IGNORED_BUILDS`, `pnpm-workspace.yaml` is missing or
+malformed — go back and create it. Do not run `pnpm approve-builds`: that writes a
+machine-local setting that does not survive a clone, so the next person to check out
+this repo hits the same failure.
 
 - [ ] **Step 3: Write the failing vocabulary test**
 
