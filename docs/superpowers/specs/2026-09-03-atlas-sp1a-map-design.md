@@ -61,7 +61,8 @@ atlas/src/
 │  └─ useMap.ts                 MapLibre lifecycle
 ├─ components/
 │  ├─ App.tsx · MapView.tsx
-│  └─ LanguagePanel.tsx · InitiativePanel.tsx
+│  ├─ LanguagePanel.tsx · InitiativePanel.tsx
+│  └─ UnmappedList.tsx          languages absent or approximate on the map
 └─ main.tsx
 ```
 
@@ -91,6 +92,19 @@ Two rules:
 - **An empty field renders as "not recorded", never as blank.** All five real languages have empty `typology` because nobody would assert one without a citation. A blank row reads as *nothing to say*; the words say *we don't know*. That distinction is why those fields were left empty.
 - **Methods link into the mkdocs technique docs.** This is what makes the map an index into the guide rather than a standalone figure: a reader who sees a method on a pin clicks through to how to do it.
 
+## 7a. The unmapped list
+
+`UnmappedList.tsx` sits beside the map and names, in two labelled groups, every language the map cannot
+show faithfully:
+
+- **Not mapped** — `centre: null`. Present in the data, absent from the geography. Adjacent-tier languages
+  belong here permanently by D5, and are labelled as such rather than looking like a gap.
+- **Approximate location** — `centre.confidence === 'approximate'`. Drawn, but not to be trusted as a
+  cited coordinate. Each entry surfaces its `caveat`.
+
+Without this, a language with no centre is simply invisible and a reader cannot tell the difference
+between "we found nothing" and "there is nothing". The coverage gap is stated, not hidden.
+
 ## 8. Fixtures
 
 One committed `atlas.fixture.json`, hand-written to exercise what real data throws at us:
@@ -103,13 +117,21 @@ One committed `atlas.fixture.json`, hand-written to exercise what real data thro
 - an indigenous initiative, ongoing, `sourced` site
 - an indigenous initiative that has ended
 - an adjacent initiative with an `approximate` site and a transferability note — modelled on Masakhane
-- an initiative referencing a real method id and paper id
+- an initiative referencing a method id and a paper id that resolve within the fixture
+
+The fixture is a complete bundle, not just records: it carries the same
+`{ generated, languages, initiatives, methods, papers }` shape the real bundler emits, with at least one
+`Method` (so the panel's link into the mkdocs guide can be exercised) and one `Paper`. A fixture that
+omitted them would leave the method-link path untested — and that link is what makes the map an index
+into the guide.
 
 ## 9. Testing
 
 - `layers.ts` — feature counts; null centres excluded; adjacent-tier languages produce no field; `approximate` records carry the properties the style keys on.
 - `confidence.ts` — every branch.
 - `load.ts` — shape validation; **the build refuses an empty bundle** (E6).
+- Panel rendering: a field that is `null` or `[]` renders the words "not recorded", not an empty cell.
+  Asserted against the fixture's empty `typology`, since that is the case real data actually produces.
 - One jsdom smoke test: the app mounts against the fixture with MapLibre mocked.
 - MapLibre's rendering is not unit-tested.
 
@@ -117,7 +139,12 @@ One committed `atlas.fixture.json`, hand-written to exercise what real data thro
 
 `confidence: 'sourced' | 'approximate'` on `CentreSchema` and `SiteSchema`, defaulting to `'sourced'`.
 
-Then set `approximate` on the two real records whose own text already says so: `myaamia.yml`'s centre and `masakhane.yml`'s site. Both are `draft`, so no verified record is disturbed.
+Because it defaults to `'sourced'`, every existing record and every existing schema test stays valid
+without edit — the field is additive, not breaking.
+
+Then set `approximate` on the two real records whose own text already says so: `myaamia.yml`'s centre and
+`masakhane.yml`'s site. Both are `draft`, so no verified record is disturbed. Their `caveat` text stays
+exactly as written; the enum tells the map what to draw, the caveat tells the reader why.
 
 ## 11. Explicitly NOT in SP1a
 
