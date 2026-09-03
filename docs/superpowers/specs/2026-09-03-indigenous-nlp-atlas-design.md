@@ -238,39 +238,18 @@ from the corpus. Drafts are promoted to `verified` by human review.
 Because the gate refuses drafts, the review queue enforces itself rather than depending on anyone remembering,
 and an unverified extraction cannot silently become a pin in a figure carrying the author's name.
 
-## 6. The page (SP1 sketch)
+## 6. The page — SUPERSEDED
 
-Full-bleed MapLibre map; filter rail left, detail panel right, timeline along the bottom, `map | table` toggle
-in the header.
+This section described the page in terms of the Native Land polygon design withdrawn in §3a: polygon
+sampling, a `sample-fields.ts` grid, a CSS-blur fallback, and a "no NLD polygon" refusal. All of it is
+obsolete. With one cited centre point per language, a large blurred `circle` layer produces the soft
+edgeless field directly — no heatmap, no generated geometry, no second render surface.
 
-**Feathering — the one uncertain piece.** MapLibre has no blur on fill layers. Preferred approach: build-time
-point-grid sampling inside each polygon (`sample-fields.ts`), rendered at runtime through MapLibre's native
-`heatmap` layer. The polygon remains the source of truth for *where*; the heatmap makes it edgeless on the GPU,
-softness tuned via `heatmap-radius`. A uniform grid under a heatmap yields a plateau with no boundary.
-Fallback: render polygons to a stacked transparent canvas and CSS-`blur()` that element beneath the pins.
-**Spike this before committing to it** — it is the only place the design could be wrong in a way that matters.
+**The page is now specified in:**
 
-Basemap: CARTO Positron raster, no API key, attribution in-corner. Swappable for a self-hosted Protomaps
-`.pmtiles` extract if permanence later outweighs convenience.
-
-**Highlight:** all in-scope fields paint in one neutral low-alpha ink by default; selecting or filtering a
-language gives its field the accent and drops the rest away. This is what stops twelve Great Lakes languages
-becoming a single wash.
-
-**Pins:** Indigenous tier filled, adjacent tier hollow and dimmed, clustered at low zoom.
-
-**Interaction:** click a pin for the initiative, click a field for the language profile with conflicts shown as
-conflicts. Methods in the detail panel link into the mkdocs technique docs — this link is what makes the map an
-index into the guide rather than a standalone figure. All filter, slider and selection state serialises to the
-query string, so any view is a citable URL.
-
-**Three refusals:**
-
-- **Unknown is never silently "no."** Facets offer `unknown` as a selectable value.
-- **Languages with no NLD polygon do not vanish.** They surface in a "not mapped (N)" affordance; the coverage
-  gap is stated, not hidden.
-- **The map is not the only route to the data.** The table view renders the same filtered set — sortable,
-  keyboard-navigable, working in a screen reader, on a phone, and in print for the static paper figure.
+- `2026-09-03-atlas-sp1a-map-design.md` — the map: soft language fields, initiative pins, the visual
+  encoding of location uncertainty, and the detail panels.
+- SP1b (spec to be written against a working map) — facets, the range timeline, the table view, URL state.
 
 ## 7. Testing
 
