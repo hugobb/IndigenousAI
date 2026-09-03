@@ -8,7 +8,6 @@
     "typecheck": "tsc --noEmit",
     "extract:methods": "tsx scripts/extract-methods.ts",
     "extract:papers": "tsx scripts/extract-papers.ts",
-    "fetch:areas": "tsx scripts/fetch-areas.ts",
     "validate": "tsx scripts/validate.ts",
     "bundle": "tsx scripts/bundle.ts",
     "seed": "tsx scripts/seed.ts",

@@ -1,4 +1,8 @@
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { findStrayFiles } from '../scripts/lib/load-records.js'
 import { validate } from '../scripts/validate.js'
 import type { Initiative, Language } from '../src/schema/index.js'
 
@@ -19,7 +23,7 @@ const init = (over: Partial<Initiative> = {}): Initiative => ({
   papers: [], links: [], transferability: null, status: 'verified', ...over,
 })
 
-const base = { methodIds: new Set(['fst-morphological-segmentation']), paperIds: new Set(['x-2025']) }
+const base = { methodIds: new Set(['fst-morphological-segmentation']), paperIds: new Set(['x-2025']), strayFiles: [] }
 
 describe('validate', () => {
   it('passes a consistent dataset', () => {
@@ -68,5 +72,37 @@ describe('validate', () => {
       ...base,
     })
     expect(problems.length).toBeGreaterThanOrEqual(3)
+  })
+
+  it('fails on a stray file, naming it', () => {
+    const problems = validate({
+      languages: [lang()], initiatives: [init()], ...base,
+      strayFiles: ['kanienkeha.yaml.orig'],
+    })
+    expect(problems).toHaveLength(1)
+    expect(problems[0]).toMatch(/kanienkeha\.yaml\.orig/)
+    expect(problems[0]).toMatch(/NOT loaded/)
+  })
+
+  it('reports stray files before other problems', () => {
+    const problems = validate({
+      languages: [lang({ status: 'draft' })], initiatives: [init()], ...base,
+      strayFiles: ['oops.txt'],
+    })
+    expect(problems[0]).toMatch(/oops\.txt/)
+  })
+
+  it('passes when there are no stray files', () => {
+    expect(validate({ languages: [lang()], initiatives: [init()], ...base, strayFiles: [] })).toEqual([])
+  })
+
+  it('findStrayFiles ignores .gitkeep and .DS_Store but reports real strays', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'atlas-stray-'))
+    writeFileSync(join(dir, 'good.yml'), '')
+    writeFileSync(join(dir, '.gitkeep'), '')
+    writeFileSync(join(dir, '.DS_Store'), '')
+    writeFileSync(join(dir, 'kanienkeha.yaml.orig'), '')
+    expect(findStrayFiles(dir)).toEqual(['kanienkeha.yaml.orig'])
+    rmSync(dir, { recursive: true, force: true })
   })
 })

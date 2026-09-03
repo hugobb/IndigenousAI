@@ -3,6 +3,24 @@ import { join } from 'node:path'
 import yaml from 'js-yaml'
 import { InitiativeSchema, LanguageSchema, type Initiative, type Language } from '../../src/schema/index.js'
 
+const IGNORED_FILENAMES = new Set(['.gitkeep', '.DS_Store'])
+
+/** Names of entries in a record directory that `loadDir` would silently skip.
+ *  A curator who typos an extension or leaves a backup file must find out from
+ *  a failing build, not from a pin missing on a published map. */
+export function findStrayFiles(dir: string): string[] {
+  let entries: string[]
+  try {
+    entries = readdirSync(dir)
+  } catch {
+    return []
+  }
+  return entries
+    .filter((f) => !IGNORED_FILENAMES.has(f))
+    .filter((f) => !f.endsWith('.yml') && !f.endsWith('.yaml'))
+    .sort()
+}
+
 function loadDir<T>(dir: string, parse: (raw: unknown, file: string) => T): T[] {
   let files: string[]
   try {

@@ -1,13 +1,17 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import type { Initiative, Language } from '../src/schema/index.js'
-import { loadInitiatives, loadLanguages } from './lib/load-records.js'
+import { findStrayFiles, loadInitiatives, loadLanguages } from './lib/load-records.js'
 
 export interface ValidateInput {
   languages: Language[]
   initiatives: Initiative[]
   methodIds: Set<string>
   paperIds: Set<string>
+  /** Files in the record directories that the loader cannot read. Each is a
+   *  build failure: a silently skipped record is indistinguishable from a
+   *  record that was never written. */
+  strayFiles: string[]
 }
 
 function findDuplicates(ids: string[], kind: string): string[] {
@@ -25,6 +29,10 @@ function findDuplicates(ids: string[], kind: string): string[] {
  *  they are retained so seeding does not re-propose them. */
 export function validate(input: ValidateInput): string[] {
   const problems: string[] = []
+
+  for (const f of input.strayFiles) {
+    problems.push(`stray file "${f}": not a .yml/.yaml record, so it was NOT loaded or validated — rename it or move it out of the record directories`)
+  }
 
   const languages = input.languages.filter((l) => l.status !== 'rejected')
   const initiatives = input.initiatives.filter((i) => i.status !== 'rejected')
@@ -68,6 +76,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     initiatives: loadInitiatives(url('../data/initiatives')),
     methodIds: readIds('../data/derived/methods.json'),
     paperIds: readIds('../data/derived/papers.json'),
+    strayFiles: [
+      ...findStrayFiles(url('../data/languages')),
+      ...findStrayFiles(url('../data/initiatives')),
+    ],
   })
   if (problems.length > 0) {
     console.error(`\nvalidate: ${problems.length} problem(s)\n`)
