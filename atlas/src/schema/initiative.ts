@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { SourceSchema } from './source.js'
+import { ISO_DATE, SourceSchema } from './source.js'
 import {
   APPLICATIONS, DATA_REGIMES, GOVERNANCE_POSTURES, INITIATIVE_KINDS, RECORD_STATUS, TIERS,
 } from './vocab.js'
@@ -26,7 +26,11 @@ export const InitiativeSchema = z
     kind: z.enum(INITIATIVE_KINDS),
     tier: z.enum(TIERS),
     languages: z.array(z.string()).min(1, 'an initiative must name at least one language'),
-    started: z.number().int().min(1900).max(2100),
+    /** Nullable: an initiative whose start year we could not source says so.
+     *  The non-nullable version is what forced Te Hiku Media's `started: 1991`,
+     *  a year inferred from a copyright range. Record the inference in
+     *  `caveat` instead of promoting it to a cited claim. */
+    started: z.number().int().min(1900).max(2100).nullable().default(null),
     ended: z.number().int().min(1900).max(2100).nullable().default(null),
     site: SiteSchema,
     applications: z.array(z.enum(APPLICATIONS)).default([]),
@@ -43,9 +47,21 @@ export const InitiativeSchema = z
       .default(null),
     papers: z.array(z.string()).default([]),
     links: z
-      .array(z.object({ label: z.string().min(1), url: z.string().url(), retrieved: z.string() }))
+      .array(
+        z.object({
+          label: z.string().min(1),
+          url: z.string().url(),
+          // Same rule as SourceSchema.retrieved: a link with no honest
+          // retrieval date is not a citation.
+          retrieved: z.string().regex(ISO_DATE, 'retrieved must be YYYY-MM-DD'),
+        }),
+      )
       .default([]),
     transferability: TransferabilitySchema.nullable().default(null),
+    /** The curator's own hedge about this record, in the record. YAML comments
+     *  are dropped by `js-yaml.load`, so a caveat written as a comment never
+     *  reaches the bundle and the reviewer promoting the record never sees it. */
+    caveat: z.string().min(1).nullable().default(null),
     status: z.enum(RECORD_STATUS),
   })
   .superRefine((v, ctx) => {
@@ -65,7 +81,9 @@ export const InitiativeSchema = z
         message: 'transferability applies only to the adjacent tier',
       })
     }
-    if (v.ended !== null && v.ended < v.started) {
+    // `started` is nullable, so there is nothing to compare against when it is
+    // absent: the check is skipped rather than firing or throwing.
+    if (v.started !== null && v.ended !== null && v.ended < v.started) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['ended'],

@@ -34,4 +34,13 @@ countries: [US]
 # sits in Mississippi and would misplace the Choctaw Nation of Oklahoma. A
 # reviewer decides whether one point can honestly stand for this language.
 centre: null
+# js-yaml drops comments, so the curator hedges written as comments in this
+# file are repeated here as a field. This is the copy that reaches the bundle
+# and the reviewer; a hedge that does not travel is not a hedge.
+caveat: >-
+  Deliberately not mapped. Glottolog gives (32.25, -88.5) for choc1276, which sits in
+  Mississippi and would misplace the Choctaw Nation of Oklahoma; a reviewer decides
+  whether one point can honestly stand for this language. The two speaker figures are
+  also not counting the same thing — a 2015 census self-report of native speakers, and
+  the Choctaw Nation's own post-COVID-19 count of FLUENT speakers.
 status: draft

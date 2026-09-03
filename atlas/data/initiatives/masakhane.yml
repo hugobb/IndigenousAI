@@ -66,4 +66,11 @@ transferability:
     widely-spoken national language and an unreasonable one where a community asserts
     kaitiakitanga over recordings of its last first-language speakers. Read Masakhane for
     how to build a community, not for how to license its outputs.
+# js-yaml drops comments, so the curator hedges written as comments in this
+# file are repeated here as a field. This is the copy that reaches the bundle
+# and the reviewer; a hedge that does not travel is not a hedge.
+caveat: >-
+  The pin is not a base. Masakhane states it is continent-wide, distributed and online
+  with no stated location; `site` is not nullable, so the coordinate marks its founding
+  venue (Deep Learning Indaba 2019, Kenyatta University, Nairobi) and nothing more.
 status: draft

@@ -104,3 +104,54 @@ describe('InitiativeSchema', () => {
     expect(InitiativeSchema.safeParse({ ...initiative, started: 2020, ended: 2016 }).success).toBe(false)
   })
 })
+
+describe('honest absence', () => {
+  it('keeps a curator caveat through a round-trip on both record types', () => {
+    const note = 'Centre is Glottolog\'s round (40.0, -90.0) — a placeholder, not a researched location.'
+
+    const l = LanguageSchema.safeParse({ ...language, caveat: note })
+    expect(l.success).toBe(true)
+    if (l.success) expect(l.data.caveat).toBe(note)
+
+    const i = InitiativeSchema.safeParse({ ...initiative, caveat: note })
+    expect(i.success).toBe(true)
+    if (i.success) expect(i.data.caveat).toBe(note)
+
+    // Absent means absent, not undefined: the bundle carries an explicit null.
+    const bare = LanguageSchema.safeParse(language)
+    expect(bare.success).toBe(true)
+    if (bare.success) expect(bare.data.caveat).toBeNull()
+  })
+
+  it('lets a language say its family and region are unknown rather than guessing', () => {
+    const { family: _f, region: _r, ...rest } = language
+    const r = LanguageSchema.safeParse(rest)
+    expect(r.success).toBe(true)
+    if (r.success) {
+      expect(r.data.family).toBeNull()
+      expect(r.data.region).toBeNull()
+    }
+  })
+
+  it('lets an initiative say its start year is unknown', () => {
+    const r = InitiativeSchema.safeParse({ ...initiative, started: null })
+    expect(r.success).toBe(true)
+    if (r.success) expect(r.data.started).toBeNull()
+  })
+
+  it('does not fire the ended-before-started check when started is unknown', () => {
+    // There is nothing to compare against; the refinement must neither throw
+    // nor invent an ordering problem.
+    const r = InitiativeSchema.safeParse({ ...initiative, started: null, ended: 2016 })
+    expect(r.success).toBe(true)
+  })
+
+  it('holds links[].retrieved to the same YYYY-MM-DD rule as a source', () => {
+    const link = (retrieved: string) => ({
+      ...initiative,
+      links: [{ label: 'About', url: 'https://tehiku.nz/about/', retrieved }],
+    })
+    expect(InitiativeSchema.safeParse(link('last spring')).success).toBe(false)
+    expect(InitiativeSchema.safeParse(link('2026-09-03')).success).toBe(true)
+  })
+})

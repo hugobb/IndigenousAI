@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import yaml from 'js-yaml'
 import { validate } from '../scripts/validate.js'
-import { findStrayFiles, loadInitiatives, loadLanguages } from '../scripts/lib/load-records.js'
+import { findStrayFiles, loadInitiatives, loadLanguages, recordDirStatus } from '../scripts/lib/load-records.js'
 
 const FIXTURES = fileURLToPath(new URL('./fixtures/records', import.meta.url))
 const url = (p: string): string => fileURLToPath(new URL(p, import.meta.url))
@@ -20,13 +20,19 @@ function stage(): string {
   return dir
 }
 
+/** Mirrors what `validate.ts`'s CLI assembles, so the gate is exercised through
+ *  the same input the build actually builds. */
 function inputFrom(d: string) {
+  const dirs = ['languages', 'initiatives'] as const
   return {
     languages: loadLanguages(join(d, 'languages')),
     initiatives: loadInitiatives(join(d, 'initiatives')),
     methodIds: readIds('../data/derived/methods.json'),
     paperIds: readIds('../data/derived/papers.json'),
-    strayFiles: [...findStrayFiles(join(d, 'languages')), ...findStrayFiles(join(d, 'initiatives'))],
+    missingDirs: dirs
+      .filter((name) => recordDirStatus(join(d, name)) !== 'ok')
+      .map((name) => `data/${name}`),
+    strayFiles: dirs.flatMap((name) => findStrayFiles(join(d, name))),
   }
 }
 
@@ -58,5 +64,24 @@ describe('the build gate, against real YAML records on disk', () => {
     const d = stage()
     writeFileSync(join(d, 'languages', 'notes.txt'), 'scratch')
     expect(validate(inputFrom(d)).some((p) => p.includes('notes.txt'))).toBe(true)
+  })
+
+  it('fails when a real record directory is renamed away on disk', () => {
+    const d = stage()
+    expect(validate(inputFrom(d)), 'fixture must start clean or this proves nothing').toEqual([])
+
+    // Rename the PRODUCTION directory the loader actually reads. Before this
+    // gate the loader returned [] and the build printed `validate: ok`.
+    renameSync(join(d, 'languages'), join(d, 'languages_tmp'))
+
+    const problems = validate(inputFrom(d))
+    expect(problems.some((p) => p.includes('data/languages') && p.includes('missing or unreadable'))).toBe(true)
+  })
+
+  it('passes when a record directory is present but empty', () => {
+    const d = stage()
+    rmSync(join(d, 'initiatives'), { recursive: true, force: true })
+    mkdirSync(join(d, 'initiatives'))
+    expect(validate(inputFrom(d))).toEqual([])
   })
 })

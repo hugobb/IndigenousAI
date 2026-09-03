@@ -44,4 +44,13 @@ links:
     url: https://aclanthology.org/volumes/2026.americasnlp-6/
     retrieved: "2026-09-03"
 transferability: null
+# js-yaml drops comments, so the curator hedges written as comments in this
+# file are repeated here as a field. This is the copy that reaches the bundle
+# and the reviewer; a hedge that does not travel is not a hedge.
+caveat: >-
+  The `languages` list is incomplete, not a claim about scope. AmericasNLP spans many
+  languages (Quechua, Aymara, Bribri, Guarani, Nahuatl and more); Choctaw is the only one
+  with a Language record in this atlas so far, linked because Choctaw work appears in the
+  2026 proceedings. The site is an organiser's stated affiliation, not a venue: the
+  workshop is co-located with a different conference each year.
 status: draft

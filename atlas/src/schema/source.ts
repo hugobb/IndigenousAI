@@ -1,6 +1,9 @@
 import { z } from 'zod'
 
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
+/** A retrieval date is YYYY-MM-DD. Exported so every field that records when
+ *  a web page was read enforces the same shape — `Initiative.links[].retrieved`
+ *  once accepted "last spring" because it re-declared a bare string instead. */
+export const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
 
 /** Where a claim came from. Embedded wherever the data asserts something.
  *  A `url` source must record when it was read: web pages change, and a

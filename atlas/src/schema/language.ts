@@ -32,7 +32,10 @@ export const LanguageSchema = z
     glottocode: z.string().regex(/^[a-z0-9]{4}\d{4}$/).nullable().default(null),
     iso639_3: z.string().length(3).nullable().default(null),
     tier: z.enum(TIERS),
-    family: z.string().min(1),
+    /** Nullable: a language whose family we have not sourced says so. The
+     *  non-nullable version left the seeder no way to express that, so it
+     *  wrote an all-caps sentinel string that read like a researched value. */
+    family: z.string().min(1).nullable().default(null),
     subfamily: z.string().nullable().default(null),
     typology: z.array(z.enum(TYPOLOGIES)).default([]),
     endangerment: z
@@ -44,9 +47,16 @@ export const LanguageSchema = z
       .nullable()
       .default(null),
     speakers: SpeakerCountSchema.nullable().default(null),
-    region: z.enum(REGIONS),
+    /** Nullable, and never guessed. The seeder used to hardcode
+     *  `north-america` for every record it wrote, which silently asserts a
+     *  continent for any non-North-American profile in the source draft. */
+    region: z.enum(REGIONS).nullable().default(null),
     countries: z.array(z.string().length(2)).default([]),
     centre: CentreSchema.nullable().default(null),
+    /** The curator's own hedge about this record, in the record. YAML comments
+     *  are dropped by `js-yaml.load`, so a caveat written as a comment never
+     *  reaches the bundle and the reviewer promoting the record never sees it. */
+    caveat: z.string().min(1).nullable().default(null),
     status: z.enum(RECORD_STATUS),
   })
   .superRefine((v, ctx) => {

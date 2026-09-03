@@ -54,9 +54,15 @@ export function seedLanguagesFromDraft(draftMarkdown: string): Language[] {
         // Draft.md's Languages section is Indigenous languages. Adjacent-tier
         // languages are added by hand, never seeded.
         tier: 'indigenous',
-        family: field(section, /^Language family:\s*(.+)$/m) ?? 'UNKNOWN',
+        // null, not a sentinel string: a placeholder reads like a researched
+        // value in the bundle and in a facet. An absent family says absent.
+        family: field(section, /^Language family:\s*(.+)$/m),
         typology,
-        region: 'north-america',
+        // NEVER guessed. Draft.md's profiles happen to be North American
+        // today, but nothing in the file states a macro-area, and hardcoding
+        // one would silently assert a continent for any future profile.
+        // A human sets this during review.
+        region: null,
         endangerment: status === null ? null : { status, scale: 'unesco-2010', source },
         speakers:
           figures.length === 0

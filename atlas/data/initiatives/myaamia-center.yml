@@ -47,4 +47,11 @@ links:
     url: https://miamioh.edu/news/2026/04/myaamia-center-celebrates-25-years-of-groundbreaking-work-at-miami-university.html
     retrieved: "2026-09-03"
 transferability: null
+# js-yaml drops comments, so the curator hedges written as comments in this
+# file are repeated here as a field. This is the copy that reaches the bundle
+# and the reviewer; a hedge that does not travel is not a hedge.
+caveat: >-
+  `started: 2001` is the year leaders from the Miami Tribe of Oklahoma and Miami
+  University created the Myaamia PROJECT. The Myaamia Center is its successor, and none
+  of the Center's pages read on 2026-09-03 date the Project-to-Center transition.
 status: draft

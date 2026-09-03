@@ -1,8 +1,8 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { findStrayFiles } from '../scripts/lib/load-records.js'
+import { findStrayFiles, recordDirStatus } from '../scripts/lib/load-records.js'
 import { validate } from '../scripts/validate.js'
 import type { Initiative, Language } from '../src/schema/index.js'
 
@@ -12,7 +12,7 @@ const lang = (over: Partial<Language> = {}): Language => ({
   id: 'kanienkeha', name: "Kanien'kéha", also_known_as: [], glottocode: null, iso639_3: null,
   tier: 'indigenous', family: 'Iroquoian', subfamily: null, typology: ['polysynthetic'],
   endangerment: null, speakers: null, region: 'north-america', countries: ['CA'],
-  centre: null, status: 'verified', ...over,
+  centre: null, caveat: null, status: 'verified', ...over,
 })
 
 const init = (over: Partial<Initiative> = {}): Initiative => ({
@@ -20,10 +20,15 @@ const init = (over: Partial<Initiative> = {}): Initiative => ({
   languages: ['kanienkeha'], started: 1999, ended: null,
   site: { lat: 43.13, lon: -79.92, place: 'Six Nations', source: src },
   applications: ['education'], methods: [], models: [], data_regime: null, governance: null,
-  papers: [], links: [], transferability: null, status: 'verified', ...over,
+  papers: [], links: [], transferability: null, caveat: null, status: 'verified', ...over,
 })
 
-const base = { methodIds: new Set(['fst-morphological-segmentation']), paperIds: new Set(['x-2025']), strayFiles: [] }
+const base = {
+  methodIds: new Set(['fst-morphological-segmentation']),
+  paperIds: new Set(['x-2025']),
+  missingDirs: [],
+  strayFiles: [],
+}
 
 describe('validate', () => {
   it('passes a consistent dataset', () => {
@@ -104,5 +109,39 @@ describe('validate', () => {
     writeFileSync(join(dir, 'kanienkeha.yaml.orig'), '')
     expect(findStrayFiles(dir)).toEqual(['kanienkeha.yaml.orig'])
     rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('fails when a record directory is missing, naming it and saying what it means', () => {
+    const problems = validate({
+      languages: [], initiatives: [], ...base,
+      missingDirs: ['data/languages'],
+    })
+    expect(problems).toHaveLength(1)
+    expect(problems[0]).toMatch(/data\/languages/)
+    expect(problems[0]).toMatch(/missing or unreadable/)
+    expect(problems[0]).toMatch(/nothing was loaded/)
+  })
+
+  it('reports a missing directory before anything else, including stray files', () => {
+    const problems = validate({
+      languages: [lang({ status: 'draft' })], initiatives: [init()], ...base,
+      missingDirs: ['data/initiatives'],
+      strayFiles: ['oops.txt'],
+    })
+    expect(problems[0]).toMatch(/data\/initiatives/)
+  })
+
+  it('recordDirStatus tells an absent directory apart from a present, empty one', () => {
+    const parent = mkdtempSync(join(tmpdir(), 'atlas-dirstatus-'))
+    const empty = join(parent, 'languages')
+    mkdirSync(empty)
+
+    // A directory that exists with no records in it is a legitimate state and
+    // must NOT fail the build; only one that could not be read at all does.
+    expect(recordDirStatus(empty)).toBe('ok')
+    expect(validate({ languages: [], initiatives: [], ...base, missingDirs: [] })).toEqual([])
+
+    expect(recordDirStatus(join(parent, 'renamed-by-accident'))).toBe('missing')
+    rmSync(parent, { recursive: true, force: true })
   })
 })

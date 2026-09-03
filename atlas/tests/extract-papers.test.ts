@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { extractPapers } from '../scripts/extract-papers.js'
 
 const ROOT = fileURLToPath(new URL('./fixtures/review', import.meta.url))
+const BROKEN = fileURLToPath(new URL('./fixtures/review-broken', import.meta.url))
 
 describe('extractPapers', () => {
   const papers = extractPapers(ROOT)
@@ -36,5 +37,19 @@ describe('extractPapers', () => {
 
   it('leaves venue null for the **Citation:** format rather than guessing', () => {
     expect(papers[1]?.venue).toBeNull()
+  })
+})
+
+describe('the row-count invariant', () => {
+  // The real corpus yields 92 of 92, so this asserts something silently true
+  // today: a title containing `]`, or a `|` inside a cell, must not lose a
+  // paper the way it used to — quietly, with `continue`.
+  it('throws naming the index rows that failed to parse', () => {
+    expect(() => extractPapers(BROKEN)).toThrow(/3 index row\(s\) but only 1 parsed/)
+    expect(() => extractPapers(BROKEN)).toThrow(/row\(s\) 2, 3/)
+  })
+
+  it('does not throw on the well-formed corpus fixture', () => {
+    expect(() => extractPapers(ROOT)).not.toThrow()
   })
 })
