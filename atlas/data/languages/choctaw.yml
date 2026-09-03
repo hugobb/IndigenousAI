@@ -1,0 +1,37 @@
+# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+id: choctaw
+name: Choctaw
+also_known_as: [Chahta, Chahta Anumpa]
+glottocode: choc1276
+iso639_3: cho
+tier: indigenous
+family: Muskogean
+subfamily: Western Muskogean
+typology: []
+endangerment: null
+# Sources disagree by more than an order of magnitude and the schema keeps
+# that disagreement rather than resolving it (spec §10). The two figures are
+# not counting the same thing: one is census self-report of native speakers,
+# the other is the Choctaw Nation's own count of FLUENT speakers after COVID-19.
+speakers:
+  value: 9600
+  as_of: 2015
+  source:
+    kind: url
+    ref: https://en.wikipedia.org/wiki/Choctaw_language
+    retrieved: "2026-09-03"
+    quote: "Native speakers: 9,600 (2015 census)"
+  conflicts:
+    - value: 300
+      source:
+        kind: url
+        ref: https://www.kgou.org/indigenous-news/2025-12-18/choctaw-nation-partners-with-rosetta-stone-to-revitalize-language-promote-accessibility
+        retrieved: "2026-09-03"
+        quote: "Williston estimated that it took the lives of about 75 elders, leaving about 300 fluent language speakers"
+region: north-america
+countries: [US]
+# Deliberately NOT mapped. Glottolog gives (32.25, -88.5) for choc1276, which
+# sits in Mississippi and would misplace the Choctaw Nation of Oklahoma. A
+# reviewer decides whether one point can honestly stand for this language.
+centre: null
+status: draft

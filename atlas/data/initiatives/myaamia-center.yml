@@ -1,0 +1,50 @@
+# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+id: myaamia-center
+name: Myaamia Center
+kind: organisation
+tier: indigenous
+languages: [myaamia]
+# "Back in 2001, leaders from the Miami Tribe of Oklahoma and Miami University
+# created the Myaamia Project." The Myaamia Center is its successor; the pages
+# read on 2026-09-03 do not date the Project -> Center transition.
+started: 2001
+ended: null
+site:
+  # Geocoded (~2 dp) from the address the Center publishes itself.
+  lat: 39.51
+  lon: -84.73
+  place: "351 E. Spring St., Bonham House, Miami University, Oxford, OH 45056, United States"
+  source:
+    kind: url
+    ref: https://miamioh.edu/myaamia-center/about/index.html
+    retrieved: "2026-09-03"
+    quote: "351 E. Spring St. Bonham House, Miami University Oxford, OH 45056"
+# Sourced from the Center's own Digital Resources page: ILDA dictionary and
+# app, the Miami-Illinois Digital Archive, and the Šaapohkaayoni portal.
+# NOT tts: nothing on the Center's own materials read on 2026-09-03 describes
+# speech synthesis work, so it is not claimed here.
+applications: [dictionary, corpus, education]
+methods: []
+models: []
+data_regime: null
+governance:
+  posture: community-controlled
+  licence: null
+  source:
+    kind: url
+    ref: https://miamioh.edu/myaamia-center/about/index.html
+    retrieved: "2026-09-03"
+    quote: "a Miami Tribe of Oklahoma initiative located within an academic setting"
+papers: []
+links:
+  - label: About the Myaamia Center
+    url: https://miamioh.edu/myaamia-center/about/index.html
+    retrieved: "2026-09-03"
+  - label: "Digital Resources (ILDA dictionary, MIDA, Šaapohkaayoni, mahkihkiwa)"
+    url: https://miamioh.edu/centers-institutes/myaamia-center/research/digital-resources.html
+    retrieved: "2026-09-03"
+  - label: "Myaamia Center celebrates 25 years (founding year)"
+    url: https://miamioh.edu/news/2026/04/myaamia-center-celebrates-25-years-of-groundbreaking-work-at-miami-university.html
+    retrieved: "2026-09-03"
+transferability: null
+status: draft

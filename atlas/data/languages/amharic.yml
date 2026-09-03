@@ -1,0 +1,18 @@
+# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+# tier: adjacent. Per spec D5 an adjacent-tier language carries NO centre:
+# soft fields are an Indigenous-tier feature and the schema enforces it.
+id: amharic
+name: Amharic
+also_known_as: [አማርኛ, Amarinya]
+glottocode: amha1245
+iso639_3: amh
+tier: adjacent
+family: Afro-Asiatic
+subfamily: Semitic
+typology: []
+endangerment: null
+speakers: null
+region: africa
+countries: [ET]
+centre: null
+status: draft

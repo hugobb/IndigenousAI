@@ -1,0 +1,37 @@
+# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+id: onkwawenna-kentyohkwa
+name: Onkwawenna Kentyohkwa
+kind: organisation
+tier: indigenous
+languages: [kanienkeha]
+# Their own site: "began teaching a full-time adult immersion program in 1999".
+started: 1999
+ended: null
+site:
+  # Geocoded (~2 dp) from the address they publish: Ohsweken, Ontario.
+  lat: 43.08
+  lon: -80.12
+  place: "Suite 402 – 16 Sunrise Court, Ohsweken, Ontario N0A 1M0, Six Nations of the Grand River Territory, Canada"
+  source:
+    kind: url
+    ref: https://onkwawenna.info/
+    retrieved: "2026-09-03"
+    quote: "located in the GREAT Building in Ohsweken ... Suite 402 – 16 Sunrise Court ... on the Six Nations Grand River Territory near Brantford, Ontario"
+applications: [education]
+methods: []
+models: []
+data_regime: null
+# Their site describes funding ("All of our programs are community-funded for
+# basic operations only") but states no governance posture and no data licence.
+# Funding is not governance, so this stays null rather than being inferred.
+governance: null
+papers: []
+links:
+  - label: Onkwawenna Kentyohkwa
+    url: https://onkwawenna.info/
+    retrieved: "2026-09-03"
+  - label: Adult Immersion programme
+    url: https://onkwawenna.info/adult-immersion/
+    retrieved: "2026-09-03"
+transferability: null
+status: draft

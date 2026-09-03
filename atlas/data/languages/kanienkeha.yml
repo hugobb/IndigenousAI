@@ -1,0 +1,24 @@
+# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+id: kanienkeha
+name: "Kanien'kéha"
+also_known_as: [Mohawk, "Kanyen'kéha", Kanien'kehá:ka]
+glottocode: moha1258
+iso639_3: moh
+tier: indigenous
+family: Iroquoian
+subfamily: Northern Iroquoian
+typology: []
+endangerment: null
+speakers: null
+region: north-america
+# Glottolog states "Countries: Canada and United States" for moha1258.
+countries: [CA, US]
+centre:
+  lat: 43.72
+  lon: -74.66836
+  source:
+    kind: url
+    ref: https://glottolog.org/resource/languoid/id/moha1258
+    retrieved: "2026-09-03"
+    quote: "Mohawk moha1258 moh latitude 43.72 longitude -74.66836 (Glottolog, CC-BY-4.0)"
+status: draft
