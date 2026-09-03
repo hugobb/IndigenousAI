@@ -837,7 +837,7 @@ until then `index.ts` carries only the first four.
 - [ ] **Step 5: Run tests and typecheck**
 
 Run: `pnpm test && pnpm typecheck`
-Expected: all PASS (3 + 5 + 7 + 10 = 25 tests), typecheck clean.
+Expected: all PASS (3 + 5 + 7 + 9 = 24 tests), typecheck clean.
 
 - [ ] **Step 6: Commit**
 
@@ -2069,7 +2069,7 @@ If `validate` exits 1, read the list: every line names a record and what is wron
 - [ ] **Step 5: Run the full suite and typecheck**
 
 Run: `pnpm test && pnpm typecheck`
-Expected: all tests PASS (vocab 3, source 5, data-regime 7, schema 10, extract-methods 8, extract-papers 7, validate 8, fetch-areas 6, seed 6, gate 3 = 63), typecheck clean.
+Expected: all tests PASS (vocab 3, source 5, data-regime 7, schema 9, extract-methods 8, extract-papers 7, validate 8, fetch-areas 6, seed 6, gate 3 = 62), typecheck clean.
 
 - [ ] **Step 6: Commit**
 
