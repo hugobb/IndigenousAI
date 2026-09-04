@@ -9,6 +9,16 @@ describe('map style', () => {
     expect(src.attribution).toMatch(/carto/i)
   })
 
+  it('holds the language-field blur constant, so softness only ever means "no boundary claim"', () => {
+    // Not a duplicate of the blur assertions below: this one is about the two
+    // language layers AGREEING. The moment they differ, blur has started to
+    // encode something (selection, confidence, size) and §4 is broken.
+    const base = byId('language-field')?.paint?.['circle-blur']
+    const selected = byId('language-field-selected')?.paint?.['circle-blur']
+    expect(typeof base).toBe('number')
+    expect(selected).toBe(base)
+  })
+
   it('draws language fields as a heavily blurred circle, not a heatmap or a polygon', () => {
     const l = byId('language-field')
     expect(l?.type).toBe('circle')
@@ -29,8 +39,36 @@ describe('map style', () => {
   })
 
   it('draws adjacent-tier pins hollow so tier reads without a legend', () => {
+    // Asserting the VALUES, not merely that the expression mentions 'adjacent'.
+    // The previous version of this test passed for a 0.15 fill, for the two
+    // branches swapped, and for any pair of numbers at all — which is how a
+    // near-invisible adjacent pin shipped under a test named "hollow".
     const l = byId('initiative-site')
-    expect(JSON.stringify(l?.paint?.['circle-opacity'])).toMatch(/adjacent/)
+    expect(l?.paint?.['circle-opacity']).toEqual(['match', ['get', 'tier'], 'adjacent', 0, 1])
+  })
+
+  it('keeps the outline of a hollow pin fully opaque, or tier would erase it', () => {
+    const l = byId('initiative-site')
+    expect(l?.paint?.['circle-stroke-opacity']).toBe(1)
+    expect(Number(l?.paint?.['circle-stroke-width'])).toBeGreaterThan(0)
+  })
+
+  it('never lets tier and confidence share a channel on the pins', () => {
+    const l = byId('initiative-site')
+    // Tier owns opacity; confidence owns colour and blur. Each channel names
+    // exactly one of the two properties, never both (spec §4).
+    const tierOnly = ['circle-opacity']
+    const confidenceOnly = ['circle-color', 'circle-blur', 'circle-stroke-color']
+    for (const key of tierOnly) {
+      const json = JSON.stringify(l?.paint?.[key as 'circle-opacity'])
+      expect(json).toMatch(/tier/)
+      expect(json).not.toMatch(/confidence/)
+    }
+    for (const key of confidenceOnly) {
+      const json = JSON.stringify(l?.paint?.[key as 'circle-color'])
+      expect(json).toMatch(/confidence/)
+      expect(json).not.toMatch(/tier/)
+    }
   })
 
   it('separates selection into its own layer over the same source', () => {

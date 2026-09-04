@@ -65,8 +65,16 @@ export const LAYERS: CircleLayerSpecification[] = [
       'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 4, 8, 9],
       'circle-blur': ['match', ['get', 'confidence'], 'approximate', 0.9, 0],
       'circle-color': ['match', ['get', 'confidence'], 'approximate', MUTED, INK],
-      'circle-opacity': ['match', ['get', 'tier'], 'adjacent', 0.15, 0.95],
+      // Tier is fill-vs-no-fill and NOTHING else: an adjacent pin has no fill
+      // at all, an indigenous one is solid. A partial opacity (this was 0.15)
+      // reads to most viewers as low confidence, which is the exact conflation
+      // §4 exists to prevent — and it compounded with the approximate blur
+      // above into a pin nobody could see.
+      'circle-opacity': ['match', ['get', 'tier'], 'adjacent', 0, 1],
       'circle-stroke-width': 1.5,
+      // The stroke is what makes a hollow pin visible at all, so it is fully
+      // opaque for both tiers. Only its COLOUR varies, and only by confidence.
+      'circle-stroke-opacity': 1,
       'circle-stroke-color': ['match', ['get', 'confidence'], 'approximate', MUTED, INK],
     },
   },
