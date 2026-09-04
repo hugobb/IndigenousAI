@@ -39,11 +39,29 @@ describe('the filtered-out group', () => {
   it('still shows the two groups it had before', () => {
     render(
       <UnmappedList
-        languages={[lang('nocentre', { centre: null })]}
+        languages={[
+          lang('nocentre', { centre: null }),
+          lang('rough', { centre: { lat: 1, lon: 2, source: src, confidence: 'approximate' } }),
+        ]}
         filteredOut={[]} onSelect={vi.fn()}
       />,
     )
     expect(screen.getByTestId('group-not-mapped')).toBeDefined()
     expect(screen.getByTestId('group-approximate')).toBeDefined()
+  })
+
+  // A zero-count heading is not information, and at
+  // `?region=africa&application=asr` two of them stacked above the group that
+  // carried the actual finding.
+  it('suppresses a group that has nothing in it rather than heading it with a zero', () => {
+    render(
+      <UnmappedList
+        languages={[lang('mapped')]}
+        filteredOut={[lang('choctaw')]} onSelect={vi.fn()}
+      />,
+    )
+    expect(screen.queryByTestId('group-not-mapped')).toBeNull()
+    expect(screen.queryByTestId('group-approximate')).toBeNull()
+    expect(screen.getByTestId('group-filtered-out')).toBeDefined()
   })
 })
