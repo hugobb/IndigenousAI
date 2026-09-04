@@ -39,22 +39,29 @@ const bundle = loadBundle()
  *  one module with no test of its own wiring, and it is the module that decides
  *  what every other one is shown. Each test below names the mutation it kills. */
 describe('what App actually wires up', () => {
-  // MUTATION: `languages={languageFields([...selection.languages,
-  // ...selection.filteredOut])}` — the union of L1 instead of L2.
+  // REVERSED BY TASK 1 (ruling C2). This test previously asserted the
+  // opposite: that a work filter deletes a workless language from the map.
+  // That is the asymmetry `noMatchingWork` exists to remove — the same
+  // language, with the same absence of work, was drawn under a language
+  // filter and erased under a work filter, so the map and the rail disagreed
+  // about it depending on which control the reader touched. The map now draws
+  // L1 in every filter state: a language is labelled, never deleted.
   //
-  // This is spec F1's other half. A language with no matching work is demoted
-  // to the rail, and it must NOT stay on the map: a pin says "work happens
-  // here", and drawing one for a language the current filter found no work for
-  // states the opposite of the finding. `?region=africa` cannot catch this —
-  // its `filteredOut` is empty, so the two expressions are equal. `?application=asr`
-  // splits them: one language survives, four are demoted, and two of those four
-  // carry a centre and would therefore appear as extra pins.
-  it('gives the map only the languages with matching work, never the demoted ones', () => {
+  // MUTATION this still kills: `languages={languageFields(
+  //   selection.languages.filter((l) => !selection.noMatchingWork.includes(l)))}`
+  // — the old L2 map. `?region=africa` cannot catch that (its `noMatchingWork`
+  // would be the whole list); `?application=asr` splits them: fixture-sourced
+  // keeps its work, the other four do not, and two of those four carry a
+  // centre and must still be drawn.
+  it('gives the map every L1 language with a centre, including the workless ones', () => {
     at('/?application=asr')
-    expect(screen.getByTestId('map-language-ids').textContent).toBe('fixture-sourced')
-
-    // Proves the assertion above is doing work: a demoted language that HAS a
-    // centre is on the rail and off the map at the same moment.
+    const ids = (screen.getByTestId('map-language-ids').textContent ?? '').split(' ')
+    // Derived, not hardcoded: L1 under a work filter is every language in the
+    // bundle, and `languageFields` draws exactly the ones with a centre.
+    expect(ids).toEqual(bundle.languages.filter((l) => l.centre !== null).map((l) => l.id))
+    // The point of the ruling: a language the rail names as having no matching
+    // work is on the rail and ON the map at the same moment.
+    expect(ids).toContain('fixture-approximate')
     const group = screen.getByTestId('group-filtered-out')
     expect(group.textContent).toMatch(/Approximate Centre Language/)
   })
@@ -128,11 +135,18 @@ describe('the rail under a filter that finds no work', () => {
     expect(screen.queryByTestId('no-matching-work')).toBeNull()
   })
 
+  // The URL this used to assert on was `?region=africa&application=asr`, where
+  // the old L2 `languages` was empty and so both mapping groups were. L1 keeps
+  // fixture-adjacent now, and it has no centre, so "Not mapped" is legitimately
+  // non-empty there — the state no longer exercises suppression. `?region=africa`
+  // alone reaches it instead: fixture-adjacent is the only L1 language, it has
+  // no centre (so "Not mapped" is the one group with content), and its own
+  // initiative survives (so "no matching work" is genuinely empty).
   it('heads no group with a zero when that group is empty', () => {
-    at('/?region=africa&application=asr')
-    expect(screen.queryByTestId('group-not-mapped')).toBeNull()
+    at('/?region=africa')
+    expect(screen.getByTestId('group-not-mapped')).toBeDefined()
     expect(screen.queryByTestId('group-approximate')).toBeNull()
-    expect(screen.getByTestId('group-filtered-out')).toBeDefined()
+    expect(screen.queryByTestId('group-filtered-out')).toBeNull()
   })
 })
 
@@ -182,16 +196,17 @@ describe('view wiring', () => {
     expect(screen.getByTestId('view-map').getAttribute('aria-pressed')).toBe('true')
   })
 
-  // Important 4 (whole-branch review): dropping `filteredOut` from
-  // `counts.languages` passes 389/389 and makes the view-switch strip read
-  // "Languages (1)" above a five-row table captioned "(5)" — two numbers for
-  // one thing on one screen, and it counts the coverage-gap languages OUT of
-  // the very tab that exists to show them. `tests/app-wiring.test.tsx:207`
-  // (below) only ever changes the INITIATIVES count under a filter; this is
-  // its languages-side counterpart, using the same `?application=asr`
-  // fixture scenario as the map test above (one language keeps matching
-  // work, four are demoted to the rail but still render as table rows).
-  it('counts the demoted languages in the Languages tab total, not just the ones with matching work', () => {
+  // Important 4 (whole-branch review): narrowing `counts.languages` to the
+  // languages WITH matching work — after this task, subtracting
+  // `selection.noMatchingWork.length` — makes the view-switch strip read
+  // "Languages (1)" above a five-row table captioned "(5)": two numbers for
+  // one thing on one screen, counting the coverage-gap languages OUT of the
+  // very tab that exists to show them. The count is now a single term, so the
+  // mutation is the subtraction rather than dropping an addend; the failure it
+  // produces is the same. Uses the same `?application=asr` fixture scenario as
+  // the map test above (one language keeps matching work, four do not but
+  // still render as table rows).
+  it('counts the workless languages in the Languages tab total, not just the ones with matching work', () => {
     at('/?view=languages&application=asr')
     const rows = screen.getAllByTestId(/^row-/).length
     expect(rows).toBeGreaterThan(1)

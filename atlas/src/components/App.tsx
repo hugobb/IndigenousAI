@@ -27,9 +27,7 @@ export default function App(): React.JSX.Element {
   const language = bundle.languages.find((l) => l.id === state.lang) ?? null
   const initiative = bundle.initiatives.find((i) => i.id === state.init) ?? null
 
-  const languageInSelection =
-    selection.languages.some((l) => l.id === state.lang) ||
-    selection.filteredOut.some((l) => l.id === state.lang)
+  const languageInSelection = selection.languages.some((l) => l.id === state.lang)
   const initiativeInSelection = selection.initiatives.some((i) => i.id === state.init)
 
   const outside: 'language' | 'initiative' | null =
@@ -55,7 +53,7 @@ export default function App(): React.JSX.Element {
     summaries.reduce((n, s) => n + s.selected.length, 0) + (timelineActive ? 1 : 0)
 
   const empty = emptyState(selection)
-  const nFilteredOut = selection.filteredOut.length
+  const nWorkless = selection.noMatchingWork.length
 
   return (
     <main className="atlas">
@@ -104,14 +102,14 @@ export default function App(): React.JSX.Element {
         )}
         {empty === 'no-work-but-languages' && (
           <p className="card empty" data-testid="no-matching-work">
-            No initiative matches the current filters. {nFilteredOut}{' '}
-            {nFilteredOut === 1 ? 'language' : 'languages'} matched your language filters
-            and {nFilteredOut === 1 ? 'is' : 'are'} listed below.
+            No initiative matches the current filters. {nWorkless}{' '}
+            {nWorkless === 1 ? 'language' : 'languages'} matched your language filters
+            and {nWorkless === 1 ? 'is' : 'are'} listed below.
           </p>
         )}
         <UnmappedList
           languages={selection.languages}
-          filteredOut={selection.filteredOut}
+          filteredOut={selection.noMatchingWork}
           onSelect={(id) => dispatch({ type: 'selectLanguage', id })}
         />
         {outside !== null && (
@@ -141,7 +139,7 @@ export default function App(): React.JSX.Element {
           view={state.view}
           counts={{
             initiatives: selection.initiatives.length,
-            languages: selection.languages.length + selection.filteredOut.length,
+            languages: selection.languages.length,
           }}
           onChange={(view) => dispatch({ type: 'setView', view })}
         />

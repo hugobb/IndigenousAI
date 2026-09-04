@@ -54,9 +54,9 @@ describe('what reaches the map', () => {
 // These two prove the wiring itself, through the real App.
 //
 // `application=asr` matches only fixture-ongoing (languages: [fixture-sourced])
-// among the fixture's three initiatives, so with no language facet active,
-// applyFilters covers only fixture-sourced and puts the other four fixture
-// languages — including "Conflicted Speakers Language" — into `filteredOut`.
+// among the fixture's initiatives, so with no language facet active,
+// applyFilters covers only fixture-sourced and reports the other four fixture
+// languages — including "Conflicted Speakers Language" — in `noMatchingWork`.
 describe('the rail through App', () => {
   it('shows the filtered-out group, naming a language that matched but has no matching work', () => {
     window.history.replaceState({}, '', '/?application=asr')

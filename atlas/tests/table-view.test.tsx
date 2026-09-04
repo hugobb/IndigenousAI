@@ -29,26 +29,26 @@ describe('TableView', () => {
   // Spec T5: L1, not L2. A language the map drops for having no matching work
   // is exactly the row the table exists to show.
   //
-  // EMPTY_FILTERS never populates `filteredOut` (no work facet is active), so
-  // asserting against `selection.filteredOut.length` there is trivially true
-  // even if the languages tab dropped `filteredOut` from `rows` entirely — a
-  // mutation check on the original assertion alone did not fail. This test
-  // instead constructs a selection where `filteredOut` is non-empty and
-  // disjoint from `languages`, so dropping either half changes the row count
-  // AND the set of ids rendered.
+  // `selection.languages` IS L1 now, so the row set is that list verbatim.
+  // The selection here names one workless language among the two, so a
+  // languages tab that filtered its rows down to the ones WITH matching work
+  // would render one row instead of two.
   it('shows L1 in the languages tab, including languages with no matching work', () => {
     const kept = bundle.languages[0]!
-    const dropped = bundle.languages[1]!
+    const workless = bundle.languages[1]!
     render(
       <TableView
         view="languages"
-        selection={{ languages: [kept], initiatives: [], filteredOut: [dropped], undatedInitiatives: 0 }}
+        selection={{
+          languages: [kept, workless], initiatives: [], noMatchingWork: [workless],
+          undatedInitiatives: 0, workFiltered: true,
+        }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
     )
     expect(screen.getAllByTestId(/^row-/).length).toBe(2)
     expect(screen.getByTestId(`row-${kept.id}`)).toBeDefined()
-    expect(screen.getByTestId(`row-${dropped.id}`)).toBeDefined()
+    expect(screen.getByTestId(`row-${workless.id}`)).toBeDefined()
   })
 
   // A bare "0" invites the reading "no work exists". The caption is the only
@@ -94,7 +94,7 @@ describe('TableView', () => {
     render(
       <TableView
         view="languages"
-        selection={{ languages: [lang], initiatives: [], filteredOut: [], undatedInitiatives: 0 }}
+        selection={{ languages: [lang], initiatives: [], noMatchingWork: [], undatedInitiatives: 0, workFiltered: false }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
     )
@@ -115,7 +115,7 @@ describe('TableView', () => {
     render(
       <TableView
         view="languages"
-        selection={{ languages: [lang], initiatives: [], filteredOut: [], undatedInitiatives: 0 }}
+        selection={{ languages: [lang], initiatives: [], noMatchingWork: [], undatedInitiatives: 0, workFiltered: false }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
     )
@@ -138,7 +138,7 @@ describe('TableView', () => {
     render(
       <TableView
         view="initiatives"
-        selection={{ languages: [], initiatives: [only], filteredOut: [], undatedInitiatives: 0 }}
+        selection={{ languages: [], initiatives: [only], noMatchingWork: [], undatedInitiatives: 0, workFiltered: false }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
     )
@@ -150,16 +150,18 @@ describe('TableView', () => {
     expect(caption).not.toContain(`(${bundle.initiatives.length})`)
   })
 
-  // Same hole on the languages side: substituting an L2 count (every language
-  // in the bundle) for L1 (the rows this table actually renders — kept PLUS
-  // filteredOut) passes just as silently.
-  it('states the languages caption count as the rows actually rendered (L1), not L2', () => {
+  // Same hole on the languages side: substituting a bundle-wide count for the
+  // rows this table actually renders (L1) passes just as silently.
+  it('states the languages caption count as the rows actually rendered (L1), not the bundle', () => {
     const kept = bundle.languages[0]!
-    const dropped = bundle.languages[1]!
+    const workless = bundle.languages[1]!
     render(
       <TableView
         view="languages"
-        selection={{ languages: [kept], initiatives: [], filteredOut: [dropped], undatedInitiatives: 0 }}
+        selection={{
+          languages: [kept, workless], initiatives: [], noMatchingWork: [workless],
+          undatedInitiatives: 0, workFiltered: true,
+        }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
     )
@@ -171,11 +173,17 @@ describe('TableView', () => {
     expect(caption).not.toContain(`(${bundle.languages.length})`)
   })
 
+  // `noMatchingWork` is a subset of `languages`, so the state this describes is
+  // now written with the language present in BOTH lists — `languages: []` with
+  // a non-empty second list is unconstructable, and would read `nothing-matched`.
   it('renders the shared empty-state sentence when no work matches', () => {
     render(
       <TableView
         view="initiatives"
-        selection={{ languages: [], initiatives: [], filteredOut: [bundle.languages[0]!], undatedInitiatives: 0 }}
+        selection={{
+          languages: [bundle.languages[0]!], initiatives: [],
+          noMatchingWork: [bundle.languages[0]!], undatedInitiatives: 0, workFiltered: true,
+        }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
     )
@@ -184,19 +192,25 @@ describe('TableView', () => {
 
   // Important 1 (review round 1): the `matched`-but-empty ruling in
   // TableView had no guard at all — reverting `matched:` back to `null` in
-  // EMPTY_COPY passed every test in this file. Constructed exactly the state
-  // the ruling exists for: languages non-empty (so emptyState is `matched`,
-  // not `nothing-matched`), initiatives AND filteredOut both empty (so it is
-  // not `no-work-but-languages` either) — a language-only filter with no
-  // work facet active leaves the initiatives table with nothing to show.
+  // EMPTY_COPY passed every test in this file. The state it was built on
+  // (languages present, initiatives empty) now reads `no-work-but-languages`
+  // rather than `matched`, because `emptyState` no longer needs a non-empty
+  // second list to say so. `matched` with zero rows in THIS table is still
+  // reachable, on the other tab: work survives while the language list is
+  // empty, so the languages table has nothing to show and a null message
+  // would render bare column headers over nothing.
   it('renders a message rather than bare headers when matched but this table has no rows', () => {
     render(
       <TableView
-        view="initiatives"
-        selection={{ languages: [bundle.languages[0]!], initiatives: [], filteredOut: [], undatedInitiatives: 0 }}
+        view="languages"
+        selection={{
+          languages: [], initiatives: [bundle.initiatives[0]!], noMatchingWork: [],
+          undatedInitiatives: 0, workFiltered: false,
+        }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
     )
+    expect(screen.queryAllByTestId(/^row-/).length).toBe(0)
     expect(screen.getByTestId('table-empty').textContent?.trim()).not.toBe('')
   })
 
@@ -229,7 +243,7 @@ describe('TableView', () => {
     render(
       <TableView
         view="initiatives"
-        selection={{ languages: [], initiatives: [dated], filteredOut: [], undatedInitiatives: 0 }}
+        selection={{ languages: [], initiatives: [dated], noMatchingWork: [], undatedInitiatives: 0, workFiltered: false }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
     )

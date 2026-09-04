@@ -32,14 +32,20 @@ describe('applyFilters', () => {
     const s = applyFilters(b, EMPTY_FILTERS)
     expect(s.languages.map((l) => l.id)).toEqual(['a', 'b'])
     expect(s.initiatives.map((i) => i.id)).toEqual(['i'])
-    expect(s.filteredOut).toEqual([])
+    // The asymmetry this rename removes: 'b' has no work in EVERY filter state,
+    // including none at all. The old field reported it only under a work filter
+    // and was empty here, which is why the map and the rail could disagree
+    // about the same language depending on which control the reader touched.
+    expect(s.noMatchingWork.map((l) => l.id)).toEqual(['b'])
   })
 
   it('narrows languages by a language facet', () => {
     const b = bundle([lang('a', { region: 'africa' }), lang('b', { region: 'oceania' })], [])
     const s = applyFilters(b, { ...EMPTY_FILTERS, region: ['africa'] })
     expect(s.languages.map((l) => l.id)).toEqual(['a'])
-    expect(s.filteredOut).toEqual([])
+    // This bundle has no initiatives at all, so the one surviving language is
+    // workless — reported now, silently dropped before.
+    expect(s.noMatchingWork.map((l) => l.id)).toEqual(['a'])
   })
 
   it('drops an initiative whose language was filtered out', () => {
@@ -52,20 +58,23 @@ describe('applyFilters', () => {
   })
 
   // Spec F1: this is the whole point. A work facet must never delete a language.
-  it('moves a language with no matching work into filteredOut, never deleting it', () => {
+  it('labels a language with no matching work, keeping it in languages rather than deleting it', () => {
     const b = bundle([lang('a'), lang('b')], [init('ia', ['a'], { applications: ['asr'] })])
     const s = applyFilters(b, { ...EMPTY_FILTERS, application: ['asr'] })
-    expect(s.languages.map((l) => l.id)).toEqual(['a'])
-    expect(s.filteredOut.map((l) => l.id)).toEqual(['b'])
+    // A work facet must never delete a language from L1 — the map draws L1, so
+    // deleting it here would erase from the map the very language the rail is
+    // about to name.
+    expect(s.languages.map((l) => l.id)).toEqual(['a', 'b'])
+    expect(s.noMatchingWork.map((l) => l.id)).toEqual(['b'])
   })
 
-  it('does not list languages excluded by a language facet as filteredOut', () => {
+  it('does not list languages excluded by a language facet as workless', () => {
     const b = bundle(
       [lang('a', { region: 'africa' }), lang('b', { region: 'oceania' })],
       [init('ia', ['a'], { applications: ['asr'] })],
     )
     const s = applyFilters(b, { ...EMPTY_FILTERS, region: ['africa'], application: ['asr'] })
-    expect(s.filteredOut).toEqual([])
+    expect(s.noMatchingWork).toEqual([])
   })
 
   it('matches the not-recorded sentinel against records carrying nothing', () => {
@@ -210,19 +219,20 @@ describe('facetSummaries', () => {
   })
 
   // Fix round 1, Fix 3: a language facet's option count must be computed
-  // against L1 (languages + filteredOut), never against the narrower L2
-  // (`.languages` alone). Under a work filter, 'b' has no matching work and
-  // ends up in filteredOut rather than being deleted (spec F1) — the region
-  // option must still count it, or a reader who clicks it discovers a second
-  // language they weren't told about.
-  it("counts a language facet option against filteredOut too, not only the survivors", () => {
+  // against L1 — which `selection.languages` now IS. Under a work filter, 'b'
+  // has no matching work and is LABELLED rather than deleted (spec F1), so the
+  // region option must still count it, or a reader who clicks it discovers a
+  // second language they weren't told about. The counterpart risk after the
+  // rename is the opposite one: concatenating `noMatchingWork` back onto
+  // `languages` here counts 'b' TWICE and the option reads 3.
+  it("counts a language facet option against every L1 language, workless ones included and once each", () => {
     const b = bundle(
       [lang('a', { region: 'africa' }), lang('b', { region: 'africa' })],
       [init('ia', ['a'], { applications: ['asr'] })],
     )
     const sel = applyFilters(b, { ...EMPTY_FILTERS, application: ['asr'] })
-    expect(sel.languages.map((l) => l.id)).toEqual(['a'])
-    expect(sel.filteredOut.map((l) => l.id)).toEqual(['b'])
+    expect(sel.languages.map((l) => l.id)).toEqual(['a', 'b'])
+    expect(sel.noMatchingWork.map((l) => l.id)).toEqual(['b'])
 
     const region = facetSummaries(b, { ...EMPTY_FILTERS, application: ['asr'] })
       .find((f) => f.id === 'region')!

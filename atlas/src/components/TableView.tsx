@@ -9,10 +9,10 @@ import DataTable from './DataTable.js'
 
 // Ruling (Task 5): `DataTable` must never receive a null `emptyMessage`. The
 // `matched` state is reachable with zero rows in THIS table — a language-only
-// filter with no work facet active leaves `filteredOut: []` and
-// `initiatives: []`, so the shared predicate reports `matched` while the
-// initiatives table has nothing to show. A null message there renders bare
-// column headers over nothing, which reads as a rendering bug, not a finding.
+// filter can leave `initiatives: []` while languages match, so the shared
+// predicate speaks about the page while the initiatives table has nothing to
+// show. A null message there renders bare column headers over nothing, which
+// reads as a rendering bug, not a finding.
 // `emptyState` still answers "did anything match"; stating this table's own
 // row count is not re-deriving that.
 const EMPTY_COPY = {
@@ -66,9 +66,9 @@ export default function TableView({
     )
   }
 
-  // L1: the languages the map keeps PLUS the ones it drops for having no
-  // matching work. Dropping the second group here would delete the finding.
-  const rows: Language[] = [...selection.languages, ...selection.filteredOut]
+  // `selection.languages` IS L1 now, workless languages included. The old
+  // concatenation would double-count every one of them.
+  const rows: Language[] = selection.languages
   return (
     <DataTable<Language>
       caption={`Languages matching the current language filters (${rows.length}). “Matching work” counts initiatives surviving every current filter, so 0 means no matching work — not that no work exists. † marks a speaker count sources disagree about.`}
