@@ -108,6 +108,36 @@ describe('applyFilters', () => {
     expect(applyFilters(b, { ...EMPTY_FILTERS, to: 1995 }).initiatives).toHaveLength(1)
     expect(applyFilters(b, { ...EMPTY_FILTERS, from: 1995 }).initiatives).toHaveLength(0)
   })
+
+  // Fix round 1, Fix 1: the only prior undated-count test had a dated initiative
+  // pruned by the very window under test, so `i1` was `['undated']` and
+  // `i1.length` equalled the correct answer by coincidence. Here a dated
+  // initiative also survives, so `undatedInitiatives` must be strictly less
+  // than `i1.length` for the count to mean anything.
+  it('counts only the undated initiatives among several survivors, not all of them', () => {
+    const b = bundle(
+      [lang('a')],
+      [init('undated', ['a']), init('current', ['a'], { started: 2020 })],
+    )
+    const s = applyFilters(b, { ...EMPTY_FILTERS, from: 2000, to: 2025 })
+    expect(s.initiatives.map((i) => i.id)).toEqual(['undated', 'current'])
+    expect(s.undatedInitiatives).toBe(1)
+    expect(s.undatedInitiatives).toBeLessThan(s.initiatives.length)
+  })
+
+  // Fix round 1, Fix 2: the timeline caveat is a standing property of the data,
+  // not something that only becomes true once a work facet is touched. Under
+  // EMPTY_FILTERS — the very first thing a reader sees — an undated initiative
+  // must still be counted.
+  it('counts undated initiatives even under EMPTY_FILTERS, with no work filter active', () => {
+    const b = bundle(
+      [lang('a')],
+      [init('undated', ['a']), init('dated', ['a'], { started: 2020 })],
+    )
+    const s = applyFilters(b, EMPTY_FILTERS)
+    expect(s.initiatives.map((i) => i.id)).toEqual(['undated', 'dated'])
+    expect(s.undatedInitiatives).toBe(1)
+  })
 })
 
 describe('facetSummaries', () => {
@@ -161,6 +191,26 @@ describe('facetSummaries', () => {
       .find((f) => f.id === 'typology')!
     expect(typology.options).toEqual([])
     expect(typology.curated).toBe(true)
+  })
+
+  // Fix round 1, Fix 3: a language facet's option count must be computed
+  // against L1 (languages + filteredOut), never against the narrower L2
+  // (`.languages` alone). Under a work filter, 'b' has no matching work and
+  // ends up in filteredOut rather than being deleted (spec F1) — the region
+  // option must still count it, or a reader who clicks it discovers a second
+  // language they weren't told about.
+  it("counts a language facet option against filteredOut too, not only the survivors", () => {
+    const b = bundle(
+      [lang('a', { region: 'africa' }), lang('b', { region: 'africa' })],
+      [init('ia', ['a'], { applications: ['asr'] })],
+    )
+    const sel = applyFilters(b, { ...EMPTY_FILTERS, application: ['asr'] })
+    expect(sel.languages.map((l) => l.id)).toEqual(['a'])
+    expect(sel.filteredOut.map((l) => l.id)).toEqual(['b'])
+
+    const region = facetSummaries(b, { ...EMPTY_FILTERS, application: ['asr'] })
+      .find((f) => f.id === 'region')!
+    expect(region.options).toEqual([{ value: 'africa', count: 2 }])
   })
 })
 

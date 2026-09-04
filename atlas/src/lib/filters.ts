@@ -62,8 +62,15 @@ export function applyFilters(bundle: AtlasBundle, state: FilterState): Selection
       (!anyLanguageFilter(state) || i.languages.some((id) => l1ids.has(id))),
   )
 
+  // Spec §6: the timeline reports how many of the initiatives on screen it
+  // cannot constrain. That is a standing property of `i1`, true on the very
+  // first EMPTY_FILTERS render (Te Hiku Media has no `started`) — not
+  // something that only becomes true once a work facet is touched. Computed
+  // uniformly in both branches below.
+  const undatedInitiatives = i1.filter((i) => i.started === null).length
+
   if (!anyWorkFilter(state)) {
-    return { languages: l1, initiatives: i1, filteredOut: [], undatedInitiatives: 0 }
+    return { languages: l1, initiatives: i1, filteredOut: [], undatedInitiatives }
   }
 
   const covered = new Set(i1.flatMap((i) => i.languages))
@@ -71,7 +78,7 @@ export function applyFilters(bundle: AtlasBundle, state: FilterState): Selection
     languages: l1.filter((l) => covered.has(l.id)),
     initiatives: i1,
     filteredOut: l1.filter((l) => !covered.has(l.id)),
-    undatedInitiatives: i1.filter((i) => i.started === null).length,
+    undatedInitiatives,
   }
 }
 
@@ -106,9 +113,17 @@ export function facetSummaries(bundle: AtlasBundle, state: FilterState): FacetSu
   })
 
   return [
-    ...LANGUAGE_FACETS.map((f) =>
-      summarise(f, applyFilters(bundle, { ...state, [f.id]: [] }).languages, bundle.languages),
-    ),
+    // Spec F1, one layer up: a language demoted to `filteredOut` by a work
+    // filter is still ON the rail, not gone. Counting only `.languages` (L2)
+    // would let an option's badge undercount by exactly the languages a click
+    // would newly reveal in the "no matching work" group — ruling: count
+    // against L1 (`languages` + `filteredOut`), never the narrower L2 pool.
+    ...LANGUAGE_FACETS.map((f) => {
+      const sel = applyFilters(bundle, { ...state, [f.id]: [] })
+      return summarise(f, [...sel.languages, ...sel.filteredOut], bundle.languages)
+    }),
+    // Initiative facets have no analogous demoted state — count against the
+    // survivors exactly as before.
     ...INITIATIVE_FACETS.map((f) =>
       summarise(f, applyFilters(bundle, { ...state, [f.id]: [] }).initiatives, bundle.initiatives),
     ),
