@@ -49,7 +49,22 @@ generated bundle if one exists, the committed fixture, and whether this is a bui
   holds no records.
 - **Promoting records is what changes this.** Once the curated records leave
   `status: draft` and `pnpm build:data` succeeds, the same page renders the real
-  bundle and the banner disappears on its own. Nothing in the app needs editing.
+  bundle and the banner disappears on its own — no app code changes.
+
+  That day is the **only** time the page renders without the notice, so it is
+  the one layout nobody has ever looked at. It has now been checked once, and
+  the CSS was wrong: the rail and the map were auto-placed and relied on the
+  notice to occupy the row above them, so removing it shrank the map from 705px
+  to 337px at 1440x900. The grid is now placed by named areas, which is why
+  `tests/chrome.test.tsx` insists every child of `.atlas` declares a
+  `grid-area`. **Look at the page in a browser on the day the first record is
+  promoted anyway** — it is the first time real records will have been on
+  screen, and no unit test here computes a layout.
+- **`vite preview` is not a way back in.** It reports `command: 'serve'`, but it
+  only serves the static files already in `dist/` and never re-runs the `define`
+  pipeline, so what it shows is the `__ATLAS_ALLOW_FIXTURE__: false` baked in at
+  build time. Previewing a compile-only build shows a failed page, not invented
+  records — which is the correct outcome.
 - **`ATLAS_ALLOW_NO_BUNDLE=1 pnpm build:app`** exists only to prove the app still
   compiles (CI, a refactor, a type change). It skips the bundle check, so its
   `dist/` is built against no data at all. **It is never a deploy path.** If you
@@ -61,7 +76,9 @@ generated bundle if one exists, the committed fixture, and whether this is a bui
 `src/fixtures/atlas.fixture.json` — invented records, behind a banner on the page
 saying so. None of it may reach a build. Two independent mechanisms enforce that:
 
-- The build gate above (`vite.config.ts`) refuses the build outright.
+- The build gate above (`vite.config.ts`) refuses the build outright, and
+  deletes any `dist/` left by an earlier successful compile on its way out — a
+  build that must not ship leaves nothing behind that could be shipped.
 - The fixture is admissible only when Vite's own `command` is `serve`. That is a
   build-vs-serve fact no environment variable can flip — unlike
   `import.meta.env.PROD`, which follows an ambient `NODE_ENV` and once let

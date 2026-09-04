@@ -48,19 +48,32 @@ a { color: var(--accent-ink); }
  * Two panes side by side. The map gets a pane of its own and is `position:
  * relative` INSIDE it; it must never be sized against the viewport, or it
  * paints over the heading, the notice and the panels, which are all in flow.
+ *
+ * Every child is placed by NAME, never by auto-placement. The notice renders
+ * only when `bundle.isDemoData` is true, and with auto-placement its absence
+ * pulled the rail and the map up into the `auto` row meant for it: at 1440x900
+ * the map went from 705px tall to 337px with ~360px of dead space beneath it.
+ * That state is unreachable in this repo today — all ten records are draft, so
+ * the notice always renders — and it is exactly the state the project is
+ * working toward. An area-placed child cannot be moved by a missing sibling;
+ * an empty `auto` row simply collapses to zero.
  */
 .atlas {
   display: grid;
   grid-template-columns: minmax(0, var(--rail-width)) minmax(0, 1fr);
   grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-areas:
+    'masthead masthead'
+    'notice   notice'
+    'rail     map';
   height: 100dvh;
 }
 
-.atlas__masthead,
-.atlas__notice { grid-column: 1 / -1; }
+.atlas__masthead { grid-area: masthead; }
+.atlas__notice { grid-area: notice; }
 
 .atlas__rail {
-  grid-column: 1;
+  grid-area: rail;
   min-width: 0;
   overflow-y: auto;          /* the rail scrolls on its own … */
   overflow-x: hidden;
@@ -73,7 +86,7 @@ a { color: var(--accent-ink); }
 }
 
 .atlas__map {
-  grid-column: 2;
+  grid-area: map;
   min-width: 0;
   position: relative;        /* … the map pane does not scroll at all */
   overflow: hidden;
@@ -274,19 +287,21 @@ a { color: var(--accent-ink); }
 
 /* ---------------------------------------------------------- narrow view --- */
 @media (max-width: 60rem) {
+  /* One column, and the reading rail moves BELOW the map — but the title and
+   * the notice stay above it. Re-stating the areas rather than reordering the
+   * children keeps the same guarantee as the wide layout: a missing notice
+   * cannot shuffle anything. */
   .atlas {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto;
+    grid-template-rows: auto auto auto minmax(0, auto);
+    grid-template-areas:
+      'masthead'
+      'notice'
+      'map'
+      'rail';
     height: auto;
     min-height: 100dvh;
   }
-
-  /* Explicit rows, not `order`: the reading column has to fall BELOW the map
-   * but the title and the notice have to stay above it. */
-  .atlas__masthead { grid-column: 1; grid-row: 1; }
-  .atlas__notice   { grid-column: 1; grid-row: 2; }
-  .atlas__map      { grid-column: 1; grid-row: 3; }
-  .atlas__rail     { grid-column: 1; grid-row: 4; }
 
   .atlas__map {
     height: min(60vh, 30rem);
