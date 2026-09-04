@@ -83,6 +83,17 @@
         "note": "Open release conflicts with community data sovereignty." },
       "caveat": "Distributed and online; the pin is the founding venue, not a base.",
       "status": "verified"
+    },
+    {
+      "id": "fixture-undated", "name": "Undated Initiative", "kind": "project",
+      "tier": "indigenous", "languages": ["fixture-unmapped"], "started": null, "ended": null,
+      "site": { "lat": 61.21, "lon": -149.89, "place": "Fixture Place Three",
+        "confidence": "sourced",
+        "source": { "kind": "doc", "ref": "fixture", "retrieved": null, "quote": null } },
+      "applications": ["dictionary"], "methods": [], "models": [], "data_regime": null,
+      "governance": null, "papers": [], "links": [], "transferability": null,
+      "caveat": "No start year could be sourced; a date window must never delete it.",
+      "status": "verified"
     }
   ],
   "methods": [
