@@ -244,10 +244,19 @@ through scope, the `view` key ↔ the URL contract, selection ↔ filters.
 ## 9. The browser harness
 
 A devDependency with its own `pnpm test:browser`, kept **out** of the default `pnpm test` so
-the unit suite stays fast and offline. It drives `vite preview` of a demo build with all
-requests to `tiles.openfreemap.org` **blocked at the route level**: MapLibre still renders
-our circles and pins from GeoJSON without basemap tiles, so the harness is deterministic and
-works offline.
+the unit suite stays fast and offline.
+
+**It drives `vite dev`, not `vite preview`.** This is forced, not preferred. `vite preview`
+serves `dist/`, and `dist/` is produced by `vite build`, where Vite's `command` is `'build'`
+and `__ATLAS_ALLOW_FIXTURE__` is therefore baked in as `false`. With no
+`src/data/atlas.json` — the normal state, since the gate keeps every record `draft` —
+`chooseBundle` throws rather than falling back. No build-shaped artifact can render the
+fixture, which is SP1a's guard working as designed. The dev server is the only surface where
+the app has data, so it is the only surface a harness can drive.
+
+All requests to `tiles.openfreemap.org` are **blocked at the route level**: MapLibre still
+renders our circles and pins from GeoJSON without basemap tiles, so the harness is
+deterministic and works offline.
 
 It asserts the five things jsdom structurally cannot:
 
