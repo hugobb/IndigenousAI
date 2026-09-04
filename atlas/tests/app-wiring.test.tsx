@@ -218,10 +218,7 @@ describe('view wiring', () => {
 
   it('sorting from the table writes the sort to the URL', () => {
     renderAt('?view=languages')
-    // Scoped to the table: the rail also has a "Family" facet, and its group
-    // now has its own disclosure button of the same accessible name.
-    const table = screen.getByRole('table')
-    fireEvent.click(within(table).getByRole('button', { name: /^family$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^family$/i }))
     expect(window.location.search).toContain('sort=family%3Aasc')
   })
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NOT_RECORDED } from '../lib/facets.js'
 import type { FacetSummary } from '../lib/filters.js'
 
@@ -88,11 +88,28 @@ export default function FacetGroup({
     () => summary.selected.length > 0 || rows.length <= TYPE_TO_NARROW_THRESHOLD,
   )
 
+  // The initialiser above only runs once, at mount — `FacetGroup` is keyed by
+  // a stable `summary.id` and never remounts, so a selection that ARRIVES via
+  // a prop update (e.g. `useFilters` replaying `fromUrl` on `popstate`, as
+  // Back/Forward does) would otherwise leave a shut group holding a hidden
+  // selection. This tracks the previous selected-count and forces the group
+  // open only on the 0-to-nonzero transition — not whenever a selection
+  // exists — so a reader who deliberately collapses a group that already
+  // holds a selection stays collapsed.
+  const prevSelectedCount = useRef(summary.selected.length)
+  useEffect(() => {
+    if (prevSelectedCount.current === 0 && summary.selected.length > 0) {
+      setOpen(true)
+    }
+    prevSelectedCount.current = summary.selected.length
+  }, [summary.selected.length])
+
   const legend = (
     <legend className="facet__legend">
       <button
         type="button" className="facet__toggle"
         aria-expanded={open} aria-controls={bodyId}
+        aria-label={`Toggle ${summary.label} filters`}
         data-testid={`facet-toggle-${summary.id}`}
         onClick={() => setOpen(!open)}
       >

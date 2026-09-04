@@ -73,4 +73,47 @@ describe('FacetGroup disclosure', () => {
     expect(screen.getByTestId('facet-toggle-region')).toBeDefined()
     expect(screen.getByText(/not yet curated \(3 records\)/i)).toBeDefined()
   })
+
+  // The mount-time initialiser only runs once: `FacetGroup` is keyed by a
+  // stable `summary.id` and never remounts, so a selection that ARRIVES via a
+  // prop update (e.g. `useFilters` replaying `fromUrl` on `popstate`, which
+  // Back/Forward triggers) must open the same instance, not merely a fresh
+  // one. Starting from a mounted, long, UNSELECTED (collapsed) group and
+  // rerendering it with a selection is what distinguishes this from the
+  // "starts OPEN" mount test above.
+  it('opens when a selection arrives on an already-mounted, collapsed group', () => {
+    const { rerender } = render(
+      <FacetGroup summary={summary({ options: many })} onToggle={() => {}} onClearFacet={() => {}} />,
+    )
+    expect(screen.getByTestId('facet-toggle-region').getAttribute('aria-expanded')).toBe('false')
+    rerender(
+      <FacetGroup summary={summary({ options: many, selected: ['v03'] })}
+        onToggle={() => {}} onClearFacet={() => {}} />,
+    )
+    expect(screen.getByTestId('facet-toggle-region').getAttribute('aria-expanded')).toBe('true')
+  })
+
+  // A reader who deliberately collapses a group that already holds a
+  // selection must stay collapsed — the fix for the mount-only bug above must
+  // not become "always force open whenever selected.length > 0".
+  it('keeps a group closed when the reader collapses it manually, selection and all', () => {
+    render(
+      <FacetGroup summary={summary({ selected: ['africa'] })} onToggle={() => {}} onClearFacet={() => {}} />,
+    )
+    const toggle = screen.getByTestId('facet-toggle-region')
+    expect(toggle.getAttribute('aria-expanded')).toBe('true')
+    fireEvent.click(toggle)
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+  })
+
+  // Every table view renders the facet rail alongside a sortable table, and
+  // several facets share a label with a sortable column (Region, Family,
+  // Endangerment, Data regime, Governance). Without a distinguishing
+  // accessible name, a screen-reader user hears two identically-named
+  // buttons that do different things.
+  it('gives the toggle an accessible name that will not collide with a same-named control elsewhere on the page', () => {
+    render(<FacetGroup summary={summary()} onToggle={() => {}} onClearFacet={() => {}} />)
+    expect(screen.getByRole('button', { name: /toggle region filters/i }))
+      .toBe(screen.getByTestId('facet-toggle-region'))
+  })
 })
