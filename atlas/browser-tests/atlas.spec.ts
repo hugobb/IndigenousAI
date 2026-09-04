@@ -74,15 +74,36 @@ test('the body never scrolls horizontally, even with the widest table', async ({
 // `min-height: 0` / `overflow: auto` are even present. A short viewport
 // (1280x380) leaves less room than the table's own content height, which is
 // what actually gives this test something to catch.
+//
+// Important 2 (whole-branch review): comparing box HEIGHTS was still
+// vacuous even at the short viewport. Flipping `.table-wrap`'s
+// `overflow: auto` to `visible` in styles.css leaves `wrapH <= paneH + 1`
+// true (the wrapper's own border box does not grow — its ancestor,
+// `.atlas__pane { overflow: hidden }`, clips the overflowing content
+// instead), so the box-height comparison passes while ~240px of rows become
+// permanently unreachable to the reader. `scrollHeight > clientHeight`
+// alone does not catch it either: that pair is computed from the content's
+// bounding box and stays true regardless of the `overflow` value. What
+// actually distinguishes "scrollable" from "clipped shut" is whether
+// `scrollTop` can move at all — a box with no scroll container (`overflow:
+// visible`, or an ancestor clipping it) ignores an assignment to
+// `scrollTop` and it reads back as 0.
 test('the table scrolls inside its own pane rather than growing the page', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 380 })
   await page.goto('/?view=languages')
   const wrap = page.locator('.table-wrap')
-  const [wrapH, paneH] = await Promise.all([
-    wrap.evaluate((e) => e.getBoundingClientRect().height),
-    page.locator('.atlas__pane').evaluate((e) => e.getBoundingClientRect().height),
+
+  const [scrollHeight, clientHeight] = await Promise.all([
+    wrap.evaluate((e) => e.scrollHeight),
+    wrap.evaluate((e) => e.clientHeight),
   ])
-  expect(wrapH).toBeLessThanOrEqual(paneH + 1)
+  expect(scrollHeight).toBeGreaterThan(clientHeight)
+
+  const scrolledTo = await wrap.evaluate((e) => {
+    e.scrollTop = 240
+    return e.scrollTop
+  })
+  expect(scrolledTo).toBeGreaterThan(0)
 })
 
 test('the view switch does not wrap at a narrow viewport', async ({ page }) => {

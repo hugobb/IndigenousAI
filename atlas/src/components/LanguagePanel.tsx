@@ -26,8 +26,13 @@ export default function LanguagePanel({
             </>
           )}
         </Field>
+        {/* `not mapped` is a VALUE, not a null: we know this language has no
+            cited centre — the same fact the table's Location column and the
+            rail's "Not mapped" heading state. Routing it through `Field`'s
+            null branch printed "not recorded", which claims we do not know
+            it, and left three surfaces disagreeing about one fact. */}
         <Field label="Centre" testId="field-centre">
-          {language.centre === null ? null : (
+          {language.centre === null ? <span>not mapped</span> : (
             <>
               {language.centre.lat.toFixed(2)}, {language.centre.lon.toFixed(2)}
               {language.centre.confidence === 'approximate' && <strong> — approximate</strong>}

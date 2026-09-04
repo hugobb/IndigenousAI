@@ -8,7 +8,9 @@ export const VIEWS = ['map', 'initiatives', 'languages'] as const
 export type ViewId = (typeof VIEWS)[number]
 export type TableViewId = Exclude<ViewId, 'map'>
 
-export type SortDirection = 'asc' | 'desc'
+// Not exported: no module outside this file names the direction in
+// isolation, only ever through `SortState`.
+type SortDirection = 'asc' | 'desc'
 export interface SortState { column: string; direction: SortDirection }
 
 /** The order `sortRows` produces when `sort` is null — it falls through to the
@@ -155,15 +157,10 @@ export const LANGUAGE_COLUMNS: Column<Language>[] = [
   },
 ]
 
-export function columnsFor(view: ViewId): Column<Initiative>[] | Column<Language>[] {
-  if (view === 'initiatives') return INITIATIVE_COLUMNS
-  if (view === 'languages') return LANGUAGE_COLUMNS
-  return []
-}
-
-/** Written as three branches rather than `columnsFor(view).map(...)`: mapping
- *  over a union of array types does not type-check, because TypeScript cannot
- *  pick one call signature for the union. */
+/** Written as three branches rather than a `columnsFor(view).map(...)`
+ *  helper: mapping over a union of array types does not type-check, because
+ *  TypeScript cannot pick one call signature for the union — and no
+ *  production caller needs the columns themselves, only their ids. */
 export function columnIds(view: ViewId): string[] {
   if (view === 'initiatives') return INITIATIVE_COLUMNS.map((c) => c.id)
   if (view === 'languages') return LANGUAGE_COLUMNS.map((c) => c.id)

@@ -1,7 +1,7 @@
 // atlas/tests/columns.test.ts
 import { describe, expect, it } from 'vitest'
 import {
-  INITIATIVE_COLUMNS, LANGUAGE_COLUMNS, columnIds, columnsFor, type TableContext,
+  INITIATIVE_COLUMNS, LANGUAGE_COLUMNS, columnIds, type TableContext,
 } from '../src/lib/columns.js'
 import type { Initiative, Language } from '../src/schema/index.js'
 
@@ -154,7 +154,6 @@ describe('columns', () => {
   })
 
   it('has no columns for the map view', () => {
-    expect(columnsFor('map')).toEqual([])
     expect(columnIds('map')).toEqual([])
     expect(columnIds('languages')).toContain('work')
   })

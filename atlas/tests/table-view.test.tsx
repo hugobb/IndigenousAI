@@ -127,6 +127,50 @@ describe('TableView', () => {
     expect(cell?.textContent).toBe('0')
   })
 
+  // Important 3 (whole-branch review): the caption's own `(n)` was
+  // unguarded — every test above reads OTHER sentences in the caption, or
+  // the row count separately, but nothing ties the two together. Swapping
+  // `rows.length` for `bundle.initiatives.length` in TableView.tsx prints a
+  // bundle-scoped count over I1 rows, the exact scope violation the caption
+  // exists to prevent, and every other test here still passes.
+  it('states the initiatives caption count as the rows actually rendered, not the whole bundle', () => {
+    const only = bundle.initiatives[0]!
+    render(
+      <TableView
+        view="initiatives"
+        selection={{ languages: [], initiatives: [only], filteredOut: [], undatedInitiatives: 0 }}
+        bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
+      />,
+    )
+    expect(bundle.initiatives.length).toBeGreaterThan(1)
+    const rows = screen.getAllByTestId(/^row-/).length
+    expect(rows).toBe(1)
+    const caption = screen.getByTestId('table-caption').textContent ?? ''
+    expect(caption).toContain(`(${rows})`)
+    expect(caption).not.toContain(`(${bundle.initiatives.length})`)
+  })
+
+  // Same hole on the languages side: substituting an L2 count (every language
+  // in the bundle) for L1 (the rows this table actually renders — kept PLUS
+  // filteredOut) passes just as silently.
+  it('states the languages caption count as the rows actually rendered (L1), not L2', () => {
+    const kept = bundle.languages[0]!
+    const dropped = bundle.languages[1]!
+    render(
+      <TableView
+        view="languages"
+        selection={{ languages: [kept], initiatives: [], filteredOut: [dropped], undatedInitiatives: 0 }}
+        bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
+      />,
+    )
+    expect(bundle.languages.length).toBeGreaterThan(2)
+    const rows = screen.getAllByTestId(/^row-/).length
+    expect(rows).toBe(2)
+    const caption = screen.getByTestId('table-caption').textContent ?? ''
+    expect(caption).toContain(`(${rows})`)
+    expect(caption).not.toContain(`(${bundle.languages.length})`)
+  })
+
   it('renders the shared empty-state sentence when no work matches', () => {
     render(
       <TableView

@@ -1,5 +1,7 @@
 import { useMemo } from 'react'
-import { INITIATIVE_COLUMNS, LANGUAGE_COLUMNS, type SortState, type TableContext } from '../lib/columns.js'
+import {
+  INITIATIVE_COLUMNS, LANGUAGE_COLUMNS, type SortState, type TableContext, type TableViewId,
+} from '../lib/columns.js'
 import { emptyState, type Selection } from '../lib/filters.js'
 import type { AtlasBundle } from '../lib/load.js'
 import type { Initiative, Language } from '../schema/index.js'
@@ -23,7 +25,7 @@ const EMPTY_COPY = {
 export default function TableView({
   view, selection, bundle, sort, onSort, selectedId, onSelect,
 }: {
-  view: 'initiatives' | 'languages'
+  view: TableViewId
   selection: Selection
   bundle: AtlasBundle
   sort: SortState | null

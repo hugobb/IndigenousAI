@@ -182,6 +182,23 @@ describe('view wiring', () => {
     expect(screen.getByTestId('view-map').getAttribute('aria-pressed')).toBe('true')
   })
 
+  // Important 4 (whole-branch review): dropping `filteredOut` from
+  // `counts.languages` passes 389/389 and makes the view-switch strip read
+  // "Languages (1)" above a five-row table captioned "(5)" — two numbers for
+  // one thing on one screen, and it counts the coverage-gap languages OUT of
+  // the very tab that exists to show them. `tests/app-wiring.test.tsx:207`
+  // (below) only ever changes the INITIATIVES count under a filter; this is
+  // its languages-side counterpart, using the same `?application=asr`
+  // fixture scenario as the map test above (one language keeps matching
+  // work, four are demoted to the rail but still render as table rows).
+  it('counts the demoted languages in the Languages tab total, not just the ones with matching work', () => {
+    at('/?view=languages&application=asr')
+    const rows = screen.getAllByTestId(/^row-/).length
+    expect(rows).toBeGreaterThan(1)
+    const label = screen.getByTestId('view-languages').textContent ?? ''
+    expect(label).toContain(`(${rows})`)
+  })
+
   // Correction to the brief: the brief's version of this test asserted
   // `queryByTestId('map-container')` is null — no such test id exists anywhere
   // in this component tree, so the assertion would pass vacuously no matter
@@ -249,9 +266,9 @@ describe('view wiring', () => {
     const rows = screen.getAllByTestId(/^row-/)
     expect(rows.length).toBeGreaterThan(1)
     const selected = screen.getByTestId(`row-${lang.id}`)
-    expect(selected.getAttribute('aria-selected')).toBe('true')
+    expect(selected.getAttribute('aria-current')).toBe('true')
     for (const row of rows) {
-      if (row !== selected) expect(row.getAttribute('aria-selected')).toBe('false')
+      if (row !== selected) expect(row.getAttribute('aria-current')).toBeNull()
     }
   })
 
@@ -263,9 +280,9 @@ describe('view wiring', () => {
     const rows = screen.getAllByTestId(/^row-/)
     expect(rows.length).toBeGreaterThan(1)
     const selected = screen.getByTestId(`row-${init.id}`)
-    expect(selected.getAttribute('aria-selected')).toBe('true')
+    expect(selected.getAttribute('aria-current')).toBe('true')
     for (const row of rows) {
-      if (row !== selected) expect(row.getAttribute('aria-selected')).toBe('false')
+      if (row !== selected) expect(row.getAttribute('aria-current')).toBeNull()
     }
   })
 })

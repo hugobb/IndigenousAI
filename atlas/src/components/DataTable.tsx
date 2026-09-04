@@ -97,7 +97,13 @@ export default function DataTable<T extends { id: string }>({
           {ordered.map((r) => (
             <tr
               key={r.id} data-testid={`row-${r.id}`}
-              aria-selected={r.id === selectedId}
+              // `aria-selected` is only meaningful inside `role="grid"` /
+              // `treegrid`, which also implies arrow-key navigation this
+              // table does not implement. This is a plain `role="table"`, so
+              // `aria-current="true"` is the valid, honest way to mark the
+              // one row the URL currently names — valid on any element, and
+              // it says the right thing.
+              aria-current={r.id === selectedId ? 'true' : undefined}
               className={r.id === selectedId ? 'is-selected' : undefined}
             >
               {columns.map((c, n) => (

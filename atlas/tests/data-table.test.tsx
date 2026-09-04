@@ -78,10 +78,16 @@ describe('DataTable', () => {
     expect(onSelect).toHaveBeenCalledTimes(2)
   })
 
-  it('marks the selected row', () => {
+  // `aria-current`, not `aria-selected`: `aria-selected` is only meaningful
+  // inside `role="grid"`/`treegrid`, which this plain `role="table"` is not.
+  // Two assertions, not one: the selected row must carry it (fails if the
+  // selected row goes unmarked) AND an unselected row must not (fails if
+  // every row gets marked, e.g. a stray unconditional `aria-current="true"`).
+  it('marks the selected row with aria-current, and only that row', () => {
     table({ selectedId: 'a' })
-    expect(screen.getByTestId('row-a').getAttribute('aria-selected')).toBe('true')
-    expect(screen.getByTestId('row-b').getAttribute('aria-selected')).toBe('false')
+    expect(screen.getByTestId('row-a').getAttribute('aria-current')).toBe('true')
+    expect(screen.getByTestId('row-b').getAttribute('aria-current')).toBeNull()
+    expect(screen.getByTestId('row-c').getAttribute('aria-current')).toBeNull()
   })
 
   it('announces sort state on the active header only', () => {

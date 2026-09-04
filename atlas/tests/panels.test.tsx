@@ -69,9 +69,16 @@ describe('LanguagePanel', () => {
     expect(screen.getByText(/placeholder-looking centroid/i)).toBeDefined()
   })
 
-  it('says so when a language has no centre at all', () => {
+  // We KNOW this language has no cited centre — that is a value, not an
+  // unknown — and the table's Location column and the rail's "Not mapped"
+  // heading already say so in those words. "not recorded" claims we do not
+  // know, which is a stronger and false claim; this guard fails on that
+  // regression the same way it fails on the field going blank.
+  it('says "not mapped", not "not recorded", when a language has no centre at all', () => {
     render(<LanguagePanel language={lang('fixture-unmapped')} initiatives={[]} />)
-    expect(screen.getByTestId('field-centre').textContent).toMatch(/not recorded/i)
+    const field = screen.getByTestId('field-centre')
+    expect(field.textContent).toMatch(/not mapped/i)
+    expect(field.textContent).not.toMatch(/not recorded/i)
   })
 })
 
