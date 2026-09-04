@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { SourceSchema } from './source.js'
-import { ENDANGERMENT, RECORD_STATUS, REGIONS, TIERS, TYPOLOGIES } from './vocab.js'
+import { ENDANGERMENT, LOCATION_CONFIDENCE, RECORD_STATUS, REGIONS, TIERS, TYPOLOGIES } from './vocab.js'
 
 const SpeakerCountSchema = z.object({
   value: z.number().int().nonnegative(),
@@ -22,6 +22,9 @@ const CentreSchema = z.object({
   lat: z.number().min(-90).max(90),
   lon: z.number().min(-180).max(180),
   source: SourceSchema,
+  /** `approximate` makes the map draw this differently. Additive with a
+   *  default, so every existing record stays valid unedited. */
+  confidence: z.enum(LOCATION_CONFIDENCE).default('sourced'),
 })
 
 export const LanguageSchema = z

@@ -65,6 +65,29 @@ describe('LanguageSchema', () => {
     })
     expect(r.success).toBe(false)
   })
+
+  it('defaults a centre to sourced confidence', () => {
+    const r = LanguageSchema.safeParse(language)
+    expect(r.success).toBe(true)
+    if (r.success) expect(r.data.centre?.confidence).toBe('sourced')
+  })
+
+  it('accepts an approximate centre', () => {
+    const r = LanguageSchema.safeParse({
+      ...language,
+      centre: { lat: 40.0, lon: -90.0, source: src, confidence: 'approximate' },
+    })
+    expect(r.success).toBe(true)
+    if (r.success) expect(r.data.centre?.confidence).toBe('approximate')
+  })
+
+  it('rejects an unknown confidence value', () => {
+    const r = LanguageSchema.safeParse({
+      ...language,
+      centre: { lat: 40.0, lon: -90.0, source: src, confidence: 'vibes' },
+    })
+    expect(r.success).toBe(false)
+  })
 })
 
 describe('InitiativeSchema', () => {
@@ -102,6 +125,20 @@ describe('InitiativeSchema', () => {
 
   it('rejects an end year before the start year', () => {
     expect(InitiativeSchema.safeParse({ ...initiative, started: 2020, ended: 2016 }).success).toBe(false)
+  })
+
+  it('defaults a site to sourced confidence', () => {
+    const r = InitiativeSchema.safeParse(initiative)
+    expect(r.success).toBe(true)
+    if (r.success) expect(r.data.site.confidence).toBe('sourced')
+  })
+
+  it('accepts an approximate site', () => {
+    const r = InitiativeSchema.safeParse({
+      ...initiative,
+      site: { ...initiative.site, confidence: 'approximate' },
+    })
+    expect(r.success).toBe(true)
   })
 })
 

@@ -23,6 +23,7 @@ site:
     ref: https://arxiv.org/abs/2003.11529
     retrieved: "2026-09-03"
     quote: "Founded at the Deep Learning Indaba 2019, Masakhane constitutes an open-source, continent-wide, distributed, online research effort"
+  confidence: approximate
 applications: [mt, corpus]
 methods: []
 models: []
