@@ -264,8 +264,9 @@ a { color: var(--accent-ink); }
 }
 
 /* ------------------------------------------------------------ maplibre ---- */
-/* The basemap is CARTO/OSM; its attribution is a licence condition, so it is
- * left legible rather than tucked away. */
+/* The basemap is OpenFreeMap's Positron over OpenStreetMap data (ODbL); the
+ * attribution is a licence condition, so it is left legible rather than tucked
+ * away or shrunk to nothing. */
 .maplibregl-ctrl-attrib {
   font-family: var(--sans);
   font-size: 0.6875rem;

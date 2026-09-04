@@ -4,9 +4,23 @@ import { BASEMAP_STYLE, LAYERS, SOURCE_INITIATIVES, SOURCE_LANGUAGES } from '../
 const byId = (id: string) => LAYERS.find((l) => l.id === id)
 
 describe('map style', () => {
-  it('names a raster basemap with attribution, since CARTO requires it', () => {
-    const src = BASEMAP_STYLE.sources['basemap'] as { attribution?: string }
-    expect(src.attribution).toMatch(/carto/i)
+  it('points at a basemap style that needs no API key', () => {
+    // The previous basemap was CARTO's keyless raster endpoint, which had begun
+    // stamping "API KEY REQUIRED" diagonally across every tile — a watermark
+    // that would have ended up in a published figure. A credential in this URL
+    // means the basemap has stopped being usable for this artifact.
+    expect(BASEMAP_STYLE).toBe('https://tiles.openfreemap.org/styles/positron')
+    expect(BASEMAP_STYLE).not.toMatch(/[?&]|apikey|api_key|access_token|token=/i)
+  })
+
+  it('leaves the basemap a bare style URL, with no layers of our own baked in', () => {
+    // Everything we draw goes through LAYERS, added after 'load'. If a basemap
+    // layer ever appears in LAYERS, the §4 channel assertions below stop
+    // covering the whole of what the map draws.
+    expect(typeof BASEMAP_STYLE).toBe('string')
+    expect(LAYERS.map((l) => l.source).sort()).toEqual(
+      [SOURCE_INITIATIVES, SOURCE_LANGUAGES, SOURCE_LANGUAGES].sort(),
+    )
   })
 
   it('holds the language-field blur constant, so softness only ever means "no boundary claim"', () => {

@@ -4,6 +4,7 @@ import { useRef } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { PointCollection } from '../src/map/layers.js'
 import { useMap, type MapData, type MapHandlers } from '../src/map/useMap.js'
+import { BASEMAP_STYLE, LAYERS } from '../src/map/style.js'
 
 // `vi.mock` factories are hoisted above imports, so the fake class must be
 // created through `vi.hoisted` rather than declared as a plain top-level
@@ -40,7 +41,11 @@ const { FakeMap, instances } = vi.hoisted(() => {
       return this.sources[id]
     }
 
-    addLayer(): void {}
+    addedLayers: { id: string; beforeId: string | undefined }[] = []
+
+    addLayer(layer: { id: string }, beforeId?: string): void {
+      this.addedLayers.push({ id: layer.id, beforeId })
+    }
 
     setFilter(layerId: string, filter: unknown): void {
       this.filters[layerId] = filter
@@ -140,6 +145,33 @@ describe('useMap', () => {
     const initiativeSource = instance!.getSource('initiative-sites')
     expect(languageSource?.setData).toHaveBeenCalledWith(languages)
     expect(initiativeSource?.setData).toHaveBeenCalledWith(initiatives)
+  })
+
+  it('hands MapLibre the keyless basemap style URL and never turns attribution off', () => {
+    // The credit itself comes from OpenFreeMap's TileJSON, so there is nothing
+    // here to assert its text against. What CAN silently break the licence is
+    // `attributionControl: false`, which renders as no control at all — a
+    // failure that looks like a tidier map. This is the guard for that.
+    const data: MapData = { languages, initiatives, selectedLanguageId: null }
+    render(<Harness data={data} handlers={handlers} />)
+    const options = instances[0]!.options as {
+      style: unknown
+      attributionControl?: false | { customAttribution?: string }
+    }
+    expect(options.style).toBe(BASEMAP_STYLE)
+    expect(options.attributionControl ?? true).not.toBe(false)
+  })
+
+  it('appends its layers above the whole vector basemap rather than under its labels', () => {
+    // The basemap used to be a single raster layer, so there was nothing to be
+    // buried beneath. Positron has 55 layers ending in place labels: passing a
+    // `beforeId` here would put the pins under country names.
+    const data: MapData = { languages, initiatives, selectedLanguageId: null }
+    render(<Harness data={data} handlers={handlers} />)
+    const instance = instances[0]!
+    instance.handlers['load']?.()
+    expect(instance.addedLayers.map((l) => l.id)).toEqual(LAYERS.map((l) => l.id))
+    expect(instance.addedLayers.every((l) => l.beforeId === undefined)).toBe(true)
   })
 
   it('removes the map instance on unmount', () => {

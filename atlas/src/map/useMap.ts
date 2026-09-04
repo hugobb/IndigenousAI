@@ -50,12 +50,21 @@ export function useMap(
       style: BASEMAP_STYLE,
       center: [-40, 25],
       zoom: 1.6,
+      // No `attributionControl` key on purpose: the default control is ON, and
+      // the OpenFreeMap TileJSON supplies "OpenFreeMap © OpenMapTiles Data from
+      // OpenStreetMap" for it to render. Setting this to false would drop an
+      // ODbL licence condition, and adding the same credit as
+      // `customAttribution` prints it twice.
     })
     mapRef.current = map
 
     map.on('load', () => {
       map.addSource(SOURCE_LANGUAGES, { type: 'geojson', data: EMPTY })
       map.addSource(SOURCE_INITIATIVES, { type: 'geojson', data: EMPTY })
+      // No `beforeId`: appended, so our layers sit on top of all 55 of the
+      // vector basemap's layers, labels included. With a raster basemap there
+      // was only ever one layer to be above; with a vector style, inserting
+      // before a label layer would bury the pins under place names.
       for (const layer of LAYERS) map.addLayer(layer)
 
       map.on('click', 'initiative-site', (e) => {

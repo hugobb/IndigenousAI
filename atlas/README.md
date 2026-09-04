@@ -75,7 +75,28 @@ saying so. None of it may reach a build. Two independent mechanisms enforce that
 `src/main.tsx` mounts `App`, and imports two stylesheets: `src/styles.css` (the
 page chrome) and `maplibre-gl/dist/maplibre-gl.css`. The MapLibre one is not
 optional — it positions the canvas inside its container and styles the
-attribution control, and the CARTO/OSM attribution is a licence condition.
+attribution control, and the OpenStreetMap attribution is a licence condition.
+
+## The basemap
+
+`BASEMAP_STYLE` in `src/map/style.ts` is a URL, not a style object: OpenFreeMap
+serves a full MapLibre **vector** style at
+`https://tiles.openfreemap.org/styles/positron`. It needs no API key and no
+registration, which is the whole point — the previous basemap was CARTO's
+keyless raster endpoint, and it had begun stamping a diagonal
+"API KEY REQUIRED" watermark across every tile. That was invisible for as long
+as the app had no CSS and the map never rendered, and it would have gone
+straight into a published figure.
+
+Two consequences of a vector style, both easy to undo by accident:
+
+- OpenFreeMap's style declares **no attribution on its sources**, so MapLibre's
+  attribution control renders empty on its own. `BASEMAP_ATTRIBUTION` is passed
+  explicitly through the map's `attributionControl` option in `src/map/useMap.ts`.
+  OSM data is ODbL — dropping it is a licensing failure that looks like nothing.
+- Positron has 55 basemap layers ending in place labels. Our three circle layers
+  are added with **no `beforeId`**, so they append on top of all of them. Passing
+  a `beforeId` would bury the pins under country names.
 
 The layout is a CSS grid in `src/styles.css`: a masthead and the demo-data notice
 across the top, a scrolling reading rail on the left (the unmapped list and the
