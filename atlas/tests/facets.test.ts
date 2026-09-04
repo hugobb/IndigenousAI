@@ -4,6 +4,7 @@ import {
   facetOptions, notRecordedCount,
 } from '../src/lib/facets.js'
 import { InitiativeSchema, LanguageSchema } from '../src/schema/index.js'
+import { loadBundle } from '../src/lib/load.js'
 
 const src = { kind: 'doc' as const, ref: 'test', retrieved: null, quote: null }
 
@@ -85,5 +86,27 @@ describe('the facet registry', () => {
     const all = Object.values(VOCAB_FOR).flatMap((v) => [...(v ?? [])])
     expect(all).not.toContain(NOT_RECORDED)
     expect(NOT_RECORDED.startsWith('_')).toBe(true)
+  })
+})
+
+// The sentinel lives in the VALUE space, not the type system: `family` and
+// `method` are free text, so '_none' and a family literally named '_none' are
+// the same type and no branded type could tell them apart. The convention is
+// enforced here, the way comma-safety already is.
+describe('the not-recorded sentinel cannot collide', () => {
+  it('is not a member of any vocabulary', () => {
+    for (const vocab of Object.values(VOCAB_FOR)) {
+      if (vocab !== undefined) expect(vocab).not.toContain(NOT_RECORDED)
+    }
+  })
+
+  it('is not a value any record in the bundle carries', () => {
+    const b = loadBundle()
+    for (const f of LANGUAGE_FACETS) {
+      for (const l of b.languages) expect(f.values(l)).not.toContain(NOT_RECORDED)
+    }
+    for (const f of INITIATIVE_FACETS) {
+      for (const i of b.initiatives) expect(f.values(i)).not.toContain(NOT_RECORDED)
+    }
   })
 })
