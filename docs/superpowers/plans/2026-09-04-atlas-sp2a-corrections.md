@@ -58,7 +58,7 @@
 ```ts
 // atlas/tests/no-matching-work.test.ts
 import { describe, expect, it } from 'vitest'
-import { applyFilters } from '../src/lib/filters.js'
+import { applyFilters, emptyState } from '../src/lib/filters.js'
 import { EMPTY_FILTERS } from '../src/lib/url-state.js'
 import type { AtlasBundle } from '../src/lib/load.js'
 import type { Initiative, Language } from '../src/schema/index.js'
@@ -130,6 +130,18 @@ describe('noMatchingWork', () => {
     const s = applyFilters(b, { ...EMPTY_FILTERS, region: ['africa'] })
     expect(s.languages.map((l) => l.id)).toEqual(['a'])
     expect(s.noMatchingWork).toEqual([])
+  })
+
+  // The state SP1c parked and could not explain: languages match, no
+  // initiative survives, the old `filteredOut` was empty, so `emptyState`
+  // returned `matched` and no surface said anything at all. Now reachable AND
+  // explained, because `noMatchingWork` is populated in exactly this case.
+  it('explains a work filter that leaves no work at all', () => {
+    const b = bundleOf([lang('a')], [init('i', ['a'], { applications: ['asr'] })])
+    const s = applyFilters(b, { ...EMPTY_FILTERS, application: ['mt'] })
+    expect(s.initiatives).toEqual([])
+    expect(s.noMatchingWork.map((l) => l.id)).toEqual(['a'])
+    expect(emptyState(s)).toBe('no-work-but-languages')
   })
 
   it('reports whether a work filter is active', () => {
@@ -275,6 +287,8 @@ export function emptyState(s: Selection): EmptyState {
 ```bash
 cd atlas && pnpm test && pnpm typecheck
 ```
+
+**`tests/app-wiring.test.tsx` holds a guard tying the Languages tab count to the rendered row count** (SP1c's final fix wave added it). The count expression changes in this task, so re-run its mutation — drop a term from the count — and confirm it still fails.
 
 Every `Selection` object literal in tests needs `noMatchingWork` and `workFiltered`. Expected counts change in `tests/filters.test.ts` (a workless language is now reported with no filters), `tests/empty-state.test.ts`, `tests/table-view.test.tsx` and `tests/filter-map-seam.test.tsx`. **Update the expected values to the new correct ones; never relax an assertion.** If a test's *premise* no longer holds — for instance `tests/filters.test.ts:35` asserting `filteredOut` is empty with no filters — rewrite it to assert the new behaviour explicitly rather than deleting it.
 
@@ -614,8 +628,29 @@ Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>"
 - Test: `atlas/tests/sourced-field.test.tsx` (create)
 
 **Interfaces:**
-- Consumes: `Field` (`{ label, testId, children }`), `PanelSection` (Task 3), `Source` from `../schema/index.js`.
-- Produces: `SourcedField({ label, testId, source, children })` — renders `Field` plus a disclosure when `source` is non-null.
+- Consumes: `PanelSection` (Task 3), `Source` from `../schema/index.js` (re-exported by `export * from './source.js'`).
+- Modifies: `Field` gains an optional `aside?: React.ReactNode` prop.
+- Produces: `SourcedField({ label, testId, source, children })`.
+
+**`Field` needs one change first, and skipping it introduces a silent bug.** `Field` chooses between the value and the words "not recorded" with `isEmpty(children)`. If `SourcedField` passes the disclosure button *inside* `children`, `children` is never empty — so a null-valued sourced field would render its toggle and lose its "not recorded". `Field` therefore gains `aside`, rendered inside the `<dd>` **after** the value, leaving `isEmpty` testing the value alone:
+
+```tsx
+export interface FieldProps {
+  label: string
+  testId: string
+  children?: React.ReactNode
+  /** Rendered after the value, inside the same `<dd>`. Deliberately NOT part
+   *  of `children`: `isEmpty` tests the value, and folding a control into it
+   *  makes every field carrying a control look non-empty — so a null value
+   *  would silently lose its "not recorded". */
+  aside?: React.ReactNode
+}
+```
+```tsx
+      <dd>{isEmpty(children) ? <NotRecorded /> : children}{aside}</dd>
+```
+
+Today every sourced field's value and source are co-present in the schema — a null `endangerment` carries no source either — so the bug is not currently reachable. That is exactly why it would have survived review. Add the guard anyway.
 
 **The rules, each of which is a guard:**
 - **No source, no toggle.** `family`, `region`, `typology`, `countries`, `subfamily`, `glottocode` and `iso639_3` carry no `Source` in the schema. The absence of a toggle therefore means "this field structurally cannot have a source", not "a source is missing" — which only holds if a toggle is never rendered empty.
@@ -695,6 +730,14 @@ describe('SourcedField', () => {
     render(<SourcedField label="Speakers" testId="field-speakers" source={url}>9,600</SourcedField>)
     expect(screen.getByTestId('field-speakers').textContent).toContain('9,600')
   })
+
+  // If the toggle goes through `children`, `isEmpty` sees a non-empty node and
+  // the words disappear from a field that has no value.
+  it('still says "not recorded" for a null value that carries a source', () => {
+    render(<SourcedField label="Speakers" testId="field-speakers" source={url}>{null}</SourcedField>)
+    expect(screen.getByTestId('field-speakers').textContent).toMatch(/not recorded/i)
+    expect(screen.getByTestId('source-field-speakers')).toBeDefined()
+  })
 })
 ```
 
@@ -736,9 +779,9 @@ export default function SourcedField({
 
   return (
     <>
-      <Field label={label} testId={testId}>
-        {children}
-        {source !== null && (
+      <Field
+        label={label} testId={testId}
+        aside={source === null ? null : (
           <button
             type="button" className="source-toggle"
             aria-expanded={open} aria-controls={bodyId}
@@ -752,6 +795,8 @@ export default function SourcedField({
             source
           </button>
         )}
+      >
+        {children}
         {source !== null && (
           <div id={bodyId} hidden={!open} data-testid={bodyId} className="source-body">
             <span className="source-kind">{source.kind}</span>{' '}
@@ -820,6 +865,7 @@ cd atlas && pnpm test && pnpm typecheck
 
 - [ ] **Step 6: Mutation-check**
 
+0. Pass the toggle through `children` instead of `aside` → "still says 'not recorded' for a null value that carries a source" fails.
 1. Render the toggle unconditionally → "renders no disclosure when the field carries no source" fails.
 2. Drop the `aria-label` → "names the disclosure after its field" fails.
 3. Linkify every ref → "does NOT linkify a doc or paper ref" fails.
@@ -1030,7 +1076,16 @@ Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>"
   })
 ```
 
-The `links` test needs a fixture initiative with a link — Task 7 adds one. **Write this test now and let it fail until Task 7**, or add the fixture link as part of this task; either is fine, but do not weaken the test to pass against an empty `links` array.
+The `links` test needs a fixture initiative with a link, and none has one. **Add it in this task** — a task must not end on a red suite. In `atlas/src/fixtures/atlas.fixture.json`, on `fixture-ongoing`, replace `"links": []` with:
+
+```json
+      "links": [
+        { "label": "Fixture project page", "url": "https://example.org/fixture-project",
+          "retrieved": "2026-09-03" }
+      ],
+```
+
+Change nothing else in the fixture — Task 7 owns the rest. Do not weaken the test to pass against an empty array.
 
 - [ ] **Step 2: Run it and watch it fail**
 
@@ -1199,16 +1254,7 @@ Expected: the links and identifier assertions fail. The doc-source one may alrea
 
 - [ ] **Step 3: Edit the fixture**
 
-On `fixture-ongoing`, replace `"links": []` with:
-
-```json
-      "links": [
-        { "label": "Fixture project page", "url": "https://example.org/fixture-project",
-          "retrieved": "2026-09-03" }
-      ],
-```
-
-On `fixture-sourced`, set `"glottocode": "fixt1234"`, `"iso639_3": "fix"`, `"subfamily": "Fixture Subfamily"`. It already has `"countries": ["CA"]`.
+The link on `fixture-ongoing` was added in Task 6; leave it as it is. On `fixture-sourced`, set `"glottocode": "fixt1234"`, `"iso639_3": "fix"`, `"subfamily": "Fixture Subfamily"`. It already has `"countries": ["CA"]`.
 
 Add nothing else. **Do not add or remove records.**
 
