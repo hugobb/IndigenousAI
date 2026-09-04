@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react'
-
 export interface TimelineProps {
   min: number
   max: number
@@ -11,26 +9,19 @@ export interface TimelineProps {
 
 /** Two native range inputs rather than a custom two-thumb track. A custom widget
  *  would be keyboard-hostile and untestable without a browser, and this project
- *  has no browser in CI (spec F8). */
+ *  has no browser in CI (spec F8). Purely controlled by props: the URL is the
+ *  single source of truth (spec F3) and this component holds no state of its
+ *  own — a browser Back/popstate, or any value the parent declines to accept,
+ *  must be reflected here on the very next render, never one render late. */
 export default function Timeline({
   min, max, from, to, undatedCount, onChange,
 }: TimelineProps): React.JSX.Element {
-  // Local state mirrors the incoming window but also tracks each input's own
-  // change immediately, so a second handle move in the same interaction (e.g.
-  // dragging "from" back to min, then "to" back to max) sees the first move's
-  // result rather than a stale prop. Re-synced whenever the caller's window
-  // (or the range bounds) actually changes underneath us.
-  const [lo, setLo] = useState(from ?? min)
-  const [hi, setHi] = useState(to ?? max)
-
-  useEffect(() => setLo(from ?? min), [from, min])
-  useEffect(() => setHi(to ?? max), [to, max])
+  const lo = from ?? min
+  const hi = to ?? max
 
   // A window equal to the full range is "unconstrained", reported as nulls so the
   // keys stay out of the URL and stay out of it after new data widens the range.
   const report = (nextLo: number, nextHi: number): void => {
-    setLo(nextLo)
-    setHi(nextHi)
     const isFull = nextLo <= min && nextHi >= max
     onChange(isFull ? null : nextLo, isFull ? null : nextHi)
   }

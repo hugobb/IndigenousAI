@@ -44,11 +44,27 @@ describe('Timeline', () => {
   })
 
   it('reports nulls when returned to the full range, so the URL stays clean', () => {
+    // Timeline is purely controlled (spec F3: the URL is the single source of
+    // truth, never mirrored in local state) — so between the two handle moves
+    // we re-render with the props the parent would really have supplied after
+    // dispatching the first change, exactly as the running app does.
     const onChange = vi.fn()
-    render(<Timeline {...props} from={2005} to={2010} onChange={onChange} />)
+    const { rerender } = render(<Timeline {...props} from={2005} to={2010} onChange={onChange} />)
     fireEvent.change(screen.getByLabelText(/from/i), { target: { value: '1999' } })
+    expect(onChange).toHaveBeenLastCalledWith(1999, 2010)
+    rerender(<Timeline {...props} from={1999} to={2010} onChange={onChange} />)
     fireEvent.change(screen.getByLabelText(/to/i), { target: { value: '2021' } })
     expect(onChange).toHaveBeenLastCalledWith(null, null)
+  })
+
+  it('never remembers a value the parent did not give it', () => {
+    // Purely controlled: firing a change updates only what onChange reports,
+    // never the displayed window — until the parent re-renders with new props.
+    render(<Timeline {...props} from={2005} to={2010} />)
+    fireEvent.change(screen.getByLabelText(/from/i), { target: { value: '2000' } })
+    expect(screen.getByTestId('timeline-window').textContent).toContain('2005')
+    expect(screen.getByTestId('timeline-window').textContent).toContain('2010')
+    expect((screen.getByLabelText(/from/i) as HTMLInputElement).value).toBe('2005')
   })
 
   // Spec F5, stated on screen rather than buried in a design document.
