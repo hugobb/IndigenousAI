@@ -13,6 +13,7 @@ export type FilterAction =
   | { type: 'fromUrl'; state: FilterState }
   | { type: 'setView'; view: ViewId }
   | { type: 'setSort'; sort: SortState | null }
+  | { type: 'dropUnknownSelection'; lang: boolean; init: boolean }
 
 export function filterReducer(state: FilterState, action: FilterAction): FilterState {
   switch (action.type) {
@@ -55,13 +56,20 @@ export function filterReducer(state: FilterState, action: FilterAction): FilterS
     }
     case 'setSort':
       return { ...state, sort: action.sort }
+    case 'dropUnknownSelection':
+      return {
+        ...state,
+        lang: action.lang ? null : state.lang,
+        init: action.init ? null : state.init,
+      }
   }
 }
 
-/** Only a range change replaces; everything else pushes. A drag emits a stream of
- *  setRange actions, and pushing each would bury the previous page under dozens
- *  of history entries. */
-const REPLACES: FilterAction['type'] = 'setRange'
+/** Actions whose URL write REPLACES rather than pushes. A range drag emits a
+ *  stream of setRange actions and pushing each would bury the previous page.
+ *  Dropping an unknown id is a correction the reader never asked for, so Back
+ *  must not walk them into the broken URL they just left. */
+const REPLACES = new Set<FilterAction['type']>(['setRange', 'dropUnknownSelection'])
 
 export function useFilters(): { state: FilterState; dispatch: (a: FilterAction) => void } {
   const [state, rawDispatch] = useReducer(
@@ -104,7 +112,7 @@ export function useFilters(): { state: FilterState; dispatch: (a: FilterAction) 
     // initial mount canonicalising a non-canonical URL, or a `popstate`
     // catch-up — so it must replace, never push: a write the reader never
     // asked for must not be undoable with Back.
-    if (lastAction.current === null || lastAction.current === REPLACES) {
+    if (lastAction.current === null || REPLACES.has(lastAction.current)) {
       window.history.replaceState({}, '', url)
     } else {
       window.history.pushState({}, '', url)

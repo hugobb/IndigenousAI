@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { loadBundle } from '../lib/load.js'
 import { applyFilters, emptyState, facetSummaries, yearRange } from '../lib/filters.js'
 import { snapshotDate } from '../lib/snapshot.js'
@@ -12,6 +12,7 @@ import FacetPanel from './FacetPanel.js'
 import Timeline from './Timeline.js'
 import TableView from './TableView.js'
 import ViewSwitch from './ViewSwitch.js'
+import OutsideFiltersNotice from './OutsideFiltersNotice.js'
 
 export default function App(): React.JSX.Element {
   const bundle = useMemo(() => loadBundle(), [])
@@ -21,10 +22,28 @@ export default function App(): React.JSX.Element {
   const summaries = useMemo(() => facetSummaries(bundle, state), [bundle, state])
   const years = useMemo(() => yearRange(bundle), [bundle])
 
-  const language = selection.languages.find((l) => l.id === state.lang)
-    ?? selection.filteredOut.find((l) => l.id === state.lang)
-    ?? null
-  const initiative = selection.initiatives.find((i) => i.id === state.init) ?? null
+  // Looked up in the BUNDLE, not the selection: a record the filters exclude
+  // still exists, and the page has to be able to say so.
+  const language = bundle.languages.find((l) => l.id === state.lang) ?? null
+  const initiative = bundle.initiatives.find((i) => i.id === state.init) ?? null
+
+  const languageInSelection =
+    selection.languages.some((l) => l.id === state.lang) ||
+    selection.filteredOut.some((l) => l.id === state.lang)
+  const initiativeInSelection = selection.initiatives.some((i) => i.id === state.init)
+
+  const outside: 'language' | 'initiative' | null =
+    language !== null && !languageInSelection ? 'language'
+    : initiative !== null && !initiativeInSelection ? 'initiative'
+    : null
+
+  // A stale or mistyped id names nothing. Degrading it away matches how the
+  // codec already treats unknown keys and values.
+  useEffect(() => {
+    const lang = state.lang !== null && language === null
+    const init = state.init !== null && initiative === null
+    if (lang || init) dispatch({ type: 'dropUnknownSelection', lang, init })
+  }, [state.lang, state.init, language, initiative, dispatch])
 
   // The timeline filters in `applyFilters` and occupies two URL keys, so it is
   // an active filter and has to be counted as one — otherwise constraining only
@@ -95,6 +114,19 @@ export default function App(): React.JSX.Element {
           filteredOut={selection.filteredOut}
           onSelect={(id) => dispatch({ type: 'selectLanguage', id })}
         />
+        {outside !== null && (
+          <OutsideFiltersNotice
+            kind={outside}
+            onClearFilters={() => dispatch({ type: 'clearAll' })}
+            onDeselect={() =>
+              dispatch(
+                outside === 'language'
+                  ? { type: 'selectLanguage', id: null }
+                  : { type: 'selectInitiative', id: null },
+              )
+            }
+          />
+        )}
         {language !== null && (
           <LanguagePanel
             language={language}
