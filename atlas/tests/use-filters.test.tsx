@@ -9,7 +9,10 @@ afterEach(() => cleanup())
 
 describe('filterReducer', () => {
   it('adds a value on first toggle and removes it on the second', () => {
-    const once = filterReducer(EMPTY_FILTERS, { type: 'toggle', facet: 'region', value: 'africa' })
+    // A spread copy, never the shared EMPTY_FILTERS singleton directly: the
+    // singleton is deep-frozen, and passing it live here would make the
+    // "never mutates" guard below depend on this test having run first.
+    const once = filterReducer({ ...EMPTY_FILTERS }, { type: 'toggle', facet: 'region', value: 'africa' })
     expect(once.region).toEqual(['africa'])
     expect(filterReducer(once, { type: 'toggle', facet: 'region', value: 'africa' }).region).toEqual([])
   })
@@ -33,7 +36,17 @@ describe('filterReducer', () => {
     expect(filterReducer(s, { type: 'selectInitiative', id: 'i' })).toMatchObject({ lang: null, init: 'i' })
   })
 
+  it('replaces the whole state wholesale on fromUrl, not a merge', () => {
+    const s = { ...EMPTY_FILTERS, region: ['africa'], lang: 'myaamia' }
+    const incoming = { ...EMPTY_FILTERS, application: ['asr'] }
+    expect(filterReducer(s, { type: 'fromUrl', state: incoming })).toEqual(incoming)
+  })
+
   it('never mutates the state it was given', () => {
+    // Deliberately a fresh copy, not the frozen EMPTY_FILTERS singleton — a
+    // mutation here would throw (frozen) rather than silently poisoning every
+    // other test in the file, which is what makes this guard trustworthy in
+    // isolation instead of only when run in file order.
     const s = { ...EMPTY_FILTERS }
     filterReducer(s, { type: 'toggle', facet: 'region', value: 'africa' })
     expect(s.region).toEqual([])
@@ -70,7 +83,7 @@ describe('useFilters', () => {
     expect(window.location.search).toBe('')
   })
 
-  it('pushes discrete changes so Back undoes a filter', () => {
+  it('pushes discrete changes so a history entry exists to go Back to', () => {
     window.history.replaceState({}, '', '/')
     render(<Probe />)
     const before = window.history.length
@@ -88,5 +101,60 @@ describe('useFilters', () => {
     send({ type: 'setRange', from: 2002, to: 2020 })
     expect(window.history.length).toBe(before)
     expect(window.location.search).toBe('?from=2002&to=2020')
+  })
+
+  // The name of this test is the point: a pushed history entry is only useful
+  // if Back actually changes what's on screen, not just the address bar.
+  it('re-syncs the rendered state when the browser navigates Back (popstate)', () => {
+    window.history.replaceState({}, '', '/')
+    render(<Probe />)
+    send({ type: 'toggle', facet: 'region', value: 'africa' })
+    expect(screen.getByTestId('probe').textContent).toBe('["africa"]')
+
+    // The browser moves `window.location` on its own before it fires
+    // `popstate` — a real Back press does not go through this hook's dispatch
+    // at all, so the test drives the two steps separately, the same way a
+    // real navigation does.
+    act(() => {
+      window.history.replaceState({}, '', '/')
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    })
+
+    expect(screen.getByTestId('probe').textContent).toBe('[]')
+  })
+
+  // A reader following a link from the paper to a non-canonical URL must not
+  // get a phantom history entry: pressing Back from there should leave the
+  // site entirely, not bounce to the pre-canonicalisation URL they never saw.
+  it('canonicalises a non-canonical URL on mount by replacing, not pushing', () => {
+    window.history.replaceState({}, '', '/?region=africa&colour=blue')
+    const before = window.history.length
+    render(<Probe />)
+    expect(window.location.search).toBe('?region=africa')
+    expect(window.history.length).toBe(before)
+  })
+
+  // The regression this guards: writing the URL on every render (even when it
+  // already matches) would silently turn every push into two, or — worse —
+  // fire on a render that followed no user action, breaking Back.
+  it('does not touch history on a plain render with no dispatch', () => {
+    window.history.replaceState({}, '', '/')
+    const before = window.history.length
+    render(<Probe />)
+    expect(window.history.length).toBe(before)
+  })
+
+  // The reducer always returns a fresh object (even when the resulting values
+  // are identical to the current ones), so re-dispatching the same selection
+  // re-runs the write effect with an unchanged serialised URL. Without the
+  // no-op guard that second run would push a second, indistinguishable
+  // history entry — one Back press would look like it did nothing.
+  it('does not push a duplicate history entry when a dispatch does not change the URL', () => {
+    window.history.replaceState({}, '', '/')
+    render(<Probe />)
+    send({ type: 'selectLanguage', id: 'myaamia' })
+    const afterFirst = window.history.length
+    send({ type: 'selectLanguage', id: 'myaamia' })
+    expect(window.history.length).toBe(afterFirst)
   })
 })

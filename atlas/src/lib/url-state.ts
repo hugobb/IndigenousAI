@@ -23,11 +23,20 @@ const FACET_KEYS: FacetId[] = [
   'application', 'method', 'regime', 'governance',
 ]
 
-export const EMPTY_FILTERS: FilterState = {
+/** `Object.freeze` is shallow: it locks the top-level properties but leaves
+ *  each facet's array mutable. Freeze every array first, then the object
+ *  itself, so any accidental mutation anywhere in the codebase throws in
+ *  strict mode instead of silently corrupting this shared singleton. */
+function deepFreezeFilterState(state: FilterState): FilterState {
+  for (const id of FACET_KEYS) Object.freeze(state[id])
+  return Object.freeze(state)
+}
+
+export const EMPTY_FILTERS: FilterState = deepFreezeFilterState({
   family: [], typology: [], endangerment: [], region: [],
   application: [], method: [], regime: [], governance: [],
   from: null, to: null, lang: null, init: null,
-}
+})
 
 /** A value survives if the facet is data-derived (no vocabulary to check against)
  *  or if the vocabulary knows it. The sentinel always survives. */
