@@ -21,5 +21,17 @@ export default function MapView(props: MapViewProps): React.JSX.Element {
     },
     { onSelectLanguage: props.onSelectLanguage, onSelectInitiative: props.onSelectInitiative },
   )
-  return <div ref={container} role="application" aria-label="Map of Indigenous language NLP initiatives" style={{ position: 'absolute', inset: 0 }} />
+  // Fills its pane and is positioned WITHIN it. An earlier version was
+  // `position: absolute; inset: 0`, which — with no positioned ancestor —
+  // sized itself to the viewport and painted the opaque basemap over the
+  // heading, the notice and both panels, swallowing their clicks. jsdom has
+  // no layout engine, so no test in this suite could see that.
+  return (
+    <div
+      ref={container}
+      className="atlas__canvas"
+      role="application"
+      aria-label="Map of Indigenous language NLP initiatives"
+    />
+  )
 }

@@ -6,7 +6,7 @@ export default function LanguagePanel({
 }: { language: Language; initiatives: Initiative[] }): React.JSX.Element {
   const s = language.speakers
   return (
-    <aside aria-label={`Language: ${language.name}`}>
+    <aside className="card panel" aria-label={`Language: ${language.name}`}>
       <h2>{language.name}</h2>
       <dl>
         <Field label="Also known as" testId="field-aka">{language.also_known_as.join(', ')}</Field>

@@ -9,14 +9,17 @@ export default function UnmappedList({
 }: { languages: Language[]; onSelect: (id: string) => void }): React.JSX.Element {
   const { notMapped, approximate } = unmappedLanguages(languages)
   return (
-    <section aria-label="Languages the map cannot show faithfully">
+    <section className="card unmapped" aria-label="Languages the map cannot show faithfully">
+      <p className="section-label">What the map cannot show</p>
       <div data-testid="group-not-mapped">
         <h3>Not mapped ({notMapped.length})</h3>
         <ul>
           {notMapped.map((l) => (
             <li key={l.id}>
-              <button type="button" onClick={() => onSelect(l.id)}>{l.name}</button>
-              {l.tier === 'adjacent' && <span> — adjacent tier, never mapped</span>}
+              <button type="button" className="link-button" onClick={() => onSelect(l.id)}>
+                {l.name}
+              </button>
+              {l.tier === 'adjacent' && <span>adjacent tier, never mapped</span>}
             </li>
           ))}
         </ul>
@@ -26,7 +29,9 @@ export default function UnmappedList({
         <ul>
           {approximate.map((l) => (
             <li key={l.id}>
-              <button type="button" onClick={() => onSelect(l.id)}>{l.name}</button>
+              <button type="button" className="link-button" onClick={() => onSelect(l.id)}>
+                {l.name}
+              </button>
               {l.caveat !== null && <p>{l.caveat}</p>}
             </li>
           ))}

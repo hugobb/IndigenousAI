@@ -10,7 +10,7 @@ export default function InitiativePanel({
       ? null
       : `${initiative.started}–${initiative.ended === null ? 'ongoing' : initiative.ended}`
   return (
-    <aside aria-label={`Initiative: ${initiative.name}`}>
+    <aside className="card panel" aria-label={`Initiative: ${initiative.name}`}>
       <h2>{initiative.name}</h2>
       <dl>
         <Field label="Years" testId="field-years">{years}</Field>

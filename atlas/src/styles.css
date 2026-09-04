@@ -1,0 +1,299 @@
+/* Atlas — page chrome.
+ *
+ * This accompanies a review paper, so it is styled as a reference work and not
+ * as a product: one serif voice for headings, a quiet sans for data, generous
+ * rules and whitespace, and no colour that is not already doing a job on the
+ * map. The three map colours below are copied from `src/map/style.ts` — the
+ * page and the map must not run competing palettes. If you change them there,
+ * change them here.
+ */
+
+:root {
+  --ink: #5b7a8c;        /* style.ts INK    — sourced language field, sourced pin */
+  --accent: #c2703d;     /* style.ts ACCENT — selection */
+  --muted: #9aa5ab;      /* style.ts MUTED  — approximate location */
+
+  --accent-ink: #8a4a20; /* darkened ACCENT, for accent-coloured TEXT (6:1 on --notice-bg) */
+  --paper: #faf9f7;
+  --panel: #ffffff;
+  --rule: #e2ded7;
+  --text: #23282c;
+  --text-soft: #5c666c;
+  --notice-bg: #fbf0e8;
+
+  --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+  --sans: ui-sans-serif, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+
+  --rail-width: 25rem;
+  --gutter: 1.5rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent-ink); }
+
+/* ---------------------------------------------------------------- layout --
+ * Two panes side by side. The map gets a pane of its own and is `position:
+ * relative` INSIDE it; it must never be sized against the viewport, or it
+ * paints over the heading, the notice and the panels, which are all in flow.
+ */
+.atlas {
+  display: grid;
+  grid-template-columns: minmax(0, var(--rail-width)) minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  height: 100dvh;
+}
+
+.atlas__masthead,
+.atlas__notice { grid-column: 1 / -1; }
+
+.atlas__rail {
+  grid-column: 1;
+  min-width: 0;
+  overflow-y: auto;          /* the rail scrolls on its own … */
+  overflow-x: hidden;
+  border-right: 1px solid var(--rule);
+  background: var(--paper);
+  padding: var(--gutter);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gutter);
+}
+
+.atlas__map {
+  grid-column: 2;
+  min-width: 0;
+  position: relative;        /* … the map pane does not scroll at all */
+  overflow: hidden;
+  background: #eceae6;
+}
+
+/* The MapLibre container. Relative to its pane, filling it — never fixed. */
+.atlas__canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* -------------------------------------------------------------- masthead -- */
+.atlas__masthead {
+  padding: 1.1rem var(--gutter) 0.9rem;
+  border-bottom: 1px solid var(--rule);
+  background: var(--panel);
+}
+
+.atlas__masthead h1 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.4rem;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+.atlas__standfirst {
+  margin: 0.35rem 0 0;
+  max-width: 60ch;
+  color: var(--text-soft);
+  font-size: 0.8125rem;
+}
+
+/* ---------------------------------------------------------------- notice --
+ * Finding 2: a reader must not be able to mistake invented fixture records for
+ * research data. So the notice is a full-bleed band above BOTH panes, rules
+ * top and bottom, an accent bar down its side, and its lead line set apart —
+ * it cannot be scrolled past, and it is the first thing under the title.
+ */
+.atlas__notice {
+  margin: 0;
+  padding: 0.85rem var(--gutter) 0.9rem calc(var(--gutter) - 0.5rem);
+  border-bottom: 1px solid var(--rule);
+  border-left: 0.5rem solid var(--accent);
+  background: var(--notice-bg);
+  color: var(--text);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.atlas__notice strong {
+  display: block;
+  font-family: var(--serif);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+  margin-bottom: 0.2rem;
+}
+
+/* ------------------------------------------------------------ rail cards -- */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 1rem 1.1rem 1.1rem;
+}
+
+.card > h2,
+.card > h3:first-child {
+  margin-top: 0;
+}
+
+.card h2 {
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.section-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  margin: 0 0 0.75rem;
+}
+
+/* ------------------------------------------------------------ unmapped ---- */
+.unmapped h3 {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  margin: 0 0 0.4rem;
+}
+
+.unmapped > div + div { margin-top: 1rem; }
+
+.unmapped ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.unmapped li {
+  padding: 0.3rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.unmapped li:first-child { border-top: 0; }
+
+.unmapped li span,
+.unmapped li p {
+  display: block;
+  margin: 0.1rem 0 0;
+  color: var(--text-soft);
+  font-size: 0.75rem;
+}
+
+.link-button {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--accent-ink);
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  text-decoration-color: var(--muted);
+}
+
+.link-button:hover { text-decoration-color: var(--accent); }
+
+.link-button:focus-visible,
+.atlas__canvas:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------- panels --- */
+.panel dl {
+  margin: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.panel dl > div {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.panel dt {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.panel dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.panel dd em { color: var(--muted); font-style: italic; }
+
+.panel dd ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.panel dd p {
+  margin: 0.25rem 0 0;
+  color: var(--text-soft);
+  font-size: 0.8125rem;
+}
+
+/* ------------------------------------------------------------ maplibre ---- */
+/* The basemap is CARTO/OSM; its attribution is a licence condition, so it is
+ * left legible rather than tucked away. */
+.maplibregl-ctrl-attrib {
+  font-family: var(--sans);
+  font-size: 0.6875rem;
+}
+
+/* ---------------------------------------------------------- narrow view --- */
+@media (max-width: 60rem) {
+  .atlas {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  /* Explicit rows, not `order`: the reading column has to fall BELOW the map
+   * but the title and the notice have to stay above it. */
+  .atlas__masthead { grid-column: 1; grid-row: 1; }
+  .atlas__notice   { grid-column: 1; grid-row: 2; }
+  .atlas__map      { grid-column: 1; grid-row: 3; }
+  .atlas__rail     { grid-column: 1; grid-row: 4; }
+
+  .atlas__map {
+    height: min(60vh, 30rem);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .atlas__rail {
+    overflow-y: visible;
+    border-right: 0;
+  }
+}

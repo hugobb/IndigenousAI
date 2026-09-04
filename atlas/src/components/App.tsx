@@ -14,32 +14,58 @@ export default function App(): React.JSX.Element {
   const language = bundle.languages.find((l) => l.id === languageId) ?? null
   const initiative = bundle.initiatives.find((i) => i.id === initiativeId) ?? null
 
+  // One selection at a time, and the SAME handler for both ways in. The
+  // unmapped list used to call `setLanguageId` bare, which left a stale
+  // initiative panel open beside the new language panel — two records
+  // presented as one reading.
+  const selectLanguage = (id: string | null): void => {
+    setLanguageId(id)
+    setInitiativeId(null)
+  }
+  const selectInitiative = (id: string | null): void => {
+    setInitiativeId(id)
+    setLanguageId(null)
+  }
+
   return (
-    <main>
-      <h1>Atlas of Indigenous Language NLP</h1>
+    <main className="atlas">
+      <header className="atlas__masthead">
+        <h1>Atlas of Indigenous Language NLP</h1>
+        <p className="atlas__standfirst">
+          Companion map to the review. Each point is a single approximate location, never a
+          territory or a boundary.
+        </p>
+      </header>
+
       {bundle.isDemoData && (
-        <p role="alert" data-testid="demo-data-banner">
+        <p className="atlas__notice" role="alert" data-testid="demo-data-banner">
           <strong>Demonstration data.</strong> Every record on this page is an invented
           placeholder used for development. The places, families, coordinates and speaker
           counts shown here are not research data and must not be cited or screenshotted as
           such. The real atlas is built only from human-reviewed records.
         </p>
       )}
-      <MapView
-        languages={languageFields(bundle.languages)}
-        initiatives={initiativeSites(bundle.initiatives)}
-        selectedLanguageId={languageId}
-        onSelectLanguage={(id) => { setLanguageId(id); setInitiativeId(null) }}
-        onSelectInitiative={(id) => { setInitiativeId(id); setLanguageId(null) }}
-      />
-      <UnmappedList languages={bundle.languages} onSelect={setLanguageId} />
-      {language !== null && (
-        <LanguagePanel
-          language={language}
-          initiatives={bundle.initiatives.filter((i) => i.languages.includes(language.id))}
+
+      <div className="atlas__rail">
+        <UnmappedList languages={bundle.languages} onSelect={selectLanguage} />
+        {language !== null && (
+          <LanguagePanel
+            language={language}
+            initiatives={bundle.initiatives.filter((i) => i.languages.includes(language.id))}
+          />
+        )}
+        {initiative !== null && <InitiativePanel initiative={initiative} methods={bundle.methods} />}
+      </div>
+
+      <div className="atlas__map">
+        <MapView
+          languages={languageFields(bundle.languages)}
+          initiatives={initiativeSites(bundle.initiatives)}
+          selectedLanguageId={languageId}
+          onSelectLanguage={selectLanguage}
+          onSelectInitiative={selectInitiative}
         />
-      )}
-      {initiative !== null && <InitiativePanel initiative={initiative} methods={bundle.methods} />}
+      </div>
     </main>
   )
 }
