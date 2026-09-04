@@ -62,6 +62,40 @@ describe('filterReducer', () => {
   })
 })
 
+describe('view and sort actions', () => {
+  it('setView drops a sort the new view cannot honour', () => {
+    const withSort = filterReducer(
+      { ...EMPTY_FILTERS, view: 'languages' },
+      { type: 'setSort', sort: { column: 'speakers', direction: 'asc' } },
+    )
+    expect(filterReducer(withSort, { type: 'setView', view: 'initiatives' }).sort).toBeNull()
+    expect(filterReducer(withSort, { type: 'setView', view: 'map' }).sort).toBeNull()
+  })
+
+  it('setView keeps a sort the new view still has', () => {
+    const withSort = filterReducer(
+      { ...EMPTY_FILTERS, view: 'languages' },
+      { type: 'setSort', sort: { column: 'name', direction: 'desc' } },
+    )
+    expect(filterReducer(withSort, { type: 'setView', view: 'initiatives' }).sort)
+      .toEqual({ column: 'name', direction: 'desc' })
+  })
+
+  // Clearing the query must not also throw the reader back to the map. It
+  // already preserves the open panel for the same reason.
+  it('clearAll keeps the view, the sort and the open panel', () => {
+    const state = filterReducer(
+      { ...EMPTY_FILTERS, view: 'languages', lang: 'cho', init: null,
+        sort: { column: 'work', direction: 'asc' }, region: ['africa'] },
+      { type: 'clearAll' },
+    )
+    expect(state.region).toEqual([])
+    expect(state.view).toBe('languages')
+    expect(state.sort).toEqual({ column: 'work', direction: 'asc' })
+    expect(state.lang).toBe('cho')
+  })
+})
+
 function Probe(): React.JSX.Element {
   const { state, dispatch } = useFilters()
   ;(globalThis as { __dispatch?: (a: FilterAction) => void }).__dispatch = dispatch

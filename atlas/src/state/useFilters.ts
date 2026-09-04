@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react'
 import type { FacetId } from '../lib/facets.js'
+import { columnIds, type SortState, type ViewId } from '../lib/columns.js'
 import { EMPTY_FILTERS, parseFilters, toSearch, type FilterState } from '../lib/url-state.js'
 
 export type FilterAction =
@@ -10,6 +11,8 @@ export type FilterAction =
   | { type: 'selectLanguage'; id: string | null }
   | { type: 'selectInitiative'; id: string | null }
   | { type: 'fromUrl'; state: FilterState }
+  | { type: 'setView'; view: ViewId }
+  | { type: 'setSort'; sort: SortState | null }
 
 export function filterReducer(state: FilterState, action: FilterAction): FilterState {
   switch (action.type) {
@@ -23,9 +26,14 @@ export function filterReducer(state: FilterState, action: FilterAction): FilterS
     case 'clearFacet':
       return { ...state, [action.facet]: [] }
     case 'clearAll':
-      // Clears the query, keeps the open panel: clearing filters should not also
-      // close the record the reader is reading.
-      return { ...EMPTY_FILTERS, lang: state.lang, init: state.init }
+      // Clears the query, keeps the open panel and keeps where the reader is
+      // looking: clearing filters should neither close the record being read
+      // nor throw them back to the map.
+      return {
+        ...EMPTY_FILTERS,
+        lang: state.lang, init: state.init,
+        view: state.view, sort: state.sort,
+      }
     case 'setRange':
       return { ...state, from: action.from, to: action.to }
     case 'selectLanguage':
@@ -36,6 +44,17 @@ export function filterReducer(state: FilterState, action: FilterAction): FilterS
       // The browser already changed the address (Back/Forward); the state
       // just has to catch up wholesale, not merge.
       return action.state
+    case 'setView': {
+      // A sort the new view has no column for would sit in the URL describing
+      // nothing. Dropped here so state is canonical before it is serialised.
+      const sort =
+        state.sort !== null && columnIds(action.view).includes(state.sort.column)
+          ? state.sort
+          : null
+      return { ...state, view: action.view, sort }
+    }
+    case 'setSort':
+      return { ...state, sort: action.sort }
   }
 }
 

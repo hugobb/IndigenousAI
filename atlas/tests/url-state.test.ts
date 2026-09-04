@@ -22,6 +22,7 @@ describe('the URL contract', () => {
       method: ['fst-morphological-segmentation'], regime: ['1k-10k'],
       governance: ['open'], from: 2000, to: 2020,
       lang: 'myaamia', init: 'te-hiku-media',
+      view: 'map', sort: null,
     })
   })
 
@@ -99,6 +100,57 @@ describe('the URL contract', () => {
     const parsed = parseFilters('')
     for (const f of [...LANGUAGE_FACETS, ...INITIATIVE_FACETS]) {
       expect(parsed).toHaveProperty(f.id)
+    }
+  })
+})
+
+describe('view and sort', () => {
+  // The key list is hardcoded ON PURPOSE. A test deriving it from FilterState
+  // would follow a rename and stay green while every URL in the paper broke.
+  it('serialises exactly fourteen keys, in this order', () => {
+    const search = toSearch({
+      family: ['a'], typology: ['b'], endangerment: ['c'], region: ['d'],
+      application: ['e'], method: ['f'], regime: ['g'], governance: ['h'],
+      from: 1990, to: 2020, lang: 'cho', init: 'i1',
+      view: 'languages', sort: { column: 'work', direction: 'desc' },
+    })
+    expect(search).toBe(
+      '?family=a&typology=b&endangerment=c&region=d&application=e&method=f' +
+      '&regime=g&governance=h&from=1990&to=2020&lang=cho&init=i1' +
+      '&view=languages&sort=work%3Adesc',
+    )
+  })
+
+  it('defaults to the map and omits the default from the URL', () => {
+    expect(parseFilters('').view).toBe('map')
+    expect(toSearch({ ...EMPTY_FILTERS, view: 'map' })).toBe('')
+  })
+
+  it('degrades an unknown view to the map', () => {
+    expect(parseFilters('?view=banana').view).toBe('map')
+  })
+
+  it('round-trips a table view with a sort', () => {
+    const s = parseFilters('?view=initiatives&sort=started:desc')
+    expect(s.view).toBe('initiatives')
+    expect(s.sort).toEqual({ column: 'started', direction: 'desc' })
+    expect(parseFilters(toSearch(s))).toEqual(s)
+  })
+
+  it('drops a sort naming a column the current view does not have', () => {
+    expect(parseFilters('?view=initiatives&sort=speakers:asc').sort).toBeNull()
+    expect(parseFilters('?view=languages&sort=speakers:asc').sort)
+      .toEqual({ column: 'speakers', direction: 'asc' })
+  })
+
+  it('drops any sort in map view, where there are no columns', () => {
+    expect(parseFilters('?view=map&sort=name:asc').sort).toBeNull()
+    expect(parseFilters('?sort=name:asc').sort).toBeNull()
+  })
+
+  it('drops a malformed sort rather than coercing it', () => {
+    for (const bad of ['', 'name', 'name:', ':asc', 'name:sideways', 'name:asc:desc']) {
+      expect(parseFilters(`?view=languages&sort=${encodeURIComponent(bad)}`).sort).toBeNull()
     }
   })
 })
