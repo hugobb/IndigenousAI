@@ -335,8 +335,10 @@ a { color: var(--accent-ink); }
 .facets__head .section-label { margin: 0; }
 .facets__head .link-button { font-size: 0.75rem; white-space: nowrap; }
 
-/* `fieldset` for a curated group, `div` for an uncurated one — the sibling
- * combinator rules both, so the separators do not depend on which is which. */
+/* Every group is a `fieldset`, curated or not: an uncurated group may still
+ * have to render a selection so it can be removed, and controls belong in a
+ * labelled group. The sibling combinator rules both, so the separators do not
+ * depend on which is which. */
 .facet {
   border: 0;
   margin: 0;
@@ -462,6 +464,17 @@ a { color: var(--accent-ink); }
   color: var(--text-soft);
   font-size: 0.8125rem;
   font-style: italic;
+}
+
+.facet--uncurated .facet__options { margin-top: 0.4rem; }
+
+/* A curated group whose pool is empty. Set like the uncurated line but WITHOUT
+ * the recess: this is a filter result, not a curation gap, and the two must
+ * stay distinguishable at a glance. */
+.facet__empty {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.8125rem;
 }
 
 /* ------------------------------------------------------------- footnotes -- */

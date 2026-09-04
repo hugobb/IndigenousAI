@@ -179,6 +179,22 @@ describe('facetSummaries', () => {
     expect(facetSummaries(bundle([], []), EMPTY_FILTERS)).toHaveLength(8)
   })
 
+  // The "not yet curated (n records)" sentence is a claim about the dataset,
+  // so its number must be the dataset's. `notRecorded` stays pool-scoped
+  // because it is the number behind a checkbox and has to match what ticking
+  // that checkbox would select.
+  it('reports a bundle-scoped not-recorded count alongside the pool-scoped one', () => {
+    const b = bundle(
+      [lang('a', { region: 'africa' }), lang('b', { region: 'oceania' }), lang('c', { region: 'oceania' })],
+      [],
+    )
+    const sums = facetSummaries(b, { ...EMPTY_FILTERS, region: ['oceania'] })
+    const typology = sums.find((f) => f.id === 'typology')!
+    expect(typology.curated).toBe(false)
+    expect(typology.notRecorded).toBe(2)
+    expect(typology.notRecordedTotal).toBe(3)
+  })
+
   // `curated` is a claim about the DATA, not about the current filter. If it were
   // measured against the filtered pool, narrowing to a region with no typology
   // would make the atlas announce that typology is uncurated, which is false.

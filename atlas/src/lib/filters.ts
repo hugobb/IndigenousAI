@@ -86,7 +86,15 @@ export interface FacetSummary {
   id: FacetId
   label: string
   options: { value: string; count: number }[]
+  /** How many records in the CURRENT pool carry nothing for this facet — the
+   *  number behind the "not recorded" checkbox, so it must match what ticking
+   *  it would select. */
   notRecorded: number
+  /** How many records in the WHOLE bundle carry nothing for this facet. Only
+   *  the "not yet curated" sentence uses this: that sentence is a claim about
+   *  the dataset, not about the current filter, so a pool-scoped number there
+   *  reads as a much smaller claim than the one being made. */
+  notRecordedTotal: number
   curated: boolean
   selected: string[]
 }
@@ -104,6 +112,7 @@ export function facetSummaries(bundle: AtlasBundle, state: FilterState): FacetSu
     label: facet.label,
     options: facetOptions(pool, facet),
     notRecorded: notRecordedCount(pool, facet),
+    notRecordedTotal: notRecordedCount(all, facet),
     // `curated` asks whether this dimension has data AT ALL, so it is measured
     // against the whole bundle. Measuring it against the filtered pool would make
     // a facet read "not yet curated" merely because the current filter excluded
