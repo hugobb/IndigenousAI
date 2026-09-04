@@ -65,11 +65,17 @@ describe('DataTable', () => {
     expect(within(screen.getByTestId('row-a')).getByText('†')).toBeDefined()
   })
 
+  // Important 2 (review round 1): clicking one row and asserting that row's
+  // id lets `onSelect` be implemented as a constant `'b'` and still pass.
+  // Click two different rows and assert each call distinctly.
   it('selects a row through its name button', () => {
     const onSelect = vi.fn()
     table({ onSelect })
     fireEvent.click(screen.getByRole('button', { name: /blackfoot/i }))
-    expect(onSelect).toHaveBeenCalledWith('b')
+    expect(onSelect).toHaveBeenLastCalledWith('b')
+    fireEvent.click(screen.getByRole('button', { name: /^cree$/i }))
+    expect(onSelect).toHaveBeenLastCalledWith('c')
+    expect(onSelect).toHaveBeenCalledTimes(2)
   })
 
   it('marks the selected row', () => {

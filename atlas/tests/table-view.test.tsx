@@ -65,11 +65,39 @@ describe('TableView', () => {
     expect(screen.getByTestId('table-caption').textContent).toMatch(/disagree/i)
   })
 
+  // Minor 3 (review round 1): the initiatives caption was entirely
+  // unasserted — blanking it to a single space passed every other test in
+  // this file. "including the date window" is the initiatives-tab analogue
+  // of the languages tab's scope sentence, which was already guarded.
+  it('states the scope of the initiatives caption', () => {
+    view('initiatives')
+    const caption = screen.getByTestId('table-caption').textContent ?? ''
+    expect(caption).toMatch(/initiatives matching the current filters/i)
+    expect(caption).toMatch(/including the date window/i)
+  })
+
   it('resolves initiative language ids to names', () => {
     view('initiatives')
     const names = bundle.languages.map((l) => l.name)
     const body = screen.getByRole('table').textContent ?? ''
     expect(names.some((n) => body.includes(n))).toBe(true)
+  })
+
+  // Minor 4 (review round 1): the dagger was only ever exercised through
+  // DataTable's synthetic fixture, never through TableView against real
+  // fixture data. `fixture-conflict` has a non-empty `speakers.conflicts` in
+  // atlas.fixture.json, so its row must carry the dagger here too.
+  it('renders the conflict dagger for a real fixture language through TableView', () => {
+    const lang = bundle.languages.find((l) => l.id === 'fixture-conflict')
+    if (lang === undefined) throw new Error('fixture missing fixture-conflict')
+    render(
+      <TableView
+        view="languages"
+        selection={{ languages: [lang], initiatives: [], filteredOut: [], undatedInitiatives: 0 }}
+        bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
+      />,
+    )
+    expect(within(screen.getByTestId(`row-${lang.id}`)).getByText('†')).toBeDefined()
   })
 
   // Mutation check 5 (task-5-brief Step 5): `workCount` must be built from
@@ -107,5 +135,23 @@ describe('TableView', () => {
       />,
     )
     expect(screen.getByTestId('table-empty').textContent).toMatch(/no matching work/i)
+  })
+
+  // Important 1 (review round 1): the `matched`-but-empty ruling in
+  // TableView had no guard at all — reverting `matched:` back to `null` in
+  // EMPTY_COPY passed every test in this file. Constructed exactly the state
+  // the ruling exists for: languages non-empty (so emptyState is `matched`,
+  // not `nothing-matched`), initiatives AND filteredOut both empty (so it is
+  // not `no-work-but-languages` either) — a language-only filter with no
+  // work facet active leaves the initiatives table with nothing to show.
+  it('renders a message rather than bare headers when matched but this table has no rows', () => {
+    render(
+      <TableView
+        view="initiatives"
+        selection={{ languages: [bundle.languages[0]!], initiatives: [], filteredOut: [], undatedInitiatives: 0 }}
+        bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
+      />,
+    )
+    expect(screen.getByTestId('table-empty').textContent?.trim()).not.toBe('')
   })
 })

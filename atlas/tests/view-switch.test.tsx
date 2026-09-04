@@ -17,10 +17,17 @@ describe('ViewSwitch', () => {
     expect(screen.getByRole('button', { name: /initiatives \(4\)/i })).toBeDefined()
   })
 
+  // Important 2 (review round 1, applies verbatim from the brief here too):
+  // clicking one button and asserting that button's view lets `onChange` be
+  // implemented as a constant `'initiatives'` and still pass. Click a second,
+  // different button and assert that call distinctly.
   it('reports the chosen view', () => {
     const onChange = vi.fn()
     render(<ViewSwitch view="map" counts={{ initiatives: 4, languages: 5 }} onChange={onChange} />)
     fireEvent.click(screen.getByRole('button', { name: /initiatives/i }))
-    expect(onChange).toHaveBeenCalledWith('initiatives')
+    expect(onChange).toHaveBeenLastCalledWith('initiatives')
+    fireEvent.click(screen.getByRole('button', { name: /^languages/i }))
+    expect(onChange).toHaveBeenLastCalledWith('languages')
+    expect(onChange).toHaveBeenCalledTimes(2)
   })
 })
