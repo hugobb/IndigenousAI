@@ -77,6 +77,9 @@ a { color: var(--accent-ink); }
 .atlas__rail {
   grid-area: rail;
   min-width: 0;
+  min-height: 0;             /* … and a grid child will not shrink below its
+                              * content without this, so without it the rail
+                              * pushes the whole page into a scroll instead. */
   overflow-y: auto;          /* the rail scrolls on its own … */
   overflow-x: hidden;
   border-right: 1px solid var(--rule);
@@ -151,6 +154,76 @@ a { color: var(--accent-ink); }
   text-transform: uppercase;
   color: var(--accent-ink);
   margin-bottom: 0.2rem;
+}
+
+/* -------------------------------------------------------------- timeline --
+ * A full-bleed band under the notice, above both panes: the date window is a
+ * statement about the whole page, so it is not filed inside the rail with the
+ * per-field facets. The band lives on `.timeline`, not on `.atlas__timeline`,
+ * so that when there is no year range to show the pane collapses to nothing
+ * rather than leaving a bare rule across the page.
+ */
+.timeline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+  padding: 0.7rem var(--gutter) 0.75rem;
+  border-bottom: 1px solid var(--rule);
+  background: var(--panel);
+}
+
+.timeline__controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+}
+
+.timeline__controls label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.timeline__controls label > span {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.timeline__controls input[type='range'] {
+  width: clamp(7rem, 16vw, 13rem);
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.timeline__controls input[type='range']:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* The window itself is the reading, so it is set in the heading voice and in
+ * the map's ink — the years on the page and the pins on the map are one thing. */
+.timeline__window {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* Undated records are shown regardless of the window; saying so is part of the
+ * finding, so it sits in the band and not in a tooltip. */
+.timeline__undated {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--text-soft);
+  font-size: 0.75rem;
 }
 
 /* ------------------------------------------------------------ rail cards -- */
@@ -238,6 +311,174 @@ a { color: var(--accent-ink); }
 .atlas__canvas:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- facets --
+ * Eight groups in one rail card. The whole card is quiet by default: a facet
+ * only takes colour once something in it is selected, so a reader can see at a
+ * glance which fields are constraining the map and which are not.
+ */
+.facets {
+  padding-bottom: 1rem;
+}
+
+.facets__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.55rem;
+  margin-bottom: 0.9rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.facets__head .section-label { margin: 0; }
+.facets__head .link-button { font-size: 0.75rem; white-space: nowrap; }
+
+/* `fieldset` for a curated group, `div` for an uncurated one — the sibling
+ * combinator rules both, so the separators do not depend on which is which. */
+.facet {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+/* A `legend` renders IN the top border of its fieldset, interrupting the rule
+ * — which is the look wanted here. It also means the separation must be margin
+ * and not padding, or the legend floats a padding-height above its own options
+ * while the first group's legend does not, and the groups stop matching. */
+.facet + .facet {
+  margin-top: 1rem;
+  padding-top: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.facet__legend {
+  float: none;
+  margin: 0 0 0.4rem;
+  padding: 0;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.facet__count {
+  color: var(--accent-ink);
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+.facet__needle {
+  width: 100%;
+  margin: 0 0 0.5rem;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+}
+
+.facet__needle::placeholder { color: var(--text-soft); }
+
+.facet__needle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.facet__options {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 14rem;         /* a long vocabulary must not push the other seven
+                              * groups out of reach; it scrolls in place */
+  overflow-y: auto;
+}
+
+.facet__options li { margin: 0; }
+
+.facet__options label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding: 0.15rem 0;
+  cursor: pointer;
+}
+
+.facet__options label:hover { color: var(--accent-ink); }
+
+.facet__options input[type='checkbox'] {
+  flex: none;
+  margin: 0;
+  accent-color: var(--accent);
+  transform: translateY(0.1rem);
+}
+
+.facet__options input[type='checkbox']:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.facet__options label > span { min-width: 0; overflow-wrap: anywhere; }
+
+.facet__n {
+  margin-left: auto;
+  padding-left: 0.5rem;
+  color: var(--text-soft);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* An uncurated facet is NOT a control set with nothing ticked — it is the atlas
+ * saying the field has not been coded yet, and the two must never read alike.
+ * So it is recessed onto the page colour, ruled off rather than boxed, its
+ * legend drops to the soft ink, and its one line is set as prose in italics.
+ * Four of the eight groups are uncurated in the real data; flattening this
+ * distinction would turn an honest gap into an apparently empty atlas. */
+.facet--uncurated {
+  padding: 0.55rem 0.7rem 0.6rem;
+  border-left: 2px solid var(--rule);
+  background: var(--paper);
+}
+
+.facet + .facet--uncurated {
+  margin-top: 1rem;
+  padding-top: 0.55rem;
+  border-top: 0;             /* the recess already separates it */
+}
+
+.facet--uncurated .facet__legend {
+  margin-bottom: 0.15rem;
+  color: var(--text-soft);
+}
+
+.facet__uncurated {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.8125rem;
+  font-style: italic;
+}
+
+/* ------------------------------------------------------------- footnotes -- */
+/* A short explanatory line under a heading — used where a group's presence is
+ * itself the finding and needs a sentence, not a label. */
+.hint {
+  margin: 0 0 0.5rem;
+  max-width: 60ch;
+  color: var(--text-soft);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.empty {
+  margin: 0;
+  color: var(--text-soft);
+  font-style: italic;
 }
 
 /* --------------------------------------------------------------- panels --- */

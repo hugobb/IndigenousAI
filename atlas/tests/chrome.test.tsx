@@ -107,6 +107,23 @@ describe('grid placement', () => {
     expect(narrow.map((r) => r.join('+'))).toEqual(['masthead', 'notice', 'timeline', 'map', 'rail'])
   })
 
+  // The two below are SOURCE-TEXT assertions on the stylesheet, and nothing
+  // more: they prove the rule is written, not that the page lays out. jsdom
+  // computes no grid and no overflow (spec §8), so whether the timeline band
+  // actually sits between the notice and the map, and whether the rail really
+  // scrolls itself instead of the page, can only be checked in a browser.
+  it('places the timeline pane by name, like every other pane', () => {
+    expect(CSS).toMatch(/\.atlas__timeline\s*\{[^}]*grid-area:\s*timeline/)
+    expect(CSS).toMatch(/grid-template-areas:[^;]*timeline/)
+  })
+
+  it('lets the rail scroll itself rather than the page', () => {
+    // Without `min-height: 0` a grid child refuses to shrink below its content,
+    // so `overflow-y: auto` on the rail never engages and the page scrolls.
+    expect(CSS).toMatch(/\.atlas__rail\s*\{[^}]*min-height:\s*0/)
+    expect(CSS).toMatch(/\.atlas__rail\s*\{[^}]*overflow-y:\s*auto/)
+  })
+
   it('names an area for each child in the template, and no template area without a child', () => {
     const declared = new Set(areaRows(ruleBody(CSS, '.atlas')).flat())
     render(<App />)
