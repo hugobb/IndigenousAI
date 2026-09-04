@@ -34,7 +34,12 @@ describe('the fixture bundle', () => {
   })
 
   it('exercises every path the map has to handle', () => {
-    const langs = fixture['languages'] as { id: string; tier: string; centre: unknown }[]
+    const langs = fixture['languages'] as {
+      id: string
+      tier: string
+      centre: unknown
+      speakers: { conflicts: unknown[] } | null
+    }[]
     const inits = fixture['initiatives'] as { site: { confidence: string }; ended: number | null }[]
     expect(langs.some((l) => (l.centre as { confidence: string } | null)?.confidence === 'sourced')).toBe(true)
     expect(langs.some((l) => (l.centre as { confidence: string } | null)?.confidence === 'approximate')).toBe(true)
@@ -43,5 +48,35 @@ describe('the fixture bundle', () => {
     expect(inits.some((i) => i.site.confidence === 'approximate')).toBe(true)
     expect(inits.some((i) => i.ended !== null)).toBe(true)
     expect(inits.some((i) => i.ended === null)).toBe(true)
+    // Spec §8: a speaker-count disagreement is a named awkward case, not just
+    // an incidental field value. Assert it exists, not merely that it parses.
+    expect(langs.some((l) => l.speakers !== null && l.speakers.conflicts.length > 0)).toBe(true)
+  })
+
+  it('populates every collection the bundle is supposed to carry', () => {
+    // A per-record loop (`for (const m of fixture['methods']!) expect(...)`)
+    // asserts nothing when the array is empty, so emptying `methods` or
+    // `papers` slipped past every other test here. Assert non-emptiness
+    // directly, for every top-level collection.
+    expect((fixture['languages'] as unknown[]).length).toBeGreaterThan(0)
+    expect((fixture['initiatives'] as unknown[]).length).toBeGreaterThan(0)
+    expect((fixture['methods'] as unknown[]).length).toBeGreaterThan(0)
+    expect((fixture['papers'] as unknown[]).length).toBeGreaterThan(0)
+  })
+
+  it('links an initiative to a method and a paper that resolve within the fixture', () => {
+    // Spec §8: the fixture must contain an initiative referencing a method id
+    // and a paper id that resolve within the fixture — the link that makes
+    // the map an index into the guide. Assert resolution, not just
+    // non-emptiness: a dangling id is the more likely regression.
+    const methodIds = new Set((fixture['methods'] as { id: string }[]).map((m) => m.id))
+    const paperIds = new Set((fixture['papers'] as { id: string }[]).map((p) => p.id))
+    const inits = fixture['initiatives'] as { methods: string[]; papers: string[] }[]
+    const linked = inits.filter((i) => i.methods.length > 0 && i.papers.length > 0)
+    expect(linked.length).toBeGreaterThan(0)
+    for (const i of linked) {
+      for (const id of i.methods) expect(methodIds.has(id)).toBe(true)
+      for (const id of i.papers) expect(paperIds.has(id)).toBe(true)
+    }
   })
 })
