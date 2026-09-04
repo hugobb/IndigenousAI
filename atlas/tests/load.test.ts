@@ -30,12 +30,14 @@ describe('chooseBundle', () => {
   })
 
   it('never silently substitutes the fixture in production', () => {
+    let err: unknown
     try {
       chooseBundle({ real: null, fixture, isProduction: true })
-      throw new Error('should have thrown')
     } catch (e) {
-      expect((e as Error).message).not.toMatch(/fixture/i)
+      err = e
     }
+    expect(err).toBeInstanceOf(Error)
+    expect((err as Error).message).not.toMatch(/fixture/i)
   })
 
   it('rejects a bundle whose records do not match the schema', () => {
