@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { loadBundle } from '../src/lib/load.js'
 
 // Same substitution as `filter-map-seam.test.tsx`, one step more specific: the
 // feature IDS are exposed, not just their count, so a test can say WHICH
@@ -27,6 +28,11 @@ const at = (search: string): void => {
   window.history.replaceState({}, '', search)
   render(<App />)
 }
+
+// Same fixture the rest of this file renders against — derived, not
+// hardcoded, so a later task that changes the fixture does not need to hunt
+// down a magic id string here.
+const bundle = loadBundle()
 
 /** Every prop `App` computes needs a test that fails when it is replaced by a
  *  constant. Five mutations used to leave the whole suite green — App was the
@@ -221,5 +227,36 @@ describe('view wiring', () => {
     cleanup()
     renderAt('?view=initiatives')
     expect(screen.getAllByTestId(/^row-/).length).toBeGreaterThan(filtered)
+  })
+
+  // MUTATION: `selectedId={null}`, or `selectedId={state.lang}` unconditionally
+  // (which passes the languages case below while silently breaking this one).
+  // `state.view === 'languages' ? state.lang : state.init` reads a different
+  // URL key per branch, so both branches need their own row-level assertion —
+  // a test of only one leaves the other substitutable.
+  it('marks the row named by the URL as selected on the languages tab, not a constant one', () => {
+    const lang = bundle.languages[0]!
+    renderAt(`?view=languages&lang=${lang.id}`)
+    const rows = screen.getAllByTestId(/^row-/)
+    expect(rows.length).toBeGreaterThan(1)
+    const selected = screen.getByTestId(`row-${lang.id}`)
+    expect(selected.getAttribute('aria-selected')).toBe('true')
+    for (const row of rows) {
+      if (row !== selected) expect(row.getAttribute('aria-selected')).toBe('false')
+    }
+  })
+
+  // MUTATION: `selectedId={state.init}` unconditionally — passes this case
+  // while silently breaking the languages one above.
+  it('marks the row named by the URL as selected on the initiatives tab, not a constant one', () => {
+    const init = bundle.initiatives[0]!
+    renderAt(`?view=initiatives&init=${init.id}`)
+    const rows = screen.getAllByTestId(/^row-/)
+    expect(rows.length).toBeGreaterThan(1)
+    const selected = screen.getByTestId(`row-${init.id}`)
+    expect(selected.getAttribute('aria-selected')).toBe('true')
+    for (const row of rows) {
+      if (row !== selected) expect(row.getAttribute('aria-selected')).toBe('false')
+    }
   })
 })
