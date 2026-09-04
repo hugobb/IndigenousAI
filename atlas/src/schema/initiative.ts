@@ -1,7 +1,8 @@
 import { z } from 'zod'
 import { ISO_DATE, SourceSchema } from './source.js'
 import {
-  APPLICATIONS, DATA_REGIMES, GOVERNANCE_POSTURES, INITIATIVE_KINDS, RECORD_STATUS, TIERS,
+  APPLICATIONS, DATA_REGIMES, GOVERNANCE_POSTURES, INITIATIVE_KINDS, LOCATION_CONFIDENCE,
+  RECORD_STATUS, TIERS,
 } from './vocab.js'
 
 const SiteSchema = z.object({
@@ -11,6 +12,9 @@ const SiteSchema = z.object({
   /** Self-stated: taken from the initiative's own public materials.
    *  We site the people doing the work, never the language. */
   source: SourceSchema,
+  /** `approximate` makes the map draw this differently. Additive with a
+   *  default, so every existing record stays valid unedited. */
+  confidence: z.enum(LOCATION_CONFIDENCE).default('sourced'),
 })
 
 const TransferabilitySchema = z.object({

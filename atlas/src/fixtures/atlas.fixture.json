@@ -1,0 +1,98 @@
+{
+  "generated": "2026-09-03T00:00:00.000Z",
+  "languages": [
+    {
+      "id": "fixture-sourced", "name": "Sourced Centre Language", "also_known_as": [],
+      "glottocode": null, "iso639_3": null, "tier": "indigenous", "family": "Fixture Family",
+      "subfamily": null, "typology": ["polysynthetic"], "endangerment": null, "speakers": null,
+      "region": "north-america", "countries": ["CA"],
+      "centre": { "lat": 45.5, "lon": -73.6, "confidence": "sourced",
+        "source": { "kind": "doc", "ref": "fixture", "retrieved": null, "quote": null } },
+      "caveat": null, "status": "verified"
+    },
+    {
+      "id": "fixture-approximate", "name": "Approximate Centre Language", "also_known_as": [],
+      "glottocode": null, "iso639_3": null, "tier": "indigenous", "family": "Fixture Family",
+      "subfamily": null, "typology": [], "endangerment": null, "speakers": null,
+      "region": "north-america", "countries": ["US"],
+      "centre": { "lat": 40.0, "lon": -90.0, "confidence": "approximate",
+        "source": { "kind": "doc", "ref": "fixture", "retrieved": null, "quote": null } },
+      "caveat": "A round placeholder-looking centroid, not a researched location.",
+      "status": "verified"
+    },
+    {
+      "id": "fixture-unmapped", "name": "Unmapped Language", "also_known_as": [],
+      "glottocode": null, "iso639_3": null, "tier": "indigenous", "family": "Fixture Family",
+      "subfamily": null, "typology": [], "endangerment": null, "speakers": null,
+      "region": "north-america", "countries": ["CA"],
+      "centre": null, "caveat": null, "status": "verified"
+    },
+    {
+      "id": "fixture-adjacent", "name": "Adjacent Language", "also_known_as": [],
+      "glottocode": null, "iso639_3": null, "tier": "adjacent", "family": "Fixture Family",
+      "subfamily": null, "typology": [], "endangerment": null, "speakers": null,
+      "region": "africa", "countries": ["ET"],
+      "centre": null, "caveat": null, "status": "verified"
+    },
+    {
+      "id": "fixture-conflict", "name": "Conflicted Speakers Language", "also_known_as": ["Alt Name"],
+      "glottocode": null, "iso639_3": null, "tier": "indigenous", "family": "Fixture Family",
+      "subfamily": null, "typology": [], "endangerment": null,
+      "speakers": { "value": 9600, "as_of": null,
+        "source": { "kind": "doc", "ref": "fixture-a", "retrieved": null, "quote": null },
+        "conflicts": [{ "value": 300,
+          "source": { "kind": "doc", "ref": "fixture-b", "retrieved": null, "quote": null } }] },
+      "region": "north-america", "countries": ["US"],
+      "centre": { "lat": 34.0, "lon": -89.0, "confidence": "sourced",
+        "source": { "kind": "doc", "ref": "fixture", "retrieved": null, "quote": null } },
+      "caveat": null, "status": "verified"
+    }
+  ],
+  "initiatives": [
+    {
+      "id": "fixture-ongoing", "name": "Ongoing Initiative", "kind": "organisation",
+      "tier": "indigenous", "languages": ["fixture-sourced"], "started": 2016, "ended": null,
+      "site": { "lat": -35.11, "lon": 173.26, "place": "Fixture Place", "confidence": "sourced",
+        "source": { "kind": "doc", "ref": "fixture", "retrieved": null, "quote": null } },
+      "applications": ["asr", "tts"], "methods": ["fixture-method"], "models": ["wav2vec2"],
+      "data_regime": "1k-10k",
+      "governance": { "posture": "community-controlled", "licence": "Fixture Licence",
+        "source": { "kind": "doc", "ref": "fixture", "retrieved": null, "quote": null } },
+      "papers": ["fixture-paper"], "links": [], "transferability": null,
+      "caveat": null, "status": "verified"
+    },
+    {
+      "id": "fixture-ended", "name": "Ended Initiative", "kind": "project",
+      "tier": "indigenous", "languages": ["fixture-conflict"], "started": 2018, "ended": 2021,
+      "site": { "lat": 43.13, "lon": -79.92, "place": "Fixture Place Two", "confidence": "sourced",
+        "source": { "kind": "doc", "ref": "fixture", "retrieved": null, "quote": null } },
+      "applications": ["mt"], "methods": [], "models": [], "data_regime": null,
+      "governance": null, "papers": [], "links": [], "transferability": null,
+      "caveat": null, "status": "verified"
+    },
+    {
+      "id": "fixture-adjacent-init", "name": "Adjacent Initiative", "kind": "organisation",
+      "tier": "adjacent", "languages": ["fixture-adjacent"], "started": 2019, "ended": null,
+      "site": { "lat": -1.18, "lon": 36.93,
+        "place": "No stated base; pin marks the founding venue.", "confidence": "approximate",
+        "source": { "kind": "doc", "ref": "fixture", "retrieved": null, "quote": null } },
+      "applications": ["mt"], "methods": [], "models": [], "data_regime": null,
+      "governance": null, "papers": [], "links": [],
+      "transferability": { "transfers": ["participatory corpus building"],
+        "does_not_transfer": ["open web-scale scraping"],
+        "note": "Open release conflicts with community data sovereignty." },
+      "caveat": "Distributed and online; the pin is the founding venue, not a base.",
+      "status": "verified"
+    }
+  ],
+  "methods": [
+    { "id": "fixture-method", "name": "Fixture Method", "category": "ml",
+      "data_regime": ["<1k", "1k-10k"], "data_regime_note": "<1K sentences / 1K-10K sentences",
+      "applicable_languages": "polysynthetic", "doc_url": "/ml-techniques/fixture-method/" }
+  ],
+  "papers": [
+    { "id": "fixture-paper", "title": "A Fixture Paper", "authors": "Fixture et al.", "year": 2025,
+      "venue": "Fixture Proceedings", "themes": ["evaluation"],
+      "summary_url": "litterature_review/summaries/fixture-paper.md" }
+  ]
+}

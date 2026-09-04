@@ -11,15 +11,29 @@
     "validate": "tsx scripts/validate.ts",
     "bundle": "tsx scripts/bundle.ts",
     "seed": "tsx scripts/seed.ts",
-    "build:data": "pnpm extract:methods && pnpm extract:papers && pnpm validate && pnpm bundle"
+    "build:data": "pnpm extract:methods && pnpm extract:papers && pnpm validate && pnpm bundle",
+    "dev": "vite",
+    "build:app": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "maplibre-gl": "^5.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.0"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.1.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^25.0.1",
     "js-yaml": "^4.1.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0",
-    "vitest": "^2.1.0",
-    "zod": "^3.24.0"
+    "vite": "^6.0.0",
+    "vitest": "^2.1.0"
   }
 }

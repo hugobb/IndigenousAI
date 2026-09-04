@@ -23,6 +23,7 @@ centre:
     ref: https://glottolog.org/resource/languoid/id/miam1252
     retrieved: "2026-09-03"
     quote: "Miami miam1252 mia latitude 40.0 longitude -90.0 (Glottolog, CC-BY-4.0)"
+  confidence: approximate
 # js-yaml drops comments, so the curator hedges written as comments in this
 # file are repeated here as a field. This is the copy that reaches the bundle
 # and the reviewer; a hedge that does not travel is not a hedge.

@@ -17,6 +17,7 @@ site:
     ref: https://onkwawenna.info/
     retrieved: "2026-09-03"
     quote: "located in the GREAT Building in Ohsweken ... Suite 402 – 16 Sunrise Court ... on the Six Nations Grand River Territory near Brantford, Ontario"
+  confidence: sourced
 applications: [education]
 methods: []
 models: []

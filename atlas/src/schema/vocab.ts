@@ -45,3 +45,10 @@ export type Endangerment = (typeof ENDANGERMENT)[number]
  *  re-propose a record a human already excluded. */
 export const RECORD_STATUS = ['draft', 'verified', 'rejected'] as const
 export type RecordStatus = (typeof RECORD_STATUS)[number]
+
+/** How much a coordinate can be trusted. `approximate` means the record's own
+ *  text says so — a placeholder-looking centroid, or an organisation with no
+ *  stated base. The map reads THIS, never the free-text `caveat`: a caveat may
+ *  be about speaker counts rather than location. */
+export const LOCATION_CONFIDENCE = ['sourced', 'approximate'] as const
+export type LocationConfidence = (typeof LOCATION_CONFIDENCE)[number]

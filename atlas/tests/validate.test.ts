@@ -18,7 +18,7 @@ const lang = (over: Partial<Language> = {}): Language => ({
 const init = (over: Partial<Initiative> = {}): Initiative => ({
   id: 'onkwawenna', name: 'Onkwawenna Kentyohkwa', kind: 'organisation', tier: 'indigenous',
   languages: ['kanienkeha'], started: 1999, ended: null,
-  site: { lat: 43.13, lon: -79.92, place: 'Six Nations', source: src },
+  site: { lat: 43.13, lon: -79.92, place: 'Six Nations', source: src, confidence: 'sourced' as const },
   applications: ['education'], methods: [], models: [], data_regime: null, governance: null,
   papers: [], links: [], transferability: null, caveat: null, status: 'verified', ...over,
 })
