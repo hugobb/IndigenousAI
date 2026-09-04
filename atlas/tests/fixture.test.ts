@@ -40,7 +40,11 @@ describe('the fixture bundle', () => {
       centre: unknown
       speakers: { conflicts: unknown[] } | null
     }[]
-    const inits = fixture['initiatives'] as { site: { confidence: string }; ended: number | null }[]
+    const inits = fixture['initiatives'] as {
+      site: { confidence: string }
+      started: number | null
+      ended: number | null
+    }[]
     expect(langs.some((l) => (l.centre as { confidence: string } | null)?.confidence === 'sourced')).toBe(true)
     expect(langs.some((l) => (l.centre as { confidence: string } | null)?.confidence === 'approximate')).toBe(true)
     expect(langs.some((l) => l.centre === null && l.tier === 'indigenous')).toBe(true)
@@ -48,6 +52,13 @@ describe('the fixture bundle', () => {
     expect(inits.some((i) => i.site.confidence === 'approximate')).toBe(true)
     expect(inits.some((i) => i.ended !== null)).toBe(true)
     expect(inits.some((i) => i.ended === null)).toBe(true)
+    // Spec F5: an initiative with no `started` must survive every date window,
+    // because Te Hiku Media records none. Without an undated record HERE the
+    // rule has no end-to-end path at all — not in `pnpm dev`, not in the demo
+    // build, not in any App-level test — so it is asserted as a named awkward
+    // case rather than left to whichever record happens to exist.
+    expect(inits.some((i) => i.started === null)).toBe(true)
+    expect(inits.some((i) => i.started !== null)).toBe(true)
     // Spec §8: a speaker-count disagreement is a named awkward case, not just
     // an incidental field value. Assert it exists, not merely that it parses.
     expect(langs.some((l) => l.speakers !== null && l.speakers.conflicts.length > 0)).toBe(true)

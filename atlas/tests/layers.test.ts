@@ -58,7 +58,11 @@ describe('initiativeSites', () => {
   const fc = initiativeSites(initiatives)
 
   it('emits every initiative, since site is never null', () => {
-    expect(fc.features).toHaveLength(3)
+    // Bound to the fixture's own length rather than a literal: the claim is
+    // "every initiative", and a hard-coded number turns growing the fixture
+    // into a test failure that says nothing about `initiativeSites`.
+    expect(fc.features).toHaveLength(initiatives.length)
+    expect(initiatives.length).toBeGreaterThan(1)
   })
 
   it('carries tier so the style can draw adjacent pins hollow', () => {
