@@ -134,9 +134,23 @@ describe('columns', () => {
     expect(cellOf(LANGUAGE_COLUMNS, 'family', lang({ family: null })))
       .toEqual({ kind: 'text', value: null, sub: null })
     expect(cellOf(INITIATIVE_COLUMNS, 'started', init({ started: null })))
-      .toEqual({ kind: 'number', value: null, marker: null })
+      .toEqual({ kind: 'text', value: null, sub: null })
     expect(cellOf(INITIATIVE_COLUMNS, 'governance', init({ governance: null })))
       .toEqual({ kind: 'text', value: null, sub: null })
+  })
+
+  // Seam review (Task 11): `started` is a YEAR. Declared `kind: 'number'` it
+  // went through `DataTable`'s `toLocaleString`, which is correct for speaker
+  // counts, and the initiatives table printed `2,016` while `InitiativePanel`
+  // printed `2016` on the same screen. The renderer cannot tell a year from a
+  // quantity; this module can, so it says so here. Sorting must stay numeric —
+  // asserted alongside, because making the cell text is easy to "fix" by
+  // making the sort key text too, which would order 1999 after 200.
+  it('gives a year as a plain label, never as a grouped quantity', () => {
+    expect(cellOf(INITIATIVE_COLUMNS, 'started', init({ started: 2016 })))
+      .toEqual({ kind: 'text', value: '2016', sub: null })
+    const col = INITIATIVE_COLUMNS.find((c) => c.id === 'started')!
+    expect(col.sortValue!(init({ started: 2016 }), ctx)).toBe(2016)
   })
 
   it('has no columns for the map view', () => {

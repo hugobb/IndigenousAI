@@ -1,4 +1,6 @@
-import { sortRows, type Cell, type Column, type SortState, type TableContext } from '../lib/columns.js'
+import {
+  DEFAULT_SORT, sortRows, type Cell, type Column, type SortState, type TableContext,
+} from '../lib/columns.js'
 import NotRecorded from './NotRecorded.js'
 
 function renderCell(c: Cell): React.ReactNode {
@@ -41,7 +43,17 @@ export default function DataTable<T extends { id: string }>({
   ctx: TableContext
   emptyMessage: string | null
 }): React.JSX.Element {
-  const ordered = sortRows(rows, columns, sort, ctx)
+  // What the rows are ACTUALLY ordered by. `sortRows` breaks every tie on
+  // `name`, so a null `sort` is not "unsorted": it is name-ascending. The
+  // header row announces and toggles against this, not against the URL key —
+  // otherwise `aria-sort` says "none" above visibly name-ascending rows, and
+  // clicking `Name` on first load requests the order already on screen, a
+  // control that does nothing. No guard on "does a name column exist": when
+  // none does, no header matches `DEFAULT_SORT.column` and every one of them
+  // still reads `none`, so a guard here would be a branch no test could ever
+  // falsify — one was written, and mutating the code is what exposed it.
+  const effective: SortState = sort ?? DEFAULT_SORT
+  const ordered = sortRows(rows, columns, effective, ctx)
 
   return (
     <div className="table-wrap">
@@ -50,11 +62,11 @@ export default function DataTable<T extends { id: string }>({
         <thead>
           <tr>
             {columns.map((c) => {
-              const active = sort !== null && sort.column === c.id
+              const active = effective.column === c.id
               return (
                 <th
                   key={c.id} scope="col"
-                  aria-sort={active ? ARIA_SORT[sort.direction] : 'none'}
+                  aria-sort={active ? ARIA_SORT[effective.direction] : 'none'}
                 >
                   {c.sortValue === undefined ? c.header : (
                     <button
@@ -64,7 +76,7 @@ export default function DataTable<T extends { id: string }>({
                           column: c.id,
                           // First click on a new column starts ascending; a
                           // second click on the same column reverses it.
-                          direction: active && sort.direction === 'asc' ? 'desc' : 'asc',
+                          direction: active && effective.direction === 'asc' ? 'desc' : 'asc',
                         })
                       }
                     >

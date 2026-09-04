@@ -35,8 +35,22 @@ export default function LanguagePanel({
           )}
         </Field>
         <Field label="Note" testId="field-caveat">{language.caveat}</Field>
-        <Field label="Initiatives" testId="field-initiatives">
-          {initiatives.length === 0 ? null : <ul>{initiatives.map((i) => <li key={i.id}>{i.name}</li>)}</ul>}
+        {/* Scoped to I1, not to the record — App passes the initiatives that
+            survived every current filter. An empty list here is therefore a
+            filter result, and routing it through `Field`'s null branch printed
+            "not recorded", which claims we do not know. The table renders the
+            same fact as a `0` under a caption that says what 0 means; this
+            surface sat beside it saying something stronger and false. The
+            label carries the scope, exactly as the "Matching work" header
+            does. */}
+        <Field label="Matching initiatives" testId="field-initiatives">
+          {initiatives.length === 0 ? (
+            <span className="hint">
+              None matching the current filters — not a claim that no work exists.
+            </span>
+          ) : (
+            <ul>{initiatives.map((i) => <li key={i.id}>{i.name}</li>)}</ul>
+          )}
         </Field>
       </dl>
     </aside>

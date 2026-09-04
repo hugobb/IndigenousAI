@@ -2,6 +2,7 @@
 import { cleanup, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import TableView from '../src/components/TableView.js'
+import { INITIATIVE_COLUMNS, LANGUAGE_COLUMNS } from '../src/lib/columns.js'
 import { loadBundle } from '../src/lib/load.js'
 import { applyFilters } from '../src/lib/filters.js'
 import { EMPTY_FILTERS } from '../src/lib/url-state.js'
@@ -153,5 +154,43 @@ describe('TableView', () => {
       />,
     )
     expect(screen.getByTestId('table-empty').textContent?.trim()).not.toBe('')
+  })
+
+  // Seam review (Task 11). Every column carries a declared `scope`, and the
+  // caption is the only place a non-`record` scope reaches a reader. Only
+  // `work` (I1) had that sentence; `languages` is `scope: 'bundle'` — it names
+  // every language an initiative works on, filters included — while the
+  // caption beside it claimed "Every column reflects all current filters".
+  // Driven off the declarations rather than hardcoded, so adding a scoped
+  // column without stating it fails here instead of shipping a false caption.
+  it.each([
+    ['initiatives' as const, INITIATIVE_COLUMNS as { id: string; header: string; scope: string }[]],
+    ['languages' as const, LANGUAGE_COLUMNS as { id: string; header: string; scope: string }[]],
+  ])('states every non-record column scope in the %s caption', (v, columns) => {
+    view(v)
+    const caption = screen.getByTestId('table-caption').textContent ?? ''
+    const scoped = columns.filter((c) => c.scope !== 'record')
+    expect(scoped.length).toBeGreaterThan(0)
+    for (const c of scoped) expect(caption).toContain(c.header)
+  })
+
+  // The defect this caught was visible on screen and in no test: `started` is
+  // a year, and `DataTable` renders `kind: 'number'` through `toLocaleString`,
+  // so the table printed `2,016` beside an `InitiativePanel` printing `2016`.
+  // Asserted through the rendered cell, not the Cell descriptor, because the
+  // grouping happens in the renderer.
+  it('prints a year without a thousands separator', () => {
+    const dated = bundle.initiatives.find((i) => i.started !== null)
+    if (dated === undefined) throw new Error('fixture has no dated initiative')
+    render(
+      <TableView
+        view="initiatives"
+        selection={{ languages: [], initiatives: [dated], filteredOut: [], undatedInitiatives: 0 }}
+        bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
+      />,
+    )
+    const row = screen.getByTestId(`row-${dated.id}`)
+    expect(row.textContent).toContain(String(dated.started))
+    expect(row.textContent).not.toContain(dated.started!.toLocaleString('en'))
   })
 })

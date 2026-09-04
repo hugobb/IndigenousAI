@@ -52,7 +52,12 @@ export default function TableView({
     const rows = selection.initiatives
     return (
       <DataTable<Initiative>
-        caption={`Initiatives matching the current filters (${rows.length}). Every column reflects all current filters, including the date window.`}
+        // Every column with a scope other than `record` states that scope
+        // here, in the same DOM as the rows. “Languages” is declared
+        // `scope: 'bundle'` in columns.ts — it lists every language the
+        // initiative names, filters included — so the blanket sentence
+        // that used to stand alone contradicted the column beside it.
+        caption={`Initiatives matching the current filters (${rows.length}). Every column reflects all current filters, including the date window — except “Languages”, which names every language the initiative works on, including any your filters exclude.`}
         columns={INITIATIVE_COLUMNS} rows={rows} sort={sort} onSort={onSort}
         selectedId={selectedId} onSelect={onSelect} ctx={ctx} emptyMessage={empty}
       />

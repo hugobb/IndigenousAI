@@ -33,6 +33,31 @@ describe('LanguagePanel', () => {
     expect(within(row).getByText(/not recorded/i)).toBeDefined()
   })
 
+  // Seam review (Task 11). `initiatives` here is I1 — App passes the
+  // initiatives that survived every current filter — so an empty list is a
+  // FILTER RESULT. Routed through `Field`'s null branch it printed "not
+  // recorded", i.e. "we do not know", while the languages table beside it
+  // rendered the same fact as `0` under a caption saying 0 does not mean no
+  // work exists. Two surfaces, one moment, and the panel made the stronger,
+  // false claim. Both halves asserted: the words must be gone AND the scope
+  // must be stated, so deleting the sentence entirely cannot pass.
+  it('does not call a filtered-away initiative list "not recorded"', () => {
+    render(<LanguagePanel language={lang('fixture-sourced')} initiatives={[]} />)
+    const row = screen.getByTestId('field-initiatives')
+    expect(within(row).queryByText(/not recorded/i)).toBeNull()
+    expect(row.textContent).toMatch(/current filters/i)
+    expect(row.textContent).toMatch(/no work exists/i)
+  })
+
+  it('lists the matching initiatives when there are any', () => {
+    render(
+      <LanguagePanel language={lang('fixture-sourced')} initiatives={[init('fixture-ongoing')]} />,
+    )
+    const row = screen.getByTestId('field-initiatives')
+    expect(row.textContent).toContain('Ongoing Initiative')
+    expect(row.textContent).not.toMatch(/current filters/i)
+  })
+
   it('shows a speaker-count disagreement as a disagreement', () => {
     render(<LanguagePanel language={lang('fixture-conflict')} initiatives={[]} />)
     expect(screen.getByText(/9,?600/)).toBeDefined()

@@ -11,6 +11,15 @@ export type TableViewId = Exclude<ViewId, 'map'>
 export type SortDirection = 'asc' | 'desc'
 export interface SortState { column: string; direction: SortDirection }
 
+/** The order `sortRows` produces when `sort` is null — it falls through to the
+ *  name tiebreak, so the rows on screen ARE name-ascending. Exported because
+ *  the header row has to announce that: with `aria-sort="none"` everywhere a
+ *  screen reader was told the table was unsorted while it visibly was not, and
+ *  the first click on `Name` asked for the order already showing, so the
+ *  control did nothing. Kept out of the URL: `sort` carries only what the
+ *  citer chose (§3), and this is the default, not a choice. */
+export const DEFAULT_SORT: SortState = { column: 'name', direction: 'asc' }
+
 /** What population a cell's value is derived from. `record` is the record
  *  itself; the rest name a set whose size the reader cannot see, which is
  *  exactly when a number needs its scope stated on screen. */
@@ -62,8 +71,14 @@ export const INITIATIVE_COLUMNS: Column<Initiative>[] = [
     sortValue: (i) => i.languages.length,
   },
   {
+    // A YEAR, not a quantity. `Cell.kind: 'number'` is rendered through
+    // `toLocaleString`, which is right for speaker counts and wrong here: it
+    // printed `2,016` in the table while `InitiativePanel` printed `2016` on
+    // the same screen. Only this module knows which numbers have magnitude,
+    // so the distinction is made here rather than in the renderer. Sorting
+    // stays numeric — `sortValue` is untouched.
     id: 'started', header: 'Started', scope: 'record',
-    cell: (i) => ({ kind: 'number', value: i.started, marker: null }),
+    cell: (i) => ({ kind: 'text', value: i.started === null ? null : String(i.started), sub: null }),
     sortValue: (i) => i.started,
   },
   {

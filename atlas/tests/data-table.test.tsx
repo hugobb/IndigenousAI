@@ -106,6 +106,45 @@ describe('DataTable', () => {
     expect(onSort).toHaveBeenLastCalledWith({ column: 'n', direction: 'desc' })
   })
 
+  // Seam review (Task 11). `sortRows` breaks every tie on `name`, so a null
+  // `sort` renders name-ascending rows — while every header announced
+  // `aria-sort="none"` and the first click on `Name` asked for the order
+  // already on screen, a control that did nothing. The header row announces
+  // and toggles against the EFFECTIVE order, not the URL key.
+  it('announces the default name-ascending order rather than claiming none', () => {
+    table()
+    const [name, n] = screen.getAllByRole('columnheader')
+    expect(name!.getAttribute('aria-sort')).toBe('ascending')
+    expect(n!.getAttribute('aria-sort')).toBe('none')
+  })
+
+  it('reverses the default order on the first click of the name header', () => {
+    const onSort = vi.fn()
+    table({ onSort })
+    fireEvent.click(screen.getByRole('button', { name: /^name$/i }))
+    expect(onSort).toHaveBeenCalledWith({ column: 'name', direction: 'desc' })
+  })
+
+  // The guard on the guard, and it took a mutation to get right: the first
+  // version of it rendered a column set with NO name column and asserted every
+  // header read `none` — which is true whether or not the default is announced
+  // at all, because no header matches `name` either way. It survived the exact
+  // mutation it was written to catch. This one instead ties the ANNOUNCEMENT to
+  // the ORDER: the header claiming a direction must be the column the rows are
+  // actually in, so flipping `DEFAULT_SORT.direction` — announcing a descending
+  // sort over ascending rows — fails here.
+  it('announces the direction the rows are actually in', () => {
+    table()
+    const [name] = screen.getAllByRole('columnheader')
+    const announced = name!.getAttribute('aria-sort')
+    const shown = screen.getAllByTestId(/^row-/).map((r) => r.getAttribute('data-testid'))
+    const ascending = [...rows]
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((r) => `row-${r.id}`)
+    expect(shown).toEqual(ascending)
+    expect(announced).toBe('ascending')
+  })
+
   it('gives an unsortable column no header button', () => {
     table()
     expect(screen.queryByRole('button', { name: /^tags$/i })).toBeNull()
