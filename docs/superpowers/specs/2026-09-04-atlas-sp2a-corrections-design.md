@@ -157,12 +157,20 @@ not anticipate. `tier` on both: D5 makes it load-bearing — an adjacent-tier la
 mapped, an adjacent-tier initiative is transferable work rather than work on the language — and a
 reader looking at one record has no other way to know.
 
-**Papers resolve through `bundle.papers`**, rendering title, authors, year, venue (nullable → "not
-recorded") and a link via `summary_url`. **Links** render label, url and `retrieved`.
+**Papers resolve through `bundle.papers`**, rendering title, authors, year and venue (nullable →
+"not recorded"). **Links** render label, url and `retrieved`.
 
-**A dependency to carry into SP2b:** `summary_url` links into the MkDocs guide exactly as
-`Method.doc_url` does. Both are root-relative, so **both** depend on the single-origin hosting layout
-SP2b will establish. SP2b's test for that layout covers two fields, not one.
+**`summary_url` is deliberately NOT rendered as a link.** It holds
+`litterature_review/summaries/<id>.md` — a repo-relative path to a Markdown file that is not
+published anywhere: `litterature_review/` appears nowhere in the MkDocs nav and is not part of the
+built site. `Method.doc_url` is different (`/ml-techniques/<id>/` is a real published route), and
+conflating the two would ship a dead link from the deployed atlas. So the paper renders its metadata
+and no anchor. Inventing a destination we do not have is the same error as inventing a value.
+
+**Carried into SP2b as a decision, not a task here:** whether to publish
+`litterature_review/summaries/` into the guide and make `summary_url` a working route, or to leave
+papers as metadata-only. Only `Method.doc_url` depends on SP2b's single-origin layout — one field,
+not two.
 
 ## 6. Testing
 
