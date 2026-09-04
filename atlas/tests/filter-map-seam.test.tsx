@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 
 // Substituting MapView entirely lets us read exactly what App handed it.
 // The map itself needs WebGL and cannot be asserted here (spec §8); the SEAM
@@ -45,5 +45,31 @@ describe('what reaches the map', () => {
     const all = countsAt('/')
     const narrowed = countsAt('/?application=asr')
     expect(Number(narrowed.initiatives)).toBeLessThan(Number(all.initiatives))
+  })
+})
+
+// Fix round 1: `filtered-out.test.tsx` only proves UnmappedList renders a
+// group it is HANDED — it says nothing about whether App ever hands it one,
+// or whether a filtered-out language's rail button actually opens anything.
+// These two prove the wiring itself, through the real App.
+//
+// `application=asr` matches only fixture-ongoing (languages: [fixture-sourced])
+// among the fixture's three initiatives, so with no language facet active,
+// applyFilters covers only fixture-sourced and puts the other four fixture
+// languages — including "Conflicted Speakers Language" — into `filteredOut`.
+describe('the rail through App', () => {
+  it('shows the filtered-out group, naming a language that matched but has no matching work', () => {
+    window.history.replaceState({}, '', '/?application=asr')
+    render(<App />)
+    const group = screen.getByTestId('group-filtered-out')
+    expect(group.textContent).toMatch(/Conflicted Speakers Language/)
+  })
+
+  it('still opens a language panel for a filtered-out language clicked in the rail', () => {
+    window.history.replaceState({}, '', '/?application=asr')
+    render(<App />)
+    const group = screen.getByTestId('group-filtered-out')
+    fireEvent.click(within(group).getByRole('button', { name: 'Conflicted Speakers Language' }))
+    expect(screen.getByLabelText('Language: Conflicted Speakers Language')).toBeDefined()
   })
 })
