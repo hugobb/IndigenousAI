@@ -11,6 +11,13 @@ export interface AtlasBundle {
   initiatives: Initiative[]
   methods: Method[]
   papers: Paper[]
+  /** True when these records came from the committed development fixture rather
+   *  than from a generated bundle. Derived from which object was actually
+   *  returned — never from an environment variable — so the banner the UI shows
+   *  cannot disagree with the records on screen. Deliberately not spelled with
+   *  the word "fixture": `tests/build-artifact.test.ts` greps the built JS for
+   *  that string, and an identifier carrying it would mask a real leak. */
+  isDemoData: boolean
 }
 
 const BundleSchema = z.object({
@@ -46,10 +53,11 @@ export function chooseBundle(opts: {
           'show an empty map. Review the queue in data/REVIEW-QUEUE.md first.',
       )
     }
-    return parsed
+    return { ...parsed, isDemoData: false }
   }
 
-  return BundleSchema.parse(real ?? fixture)
+  const chosen = real ?? fixture
+  return { ...BundleSchema.parse(chosen), isDemoData: chosen === fixture }
 }
 
 /** Vite resolves this at build time; the glob is empty when the gitignored
@@ -61,7 +69,10 @@ export function loadBundle(): AtlasBundle {
   const real = entry?.[1] ?? null
   return chooseBundle({
     real,
-    fixture: fixtureModule,
-    isProduction: import.meta.env.PROD,
+    // Reading the flag here, rather than only inside `chooseBundle`, is what
+    // lets the bundler drop the fixture JSON from a production build outright
+    // instead of relying on it to prove the branch unreachable.
+    fixture: __ATLAS_ALLOW_FIXTURE__ ? fixtureModule : null,
+    isProduction: !__ATLAS_ALLOW_FIXTURE__,
   })
 }
