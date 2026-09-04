@@ -5,6 +5,15 @@ import { act } from 'react'
 import { EMPTY_FILTERS } from '../src/lib/url-state.js'
 import { filterReducer, useFilters, type FilterAction } from '../src/state/useFilters.js'
 
+// Testing Library sets IS_REACT_ACT_ENVIRONMENT around its own render/fireEvent
+// calls and restores it afterward. This file calls act() directly around a
+// dispatch and around a raw popstate event, both outside that window, so React
+// does not consider itself in an act environment and warns on every call. Set
+// the flag for this file only (no global vitest setup) — it also makes act()
+// flush effects synchronously the way it is meant to, not just silence the
+// warning.
+;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
+
 afterEach(() => cleanup())
 
 describe('filterReducer', () => {
