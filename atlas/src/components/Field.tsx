@@ -1,3 +1,5 @@
+import NotRecorded from './NotRecorded.js'
+
 export interface FieldProps {
   label: string
   testId: string
@@ -15,7 +17,7 @@ export default function Field({ label, testId, children }: FieldProps): React.JS
   return (
     <div data-testid={testId}>
       <dt>{label}</dt>
-      <dd>{isEmpty(children) ? <em>not recorded</em> : children}</dd>
+      <dd>{isEmpty(children) ? <NotRecorded /> : children}</dd>
     </div>
   )
 }

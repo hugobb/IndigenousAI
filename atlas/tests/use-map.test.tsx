@@ -29,6 +29,13 @@ const { FakeMap, instances } = vi.hoisted(() => {
       }
     }
 
+    // Real MapLibre's `once` fires the handler at most one time and then
+    // detaches it; nothing in this suite fires 'idle', so the fake only
+    // needs to accept the registration without throwing.
+    once(event: string, handler: (e?: unknown) => void): void {
+      this.handlers[event] = handler
+    }
+
     addSource(id: string, src: { data: unknown }): void {
       const setData = vi.fn((d: unknown) => {
         const entry = this.sources[id]
@@ -172,6 +179,33 @@ describe('useMap', () => {
     instance.handlers['load']?.()
     expect(instance.addedLayers.map((l) => l.id)).toEqual(LAYERS.map((l) => l.id))
     expect(instance.addedLayers.every((l) => l.beforeId === undefined)).toBe(true)
+  })
+
+  // Minor 6 (whole-branch review): `map.once('idle', ...)` set the readiness
+  // flag exactly once per map instance and never reset it, so
+  // `waitForMapIdle` in the browser harness silently no-ops for any in-page
+  // change after the first paint — the flag reads `true` from the very
+  // first settle onward, whether or not a later change has actually
+  // finished. The fix has two halves, and this test pins both: `syncData`
+  // (called again whenever `data` changes) drops the flag back to `false`,
+  // and the map's OWN idle listener — now `on`, not `once` — is still armed
+  // to set it `true` again once that specific frame settles.
+  it('un-latches the idle flag when new data arrives, and re-latches it on the next idle', () => {
+    const data: MapData = { languages, initiatives, selectedLanguageId: null }
+    const { container: root, rerender } = render(<Harness data={data} handlers={handlers} />)
+    const instance = instances[0]!
+    instance.handlers['load']?.()
+    const el = root.querySelector('div')!
+
+    instance.handlers['idle']?.()
+    expect(el.getAttribute('data-map-idle')).toBe('true')
+
+    const changed: MapData = { ...data, selectedLanguageId: 'cree' }
+    rerender(<Harness data={changed} handlers={handlers} />)
+    expect(el.getAttribute('data-map-idle')).toBe('false')
+
+    instance.handlers['idle']?.()
+    expect(el.getAttribute('data-map-idle')).toBe('true')
   })
 
   it('removes the map instance on unmount', () => {

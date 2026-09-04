@@ -18,8 +18,16 @@ export interface MapHandlers {
 
 /** Pushes the current data onto an already-loaded map. Pulled out of the
  *  effects so both the 'load' handler (first population) and the data
- *  effect (subsequent updates) call the exact same code. */
-function syncData(map: MapLibreMap, data: MapData): void {
+ *  effect (subsequent updates) call the exact same code.
+ *
+ *  Also un-latches the idle flag: pushing new data is exactly what makes the
+ *  map briefly not-idle again (queued tiles, a repaint), so the readiness
+ *  attribute has to drop before the map's own 'idle' listener can
+ *  meaningfully set it back. Skipped on the very first call — the element
+ *  already renders `data-map-idle="false"` in JSX, and touching the DOM
+ *  again there would be redundant, not incorrect. */
+function syncData(map: MapLibreMap, el: HTMLDivElement, data: MapData, reset: boolean): void {
+  if (reset) el.setAttribute('data-map-idle', 'false')
   ;(map.getSource(SOURCE_LANGUAGES) as maplibregl.GeoJSONSource | undefined)?.setData(data.languages)
   ;(map.getSource(SOURCE_INITIATIVES) as maplibregl.GeoJSONSource | undefined)?.setData(data.initiatives)
   map.setFilter('language-field-selected', ['==', ['get', 'id'], data.selectedLanguageId ?? ''])
@@ -45,6 +53,7 @@ export function useMap(
 
   useEffect(() => {
     if (!container.current || mapRef.current) return
+    const el = container.current
     const map = new maplibregl.Map({
       container: container.current,
       style: BASEMAP_STYLE,
@@ -83,7 +92,30 @@ export function useMap(
       // with whatever the latest data is right now so that first population
       // is never dropped.
       readyRef.current = true
-      syncData(map, dataRef.current)
+      syncData(map, el, dataRef.current, false)
+
+      // `idle` fires whenever MapLibre has nothing left queued to paint —
+      // every requested tile has either loaded or failed, and the frame is
+      // stable. The browser harness (jsdom has no layout or WebGL engine, so
+      // this is otherwise untestable) polls this attribute instead of a
+      // fixed `waitForTimeout`, which would either race a slow paint or
+      // waste time padding a fast one.
+      //
+      // `on`, not `once`: a one-time latch answers "has the map EVER been
+      // idle", which stays `true` forever after the very first paint and
+      // silently no-ops a harness wait issued after any later in-page change
+      // (a filter that pushes new data through `syncData`, say) — the flag
+      // is already `true`, so the wait resolves immediately, before the new
+      // frame has settled. Pairing this persistent listener with the reset
+      // in `syncData` below makes the attribute track the map's CURRENT
+      // idle state instead: it goes false the moment new data is pushed and
+      // true again only once that specific frame has settled, so a wait
+      // issued after a change means something. This still touches the DOM
+      // only from MapLibre's own event callbacks — no per-render work, and
+      // no behaviour a user could observe.
+      map.on('idle', () => {
+        el.setAttribute('data-map-idle', 'true')
+      })
     })
 
     return () => {
@@ -95,7 +127,8 @@ export function useMap(
 
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !readyRef.current) return
-    syncData(map, data)
-  }, [data])
+    const el = container.current
+    if (!map || !el || !readyRef.current) return
+    syncData(map, el, data, true)
+  }, [data, container])
 }

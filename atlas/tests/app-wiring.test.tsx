@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { loadBundle } from '../src/lib/load.js'
 
 // Same substitution as `filter-map-seam.test.tsx`, one step more specific: the
 // feature IDS are exposed, not just their count, so a test can say WHICH
@@ -27,6 +28,11 @@ const at = (search: string): void => {
   window.history.replaceState({}, '', search)
   render(<App />)
 }
+
+// Same fixture the rest of this file renders against — derived, not
+// hardcoded, so a later task that changes the fixture does not need to hunt
+// down a magic id string here.
+const bundle = loadBundle()
 
 /** Every prop `App` computes needs a test that fails when it is replaced by a
  *  constant. Five mutations used to leave the whole suite green — App was the
@@ -81,6 +87,15 @@ describe('what App actually wires up', () => {
     fireEvent.click(screen.getByTestId('clear-all'))
     expect(window.location.search).not.toContain('region')
     expect(screen.queryByTestId('clear-all')).toBeNull()
+  })
+
+  // MUTATION: `onClearFacet` dispatching `clearAll` instead of `clearFacet` —
+  // both regions and application would vanish instead of only region.
+  it('clearing one group clears only that group', () => {
+    window.history.replaceState({}, '', '/?region=africa&application=mt')
+    render(<App />)
+    fireEvent.click(screen.getByTestId('facet-clear-region'))
+    expect(window.location.search).toBe('?application=mt')
   })
 
   // MUTATION: `undatedCount={0}`. The Timeline's own tests pass the number in
@@ -152,5 +167,122 @@ describe('the masthead snapshot line', () => {
     expect(text).toMatch(/Data snapshot: \d{4}-\d{2}-\d{2}$/)
     expect(text).not.toMatch(/T\d{2}:\d{2}/)
     expect(text).not.toMatch(/Z/)
+  })
+})
+
+describe('view wiring', () => {
+  const renderAt = (search: string): ReturnType<typeof render> => {
+    window.history.replaceState({}, '', `/${search}`)
+    return render(<App />)
+  }
+
+  it('renders the map pane by default and no table', () => {
+    renderAt('')
+    expect(screen.queryByRole('table')).toBeNull()
+    expect(screen.getByTestId('view-map').getAttribute('aria-pressed')).toBe('true')
+  })
+
+  // Important 4 (whole-branch review): dropping `filteredOut` from
+  // `counts.languages` passes 389/389 and makes the view-switch strip read
+  // "Languages (1)" above a five-row table captioned "(5)" — two numbers for
+  // one thing on one screen, and it counts the coverage-gap languages OUT of
+  // the very tab that exists to show them. `tests/app-wiring.test.tsx:207`
+  // (below) only ever changes the INITIATIVES count under a filter; this is
+  // its languages-side counterpart, using the same `?application=asr`
+  // fixture scenario as the map test above (one language keeps matching
+  // work, four are demoted to the rail but still render as table rows).
+  it('counts the demoted languages in the Languages tab total, not just the ones with matching work', () => {
+    at('/?view=languages&application=asr')
+    const rows = screen.getAllByTestId(/^row-/).length
+    expect(rows).toBeGreaterThan(1)
+    const label = screen.getByTestId('view-languages').textContent ?? ''
+    expect(label).toContain(`(${rows})`)
+  })
+
+  // Correction to the brief: the brief's version of this test asserted
+  // `queryByTestId('map-container')` is null — no such test id exists anywhere
+  // in this component tree, so the assertion would pass vacuously no matter
+  // what App rendered. `MapView` is mocked wholesale at the top of this file
+  // and its mock exposes `map-language-ids` instead; that id disappearing is
+  // what actually proves the map was swapped out for the table.
+  it('renders the table instead of the map at ?view=initiatives', () => {
+    renderAt('?view=initiatives')
+    expect(screen.getByRole('table')).toBeDefined()
+    expect(screen.queryByTestId('map-language-ids')).toBeNull()
+  })
+
+  it('switching the view rewrites the URL', () => {
+    renderAt('')
+    fireEvent.click(screen.getByTestId('view-languages'))
+    expect(window.location.search).toBe('?view=languages')
+  })
+
+  // Constant-substitution guards. Each fails if App passes a literal instead
+  // of the value it computes.
+  it('passes the live row counts to the switch, not a constant', () => {
+    renderAt('?application=asr')
+    const withFilter = screen.getByTestId('view-initiatives').textContent
+    cleanup()
+    renderAt('')
+    expect(screen.getByTestId('view-initiatives').textContent).not.toBe(withFilter)
+  })
+
+  it('passes the URL sort down to the table, not a constant', () => {
+    renderAt('?view=languages&sort=name:desc')
+    const headers = screen.getAllByRole('columnheader')
+    expect(headers[0]!.getAttribute('aria-sort')).toBe('descending')
+  })
+
+  it('sorting from the table writes the sort to the URL', () => {
+    renderAt('?view=languages')
+    fireEvent.click(screen.getByRole('button', { name: /^family$/i }))
+    expect(window.location.search).toContain('sort=family%3Aasc')
+  })
+
+  it('selecting a table row opens that record, not a constant one', () => {
+    renderAt('?view=languages')
+    const first = screen.getAllByTestId(/^row-/)[0]!
+    const name = within(first).getAllByRole('button')[0]!
+    fireEvent.click(name)
+    expect(window.location.search).toMatch(/lang=/)
+  })
+
+  it('feeds the table the filtered selection, not the whole bundle', () => {
+    renderAt('?view=initiatives&application=asr')
+    const filtered = screen.getAllByTestId(/^row-/).length
+    cleanup()
+    renderAt('?view=initiatives')
+    expect(screen.getAllByTestId(/^row-/).length).toBeGreaterThan(filtered)
+  })
+
+  // MUTATION: `selectedId={null}`, or `selectedId={state.lang}` unconditionally
+  // (which passes the languages case below while silently breaking this one).
+  // `state.view === 'languages' ? state.lang : state.init` reads a different
+  // URL key per branch, so both branches need their own row-level assertion —
+  // a test of only one leaves the other substitutable.
+  it('marks the row named by the URL as selected on the languages tab, not a constant one', () => {
+    const lang = bundle.languages[0]!
+    renderAt(`?view=languages&lang=${lang.id}`)
+    const rows = screen.getAllByTestId(/^row-/)
+    expect(rows.length).toBeGreaterThan(1)
+    const selected = screen.getByTestId(`row-${lang.id}`)
+    expect(selected.getAttribute('aria-current')).toBe('true')
+    for (const row of rows) {
+      if (row !== selected) expect(row.getAttribute('aria-current')).toBeNull()
+    }
+  })
+
+  // MUTATION: `selectedId={state.init}` unconditionally — passes this case
+  // while silently breaking the languages one above.
+  it('marks the row named by the URL as selected on the initiatives tab, not a constant one', () => {
+    const init = bundle.initiatives[0]!
+    renderAt(`?view=initiatives&init=${init.id}`)
+    const rows = screen.getAllByTestId(/^row-/)
+    expect(rows.length).toBeGreaterThan(1)
+    const selected = screen.getByTestId(`row-${init.id}`)
+    expect(selected.getAttribute('aria-current')).toBe('true')
+    for (const row of rows) {
+      if (row !== selected) expect(row.getAttribute('aria-current')).toBeNull()
+    }
   })
 })

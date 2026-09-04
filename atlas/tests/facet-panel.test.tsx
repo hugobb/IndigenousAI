@@ -18,6 +18,7 @@ const panel = (summaries: FacetSummary[], onToggle = vi.fn()) => {
       activeCount={summaries.reduce((n, s) => n + s.selected.length, 0)}
       onToggle={onToggle}
       onClearAll={vi.fn()}
+      onClearFacet={vi.fn()}
     />,
   )
   return onToggle

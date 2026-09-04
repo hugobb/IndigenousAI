@@ -15,7 +15,9 @@ Node lives under nvm on this machine. Before any command:
 ## Commands
 
     pnpm install
+    pnpm exec playwright install chromium   # one-time; see "The browser suite" below
     pnpm test          # unit tests
+    pnpm test:browser  # browser regression suite (Playwright, drives `vite dev`)
     pnpm typecheck     # tsc --noEmit
     pnpm build:data    # extract -> validate -> bundle (the DATA)
     pnpm dev           # dev server on http://localhost:5173, showing the fixture
@@ -25,6 +27,23 @@ Node lives under nvm on this machine. Before any command:
 `build:data` and `build:app` are two different things and are not chained on
 purpose: the first produces `src/data/atlas.json` from the curated YAML, the
 second compiles the page that reads it.
+
+### The browser suite
+
+`pnpm test:browser` runs `browser-tests/atlas.spec.ts` in a real Chromium via
+Playwright — it is the only thing in this repo that can see CSS Grid layout,
+since jsdom (what `pnpm test` runs under) has no layout engine at all. It is
+**deliberately not part of `pnpm test`**: `vitest.config.ts` only collects
+`tests/**/*.test.ts(x)`, so the browser suite stays out of the fast, offline
+unit run and is invoked separately.
+
+A fresh clone needs Chromium downloaded once before the first run:
+
+    pnpm exec playwright install chromium
+
+Do **not** run `pnpm approve-builds` if `pnpm add` reports ignored build
+scripts for `@playwright/test` — it rewrites `pnpm-workspace.yaml` and breaks
+the rest of the suite. `playwright install chromium` is the only step needed.
 
 `pnpm build:data` exits non-zero if any hand-curated record is still `status: draft`.
 That is intended: it is what stops an unreviewed record reaching a published figure.

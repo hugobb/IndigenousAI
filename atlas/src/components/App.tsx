@@ -1,6 +1,6 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { loadBundle } from '../lib/load.js'
-import { applyFilters, facetSummaries, yearRange } from '../lib/filters.js'
+import { applyFilters, emptyState, facetSummaries, yearRange } from '../lib/filters.js'
 import { snapshotDate } from '../lib/snapshot.js'
 import { useFilters } from '../state/useFilters.js'
 import { initiativeSites, languageFields } from '../map/layers.js'
@@ -10,6 +10,9 @@ import InitiativePanel from './InitiativePanel.js'
 import UnmappedList from './UnmappedList.js'
 import FacetPanel from './FacetPanel.js'
 import Timeline from './Timeline.js'
+import TableView from './TableView.js'
+import ViewSwitch from './ViewSwitch.js'
+import OutsideFiltersNotice from './OutsideFiltersNotice.js'
 
 export default function App(): React.JSX.Element {
   const bundle = useMemo(() => loadBundle(), [])
@@ -19,10 +22,28 @@ export default function App(): React.JSX.Element {
   const summaries = useMemo(() => facetSummaries(bundle, state), [bundle, state])
   const years = useMemo(() => yearRange(bundle), [bundle])
 
-  const language = selection.languages.find((l) => l.id === state.lang)
-    ?? selection.filteredOut.find((l) => l.id === state.lang)
-    ?? null
-  const initiative = selection.initiatives.find((i) => i.id === state.init) ?? null
+  // Looked up in the BUNDLE, not the selection: a record the filters exclude
+  // still exists, and the page has to be able to say so.
+  const language = bundle.languages.find((l) => l.id === state.lang) ?? null
+  const initiative = bundle.initiatives.find((i) => i.id === state.init) ?? null
+
+  const languageInSelection =
+    selection.languages.some((l) => l.id === state.lang) ||
+    selection.filteredOut.some((l) => l.id === state.lang)
+  const initiativeInSelection = selection.initiatives.some((i) => i.id === state.init)
+
+  const outside: 'language' | 'initiative' | null =
+    language !== null && !languageInSelection ? 'language'
+    : initiative !== null && !initiativeInSelection ? 'initiative'
+    : null
+
+  // A stale or mistyped id names nothing. Degrading it away matches how the
+  // codec already treats unknown keys and values.
+  useEffect(() => {
+    const lang = state.lang !== null && language === null
+    const init = state.init !== null && initiative === null
+    if (lang || init) dispatch({ type: 'dropUnknownSelection', lang, init })
+  }, [state.lang, state.init, language, initiative, dispatch])
 
   // The timeline filters in `applyFilters` and occupies two URL keys, so it is
   // an active filter and has to be counted as one — otherwise constraining only
@@ -33,16 +54,7 @@ export default function App(): React.JSX.Element {
   const activeCount =
     summaries.reduce((n, s) => n + s.selected.length, 0) + (timelineActive ? 1 : 0)
 
-  // Spec F1: a non-empty `filteredOut` IS the answer to the reader's question —
-  // "no work of this kind exists for these languages" — so it cannot also be
-  // "nothing matches". Denying it here put a false denial ABOVE the true finding
-  // at `?region=africa&application=asr`, on the one screen this all exists for.
-  const noWorkButLanguages =
-    selection.initiatives.length === 0 && selection.filteredOut.length > 0
-  const nothingMatched =
-    selection.languages.length === 0 &&
-    selection.initiatives.length === 0 &&
-    selection.filteredOut.length === 0
+  const empty = emptyState(selection)
   const nFilteredOut = selection.filteredOut.length
 
   return (
@@ -83,13 +95,14 @@ export default function App(): React.JSX.Element {
           activeCount={activeCount}
           onToggle={(facet, value) => dispatch({ type: 'toggle', facet, value })}
           onClearAll={() => dispatch({ type: 'clearAll' })}
+          onClearFacet={(facet) => dispatch({ type: 'clearFacet', facet })}
         />
-        {nothingMatched && (
+        {empty === 'nothing-matched' && (
           <p className="card empty" data-testid="empty-result">
             Nothing matches the current filters.
           </p>
         )}
-        {noWorkButLanguages && (
+        {empty === 'no-work-but-languages' && (
           <p className="card empty" data-testid="no-matching-work">
             No initiative matches the current filters. {nFilteredOut}{' '}
             {nFilteredOut === 1 ? 'language' : 'languages'} matched your language filters
@@ -101,6 +114,19 @@ export default function App(): React.JSX.Element {
           filteredOut={selection.filteredOut}
           onSelect={(id) => dispatch({ type: 'selectLanguage', id })}
         />
+        {outside !== null && (
+          <OutsideFiltersNotice
+            kind={outside}
+            onClearFilters={() => dispatch({ type: 'clearAll' })}
+            onDeselect={() =>
+              dispatch(
+                outside === 'language'
+                  ? { type: 'selectLanguage', id: null }
+                  : { type: 'selectInitiative', id: null },
+              )
+            }
+          />
+        )}
         {language !== null && (
           <LanguagePanel
             language={language}
@@ -110,14 +136,40 @@ export default function App(): React.JSX.Element {
         {initiative !== null && <InitiativePanel initiative={initiative} methods={bundle.methods} />}
       </div>
 
-      <div className="atlas__map">
-        <MapView
-          languages={languageFields(selection.languages)}
-          initiatives={initiativeSites(selection.initiatives)}
-          selectedLanguageId={state.lang}
-          onSelectLanguage={(id) => dispatch({ type: 'selectLanguage', id })}
-          onSelectInitiative={(id) => dispatch({ type: 'selectInitiative', id })}
+      <div className="atlas__pane">
+        <ViewSwitch
+          view={state.view}
+          counts={{
+            initiatives: selection.initiatives.length,
+            languages: selection.languages.length + selection.filteredOut.length,
+          }}
+          onChange={(view) => dispatch({ type: 'setView', view })}
         />
+        {state.view === 'map' ? (
+          <MapView
+            languages={languageFields(selection.languages)}
+            initiatives={initiativeSites(selection.initiatives)}
+            selectedLanguageId={state.lang}
+            onSelectLanguage={(id) => dispatch({ type: 'selectLanguage', id })}
+            onSelectInitiative={(id) => dispatch({ type: 'selectInitiative', id })}
+          />
+        ) : (
+          <TableView
+            view={state.view}
+            selection={selection}
+            bundle={bundle}
+            sort={state.sort}
+            onSort={(sort) => dispatch({ type: 'setSort', sort })}
+            selectedId={state.view === 'languages' ? state.lang : state.init}
+            onSelect={(id) =>
+              dispatch(
+                state.view === 'languages'
+                  ? { type: 'selectLanguage', id }
+                  : { type: 'selectInitiative', id },
+              )
+            }
+          />
+        )}
       </div>
     </main>
   )

@@ -12,9 +12,9 @@
     },
     {
       "id": "fixture-approximate", "name": "Approximate Centre Language", "also_known_as": [],
-      "glottocode": null, "iso639_3": null, "tier": "indigenous", "family": "Fixture Family",
+      "glottocode": null, "iso639_3": null, "tier": "indigenous", "family": null,
       "subfamily": null, "typology": [], "endangerment": null, "speakers": null,
-      "region": "north-america", "countries": ["US"],
+      "region": null, "countries": ["US"],
       "centre": { "lat": 40.0, "lon": -90.0, "confidence": "approximate",
         "source": { "kind": "doc", "ref": "fixture", "retrieved": null, "quote": null } },
       "caveat": "A round placeholder-looking centroid, not a researched location.",

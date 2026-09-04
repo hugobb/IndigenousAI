@@ -1,4 +1,5 @@
 import { NOT_RECORDED, VOCAB_FOR, type FacetId } from './facets.js'
+import { VIEWS, columnIds, type SortState, type ViewId } from './columns.js'
 
 export interface FilterState {
   family: string[]
@@ -13,6 +14,8 @@ export interface FilterState {
   to: number | null
   lang: string | null
   init: string | null
+  view: ViewId
+  sort: SortState | null
 }
 
 /** Key order here IS the URL's key order, so one state always serialises to one
@@ -36,6 +39,7 @@ export const EMPTY_FILTERS: FilterState = deepFreezeFilterState({
   family: [], typology: [], endangerment: [], region: [],
   application: [], method: [], regime: [], governance: [],
   from: null, to: null, lang: null, init: null,
+  view: 'map', sort: null,
 })
 
 /** A value survives if the facet is data-derived (no vocabulary to check against)
@@ -72,6 +76,28 @@ export function parseFilters(search: string): FilterState {
     if (raw !== null && raw !== '') state[k] = raw
   }
 
+  // View is parsed BEFORE sort, because which columns exist — and therefore
+  // which sorts are meaningful — depends on it.
+  const rawView = p.get('view')
+  if (rawView !== null && (VIEWS as readonly string[]).includes(rawView)) {
+    state.view = rawView as ViewId
+  }
+
+  const rawSort = p.get('sort')
+  if (rawSort !== null) {
+    const parts = rawSort.split(':')
+    const column = parts[0]
+    const direction = parts[1]
+    if (
+      parts.length === 2 &&
+      column !== undefined && column !== '' &&
+      (direction === 'asc' || direction === 'desc') &&
+      columnIds(state.view).includes(column)
+    ) {
+      state.sort = { column, direction }
+    }
+  }
+
   return state
 }
 
@@ -84,6 +110,10 @@ export function toSearch(state: FilterState): string {
   if (state.to !== null) p.set('to', String(state.to))
   if (state.lang !== null) p.set('lang', state.lang)
   if (state.init !== null) p.set('init', state.init)
+  // The default is omitted so the landing URL stays empty and a cited URL
+  // carries only what the citer actually chose.
+  if (state.view !== 'map') p.set('view', state.view)
+  if (state.sort !== null) p.set('sort', `${state.sort.column}:${state.sort.direction}`)
   const s = p.toString()
   return s === '' ? '' : `?${s}`
 }
