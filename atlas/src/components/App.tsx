@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { loadBundle } from '../lib/load.js'
-import { applyFilters, facetSummaries, yearRange } from '../lib/filters.js'
+import { applyFilters, emptyState, facetSummaries, yearRange } from '../lib/filters.js'
 import { snapshotDate } from '../lib/snapshot.js'
 import { useFilters } from '../state/useFilters.js'
 import { initiativeSites, languageFields } from '../map/layers.js'
@@ -33,16 +33,7 @@ export default function App(): React.JSX.Element {
   const activeCount =
     summaries.reduce((n, s) => n + s.selected.length, 0) + (timelineActive ? 1 : 0)
 
-  // Spec F1: a non-empty `filteredOut` IS the answer to the reader's question —
-  // "no work of this kind exists for these languages" — so it cannot also be
-  // "nothing matches". Denying it here put a false denial ABOVE the true finding
-  // at `?region=africa&application=asr`, on the one screen this all exists for.
-  const noWorkButLanguages =
-    selection.initiatives.length === 0 && selection.filteredOut.length > 0
-  const nothingMatched =
-    selection.languages.length === 0 &&
-    selection.initiatives.length === 0 &&
-    selection.filteredOut.length === 0
+  const empty = emptyState(selection)
   const nFilteredOut = selection.filteredOut.length
 
   return (
@@ -84,12 +75,12 @@ export default function App(): React.JSX.Element {
           onToggle={(facet, value) => dispatch({ type: 'toggle', facet, value })}
           onClearAll={() => dispatch({ type: 'clearAll' })}
         />
-        {nothingMatched && (
+        {empty === 'nothing-matched' && (
           <p className="card empty" data-testid="empty-result">
             Nothing matches the current filters.
           </p>
         )}
-        {noWorkButLanguages && (
+        {empty === 'no-work-but-languages' && (
           <p className="card empty" data-testid="no-matching-work">
             No initiative matches the current filters. {nFilteredOut}{' '}
             {nFilteredOut === 1 ? 'language' : 'languages'} matched your language filters

@@ -139,6 +139,21 @@ export function facetSummaries(bundle: AtlasBundle, state: FilterState): FacetSu
   ]
 }
 
+export type EmptyState = 'matched' | 'no-work-but-languages' | 'nothing-matched'
+
+/** The SINGLE place the page decides whether anything matched. Two surfaces
+ *  now render that decision — the rail and the table — and in SP1b two
+ *  independent derivations of it disagreed on screen, printing a denial
+ *  directly above the finding it denied. There is one predicate so there is
+ *  one thing to be wrong. */
+export function emptyState(s: Selection): EmptyState {
+  if (s.languages.length === 0 && s.initiatives.length === 0 && s.filteredOut.length === 0) {
+    return 'nothing-matched'
+  }
+  if (s.initiatives.length === 0 && s.filteredOut.length > 0) return 'no-work-but-languages'
+  return 'matched'
+}
+
 export function yearRange(bundle: AtlasBundle): { min: number; max: number } | null {
   const years = bundle.initiatives.map((i) => i.started).filter((y): y is number => y !== null)
   if (years.length === 0) return null
