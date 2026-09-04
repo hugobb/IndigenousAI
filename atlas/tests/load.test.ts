@@ -19,6 +19,22 @@ describe('chooseBundle', () => {
     expect(b.languages).toHaveLength(1)
   })
 
+  it('returns a valid real bundle unchanged in production', () => {
+    // The only path that legitimately ships. Every other production case here
+    // asserts a THROW, so without this one the suite could not tell "refuses
+    // everything in production" from "refuses the wrong things".
+    const real = {
+      ...empty,
+      languages: [fixture.languages[0]],
+      initiatives: [fixture.initiatives[0]],
+    }
+    const b = chooseBundle({ real, fixture, isProduction: true })
+    expect(b.languages).toEqual(real.languages)
+    expect(b.initiatives).toEqual(real.initiatives)
+    expect(b.generated).toBe(empty.generated)
+    expect(b.isDemoData).toBe(false)
+  })
+
   it('refuses to build with no real bundle', () => {
     expect(() => chooseBundle({ real: null, fixture, isProduction: true }))
       .toThrow(/src\/data\/atlas\.json/)

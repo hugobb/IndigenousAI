@@ -19,8 +19,17 @@ describe('languageFields', () => {
       .toEqual(['fixture-approximate', 'fixture-conflict', 'fixture-sourced'])
   })
 
-  it('omits adjacent-tier languages, which carry no centre by D5', () => {
-    expect(fc.features.map((f) => f.id)).not.toContain('fixture-adjacent')
+  // D5 (an adjacent-tier language may not carry a centre) is NOT testable from
+  // here: the schema makes such a record unconstructible, so any assertion
+  // written at this level would only restate the `centre === null` case below.
+  // D5 is tested where it is enforced, in `tests/schema.test.ts`.
+  it('carries tier on every emitted feature, so the style can key on it', () => {
+    expect(fc.features).not.toHaveLength(0)
+    for (const f of fc.features) {
+      expect(f.properties['tier']).toBe(
+        languages.find((l: { id: string }) => l.id === f.id)?.tier,
+      )
+    }
   })
 
   it('omits a language whose centre is null rather than placing it at 0,0', () => {
