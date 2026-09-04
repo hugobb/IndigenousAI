@@ -69,8 +69,12 @@ repo is a one-off nobody runs again, which is exactly why it has been owed twice
 Fourteen keys, in stable order:
 
 ```
-lang init family typology endangerment region application method regime governance from to view sort
+family typology endangerment region application method regime governance from to lang init view sort
 ```
+
+That is the serialisation order `toSearch` already emits, with the two new keys
+appended. Order is part of the contract: one state must serialise to one string, or
+two citations of the same view compare unequal.
 
 `useFilters` remains the single writer. `applyFilters` is unchanged: the table consumes
 exactly the collections the map consumes.
@@ -105,7 +109,7 @@ scope-and-unit table from a document that drifts into a field the renderer reads
 
 | column | source | sortable |
 | --- | --- | --- |
-| name | `name` | yes |
+| name | `name`, with `adjacent tier` as a secondary line on the adjacent tier | yes |
 | family | `family` (nullable) | yes |
 | region | `region` (nullable) | yes |
 | endangerment | `endangerment.status` (nullable) | yes, by vocab order |
