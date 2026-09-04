@@ -38,4 +38,12 @@ describe('map style', () => {
     expect(sel?.source).toBe(SOURCE_LANGUAGES)
     expect(JSON.stringify(sel?.filter)).toMatch(/id/)
   })
+
+  it('keeps confidence visible on a selected language field, not masked by the accent colour', () => {
+    const sel = byId('language-field-selected')
+    expect(JSON.stringify(sel?.paint?.['circle-color'])).toMatch(/approximate/)
+    // Selection must never borrow the language layer's one constant meaning.
+    expect(typeof sel?.paint?.['circle-blur']).toBe('number')
+    expect(Number(sel?.paint?.['circle-blur'])).toBeGreaterThanOrEqual(1)
+  })
 })

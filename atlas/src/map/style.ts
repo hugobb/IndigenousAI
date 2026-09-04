@@ -5,6 +5,7 @@ export const SOURCE_INITIATIVES = 'initiative-sites'
 
 const INK = '#5b7a8c'
 const ACCENT = '#c2703d'
+const ACCENT_MUTED = '#cf9d80' // desaturated ACCENT, mirroring the INK/MUTED pairing
 const MUTED = '#9aa5ab'
 
 export const BASEMAP_STYLE: StyleSpecification = {
@@ -49,7 +50,11 @@ export const LAYERS: CircleLayerSpecification[] = [
       'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 18, 6, 60, 10, 160],
       'circle-blur': 1.2,
       'circle-opacity': 0.55,
-      'circle-color': ACCENT,
+      // Selection is its own channel (accent vs. ink), confidence is another
+      // (saturated vs. muted) — they must stay independent, or a selected
+      // approximate centre reads as sourced right when a reader is looking
+      // most closely at it.
+      'circle-color': ['match', ['get', 'confidence'], 'approximate', ACCENT_MUTED, ACCENT],
     },
   },
   {
