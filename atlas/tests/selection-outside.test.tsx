@@ -14,13 +14,16 @@ beforeEach(() => window.history.replaceState({}, '', '/'))
 const bundle = loadBundle()
 
 describe('a selected record the filters exclude', () => {
-  it('still renders the panel, marked as outside the filters', () => {
+  it('still renders the panel, marked as outside the filters, naming a language', () => {
     // fixture-adjacent is the only africa-region language; asr excludes its
     // one initiative, so the language is excluded from L1 by region+application.
     const lang = bundle.languages.find((l) => l.region === 'north-america')!
     window.history.replaceState({}, '', `/?lang=${lang.id}&region=africa`)
     render(<App />)
-    expect(screen.getByTestId('outside-filters')).toBeDefined()
+    // The two branches must be distinguishable by what the reader actually
+    // sees, not just by the presence of a notice: a regression that mis-tags
+    // which kind is outside must be visible in the text.
+    expect(screen.getByTestId('outside-filters').textContent).toMatch(/This language is outside/)
     // The panel is still rendered — assert the record is on the page rather
     // than guessing which element the panel uses for its title.
     expect(document.body.textContent).toContain(lang.name)
@@ -42,12 +45,38 @@ describe('a selected record the filters exclude', () => {
     expect(window.location.search).toBe('?region=africa')
   })
 
-  it('does the same for an initiative excluded by a work filter', () => {
+  it('does the same for an initiative excluded by a work filter, naming an initiative', () => {
     const init = bundle.initiatives.find((i) => i.applications.includes('mt'))!
     window.history.replaceState({}, '', `/?init=${init.id}&application=asr`)
     render(<App />)
-    expect(screen.getByTestId('outside-filters')).toBeDefined()
+    // Mirror of the language assertion above: the notice must say
+    // "initiative", not "language" — otherwise the two branches would be
+    // interchangeable and a mis-tagged `outside` value would go unnoticed.
+    expect(screen.getByTestId('outside-filters').textContent).toMatch(/This initiative is outside/)
     expect(document.body.textContent).toContain(init.name)
+  })
+
+  it('offers a way out for the initiative case that clears the filters and keeps the record', () => {
+    // Mirror of the language-side clear-filters test: `init` must survive
+    // while the filter that excluded it is dropped.
+    const init = bundle.initiatives.find((i) => i.applications.includes('mt'))!
+    window.history.replaceState({}, '', `/?init=${init.id}&application=asr`)
+    render(<App />)
+    fireEvent.click(screen.getByTestId('outside-clear-filters'))
+    expect(window.location.search).toBe(`?init=${init.id}`)
+  })
+
+  it('offers a way out for the initiative case that drops the selection and keeps the filters', () => {
+    // This is the assertion a mis-tagged `outside` value would fail: App.tsx's
+    // onDeselect branches on `outside === 'language'` to pick between
+    // selectLanguage and selectInitiative. If the initiative case were wrongly
+    // tagged 'language', this click would dispatch selectLanguage(null) — a
+    // no-op, since `lang` is not set — leaving `init` in the URL untouched.
+    const init = bundle.initiatives.find((i) => i.applications.includes('mt'))!
+    window.history.replaceState({}, '', `/?init=${init.id}&application=asr`)
+    render(<App />)
+    fireEvent.click(screen.getByTestId('outside-deselect'))
+    expect(window.location.search).toBe('?application=asr')
   })
 
   it('shows no notice when the selected record is inside the filters', () => {
