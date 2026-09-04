@@ -17,9 +17,28 @@ Node lives under nvm on this machine. Before any command:
     pnpm test          # unit tests
     pnpm typecheck     # tsc --noEmit
     pnpm build:data    # extract -> validate -> bundle
+    pnpm dev           # dev server, on the demonstration fixture
+    pnpm build:app     # production build; refuses without a real bundle
 
 `pnpm build:data` exits non-zero if any hand-curated record is still `status: draft`.
 That is intended: it is what stops an unreviewed record reaching a published figure.
+
+## The fixture never ships
+
+`pnpm dev` has no generated bundle to show, so it renders
+`src/fixtures/atlas.fixture.json` — invented records, behind a banner on the page
+saying so. None of it may reach a build:
+
+- `pnpm build:app` refuses to start while `src/data/atlas.json` is absent, and
+  names `pnpm build:data` as the fix. `ATLAS_ALLOW_NO_BUNDLE=1` skips that check
+  for compile-only verification in CI; its `dist/` must never be deployed.
+- The fixture is admissible only when Vite's own `command` is `serve`. That is a
+  build-vs-serve fact no environment variable can flip — unlike
+  `import.meta.env.PROD`, which follows an ambient `NODE_ENV` and once let
+  `NODE_ENV=development vite build` emit a deployable `dist/` full of invented
+  records.
+- `tests/build-artifact.test.ts` runs real builds and greps the emitted JS for
+  every identifying string in the fixture. It is slow (~8s) on purpose.
 
 ## What is hand-edited and what is not
 

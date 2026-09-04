@@ -27,4 +27,15 @@ describe('App', () => {
     render(<App />)
     expect(screen.getByRole('heading', { name: /atlas of indigenous language nlp/i })).toBeDefined()
   })
+
+  // Under tests, as under `pnpm dev`, there is no generated bundle, so App
+  // renders the fixture. A screenshot of a map pin does not reveal "Fixture
+  // Family"; the banner is what makes invented records legible as invented.
+  it('marks invented records as demonstration data on screen', () => {
+    render(<App />)
+    const banner = screen.getByTestId('demo-data-banner')
+    expect(banner.textContent).toMatch(/demonstration data/i)
+    expect(banner.textContent).toMatch(/invented/i)
+    expect(banner.textContent).toMatch(/not research data/i)
+  })
 })

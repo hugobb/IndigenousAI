@@ -17,6 +17,14 @@ export default function App(): React.JSX.Element {
   return (
     <main>
       <h1>Atlas of Indigenous Language NLP</h1>
+      {bundle.isDemoData && (
+        <p role="alert" data-testid="demo-data-banner">
+          <strong>Demonstration data.</strong> Every record on this page is an invented
+          placeholder used for development. The places, families, coordinates and speaker
+          counts shown here are not research data and must not be cited or screenshotted as
+          such. The real atlas is built only from human-reviewed records.
+        </p>
+      )}
       <MapView
         languages={languageFields(bundle.languages)}
         initiatives={initiativeSites(bundle.initiatives)}

@@ -40,6 +40,27 @@ describe('chooseBundle', () => {
     expect((err as Error).message).not.toMatch(/fixture/i)
   })
 
+  it('flags demo data when it fell back to the fixture', () => {
+    expect(chooseBundle({ real: null, fixture, isProduction: false }).isDemoData).toBe(true)
+  })
+
+  it('does not flag demo data when a real bundle was returned', () => {
+    const real = { ...empty, languages: [fixture.languages[0]] }
+    expect(chooseBundle({ real, fixture, isProduction: false }).isDemoData).toBe(false)
+  })
+
+  it('derives the demo-data flag from what was returned, not from the production flag', () => {
+    // A real bundle in production is the only path that legitimately returns
+    // records with the flag false; assert it is the RETURNED object that
+    // decides, by passing a real bundle while the flag says development.
+    const real = { ...empty, initiatives: [fixture.initiatives[0]] }
+    const dev = chooseBundle({ real, fixture, isProduction: false })
+    const prod = chooseBundle({ real, fixture, isProduction: true })
+    expect(dev.isDemoData).toBe(false)
+    expect(prod.isDemoData).toBe(false)
+    expect(dev.initiatives).toEqual(prod.initiatives)
+  })
+
   it('rejects a bundle whose records do not match the schema', () => {
     const bad = { ...empty, languages: [{ id: 'nope' }] }
     expect(() => chooseBundle({ real: bad, fixture, isProduction: true })).toThrow()
