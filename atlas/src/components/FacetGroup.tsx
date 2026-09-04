@@ -17,8 +17,12 @@ export const TYPE_TO_NARROW_THRESHOLD = 12
  *  active, and rendered nowhere. A count with no control behind it is a filter
  *  the reader can neither see nor undo except by clearing everything. */
 export default function FacetGroup({
-  summary, onToggle,
-}: { summary: FacetSummary; onToggle: (value: string) => void }): React.JSX.Element {
+  summary, onToggle, onClearFacet,
+}: {
+  summary: FacetSummary
+  onToggle: (value: string) => void
+  onClearFacet: () => void
+}): React.JSX.Element {
   const [needle, setNeedle] = useState('')
 
   const isSelected = (value: string): boolean => summary.selected.includes(value)
@@ -74,6 +78,46 @@ export default function FacetGroup({
     </ul>
   )
 
+  const bodyId = `facet-body-${summary.id}`
+  // Long lists start collapsed, reusing the threshold that already governs the
+  // same judgment about the same lists — inventing a second one would let the
+  // two drift. A selection always wins over that: hiding one behind a closed
+  // disclosure makes it exactly as unclearable as counting it out of its own
+  // group (see the module comment above).
+  const [open, setOpen] = useState(
+    () => summary.selected.length > 0 || rows.length <= TYPE_TO_NARROW_THRESHOLD,
+  )
+
+  const legend = (
+    <legend className="facet__legend">
+      <button
+        type="button" className="facet__toggle"
+        aria-expanded={open} aria-controls={bodyId}
+        data-testid={`facet-toggle-${summary.id}`}
+        onClick={() => setOpen(!open)}
+      >
+        {summary.label}
+        {summary.selected.length > 0 && (
+          <span className="facet__count"> ({summary.selected.length})</span>
+        )}
+      </button>
+      {/* The clear control lives beside the disclosure, in the legend, rather
+          than inside a `<summary>`: a `<summary>` containing interactive
+          controls has real user-agent bugs, which is why this is a `<button>`
+          driving `aria-expanded`/`aria-controls` on a `hidden`-toggled body
+          instead of `<details>`. */}
+      {summary.selected.length > 0 && (
+        <button
+          type="button" className="link-button"
+          data-testid={`facet-clear-${summary.id}`}
+          onClick={onClearFacet}
+        >
+          clear
+        </button>
+      )}
+    </legend>
+  )
+
   if (!summary.curated) {
     // The count belongs to the sentence, and the sentence is a claim about the
     // whole dataset — "this dimension has not been coded" — so it takes the
@@ -83,42 +127,42 @@ export default function FacetGroup({
     const n = summary.notRecordedTotal
     return (
       <fieldset className="facet facet--uncurated" data-testid={`facet-${summary.id}`}>
-        <legend className="facet__legend">{summary.label}</legend>
-        <p className="facet__uncurated">
-          Not yet curated ({n} record{n === 1 ? '' : 's'})
-        </p>
-        {/* An uncurated group rendered no controls at all, so a cited
-            `?typology=_none` showed "Clear all (1)" with the selection nowhere
-            on the page. The statement stands; the selection is rendered beside
-            it so it can be removed. */}
-        {summary.selected.length > 0 && options}
+        {legend}
+        <div id={bodyId} hidden={!open}>
+          <p className="facet__uncurated">
+            Not yet curated ({n} record{n === 1 ? '' : 's'})
+          </p>
+          {/* An uncurated group rendered no controls at all, so a cited
+              `?typology=_none` showed "Clear all (1)" with the selection nowhere
+              on the page. The statement stands; the selection is rendered beside
+              it so it can be removed. */}
+          {summary.selected.length > 0 && options}
+        </div>
       </fieldset>
     )
   }
 
   return (
     <fieldset className="facet" data-testid={`facet-${summary.id}`}>
-      <legend className="facet__legend">
-        {summary.label}
-        {summary.selected.length > 0 && <span className="facet__count"> ({summary.selected.length})</span>}
-      </legend>
+      {legend}
+      <div id={bodyId} hidden={!open}>
+        {showNeedle && (
+          <input
+            type="text" className="facet__needle" placeholder={`Filter ${summary.label.toLowerCase()}`}
+            aria-label={`Filter ${summary.label} options`} data-testid={`facet-filter-${summary.id}`}
+            value={needle} onChange={(e) => setNeedle(e.target.value)}
+          />
+        )}
 
-      {showNeedle && (
-        <input
-          type="text" className="facet__needle" placeholder={`Filter ${summary.label.toLowerCase()}`}
-          aria-label={`Filter ${summary.label} options`} data-testid={`facet-filter-${summary.id}`}
-          value={needle} onChange={(e) => setNeedle(e.target.value)}
-        />
-      )}
-
-      {rows.length === 0 && !showNotRecorded ? (
-        // Curated, but the current selection leaves this dimension with nothing
-        // to offer. Without this line the group is a bare label above nothing,
-        // which reads exactly like a rendering bug.
-        <p className="facet__empty">No values in the current selection.</p>
-      ) : (
-        options
-      )}
+        {rows.length === 0 && !showNotRecorded ? (
+          // Curated, but the current selection leaves this dimension with nothing
+          // to offer. Without this line the group is a bare label above nothing,
+          // which reads exactly like a rendering bug.
+          <p className="facet__empty">No values in the current selection.</p>
+        ) : (
+          options
+        )}
+      </div>
     </fieldset>
   )
 }

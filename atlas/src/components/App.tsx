@@ -76,6 +76,7 @@ export default function App(): React.JSX.Element {
           activeCount={activeCount}
           onToggle={(facet, value) => dispatch({ type: 'toggle', facet, value })}
           onClearAll={() => dispatch({ type: 'clearAll' })}
+          onClearFacet={(facet) => dispatch({ type: 'clearFacet', facet })}
         />
         {empty === 'nothing-matched' && (
           <p className="card empty" data-testid="empty-result">

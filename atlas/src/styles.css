@@ -392,6 +392,34 @@ a { color: var(--accent-ink); }
   font-weight: 600;
 }
 
+/* The disclosure button carries the group's own typography (it sits where the
+ * legend text used to sit); the legend itself becomes a flex row so the clear
+ * control can sit beside it without wrapping to its own line. */
+.facet__legend {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.facet__toggle {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.facet__toggle[aria-expanded='false']::before { content: '▸ '; }
+.facet__toggle[aria-expanded='true']::before { content: '▾ '; }
+
+.facet__legend .link-button { margin-left: auto; font-size: 0.75rem; white-space: nowrap; }
+
 .facet__needle {
   width: 100%;
   margin: 0 0 0.5rem;

@@ -89,6 +89,15 @@ describe('what App actually wires up', () => {
     expect(screen.queryByTestId('clear-all')).toBeNull()
   })
 
+  // MUTATION: `onClearFacet` dispatching `clearAll` instead of `clearFacet` —
+  // both regions and application would vanish instead of only region.
+  it('clearing one group clears only that group', () => {
+    window.history.replaceState({}, '', '/?region=africa&application=mt')
+    render(<App />)
+    fireEvent.click(screen.getByTestId('facet-clear-region'))
+    expect(window.location.search).toBe('?application=mt')
+  })
+
   // MUTATION: `undatedCount={0}`. The Timeline's own tests pass the number in
   // directly, so they say nothing about whether App ever computes it.
   it('tells the timeline how many initiatives it cannot constrain', () => {
@@ -209,7 +218,10 @@ describe('view wiring', () => {
 
   it('sorting from the table writes the sort to the URL', () => {
     renderAt('?view=languages')
-    fireEvent.click(screen.getByRole('button', { name: /^family$/i }))
+    // Scoped to the table: the rail also has a "Family" facet, and its group
+    // now has its own disclosure button of the same accessible name.
+    const table = screen.getByRole('table')
+    fireEvent.click(within(table).getByRole('button', { name: /^family$/i }))
     expect(window.location.search).toContain('sort=family%3Aasc')
   })
 

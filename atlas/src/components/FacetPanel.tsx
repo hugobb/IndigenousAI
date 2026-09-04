@@ -3,12 +3,13 @@ import type { FacetSummary } from '../lib/filters.js'
 import FacetGroup from './FacetGroup.js'
 
 export default function FacetPanel({
-  summaries, activeCount, onToggle, onClearAll,
+  summaries, activeCount, onToggle, onClearAll, onClearFacet,
 }: {
   summaries: FacetSummary[]
   activeCount: number
   onToggle: (facet: FacetId, value: string) => void
   onClearAll: () => void
+  onClearFacet: (facet: FacetId) => void
 }): React.JSX.Element {
   return (
     <section className="card facets" aria-label="Filters">
@@ -21,7 +22,8 @@ export default function FacetPanel({
         )}
       </div>
       {summaries.map((s) => (
-        <FacetGroup key={s.id} summary={s} onToggle={(v) => onToggle(s.id, v)} />
+        <FacetGroup key={s.id} summary={s} onToggle={(v) => onToggle(s.id, v)}
+          onClearFacet={() => onClearFacet(s.id)} />
       ))}
     </section>
   )
