@@ -98,4 +98,11 @@ describe('FacetPanel', () => {
     panel([summary({})])
     expect(screen.queryByTestId('clear-all')).toBeNull()
   })
+
+  it('treats a curated facet with no visible options as filtered, not as uncurated', () => {
+    panel([summary({ id: 'typology', label: 'Typology', curated: true, options: [], notRecorded: 4 })])
+    const group = screen.getByTestId('facet-typology')
+    expect(group.textContent).not.toMatch(/not yet curated/i)
+    expect(screen.getByLabelText(/not recorded/i)).toBeDefined()
+  })
 })
