@@ -90,10 +90,17 @@ a { color: var(--accent-ink); }
   gap: var(--gutter);
 }
 
-/* The pane is a column: a fixed switch above a scrolling body. `min-height: 0`
- * on both the pane and the scroller (`.table-wrap`) is what lets the body
- * shrink inside the grid row — without it a flex child refuses to go below
- * its content height and the table pushes the page into a horizontal scroll. */
+/* The pane is a column: a fixed switch above a scrolling body. What actually
+ * lets the body shrink inside the grid row is each element's OWN `overflow`:
+ * a flex/grid item's automatic minimum size is zero whenever its `overflow`
+ * is anything but `visible` in that axis, and `.atlas__pane`'s `overflow:
+ * hidden` below plus `.table-wrap`'s `overflow: auto` already do that — an
+ * item stuck at `overflow: visible` refuses to shrink below its content
+ * height, which is what pushes the table into a horizontal scroll. The
+ * explicit `min-height: 0` on both is therefore redundant today, given those
+ * overflow values (confirmed by mutation: removing it from `.table-wrap`
+ * changes nothing observable); it is kept only as defensive documentation in
+ * case either `overflow` value ever changes. */
 .atlas__pane {
   grid-area: pane;
   min-width: 0;

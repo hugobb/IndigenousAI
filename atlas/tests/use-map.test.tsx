@@ -29,6 +29,13 @@ const { FakeMap, instances } = vi.hoisted(() => {
       }
     }
 
+    // Real MapLibre's `once` fires the handler at most one time and then
+    // detaches it; nothing in this suite fires 'idle', so the fake only
+    // needs to accept the registration without throwing.
+    once(event: string, handler: (e?: unknown) => void): void {
+      this.handlers[event] = handler
+    }
+
     addSource(id: string, src: { data: unknown }): void {
       const setData = vi.fn((d: unknown) => {
         const entry = this.sources[id]

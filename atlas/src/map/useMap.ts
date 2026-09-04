@@ -45,6 +45,7 @@ export function useMap(
 
   useEffect(() => {
     if (!container.current || mapRef.current) return
+    const el = container.current
     const map = new maplibregl.Map({
       container: container.current,
       style: BASEMAP_STYLE,
@@ -84,6 +85,18 @@ export function useMap(
       // is never dropped.
       readyRef.current = true
       syncData(map, dataRef.current)
+
+      // `idle` fires once MapLibre has nothing left queued to paint — every
+      // requested tile has either loaded or failed, and the frame is stable.
+      // The browser harness (jsdom has no layout or WebGL engine, so this is
+      // otherwise untestable) polls this attribute instead of a fixed
+      // `waitForTimeout`, which would either race a slow paint or waste time
+      // padding a fast one. `once`: we only need the first stable frame after
+      // the data above was pushed; this element is recreated on remount, so a
+      // fresh load always starts from an unset attribute.
+      map.once('idle', () => {
+        el.setAttribute('data-map-idle', 'true')
+      })
     })
 
     return () => {

@@ -32,6 +32,10 @@ export default function MapView(props: MapViewProps): React.JSX.Element {
       className="atlas__canvas"
       role="application"
       aria-label="Map of Indigenous language NLP initiatives"
+      // Flipped to 'true' by useMap once MapLibre's 'idle' event fires — a
+      // real readiness signal the browser harness polls for, rather than a
+      // fixed sleep. See useMap.ts.
+      data-map-idle="false"
     />
   )
 }
