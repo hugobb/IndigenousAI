@@ -38,6 +38,11 @@ describe('languageFields', () => {
     const f = fc.features.find((x) => x.id === 'fixture-sourced')
     expect(f?.geometry.coordinates).toEqual([-73.6, 45.5])
   })
+
+  it('carries name so a marker can be labeled', () => {
+    const f = fc.features.find((x) => x.id === 'fixture-sourced')
+    expect(f?.properties['name']).toBe('Sourced Centre Language')
+  })
 })
 
 describe('initiativeSites', () => {
@@ -60,6 +65,20 @@ describe('initiativeSites', () => {
   it('carries whether the initiative has ended', () => {
     expect(fc.features.find((f) => f.id === 'fixture-ended')?.properties['ended']).toBe(2021)
     expect(fc.features.find((f) => f.id === 'fixture-ongoing')?.properties['ended']).toBeNull()
+  })
+
+  it('carries started so the timeline can place it', () => {
+    expect(fc.features.find((f) => f.id === 'fixture-ended')?.properties['started']).toBe(2018)
+  })
+
+  it('carries name so a marker can be labeled', () => {
+    const f = fc.features.find((x) => x.id === 'fixture-ongoing')
+    expect(f?.properties['name']).toBe('Ongoing Initiative')
+  })
+
+  it('writes coordinates in GeoJSON order, lon then lat', () => {
+    const f = fc.features.find((x) => x.id === 'fixture-ongoing')
+    expect(f?.geometry.coordinates).toEqual([173.26, -35.11])
   })
 })
 

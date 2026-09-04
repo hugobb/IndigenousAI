@@ -18,24 +18,25 @@ const collection = (features: PointFeature[]): PointCollection => ({
   features,
 })
 
+const hasCentre = (l: Language): l is Language & { centre: NonNullable<Language['centre']> } =>
+  l.centre !== null
+
 /** One point per language that has a centre. A language without one is NOT
  *  placed at a default coordinate — it is omitted here and surfaced by
  *  `unmappedLanguages`, so a gap in the data reads as a gap. */
 export function languageFields(languages: Language[]): PointCollection {
   return collection(
-    languages
-      .filter((l) => l.centre !== null)
-      .map((l) => ({
-        type: 'Feature' as const,
+    languages.filter(hasCentre).map((l) => ({
+      type: 'Feature' as const,
+      id: l.id,
+      properties: {
         id: l.id,
-        properties: {
-          id: l.id,
-          name: l.name,
-          tier: l.tier,
-          confidence: locationConfidence(l.centre),
-        },
-        geometry: { type: 'Point' as const, coordinates: [l.centre!.lon, l.centre!.lat] as [number, number] },
-      })),
+        name: l.name,
+        tier: l.tier,
+        confidence: locationConfidence(l.centre),
+      },
+      geometry: { type: 'Point' as const, coordinates: [l.centre.lon, l.centre.lat] as [number, number] },
+    })),
   )
 }
 
