@@ -19,6 +19,7 @@ site:
     ref: https://miamioh.edu/myaamia-center/about/index.html
     retrieved: "2026-09-03"
     quote: "351 E. Spring St. Bonham House, Miami University Oxford, OH 45056"
+  confidence: sourced
 # Sourced from the Center's own Digital Resources page: ILDA dictionary and
 # app, the Miami-Illinois Digital Archive, and the Šaapohkaayoni portal.
 # NOT tts: nothing on the Center's own materials read on 2026-09-03 describes

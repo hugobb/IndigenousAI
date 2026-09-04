@@ -18,6 +18,7 @@ site:
     ref: https://tehiku.nz/about/
     retrieved: "2026-09-03"
     quote: "1 Melba Street, Level 2, Kaitaia 0410"
+  confidence: sourced
 applications: [asr, tts]
 methods: []
 models: [PiperTTS]

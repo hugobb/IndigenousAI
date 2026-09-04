@@ -24,6 +24,7 @@ site:
     ref: https://americasnlp.org/
     retrieved: "2026-09-03"
     quote: "katharina.kann@colorado.edu — University of Colorado"
+  confidence: approximate
 applications: [mt, evaluation, education]
 methods: []
 models: []
