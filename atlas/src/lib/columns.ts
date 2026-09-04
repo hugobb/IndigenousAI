@@ -154,3 +154,45 @@ export function columnIds(view: ViewId): string[] {
   if (view === 'languages') return LANGUAGE_COLUMNS.map((c) => c.id)
   return []
 }
+
+/** Sorting obeys three rules, each with its own guard in tests/sort.test.ts:
+ *  nulls last in BOTH directions, enumerated columns by vocabulary order
+ *  (declared on each column's `sortValue`), and ties broken by name so the
+ *  order is total. The third is what makes a `?sort=` URL reproducible on
+ *  someone else's machine. */
+export function sortRows<T>(
+  rows: T[],
+  columns: Column<T>[],
+  sort: SortState | null,
+  ctx: TableContext,
+): T[] {
+  const nameColumn = columns.find((c) => c.id === 'name')
+  const nameOf = (r: T): string => {
+    if (nameColumn === undefined) return ''
+    const cell = nameColumn.cell(r, ctx)
+    return cell.kind === 'text' ? (cell.value ?? '') : ''
+  }
+
+  const active = sort === null ? undefined : columns.find((c) => c.id === sort.column)
+  const sortValue = active?.sortValue
+  const dir = sort?.direction === 'desc' ? -1 : 1
+
+  return [...rows].sort((a, b) => {
+    if (sortValue !== undefined) {
+      const av = sortValue(a, ctx)
+      const bv = sortValue(b, ctx)
+      // `dir` is deliberately NOT applied to these two lines: absence is not a
+      // value at one end of the range, so it sits at the bottom either way.
+      if (av === null && bv !== null) return 1
+      if (bv === null && av !== null) return -1
+      if (typeof av === 'number' && typeof bv === 'number' && av !== bv) {
+        return (av - bv) * dir
+      }
+      if (typeof av === 'string' && typeof bv === 'string') {
+        const c = av.localeCompare(bv)
+        if (c !== 0) return c * dir
+      }
+    }
+    return nameOf(a).localeCompare(nameOf(b))
+  })
+}
