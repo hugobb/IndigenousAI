@@ -56,7 +56,7 @@ describe('page chrome', () => {
 const CSS = read('../src/styles.css')
 
 /** The declaration block of a top-level rule (`^` anchored, so `.atlas` does
- *  not also match `.atlas__map`). */
+ *  not also match `.atlas__pane`). */
 function ruleBody(css: string, selector: string): string {
   const m = new RegExp(`^\\${selector}\\s*\\{([^}]*)\\}`, 'm').exec(css)
   if (m?.[1] === undefined) throw new Error(`no rule for ${selector}`)
@@ -94,17 +94,17 @@ describe('grid placement', () => {
     }
   })
 
-  it('puts the rail and the map together in the row after the notice, in both layouts', () => {
-    // The rail and the map share the last row; the masthead and the notice each
+  it('puts the rail and the pane together in the row after the notice, in both layouts', () => {
+    // The rail and the pane share the last row; the masthead and the notice each
     // own a row above it. If the notice's row is ever merged away, an absent
     // notice starts moving the panes again.
     const wide = areaRows(ruleBody(CSS, '.atlas'))
     expect(wide.map((r) => [...new Set(r)].join('+')))
-      .toEqual(['masthead', 'notice', 'timeline', 'rail+map'])
+      .toEqual(['masthead', 'notice', 'timeline', 'rail+pane'])
 
     // The narrow layout stacks them, but must place them just as explicitly.
     const narrow = areaRows(ruleBody(MEDIA.replace(/^\s+/gm, ''), '.atlas'))
-    expect(narrow.map((r) => r.join('+'))).toEqual(['masthead', 'notice', 'timeline', 'map', 'rail'])
+    expect(narrow.map((r) => r.join('+'))).toEqual(['masthead', 'notice', 'timeline', 'pane', 'rail'])
   })
 
   // The two below are SOURCE-TEXT assertions on the stylesheet, and nothing

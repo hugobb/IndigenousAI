@@ -66,7 +66,7 @@ a { color: var(--accent-ink); }
     'masthead masthead'
     'notice   notice'
     'timeline timeline'
-    'rail     map';
+    'rail     pane';
   height: 100dvh;
 }
 
@@ -90,13 +90,31 @@ a { color: var(--accent-ink); }
   gap: var(--gutter);
 }
 
-.atlas__map {
-  grid-area: map;
+/* The pane is a column: a fixed switch above a scrolling body. `min-height: 0`
+ * on both the pane and the scroller (`.table-wrap`) is what lets the body
+ * shrink inside the grid row — without it a flex child refuses to go below
+ * its content height and the table pushes the page into a horizontal scroll. */
+.atlas__pane {
+  grid-area: pane;
   min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   position: relative;        /* … the map pane does not scroll at all */
   overflow: hidden;
   background: #eceae6;
 }
+
+.view-switch { display: flex; gap: 0.25rem; padding: 0.5rem; border-bottom: 1px solid var(--rule); }
+.view-switch button[aria-pressed='true'] { font-weight: 600; }
+
+.table-wrap { flex: 1 1 auto; min-height: 0; overflow: auto; background: var(--paper); }
+.data-table { border-collapse: collapse; width: 100%; font-size: 0.875rem; }
+.data-table caption { text-align: left; padding: 0.5rem; color: var(--muted); }
+.data-table th { position: sticky; top: 0; background: var(--panel); text-align: left; }
+.data-table th, .data-table td { padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.cell__sub { display: block; color: var(--muted); }
+.data-table tr.is-selected { background: var(--notice-bg); }
 
 /* The MapLibre container. Relative to its pane, filling it — never fixed. */
 .atlas__canvas {
@@ -554,13 +572,13 @@ a { color: var(--accent-ink); }
       'masthead'
       'notice'
       'timeline'
-      'map'
+      'pane'
       'rail';
     height: auto;
     min-height: 100dvh;
   }
 
-  .atlas__map {
+  .atlas__pane {
     height: min(60vh, 30rem);
     border-bottom: 1px solid var(--rule);
   }

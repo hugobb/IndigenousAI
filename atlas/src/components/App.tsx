@@ -10,6 +10,8 @@ import InitiativePanel from './InitiativePanel.js'
 import UnmappedList from './UnmappedList.js'
 import FacetPanel from './FacetPanel.js'
 import Timeline from './Timeline.js'
+import TableView from './TableView.js'
+import ViewSwitch from './ViewSwitch.js'
 
 export default function App(): React.JSX.Element {
   const bundle = useMemo(() => loadBundle(), [])
@@ -101,14 +103,40 @@ export default function App(): React.JSX.Element {
         {initiative !== null && <InitiativePanel initiative={initiative} methods={bundle.methods} />}
       </div>
 
-      <div className="atlas__map">
-        <MapView
-          languages={languageFields(selection.languages)}
-          initiatives={initiativeSites(selection.initiatives)}
-          selectedLanguageId={state.lang}
-          onSelectLanguage={(id) => dispatch({ type: 'selectLanguage', id })}
-          onSelectInitiative={(id) => dispatch({ type: 'selectInitiative', id })}
+      <div className="atlas__pane">
+        <ViewSwitch
+          view={state.view}
+          counts={{
+            initiatives: selection.initiatives.length,
+            languages: selection.languages.length + selection.filteredOut.length,
+          }}
+          onChange={(view) => dispatch({ type: 'setView', view })}
         />
+        {state.view === 'map' ? (
+          <MapView
+            languages={languageFields(selection.languages)}
+            initiatives={initiativeSites(selection.initiatives)}
+            selectedLanguageId={state.lang}
+            onSelectLanguage={(id) => dispatch({ type: 'selectLanguage', id })}
+            onSelectInitiative={(id) => dispatch({ type: 'selectInitiative', id })}
+          />
+        ) : (
+          <TableView
+            view={state.view}
+            selection={selection}
+            bundle={bundle}
+            sort={state.sort}
+            onSort={(sort) => dispatch({ type: 'setSort', sort })}
+            selectedId={state.view === 'languages' ? state.lang : state.init}
+            onSelect={(id) =>
+              dispatch(
+                state.view === 'languages'
+                  ? { type: 'selectLanguage', id }
+                  : { type: 'selectInitiative', id },
+              )
+            }
+          />
+        )}
       </div>
     </main>
   )
