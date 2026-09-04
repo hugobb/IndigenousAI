@@ -49,7 +49,10 @@ export function parseFilters(search: string): FilterState {
 
   for (const k of ['from', 'to'] as const) {
     const raw = p.get(k)
-    if (raw === null) continue
+    // Reject '' explicitly: Number('') is 0, and Number.isInteger(0) is true,
+    // so an empty value would otherwise slip past the integer check and yield
+    // year zero instead of being dropped like any other bad year.
+    if (raw === null || raw === '') continue
     const n = Number(raw)
     // A bad year is dropped, not coerced: NaN would silently empty the map.
     if (Number.isInteger(n)) state[k] = n

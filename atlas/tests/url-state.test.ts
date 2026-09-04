@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
+import { fileURLToPath } from 'node:url'
 import { EMPTY_FILTERS, parseFilters, toSearch } from '../src/lib/url-state.js'
 import { INITIATIVE_FACETS, LANGUAGE_FACETS, VOCAB_FOR } from '../src/lib/facets.js'
+import { loadLanguages } from '../scripts/lib/load-records.js'
 import methods from '../data/derived/methods.json'
+
+const LANGUAGES_DIR = fileURLToPath(new URL('../data/languages', import.meta.url))
 
 describe('the URL contract', () => {
   // Hardcoded ON PURPOSE. Deriving these from FilterState would make the test a
@@ -57,6 +61,14 @@ describe('the URL contract', () => {
     expect(parseFilters('?from=banana&to=2020')).toEqual({ ...EMPTY_FILTERS, from: null, to: 2020 })
   })
 
+  it('ignores an empty year rather than producing year zero', () => {
+    // Number('') is 0, and Number.isInteger(0) is true — an empty value must be
+    // rejected explicitly, or a bad year silently becomes year zero instead of
+    // being dropped.
+    expect(parseFilters('?from=&to=2020')).toEqual({ ...EMPTY_FILTERS, from: null, to: 2020 })
+    expect(parseFilters('?from=2000&to=')).toEqual({ ...EMPTY_FILTERS, from: 2000, to: null })
+  })
+
   it('emits keys in a stable order, so one state always yields one URL', () => {
     const a = toSearch({ ...EMPTY_FILTERS, region: ['africa'], application: ['asr'] })
     const b = toSearch({ ...EMPTY_FILTERS, application: ['asr'], region: ['africa'] })
@@ -70,6 +82,17 @@ describe('the URL contract', () => {
       for (const v of values ?? []) expect(v).not.toContain(',')
     }
     for (const m of methods as { id: string }[]) expect(m.id).not.toContain(',')
+    // `family` is the other data-derived facet: free text in the curated YAML,
+    // with no derived JSON and no schema constraint. Deliberately NOT enforced
+    // at the schema level — a regex banning commas in `family` would constrain
+    // what a curator may record about a language in order to suit a URL
+    // encoding, and the data is the artifact here, not the URL. This assertion
+    // exists so a future family value with a comma in it fails LOUDLY, here,
+    // rather than silently corrupting every URL that carries it — leaving a
+    // human to rename the value or change the encoding.
+    for (const l of loadLanguages(LANGUAGES_DIR)) {
+      if (l.family !== null) expect(l.family).not.toContain(',')
+    }
   })
 
   it('names every facet in the registry as a key', () => {
