@@ -38,4 +38,10 @@ describe('App', () => {
     expect(banner.textContent).toMatch(/invented/i)
     expect(banner.textContent).toMatch(/not research data/i)
   })
+
+  it('shows the data snapshot so a cited view can name it', () => {
+    window.history.replaceState({}, '', '/')
+    render(<App />)
+    expect(screen.getByTestId('data-version').textContent).toMatch(/Data snapshot:/)
+  })
 })

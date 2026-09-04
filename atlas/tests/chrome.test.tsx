@@ -99,11 +99,12 @@ describe('grid placement', () => {
     // own a row above it. If the notice's row is ever merged away, an absent
     // notice starts moving the panes again.
     const wide = areaRows(ruleBody(CSS, '.atlas'))
-    expect(wide.map((r) => [...new Set(r)].join('+'))).toEqual(['masthead', 'notice', 'rail+map'])
+    expect(wide.map((r) => [...new Set(r)].join('+')))
+      .toEqual(['masthead', 'notice', 'timeline', 'rail+map'])
 
     // The narrow layout stacks them, but must place them just as explicitly.
     const narrow = areaRows(ruleBody(MEDIA.replace(/^\s+/gm, ''), '.atlas'))
-    expect(narrow.map((r) => r.join('+'))).toEqual(['masthead', 'notice', 'map', 'rail'])
+    expect(narrow.map((r) => r.join('+'))).toEqual(['masthead', 'notice', 'timeline', 'map', 'rail'])
   })
 
   it('names an area for each child in the template, and no template area without a child', () => {

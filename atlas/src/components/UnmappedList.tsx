@@ -5,8 +5,12 @@ import { unmappedLanguages } from '../map/layers.js'
  *  no centre is simply invisible and a reader cannot tell "we found nothing"
  *  from "there is nothing". */
 export default function UnmappedList({
-  languages, onSelect,
-}: { languages: Language[]; onSelect: (id: string) => void }): React.JSX.Element {
+  languages, filteredOut, onSelect,
+}: {
+  languages: Language[]
+  filteredOut: Language[]
+  onSelect: (id: string) => void
+}): React.JSX.Element {
   const { notMapped, approximate } = unmappedLanguages(languages)
   return (
     <section className="card unmapped" aria-label="Languages the map cannot show faithfully">
@@ -37,6 +41,24 @@ export default function UnmappedList({
           ))}
         </ul>
       </div>
+      {filteredOut.length > 0 && (
+        <div data-testid="group-filtered-out">
+          <h3>Matches your filters, but no matching work ({filteredOut.length})</h3>
+          <p className="hint">
+            These languages match your language filters. No initiative in the current
+            selection works on them — which is a finding, not an empty result.
+          </p>
+          <ul>
+            {filteredOut.map((l) => (
+              <li key={l.id}>
+                <button type="button" className="link-button" onClick={() => onSelect(l.id)}>
+                  {l.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   )
 }

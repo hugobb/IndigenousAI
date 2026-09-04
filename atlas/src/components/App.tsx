@@ -1,31 +1,30 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { loadBundle } from '../lib/load.js'
+import { applyFilters, facetSummaries, yearRange } from '../lib/filters.js'
+import { useFilters } from '../state/useFilters.js'
 import { initiativeSites, languageFields } from '../map/layers.js'
 import MapView from './MapView.js'
 import LanguagePanel from './LanguagePanel.js'
 import InitiativePanel from './InitiativePanel.js'
 import UnmappedList from './UnmappedList.js'
+import FacetPanel from './FacetPanel.js'
+import Timeline from './Timeline.js'
 
 export default function App(): React.JSX.Element {
   const bundle = useMemo(() => loadBundle(), [])
-  const [languageId, setLanguageId] = useState<string | null>(null)
-  const [initiativeId, setInitiativeId] = useState<string | null>(null)
+  const { state, dispatch } = useFilters()
 
-  const language = bundle.languages.find((l) => l.id === languageId) ?? null
-  const initiative = bundle.initiatives.find((i) => i.id === initiativeId) ?? null
+  const selection = useMemo(() => applyFilters(bundle, state), [bundle, state])
+  const summaries = useMemo(() => facetSummaries(bundle, state), [bundle, state])
+  const years = useMemo(() => yearRange(bundle), [bundle])
 
-  // One selection at a time, and the SAME handler for both ways in. The
-  // unmapped list used to call `setLanguageId` bare, which left a stale
-  // initiative panel open beside the new language panel — two records
-  // presented as one reading.
-  const selectLanguage = (id: string | null): void => {
-    setLanguageId(id)
-    setInitiativeId(null)
-  }
-  const selectInitiative = (id: string | null): void => {
-    setInitiativeId(id)
-    setLanguageId(null)
-  }
+  const language = selection.languages.find((l) => l.id === state.lang)
+    ?? selection.filteredOut.find((l) => l.id === state.lang)
+    ?? null
+  const initiative = selection.initiatives.find((i) => i.id === state.init) ?? null
+
+  const activeCount = summaries.reduce((n, s) => n + s.selected.length, 0)
+  const nothingMatched = selection.languages.length === 0 && selection.initiatives.length === 0
 
   return (
     <main className="atlas">
@@ -34,6 +33,9 @@ export default function App(): React.JSX.Element {
         <p className="atlas__standfirst">
           Companion map to the review. Each point is a single approximate location, never a
           territory or a boundary.
+        </p>
+        <p className="atlas__generated" data-testid="data-version">
+          Data snapshot: {bundle.generated}
         </p>
       </header>
 
@@ -46,12 +48,37 @@ export default function App(): React.JSX.Element {
         </p>
       )}
 
+      <div className="atlas__timeline">
+        {years !== null && (
+          <Timeline
+            min={years.min} max={years.max} from={state.from} to={state.to}
+            undatedCount={selection.undatedInitiatives}
+            onChange={(from, to) => dispatch({ type: 'setRange', from, to })}
+          />
+        )}
+      </div>
+
       <div className="atlas__rail">
-        <UnmappedList languages={bundle.languages} onSelect={selectLanguage} />
+        <FacetPanel
+          summaries={summaries}
+          activeCount={activeCount}
+          onToggle={(facet, value) => dispatch({ type: 'toggle', facet, value })}
+          onClearAll={() => dispatch({ type: 'clearAll' })}
+        />
+        {nothingMatched && (
+          <p className="card empty" data-testid="empty-result">
+            Nothing matches the current filters.
+          </p>
+        )}
+        <UnmappedList
+          languages={selection.languages}
+          filteredOut={selection.filteredOut}
+          onSelect={(id) => dispatch({ type: 'selectLanguage', id })}
+        />
         {language !== null && (
           <LanguagePanel
             language={language}
-            initiatives={bundle.initiatives.filter((i) => i.languages.includes(language.id))}
+            initiatives={selection.initiatives.filter((i) => i.languages.includes(language.id))}
           />
         )}
         {initiative !== null && <InitiativePanel initiative={initiative} methods={bundle.methods} />}
@@ -59,11 +86,11 @@ export default function App(): React.JSX.Element {
 
       <div className="atlas__map">
         <MapView
-          languages={languageFields(bundle.languages)}
-          initiatives={initiativeSites(bundle.initiatives)}
-          selectedLanguageId={languageId}
-          onSelectLanguage={selectLanguage}
-          onSelectInitiative={selectInitiative}
+          languages={languageFields(selection.languages)}
+          initiatives={initiativeSites(selection.initiatives)}
+          selectedLanguageId={state.lang}
+          onSelectLanguage={(id) => dispatch({ type: 'selectLanguage', id })}
+          onSelectInitiative={(id) => dispatch({ type: 'selectInitiative', id })}
         />
       </div>
     </main>
