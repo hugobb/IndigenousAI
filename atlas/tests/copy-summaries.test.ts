@@ -1,6 +1,7 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { copySummaries, summaryRoute } from '../scripts/copy-summaries.js'
 
@@ -68,5 +69,56 @@ describe('copySummaries', () => {
   it('throws rather than copy nothing', () => {
     mkdirSync(src(), { recursive: true })
     expect(() => copySummaries(src(), dst())).toThrow(/no summaries/i)
+  })
+})
+
+/** The index is GENERATED PROSE on a published page — the page every paper
+ *  citation in the atlas routes a reader through — and nothing regenerates it
+ *  against the facts. It shipped two claims that were simply false:
+ *
+ *    "Each is cited from the atlas"      — 2 of 92 papers are named by any
+ *                                          initiative record; the other four
+ *                                          initiatives carry `papers: []`
+ *    "each links to its own source"      — 77 of 92 summaries contain no URL
+ *
+ *  No test read that sentence, and `check-links` cannot: it walks routes, not
+ *  prose. So this file holds both halves — the claim the index DOES make is
+ *  true of all 92 real sources, and the two it must not make stay gone. */
+describe('the claims the generated index makes', () => {
+  const claim = (): string => {
+    give('a-paper')
+    copySummaries(src(), dst())
+    return readFileSync(join(dst(), 'index.md'), 'utf8')
+  }
+
+  /** Written as shapes with a reason each, not as one grep for the old
+   *  sentence: what must not come back is the CLASS of claim — an assertion
+   *  about how these files relate to something outside this directory, which
+   *  the generator cannot see and nothing downstream checks. */
+  const FORBIDDEN = [
+    { shape: /cited from the atlas/i, why: 'only 2 of 92 papers are named by any initiative' },
+    { shape: /links? to (its|their) own source/i, why: '77 of 92 summaries carry no URL' },
+    { shape: /\beach links\b/i, why: 'nothing requires a summary to link anywhere' },
+  ]
+
+  for (const { shape, why } of FORBIDDEN) {
+    it(`makes no claim matching ${shape} — ${why}`, () => {
+      expect(claim()).not.toMatch(shape)
+    })
+  }
+
+  // The claim it does make, checked against the real corpus rather than a
+  // fixture: a fixture would only prove the sentence is grammatical.
+  it('is true of all 92 real summaries: each has authors+year+venue, or a citation line', () => {
+    const dir = fileURLToPath(new URL('../../litterature_review/summaries', import.meta.url))
+    const files = readdirSync(dir).filter((f) => f.endsWith('.md'))
+    expect(files.length).toBeGreaterThan(0)
+    const missing = files.filter((f) => {
+      const head = readFileSync(join(dir, f), 'utf8').split(/^---$/m)[0] ?? ''
+      const three = ['Authors', 'Year', 'Venue'].every((k) =>
+        new RegExp(`^\\*\\*${k}:\\*\\*\\s*\\S`, 'm').test(head))
+      return !(three || /^\*\*Citation:\*\*\s*\S/m.test(head))
+    })
+    expect(missing).toEqual([])
   })
 })

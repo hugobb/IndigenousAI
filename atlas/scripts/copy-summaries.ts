@@ -47,11 +47,21 @@ export function copySummaries(from: string, to: string): string[] {
     rows.push(`- [${titleOf(body, id)}](${id}.md)`)
   }
 
+  // GENERATED PROSE ON A PUBLISHED PAGE, and nothing regenerates it against the
+  // facts — so it may only say what is measurable from the directory it
+  // describes. The version this replaces said "Each is cited from the atlas,
+  // and each links to its own source". Both were false and both shipped:
+  // 2 of 92 papers are named by any initiative record, and 77 of 92 summaries
+  // contain no URL at all. The count below is the one number safe to state,
+  // because it is `ids.length` rather than a number somebody typed.
+  // `tests/copy-summaries.test.ts` holds both halves: that the bibliographic
+  // claim is true of all 92 sources, and that these two claims stay gone.
   writeFileSync(
     join(to, 'index.md'),
     '# Paper summaries\n\n' +
       `Structured summaries of the ${ids.length} papers behind this guide and the ` +
-      'atlas. Each is cited from the atlas, and each links to its own source.\n\n' +
+      "atlas. Each opens with the paper's own bibliographic details — authors, " +
+      'year and venue, or a full citation line.\n\n' +
       'These are reference material rather than a reading path, which is why they ' +
       'appear here as one list instead of in the sidebar.\n\n' +
       rows.join('\n') + '\n',
