@@ -30,6 +30,15 @@ export default function App(): React.JSX.Element {
   const languageInSelection = selection.languages.some((l) => l.id === state.lang)
   const initiativeInSelection = selection.initiatives.some((i) => i.id === state.init)
 
+  // `selection.workFiltered` alone under-reports whether a filter could
+  // explain an empty work list on the LanguagePanel: a language a facet has
+  // excluded from L1 can still name a real initiative, one the
+  // language-intersection clause in `applyFilters` then drops from
+  // `selection.initiatives` with no work filter active at all (fix round 2 —
+  // this was a false "no work exists" claim on a language whose work a
+  // region/typology/etc. filter, not the atlas, was hiding).
+  const languagePanelFiltered = selection.workFiltered || !languageInSelection
+
   const outside: 'language' | 'initiative' | null =
     language !== null && !languageInSelection ? 'language'
     : initiative !== null && !initiativeInSelection ? 'initiative'
@@ -133,7 +142,7 @@ export default function App(): React.JSX.Element {
           <LanguagePanel
             language={language}
             initiatives={selection.initiatives.filter((i) => i.languages.includes(language.id))}
-            workFiltered={selection.workFiltered}
+            filtered={languagePanelFiltered}
           />
         )}
         {initiative !== null && <InitiativePanel initiative={initiative} methods={bundle.methods} />}

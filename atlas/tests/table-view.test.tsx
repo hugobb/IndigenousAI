@@ -53,12 +53,45 @@ describe('TableView', () => {
 
   // A bare "0" invites the reading "no work exists". The caption is the only
   // place that difference can be stated, and it is in the same DOM as the rows.
-  it('states the scope of the matching-work count in the caption', () => {
+  //
+  // Fix round 2: this test used to assert the WORK-FILTERED wording
+  // (/every current filter/, /not.*no work/) against `view('languages')`,
+  // whose module-level `selection` is built from `EMPTY_FILTERS` — zero
+  // filters, `workFiltered: false`. That locked in the wrong branch: with no
+  // work filter active, `workCount` is scoped to every initiative in the
+  // atlas, so 0 there really DOES mean no work exists, and the caption must
+  // say so rather than deny it. Re-pointed at the branch this call actually
+  // renders; the other branch gets its own test below. Change of intent, not
+  // a relaxation — the previous assertion was simply asserting the wrong
+  // fact for this URL.
+  it('states the scope of the matching-work count in the caption when no work filter is active', () => {
     view('languages')
+    const caption = screen.getByTestId('table-caption').textContent ?? ''
+    expect(caption).toMatch(/matching work/i)
+    expect(caption).toMatch(/every initiative in the atlas/i)
+    expect(caption).not.toMatch(/every current filter/i)
+    expect(caption).not.toMatch(/not.*no work/i)
+  })
+
+  // The state the old assertion actually described: a work filter narrows
+  // `workCount`, so 0 there is a filter result, not a dataset fact — the
+  // caption must deny "no work exists" in exactly this case.
+  it('states the scope of the matching-work count in the caption when a work filter is active', () => {
+    render(
+      <TableView
+        view="languages"
+        selection={{
+          languages: selection.languages, initiatives: [], noMatchingWork: selection.languages,
+          undatedInitiatives: 0, workFiltered: true,
+        }}
+        bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
+      />,
+    )
     const caption = screen.getByTestId('table-caption').textContent ?? ''
     expect(caption).toMatch(/matching work/i)
     expect(caption).toMatch(/every current filter/i)
     expect(caption).toMatch(/not.*no work/i)
+    expect(caption).not.toMatch(/every initiative in the atlas/i)
   })
 
   it('explains the conflict dagger in the caption', () => {

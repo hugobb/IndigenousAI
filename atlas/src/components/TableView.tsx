@@ -38,6 +38,19 @@ function noWorkButLanguagesCopy(workFiltered: boolean): string {
     : 'This table has no rows because the atlas records no initiative for any of these languages — not because a filter narrowed anything. They are listed in the Languages view and in the rail.'
 }
 
+// Fix round 2: a sixth surface, found by an independent reviewer while
+// checking the first five. With no work filter active, `workCount` is
+// scoped to I1 = every initiative in the atlas, so 0 there IS "no work
+// exists" — the opposite of what this caption's second sentence used to say
+// unconditionally, right beside a rail that (at the same URL) already says
+// exactly that. Same signal as the rest of this file.
+function languagesCaption(rowCount: number, workFiltered: boolean): string {
+  const matchingWork = workFiltered
+    ? '“Matching work” counts initiatives surviving every current filter, so 0 means no matching work — not that no work exists.'
+    : '“Matching work” counts every initiative in the atlas, with no filter narrowing it, so 0 here means the atlas records none for this language.'
+  return `Languages matching the current language filters (${rowCount}). ${matchingWork} † marks a speaker count sources disagree about.`
+}
+
 export default function TableView({
   view, selection, bundle, sort, onSort, selectedId, onSelect,
 }: {
@@ -91,7 +104,7 @@ export default function TableView({
   const rows: Language[] = selection.languages
   return (
     <DataTable<Language>
-      caption={`Languages matching the current language filters (${rows.length}). “Matching work” counts initiatives surviving every current filter, so 0 means no matching work — not that no work exists. † marks a speaker count sources disagree about.`}
+      caption={languagesCaption(rows.length, selection.workFiltered)}
       columns={LANGUAGE_COLUMNS} rows={rows} sort={sort} onSort={onSort}
       selectedId={selectedId} onSelect={onSelect} ctx={ctx} emptyMessage={empty}
     />

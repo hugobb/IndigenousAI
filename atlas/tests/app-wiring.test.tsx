@@ -162,6 +162,99 @@ describe('the rail under a filter that finds no work', () => {
   })
 })
 
+// Fix round 2: a reviewer substituted `workFiltered`/`filtered` per call site
+// and per direction (not the fix-round-1 blanket `sed` across the whole of
+// `App.tsx`, which only proved SOME site was guarded) and found six of eight
+// left the full suite green — including hardcoding the rail's own heading to
+// the pre-Task-2 wording with zero filters set, the exact regression this
+// task exists to prevent. Every test below is driven through real URL state
+// via the real `App`, not a hand-built `Selection`, so it fails if the
+// underlying `workFiltered`/`filtered` read is ever replaced by either
+// constant. Two tests per surface (both directions); see the report for the
+// full before/after substitution table.
+describe('fix round 2: every workFiltered-driven surface, both directions', () => {
+  // --- rail group heading (UnmappedList) ---
+
+  it('rail group: dataset finding when no work filter is active', () => {
+    at('/')
+    const group = screen.getByTestId('group-no-matching-work').textContent ?? ''
+    expect(group).toMatch(/no work in the atlas/i)
+    expect(group).not.toMatch(/matches your filters, but no matching work/i)
+  })
+
+  it('rail group: filter result when a work filter is active', () => {
+    at('/?application=asr')
+    const group = screen.getByTestId('group-no-matching-work').textContent ?? ''
+    expect(group).toMatch(/matches your filters, but no matching work/i)
+    expect(group).not.toMatch(/no work in the atlas/i)
+  })
+
+  // --- rail empty-state banner (App's own ternary) ---
+
+  // `region=_none` (the NOT-RECORDED sentinel) selects fixture-approximate
+  // alone — the only language with no recorded region — which has zero
+  // initiatives anywhere, so this reaches `no-work-but-languages` with
+  // `workFiltered: false`. `/` cannot: at `/` the OVERALL selection still has
+  // matching work (three other languages have initiatives), so the banner
+  // — unlike the rail group — never renders there at all.
+  it('rail banner: dataset finding when no work filter is active', () => {
+    at('/?region=_none')
+    const said = screen.getByTestId('no-matching-work').textContent ?? ''
+    expect(said).toMatch(/no initiative in this atlas works/i)
+    expect(said).not.toMatch(/no initiative matches the current filters/i)
+  })
+
+  it('rail banner: filter result when a work filter is active', () => {
+    at('/?region=africa&application=asr')
+    const said = screen.getByTestId('no-matching-work').textContent ?? ''
+    expect(said).toMatch(/no initiative matches the current filters/i)
+    expect(said).not.toMatch(/no initiative in this atlas works/i)
+  })
+
+  // --- LanguagePanel "Matching initiatives" field ---
+
+  it('language panel: dataset finding when nothing filtered this language at all', () => {
+    at('/?lang=fixture-approximate')
+    const row = screen.getByTestId('field-initiatives').textContent ?? ''
+    expect(row).toMatch(/atlas records/i)
+    expect(row).not.toMatch(/no work exists/i)
+  })
+
+  // Finding #1's regression, reproduced directly: fixture-adjacent IS named
+  // by a real initiative (fixture-adjacent-init), but `region=north-america`
+  // excludes the language itself from L1 — and `applyFilters`'s
+  // language-intersection clause then drops that initiative from
+  // `selection.initiatives` too, with NO work filter active
+  // (`workFiltered: false`). `workFiltered` alone would call this a dataset
+  // gap; it is a language-filter result, and `languagePanelFiltered` in
+  // `App` (`workFiltered || !languageInSelection`) is what tells the panel
+  // so. (The route to this same `true` branch via an actual WORK filter is
+  // covered by the "tells the language panel a work filter is active" test
+  // above, at `?application=asr&lang=fixture-approximate`.)
+  it('language panel: filter result when a LANGUAGE filter — not a work filter — hid this language\'s real work', () => {
+    at('/?region=north-america&lang=fixture-adjacent')
+    const row = screen.getByTestId('field-initiatives').textContent ?? ''
+    expect(row).toMatch(/no work exists/i)
+    expect(row).not.toMatch(/atlas records/i)
+  })
+
+  // --- TableView's empty-initiatives-table message ---
+
+  it('table empty message: dataset finding when no work filter is active', () => {
+    at('/?region=_none&view=initiatives')
+    const text = screen.getByTestId('table-empty').textContent ?? ''
+    expect(text).toMatch(/records no initiative/i)
+    expect(text).not.toMatch(/no initiative matches the current filters/i)
+  })
+
+  it('table empty message: filter result when a work filter is active', () => {
+    at('/?region=africa&application=asr&view=initiatives')
+    const text = screen.getByTestId('table-empty').textContent ?? ''
+    expect(text).toMatch(/no initiative matches the current filters/i)
+    expect(text).not.toMatch(/records no initiative/i)
+  })
+})
+
 describe('the timeline as a filter', () => {
   // It filters in `applyFilters` and occupies two URL keys, so a reader who has
   // constrained only the date has one filter on — and needs the one control

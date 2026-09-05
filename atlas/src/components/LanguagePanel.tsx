@@ -2,16 +2,23 @@ import type { Initiative, Language } from '../schema/index.js'
 import Field from './Field.js'
 
 export default function LanguagePanel({
-  language, initiatives, workFiltered,
+  language, initiatives, filtered,
 }: {
   language: Language
   initiatives: Initiative[]
-  /** `selection.workFiltered` from the caller. An empty `initiatives` list
-   *  here is a filter result only when a work filter is active — with none
-   *  active it is the same dataset fact the rail and the table state for
-   *  this language, and the two claims must not share one sentence (fix
-   *  round 1, found while auditing TableView for the same defect). */
-  workFiltered: boolean
+  /** Whether SOME active filter could plausibly explain an empty
+   *  `initiatives` list here — not `selection.workFiltered` alone (fix round
+   *  2: that under-reported it). `App` looks `language` up in the BUNDLE, so
+   *  a language a facet excludes from L1 can still have real initiatives —
+   *  ones the language-intersection clause in `applyFilters` then drops from
+   *  `selection.initiatives` too, with no work filter in sight. The caller
+   *  passes `workFiltered || !languageInSelection`: an L1 language's own
+   *  initiatives can only ever be narrowed by a WORK filter, because the
+   *  intersection clause is satisfied trivially by the language's own id
+   *  once it is in L1 — so `workFiltered` alone is exactly right there, and
+   *  the `!languageInSelection` term only ever adds true for a language a
+   *  facet has already excluded. */
+  filtered: boolean
 }): React.JSX.Element {
   const s = language.speakers
   return (
@@ -60,7 +67,7 @@ export default function LanguagePanel({
         <Field label="Matching initiatives" testId="field-initiatives">
           {initiatives.length === 0 ? (
             <span className="hint">
-              {workFiltered
+              {filtered
                 ? 'None matching the current filters — not a claim that no work exists.'
                 : 'The atlas records no initiative for this language — not a result of the current filters.'}
             </span>
