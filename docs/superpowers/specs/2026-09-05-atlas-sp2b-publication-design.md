@@ -47,6 +47,12 @@ The build runs `mkdocs build` into `docs/site/`, then `vite build` into
 `atlas/dist/`, then copies that to `docs/site/atlas/`. Vercel's output directory
 is `docs/site`. The atlas gets `base: '/atlas/'` in `vite.config.ts`.
 
+`base` changes every asset URL the app emits, so the existing 9-test Playwright
+harness — which drives `vite dev` — must be checked against it rather than assumed
+unaffected. `__ATLAS_ALLOW_FIXTURE__` still comes from Vite's `command`, so no
+build-shaped artifact can render data and the harness must keep driving the dev
+server.
+
 **Not two projects with rewrites.** Both `Method.doc_url` and the newly-live
 `summary_url` are root-relative links *from the atlas into the guide*. Under one
 origin they resolve by construction. Under two projects they resolve only while a
@@ -66,7 +72,10 @@ The same fact — `build:data` exits 1 — is handled two ways, deliberately:
   holding page at `/atlas/` and the deploy **succeeds**, so the finished guide is
   not held hostage to unrelated record review.
 - **CI does not tolerate it.** GitHub Actions runs `build:data` and **fails
-  loudly on every run** until the records are promoted.
+  loudly on every run** until the records are promoted. It runs on push to `main`
+  and on pull requests, and its other jobs — `pnpm test`, `pnpm typecheck`,
+  `pnpm test:browser`, and G1 — must run and report **independently** of the
+  data-build job, or the standing red would mask a real regression in any of them.
 
 **The holding page MUST be hand-written static HTML.** Not the app built with
 `ATLAS_ALLOW_NO_BUNDLE=1` — that flag is a compile-check escape and has never
@@ -98,6 +107,14 @@ not "never link a summary". The destination will exist.
 `docs/docs/summaries/` and generates an index page. The copies are gitignored.
 `litterature_review/` stays the source of truth and is never edited — AGENTS.md
 requires that independently.
+
+**This needs an explicit carve-out from §5, which forbids editing `docs/docs/`.**
+MkDocs resolves content only under `docs_dir`, so there is nowhere else the copies
+can land. The prohibition covers **authored** content — the curated guide and
+technique docs a human wrote. `docs/docs/summaries/` is generated, gitignored, and
+reproducible from `litterature_review/` by re-running the build; nothing is ever
+hand-edited there, and a stray manual edit is destroyed on the next build. No
+other path under `docs/docs/` may be written.
 
 **Nav: one entry, not 92.** `docs/mkdocs.yml`'s explicit nav would be swamped.
 A single "Paper summaries" entry points at the generated index; individual pages
@@ -141,7 +158,9 @@ Docusaurus-only, which is precisely why 90 artifacts were committed.
 
 ### D7. Docs hygiene
 
-`AGENTS.md:20-21` corrected to MkDocs; `docs/README.md` rewritten or removed;
+`AGENTS.md:20-21` corrected to MkDocs; `docs/README.md` **rewritten** to describe
+the MkDocs site and how to build it, not removed — something has to answer "what is
+this directory";
 `site_url` added to `docs/mkdocs.yml`; the root `README.md` gains the atlas and
 its live URL.
 
@@ -189,7 +208,8 @@ first.
   keep exiting non-zero.
 - **Never fabricate a value; never invent a destination.**
 - **Never edit `litterature_review/`, `docs/docs/`, `atlas/data/**` or
-  `atlas/src/data/**`.**
+  `atlas/src/data/**`** — with the single generated-directory carve-out stated in
+  D3 for `docs/docs/summaries/`, which is written by the build and gitignored.
 - **Native Land Digital is used nowhere.**
 - `src/lib/**` stays pure.
 - **Never run `pnpm approve-builds`** — it overwrites `atlas/pnpm-workspace.yaml`.
