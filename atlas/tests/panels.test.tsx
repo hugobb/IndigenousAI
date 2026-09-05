@@ -230,18 +230,24 @@ describe('InitiativePanel', () => {
   })
 
   // Was "does not link a paper to its unpublished summary path" until SP2b
-  // published the summaries. The premise reversed, not the rule: the rule was
-  // always "never invent a destination", and this destination now exists.
-  // Rewritten to the new correct expectation rather than relaxed — and asserted
-  // through the ACCESSIBLE NAME, which is what makes it a citation a reader can
-  // act on. The href SHAPE is pinned separately below; a link whose name were
-  // the bare route would satisfy that one and fail this.
-  it('links a paper to its published summary, under the paper title', () => {
+  // published the summaries, and "…under the paper title" until fix round 1
+  // moved the anchor off the title. The premise reversed twice; the rule never
+  // did. A linked TITLE promises the paper — DOI, arXiv and ACL Anthology all
+  // resolve that way — and this route leads to OUR summary of it, so the anchor
+  // is the trailing word and its accessible name says what it reaches. Pinned
+  // on the NAME, not the href shape: an anchor wrapped back around the title
+  // would still satisfy the href test below, and has to fail here.
+  it('links a paper to its published summary, named as the summary', () => {
     const i = bundle.initiatives.find((x) => x.papers.length > 0)!
     const p = bundle.papers.find((x) => x.id === i.papers[0])!
     render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={bundle} />)
-    const link = within(screen.getByTestId('field-papers')).getByRole('link', { name: p.title })
-    expect(link.getAttribute('href')).toBe(p.summary_url)
+    const field = screen.getByTestId('field-papers')
+    expect(within(field).getByRole('link', { name: 'summary' }).getAttribute('href'))
+      .toBe(p.summary_url)
+    // The title is on screen and is NOT a link: it names a third party's work,
+    // and an anchor on it would promise that work rather than our page about it.
+    expect(within(field).getByText(p.title).closest('a')).toBeNull()
+    expect(within(field).queryByRole('link', { name: p.title })).toBeNull()
   })
 
   // Was "names the summary path as a repository file, not as a page of this
@@ -383,9 +389,19 @@ describe('InitiativePanel', () => {
     const i = { ...bundle.initiatives[0]!, papers: [p1.id, p2.id] }
     render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={two} />)
     const field = screen.getByTestId('field-papers')
-    const links = within(field).getAllByRole('link')
-    expect(links.map((a) => a.getAttribute('href'))).toEqual([p1.summary_url, p2.summary_url])
-    expect(links.map((a) => a.textContent)).toEqual([p1.title, p2.title])
+    const items = within(field).getAllByRole('listitem')
+    expect(items).toHaveLength(2)
+    // Walked per ITEM rather than as two flat lists, because the defect is a
+    // link landing on the wrong citation: one route reused for both rows reads
+    // identically in a flat list of hrefs and is caught here.
+    for (const [n, p] of [p1, p2].entries()) {
+      const li = items[n]!
+      expect(li.textContent).toContain(p.title)
+      const links = within(li).getAllByRole('link')
+      expect(links).toHaveLength(1)
+      expect(links[0]!.getAttribute('href')).toBe(p.summary_url)
+      expect(links[0]!.textContent).toBe('summary')
+    }
   })
 
   // Was "does not caption summary paths when no paper resolved" — a caption

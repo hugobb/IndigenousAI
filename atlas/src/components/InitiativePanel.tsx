@@ -105,7 +105,18 @@ export default function InitiativePanel({
             served from this same origin, so an anchor points at a page that
             exists. The rule did not change — it was always "never invent a
             destination", and the destination now exists. An UNRESOLVED id is
-            still never a link: nothing published corresponds to it. */}
+            still never a link: nothing published corresponds to it.
+
+            The link is the trailing word "summary", NEVER the title. A title
+            is a third party's name for a third party's object, and in every
+            citation convention a reader has met — DOI, arXiv, ACL Anthology, a
+            publisher — a linked title resolves to THE PAPER. This one resolves
+            to OUR summary of it, so linking the title would misdirect before
+            the reader could tell, and would keep doing it: ten citations
+            followed is ten of our summaries and zero papers. Not the same case
+            as `Method.doc_url`, where the name we link is our own label for
+            our own page and the two are one object. The accessible name of
+            this anchor is therefore the word "summary", which is what it is. */}
         <Field label="Papers" testId="field-papers">
           {papers.length === 0 ? null : (
             <>
@@ -126,9 +137,9 @@ export default function InitiativePanel({
                       <span>{id} <em>— unresolved reference</em></span>
                     ) : (
                       <>
-                        <cite><a href={paper.summary_url}>{paper.title}</a></cite>
-                        {' · '}{paper.authors} · {paper.year}
+                        <cite>{paper.title}</cite> · {paper.authors} · {paper.year}
                         {paper.venue !== null && <> · {paper.venue}</>}
+                        {' · '}<a href={paper.summary_url}>summary</a>
                       </>
                     )}
                   </li>

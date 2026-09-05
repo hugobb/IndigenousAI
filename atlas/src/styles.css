@@ -597,15 +597,19 @@ a { color: var(--accent-ink); }
 
 /* ------------------------------------------------------------ evidence --- */
 /* The Evidence section holds two lists of destinations. Since SP2b published
- * the summaries, a paper's `summary_url` is a route on this same origin, so a
- * citation's title is an anchor exactly as `Method.doc_url` is — the chip that
- * set the old repo path apart is gone with the path it described. What still
- * distinguishes the two lists is the shape of the entry, not its clickability:
- * a `Links` row is a label and a retrieval date, a `Papers` row is a citation —
- * title in italics, then authors, year and venue — and only the title carries
- * the link, so the citation reads as a reference that happens to have a page
- * rather than as one long anchor. An UNRESOLVED id has no anchor at all and is
- * marked in `em` like every other absence in this panel. */
+ * the summaries, a paper's `summary_url` is a route on this same origin — the
+ * monospace chip that set the old repo path apart is gone with the path it
+ * described. What distinguishes the two lists is the shape of the entry: a
+ * `Links` row is a label and a retrieval date, a `Papers` row is a citation —
+ * title in italics, then authors, year and venue, then the word `summary`.
+ *
+ * The TITLE IS NOT THE LINK, and that is a substantive rule rather than a
+ * layout preference: a linked title promises the paper, and this route leads
+ * to our summary of it. Only the trailing word is an anchor, so the accessible
+ * name of the link is `summary` and the citation stays what it is — a reference
+ * this project holds, with our own page about it offered at the end of the
+ * line. An UNRESOLVED id has no anchor at all and is marked in `em` like every
+ * other absence in this panel. */
 .panel dd .citations { list-style: none; padding-left: 0; }
 .panel dd .citations > li + li { margin-top: 0.5rem; }
 .panel dd cite { font-style: italic; }
