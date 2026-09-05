@@ -47,7 +47,14 @@ fi
 # before `mkdocs build` or the site ships without them.
 ( cd "$REPO/atlas" && pnpm copy:summaries )
 
-"$VENV/bin/mkdocs" build --site-dir "$OUT" --config-file "$REPO/docs/mkdocs.yml"
+# --strict promotes MkDocs' WARNINGs to errors. Without it a nav entry or an
+# internal link MkDocs can only warn about ships green: measured, with
+# summaries/index.md missing the plain build exits 0 and the front page carries a
+# raw `.md` href that 404s. `scripts/check-links.ts` cannot cover that — it walks
+# what the BUNDLE cites, and guide-internal links are not in the bundle. The tree
+# builds warning-clean today, so this costs nothing; the `- Atlas: /atlas/` nav
+# entry logs at INFO, which --strict does not promote.
+"$VENV/bin/mkdocs" build --strict --site-dir "$OUT" --config-file "$REPO/docs/mkdocs.yml"
 
 cd "$REPO/atlas"
 
