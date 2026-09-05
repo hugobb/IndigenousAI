@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
+    "test:site": "vitest run --config vitest.site.config.ts",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "extract:methods": "tsx scripts/extract-methods.ts",
