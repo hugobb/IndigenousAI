@@ -105,6 +105,23 @@ describe('what App actually wires up', () => {
     expect(window.location.search).toBe('?application=mt')
   })
 
+  // MUTATION: `bundle={{ ...bundle, papers: [], languages: [] }}` on the
+  // InitiativePanel. Found by running exactly that: it left all 458 tests
+  // green. `InitiativePanel`'s own tests build a bundle and hand it to the
+  // component directly, so they prove the RESOLUTION works and say nothing
+  // about whether App ever passes the real records to resolve against — a
+  // substituted bundle degrades every paper to "unresolved reference" and
+  // every language to its raw id, on the deployed page, silently. This is
+  // that prop's only guard.
+  it('gives the initiative panel the real bundle to resolve against, not a hollowed-out one', () => {
+    const i = bundle.initiatives.find((x) => x.papers.length > 0)!
+    at(`/?init=${i.id}`)
+    const paper = bundle.papers.find((p) => p.id === i.papers[0])!
+    expect(screen.getByTestId('field-papers').textContent).toContain(paper.title)
+    const language = bundle.languages.find((l) => l.id === i.languages[0])!
+    expect(screen.getByTestId('field-languages').textContent).toContain(language.name)
+  })
+
   // MUTATION: `undatedCount={0}`. The Timeline's own tests pass the number in
   // directly, so they say nothing about whether App ever computes it.
   it('tells the timeline how many initiatives it cannot constrain', () => {

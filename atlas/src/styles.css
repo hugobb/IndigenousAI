@@ -593,6 +593,31 @@ a { color: var(--accent-ink); }
   padding-bottom: 0.15rem;
 }
 
+/* ------------------------------------------------------------ evidence --- */
+/* The Evidence section holds two lists that look alike and are not: `Links`
+ * are destinations, `Papers` are references we hold. A paper's `summary_url`
+ * is a repo-relative path to a file that is not in the built site, so it is
+ * never an anchor — and if it were merely unstyled it would read as a link
+ * that failed rather than as a citation. Set as a path: a title in italics,
+ * the location in a monospace face at the size of a footnote. */
+.panel dd .citations { list-style: none; padding-left: 0; }
+.panel dd .citations > li + li { margin-top: 0.5rem; }
+.panel dd cite { font-style: italic; }
+
+.panel dd .repo-path { font-size: 0.75rem; }
+.panel dd .repo-path code {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+  /* No underline and no accent: the one styled thing in this block must not
+   * be the thing you cannot click. */
+  color: var(--text-soft);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 0 0.2em;
+}
+
 /* ------------------------------------------------------ source disclosure --- */
 /* Provenance sits with the claim it supports, folded away until asked for: the
  * reference text would otherwise outweigh the figure it supports. */

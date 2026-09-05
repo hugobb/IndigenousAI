@@ -58,7 +58,12 @@
       "data_regime": "1k-10k",
       "governance": { "posture": "community-controlled", "licence": "Fixture Licence",
         "source": { "kind": "doc", "ref": "fixture", "retrieved": null, "quote": null } },
-      "papers": ["fixture-paper"], "links": [], "transferability": null,
+      "papers": ["fixture-paper"],
+      "links": [
+        { "label": "Fixture project page", "url": "https://example.org/fixture-project",
+          "retrieved": "2026-09-03" }
+      ],
+      "transferability": null,
       "caveat": null, "status": "verified"
     },
     {

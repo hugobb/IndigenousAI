@@ -145,7 +145,9 @@ export default function App(): React.JSX.Element {
             filtered={languagePanelFiltered}
           />
         )}
-        {initiative !== null && <InitiativePanel initiative={initiative} methods={bundle.methods} />}
+        {initiative !== null && (
+          <InitiativePanel initiative={initiative} methods={bundle.methods} bundle={bundle} />
+        )}
       </div>
 
       <div className="atlas__pane">

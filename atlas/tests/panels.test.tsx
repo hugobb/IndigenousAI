@@ -4,7 +4,10 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { InitiativeSchema, LanguageSchema, MethodSchema, type Language } from '../src/schema/index.js'
+import {
+  InitiativeSchema, LanguageSchema, MethodSchema, PaperSchema, type Language,
+} from '../src/schema/index.js'
+import type { AtlasBundle } from '../src/lib/load.js'
 import LanguagePanel from '../src/components/LanguagePanel.js'
 import InitiativePanel from '../src/components/InitiativePanel.js'
 import UnmappedList from '../src/components/UnmappedList.js'
@@ -21,8 +24,18 @@ const raw = JSON.parse(readFileSync(join(here, '../src/fixtures/atlas.fixture.js
 const languages = raw.languages.map((l: unknown) => LanguageSchema.parse(l))
 const initiatives = raw.initiatives.map((i: unknown) => InitiativeSchema.parse(i))
 const methods = raw.methods.map((m: unknown) => MethodSchema.parse(m))
+const papers = raw.papers.map((p: unknown) => PaperSchema.parse(p))
 const lang = (id: string) => languages.find((l: { id: string }) => l.id === id)!
 const init = (id: string) => initiatives.find((i: { id: string }) => i.id === id)!
+
+// `InitiativePanel` resolves paper ids and language ids through the whole
+// bundle — an initiative may name a language the current filters exclude, and
+// the panel still has to print its name. Assembled from the arrays parsed
+// above rather than from `loadBundle()`, so `bundle.initiatives[0]` and
+// `init('fixture-ongoing')` are the same object rather than two parses of it.
+const bundle: AtlasBundle = {
+  generated: raw.generated, languages, initiatives, methods, papers, isDemoData: true,
+}
 
 afterEach(() => cleanup())
 
@@ -165,24 +178,95 @@ describe('LanguagePanel', () => {
 
 describe('InitiativePanel', () => {
   it('links a method into the mkdocs guide', () => {
-    render(<InitiativePanel initiative={init('fixture-ongoing')} methods={methods} />)
+    render(<InitiativePanel bundle={bundle} initiative={init('fixture-ongoing')} methods={methods} />)
     const link = screen.getByRole('link', { name: /fixture method/i })
     expect(link.getAttribute('href')).toBe('/ml-techniques/fixture-method/')
   })
 
   it('shows the transferability note on an adjacent-tier initiative', () => {
-    render(<InitiativePanel initiative={init('fixture-adjacent-init')} methods={methods} />)
+    render(<InitiativePanel bundle={bundle} initiative={init('fixture-adjacent-init')} methods={methods} />)
     expect(screen.getByText(/participatory corpus building/i)).toBeDefined()
   })
 
   it('shows no transferability section on an indigenous-tier initiative', () => {
-    render(<InitiativePanel initiative={init('fixture-ongoing')} methods={methods} />)
+    render(<InitiativePanel bundle={bundle} initiative={init('fixture-ongoing')} methods={methods} />)
     expect(screen.queryByTestId('field-transferability')).toBeNull()
   })
 
   it('marks an ongoing initiative as ongoing rather than leaving the end blank', () => {
-    render(<InitiativePanel initiative={init('fixture-ongoing')} methods={methods} />)
+    render(<InitiativePanel bundle={bundle} initiative={init('fixture-ongoing')} methods={methods} />)
     expect(screen.getByTestId('field-years').textContent).toMatch(/ongoing/i)
+  })
+
+  // `bundle.papers` has been loaded and schema-validated since SP0 and shown
+  // on no surface at all. An initiative's `papers` is a list of ids; the
+  // citation a reader can act on lives on the paper record.
+  it('resolves papers through the bundle', () => {
+    const i = bundle.initiatives.find((x) => x.papers.length > 0)!
+    const p = bundle.papers.find((x) => x.id === i.papers[0])!
+    render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={bundle} />)
+    const field = screen.getByTestId('field-papers')
+    expect(field.textContent).toContain(p.title)
+    expect(field.textContent).toContain(p.authors)
+    expect(field.textContent).toContain(String(p.year))
+  })
+
+  // summary_url points at an unpublished repo path. An anchor would be dead
+  // from the deployed origin, which is inventing a destination.
+  it('does not link a paper to its unpublished summary path', () => {
+    const i = bundle.initiatives.find((x) => x.papers.length > 0)!
+    render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={bundle} />)
+    const links = within(screen.getByTestId('field-papers')).queryAllByRole('link')
+    expect(links).toEqual([])
+  })
+
+  // The path is still SHOWN — inert is not the same as hidden — and it has to
+  // read as a repository location rather than as a link that failed to render.
+  it('names the summary path as a repository file, not as a page of this site', () => {
+    const i = bundle.initiatives.find((x) => x.papers.length > 0)!
+    const p = bundle.papers.find((x) => x.id === i.papers[0])!
+    render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={bundle} />)
+    const field = screen.getByTestId('field-papers')
+    expect(field.textContent).toContain(p.summary_url)
+    expect(field.textContent).toMatch(/repository/i)
+    expect(field.textContent).toMatch(/not (a )?(page|published)/i)
+  })
+
+  it('renders an unresolvable paper id rather than dropping it', () => {
+    const i = { ...bundle.initiatives[0]!, papers: ['no-such-paper'] }
+    render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={bundle} />)
+    const field = screen.getByTestId('field-papers')
+    expect(field.textContent).toContain('no-such-paper')
+    expect(field.textContent).toMatch(/unresolved/i)
+  })
+
+  it('shows kind, tier, languages and data regime', () => {
+    const i = bundle.initiatives[0]!
+    render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={bundle} />)
+    for (const id of ['field-kind', 'field-tier', 'field-languages', 'field-regime']) {
+      expect(screen.getByTestId(id)).toBeDefined()
+    }
+  })
+
+  it('resolves initiative language ids to names', () => {
+    const i = bundle.initiatives[0]!
+    const name = bundle.languages.find((l) => l.id === i.languages[0])!.name
+    render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={bundle} />)
+    expect(screen.getByTestId('field-languages').textContent).toContain(name)
+  })
+
+  it('shows links with their retrieval date', () => {
+    const i = bundle.initiatives.find((x) => x.links.length > 0)!
+    render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={bundle} />)
+    const field = screen.getByTestId('field-links')
+    expect(field.textContent).toContain(i.links[0]!.label)
+    expect(field.textContent).toContain(i.links[0]!.retrieved)
+    expect(within(field).getByRole('link').getAttribute('href')).toBe(i.links[0]!.url)
+  })
+
+  it('shows the governance licence', () => {
+    render(<InitiativePanel initiative={bundle.initiatives[0]!} methods={bundle.methods} bundle={bundle} />)
+    expect(screen.getByTestId('field-licence')).toBeDefined()
   })
 })
 
@@ -263,7 +347,7 @@ describe('source disclosures', () => {
 
   it('gives the initiative panel exactly the disclosures the schema sources', () => {
     const { container } = render(
-      <InitiativePanel initiative={init('fixture-ongoing')} methods={methods} />,
+      <InitiativePanel bundle={bundle} initiative={init('fixture-ongoing')} methods={methods} />,
     )
     assertDisclosures(container, {
       'field-governance': 'Source for Governance',
@@ -278,7 +362,7 @@ describe('source disclosures', () => {
   // half: an absent sub-object contributes no disclosure either.
   it('gives an adjacent-tier initiative no disclosure it has no source for', () => {
     const { container } = render(
-      <InitiativePanel initiative={init('fixture-adjacent-init')} methods={methods} />,
+      <InitiativePanel bundle={bundle} initiative={init('fixture-adjacent-init')} methods={methods} />,
     )
     expect(container.querySelector('[data-testid="field-transferability"]')).not.toBeNull()
     assertDisclosures(container, { 'field-site': 'Source for Location' })

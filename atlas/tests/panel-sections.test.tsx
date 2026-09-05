@@ -15,34 +15,51 @@ describe('panel sections', () => {
     expect(headings).toEqual(['Identity', 'Situation', 'Place', 'Work', 'Note'])
   })
 
-  // Task 3 gives the initiative panel four sections, not six: `Identity` and
-  // `Evidence` have no fields until Task 6 populates them, and a section with
-  // no fields must fail the "never renders an empty section" guard below.
-  // Task 6 adds both sections along with the fields that fill them and
-  // updates this expectation then.
+  // Task 6 adds `Identity` and `Evidence` along with the fields that fill
+  // them. They were deferred out of Task 3 rather than created empty because
+  // a section with no fields must fail the "never renders an empty section"
+  // guard below.
   it('groups the initiative panel under headings', () => {
-    render(<InitiativePanel initiative={bundle.initiatives[0]!} methods={bundle.methods} />)
+    render(<InitiativePanel initiative={bundle.initiatives[0]!} methods={bundle.methods} bundle={bundle} />)
     const headings = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)
-    expect(headings).toEqual(['Work', 'Governance', 'Place', 'Note'])
+    expect(headings).toEqual(['Identity', 'Work', 'Governance', 'Place', 'Evidence', 'Note'])
   })
 
   // A heading with no fields under it is a rendering bug that reads as missing
   // data. Every section must own at least one field.
-  it('never renders an empty section', () => {
-    render(<LanguagePanel language={bundle.languages[0]!} initiatives={[]} filtered={true} />)
-    for (const h of screen.getAllByRole('heading', { level: 3 })) {
-      const section = h.closest('section')
-      expect(section).not.toBeNull()
-      expect(within(section!).getAllByRole('term').length).toBeGreaterThan(0)
-    }
-  })
+  //
+  // Task 6: these last two ran against the LANGUAGE panel only, which is the
+  // one panel that had no reason to grow an empty section — the two the plan
+  // deferred were both on the INITIATIVE panel, and the guard that was cited
+  // as the reason for deferring them never rendered it. Both now run over
+  // each panel.
+  const panels: [string, () => React.JSX.Element][] = [
+    ['language', () => <LanguagePanel language={bundle.languages[0]!} initiatives={[]} filtered={true} />],
+    ['initiative', () => <InitiativePanel initiative={bundle.initiatives[0]!} methods={bundle.methods} bundle={bundle} />],
+  ]
 
-  it('keeps every field inside a section, none loose', () => {
-    const { container } = render(<LanguagePanel language={bundle.languages[0]!} initiatives={[]} filtered={true} />)
-    for (const dt of container.querySelectorAll('dt')) {
-      expect(dt.closest('section')).not.toBeNull()
-    }
-  })
+  for (const [name, panel] of panels) {
+    it(`never renders an empty section in the ${name} panel`, () => {
+      render(panel())
+      const headings = screen.getAllByRole('heading', { level: 3 })
+      expect(headings.length).toBeGreaterThan(0)
+      for (const h of headings) {
+        const section = h.closest('section')
+        expect(section).not.toBeNull()
+        expect(within(section!).getAllByRole('term').length, `section "${h.textContent}" is empty`)
+          .toBeGreaterThan(0)
+      }
+    })
+
+    it(`keeps every ${name}-panel field inside a section, none loose`, () => {
+      const { container } = render(panel())
+      const terms = container.querySelectorAll('dt')
+      expect(terms.length).toBeGreaterThan(0)
+      for (const dt of terms) {
+        expect(dt.closest('section')).not.toBeNull()
+      }
+    })
+  }
 })
 
 // The tests above check headings, emptiness and looseness, but none of them
@@ -75,12 +92,19 @@ const LANGUAGE_FIELD_SECTIONS: Record<string, string> = {
 }
 
 const INITIATIVE_FIELD_SECTIONS: Record<string, string> = {
+  'field-kind': 'Identity',
+  'field-tier': 'Identity',
+  'field-languages': 'Identity',
   'field-years': 'Work',
   'field-applications': 'Work',
   'field-methods': 'Work',
   'field-models': 'Work',
+  'field-regime': 'Work',
   'field-governance': 'Governance',
+  'field-licence': 'Governance',
   'field-site': 'Place',
+  'field-papers': 'Evidence',
+  'field-links': 'Evidence',
   'field-caveat': 'Note',
   'field-transferability': 'Note',
 }
@@ -115,7 +139,9 @@ describe('panel field-to-section mapping', () => {
     // `bundle.initiatives[0]`) so `field-transferability` is present and the
     // mapping check above is exhaustive over every field this panel can show.
     const transferable = bundle.initiatives.find((i) => i.transferability !== null)!
-    const { container } = render(<InitiativePanel initiative={transferable} methods={bundle.methods} />)
+    const { container } = render(
+      <InitiativePanel initiative={transferable} methods={bundle.methods} bundle={bundle} />,
+    )
     assertFieldSections(container, INITIATIVE_FIELD_SECTIONS)
   })
 })
