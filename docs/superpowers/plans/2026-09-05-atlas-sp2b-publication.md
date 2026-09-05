@@ -14,7 +14,8 @@
 
 - **Node is not on PATH.** Once per shell: `export PATH="$HOME/.nvm/versions/node/v22.22.2/bin:$PATH"`. The atlas pins Node **22.22.2** in `atlas/.nvmrc`.
 - **Never run `pnpm approve-builds`.** It overwrites `atlas/pnpm-workspace.yaml` and breaks `pnpm test`.
-- **Never promote a record to `status: verified`, and never edit `atlas/data/**`.** `pnpm build:data` and `pnpm build:app` must both keep exiting non-zero at the end of every task. This is a guarded property, not an inconvenience.
+- **Never promote a record to `status: verified`, and never edit `atlas/data/**` — except `atlas/data/derived/**`.** `pnpm build:data` and `pnpm build:app` must both keep exiting non-zero at the end of every task. This is a guarded property, not an inconvenience.
+  - **The `derived/` carve-out (ruling R8, Task 5).** The prohibition protects human editorial judgment recorded by hand — a `draft` record silently promoted, a curated fact altered. `atlas/data/derived/` is generator output, and it **must be regenerated whenever its generator changes**, because the invariant it would otherwise break is the more important one: *a commit must not ship a tracked artifact that its own validator rejects.* Task 5 created exactly that condition and it was caught by review, not by any test.
 - **Never fabricate a value.** Unknown is `null` and reads as "not recorded".
 - **Never invent a destination.** After Task 5 a summary link is legitimate *because the file is published*; before Task 5 it is not. Do not link ahead of the publication.
 - **Never edit `litterature_review/`, `docs/docs/`, or `atlas/src/data/**`** — with one carve-out: `docs/docs/summaries/` is written by the build and gitignored (spec D3). No other path under `docs/docs/` may be written.
