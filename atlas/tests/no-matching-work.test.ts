@@ -58,12 +58,34 @@ describe('noMatchingWork', () => {
   // The invariant the rename exists to protect. Before this change the field
   // was a COMPLEMENT of `languages`; now it is a SUBSET, and every call site
   // that concatenated the two would double-count.
+  //
+  // Final review, finding 3: this test could not fail on a complement. Neither
+  // state it swept set a LANGUAGE facet, so `l1 === bundle.languages` and a
+  // complement is indistinguishable from a subset — building `noMatchingWork`
+  // from `bundle.languages` instead of `l1` left it green. A third language the
+  // region facet excludes is what makes the two differ: it is workless, so a
+  // complement would name it, and it is not in L1, so a subset cannot.
   it('is always a subset of languages, never a complement', () => {
-    const b = bundleOf([lang('a'), lang('b')], [init('i', ['a'], { applications: ['asr'] })])
-    for (const state of [EMPTY_FILTERS, { ...EMPTY_FILTERS, application: ['asr'] }]) {
+    const b = bundleOf(
+      [lang('a', { region: 'africa' }), lang('b', { region: 'africa' }),
+        lang('excluded', { region: 'oceania' })],
+      [init('i', ['a'], { applications: ['asr'] })],
+    )
+    const states = [
+      EMPTY_FILTERS,
+      { ...EMPTY_FILTERS, application: ['asr'] },
+      { ...EMPTY_FILTERS, region: ['africa'] },
+      { ...EMPTY_FILTERS, region: ['africa'], application: ['asr'] },
+    ]
+    let sawExcludedLanguage = false
+    for (const state of states) {
       const s = applyFilters(b, state)
-      for (const l of s.noMatchingWork) expect(s.languages).toContain(l)
+      if (!s.languages.some((l) => l.id === 'excluded')) sawExcludedLanguage = true
+      for (const l of s.noMatchingWork) expect(s.languages, JSON.stringify(state)).toContain(l)
     }
+    // Without a state that excludes a workless language from L1, every
+    // assertion above holds for a complement too and the test proves nothing.
+    expect(sawExcludedLanguage).toBe(true)
   })
 
   // C2: the map draws L1. A language the rail is about to name must not have

@@ -37,6 +37,25 @@ export default function UnmappedList({
   onSelect: (id: string) => void
 }): React.JSX.Element {
   const { notMapped, approximate } = unmappedLanguages(languages)
+  const n = noMatchingWork.length
+  // Computed here rather than inline so the two can be read against each other
+  // in one place — which is the whole content of finding 1.
+  //
+  // `noMatchingWork` is a SUBSET of L1, not all of it: at `?application=asr`
+  // four of the atlas's five languages are workless and the fifth is not. So
+  // the no-language-filter wording may say the list is unnarrowed, and may NOT
+  // say these are every language in the atlas. (An earlier pass at this said
+  // exactly that, and it was false on the first URL a reader clicks.)
+  const heading =
+    !workFiltered ? `No work in the atlas for these languages (${n})`
+    : languageFiltered ? `Matches your filters, but no matching work (${n})`
+    : `In the atlas, but no matching work (${n})`
+  const hint =
+    !workFiltered
+      ? 'No initiative anywhere in this atlas names these languages. That is the coverage gap this map exists to show, not a result of your filters.'
+      : languageFiltered
+        ? 'These languages match your language filters. No initiative in the current selection works on them — which is a finding, not an empty result.'
+        : 'No language filter is narrowing this list: these are the languages in the atlas that no initiative in the current selection works on — which is a finding, not an empty result.'
   const name = (l: Language): React.JSX.Element => (
     <button type="button" className="link-button" onClick={() => onSelect(l.id)}>
       {l.name}
@@ -46,7 +65,13 @@ export default function UnmappedList({
     <>
       {(notMapped.length > 0 || approximate.length > 0) && (
         <section className="card rail-list" aria-label="Languages the map cannot show faithfully">
-          <p className="section-label">What the map cannot show</p>
+          {/* Final review, finding 4: "faithfully", as the accessible name has
+           *  always said. An approximately located language IS drawn, only
+           *  desaturated — so the unqualified claim is false of half this
+           *  card's own contents, and having just split the workless group out
+           *  for making exactly that claim, leaving it here would be the same
+           *  idea handled two ways on two adjacent cards. */}
+          <p className="section-label">What the map cannot show faithfully</p>
           {/* An empty group is suppressed rather than headed with a zero. At
            *  `?region=africa&application=asr` both of these were empty, so two
            *  zero-count headings stacked above the one group that carried the
@@ -85,18 +110,22 @@ export default function UnmappedList({
         // other words is the defect this review exists to catch.
         <section className="card rail-list" aria-label="Languages with no matching work">
           <div data-testid="group-no-matching-work">
-            <h3>
-              {workFiltered
-                ? `Matches your filters, but no matching work (${noMatchingWork.length})`
-                : `No work in the atlas for these languages (${noMatchingWork.length})`}
-            </h3>
-            <p className="hint">
-              {workFiltered
-                ? `${languageFiltered
-                    ? 'These languages match your language filters.'
-                    : 'These are every language in the atlas — no language filter is narrowing the list.'} No initiative in the current selection works on them — which is a finding, not an empty result.`
-                : 'No initiative anywhere in this atlas names these languages. That is the coverage gap this map exists to show, not a result of your filters.'}
-            </p>
+            {/* Final review, finding 1: the HEADING branched on `workFiltered`
+                alone while the hint one line below it branched on
+                `languageFiltered` too, so at `?application=asr` the heading
+                credited the reader's filters with selecting these languages
+                and the sentence beneath it said no filter had narrowed them.
+                Both halves were pinned by tests at that same URL — each
+                correct about its own string, and together holding the
+                contradiction in place. Heading and hint now read the SAME two
+                flags, and `app-wiring` asserts them together rather than
+                apart.
+
+                All three headings share one shape — "<why these are on
+                screen>, but no matching work" — so the reader can tell the
+                three claims apart by their first clause alone. */}
+            <h3>{heading}</h3>
+            <p className="hint">{hint}</p>
             <ul>
               {noMatchingWork.map((l) => (
                 <li key={l.id}>{name(l)}</li>

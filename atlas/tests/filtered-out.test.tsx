@@ -81,15 +81,61 @@ describe('the no-matching-work group', () => {
 describe('the workless group states what it can', () => {
   const workless = lang('choctaw')
 
+  // Final review, finding 1: re-pointed rather than relaxed. This test's intent
+  // is "a work filter is responsible", and the heading that says so is the one
+  // for a list a LANGUAGE filter also narrowed — `languageFiltered={false}` is
+  // now a third state with its own heading, tested below. Both assertions are
+  // as strong as before and one is stronger (it names the whole heading).
   it('names it a filter result when a work filter is active', () => {
     render(
       <UnmappedList languages={[workless]} noMatchingWork={[workless]}
-        workFiltered={true} languageFiltered={false} onSelect={vi.fn()} />,
+        workFiltered={true} languageFiltered={true} onSelect={vi.fn()} />,
     )
     const group = screen.getByTestId('group-no-matching-work')
     expect(group.textContent).toMatch(/matches your filters, but no matching work/i)
     expect(group.textContent).not.toMatch(/no work in the atlas/i)
   })
+
+  // The third state, which had no heading of its own and so borrowed the one
+  // above: the work filter is responsible, but nothing selected the languages.
+  it('does not say the languages matched anything when no language filter is set', () => {
+    render(
+      <UnmappedList languages={[workless]} noMatchingWork={[workless]}
+        workFiltered={true} languageFiltered={false} onSelect={vi.fn()} />,
+    )
+    const heading = screen.getByRole('heading', { level: 3 }).textContent ?? ''
+    expect(heading).toMatch(/in the atlas, but no matching work/i)
+    expect(heading).not.toMatch(/matches your filters/i)
+    expect(heading).not.toMatch(/no work in the atlas for these languages/i)
+  })
+
+  // The heading and the hint are one sentence pair, and the defect they hid was
+  // that each was pinned separately: two guards, each right about its own
+  // string, locking a contradiction in place between them. This reads BOTH, in
+  // all three states, and asserts they credit the same filters.
+  it.each([
+    [false, false, /no work in the atlas for these languages/i, /no initiative anywhere in this atlas/i],
+    [true, true, /matches your filters, but no matching work/i, /these languages match your language filters/i],
+    [true, false, /in the atlas, but no matching work/i, /no language filter is narrowing this list/i],
+  ])(
+    'heads the group with a claim its own hint supports (work=%s, language=%s)',
+    (workFiltered, languageFiltered, headingPattern, hintPattern) => {
+      const { container } = render(
+        <UnmappedList languages={[workless]} noMatchingWork={[workless]}
+          workFiltered={workFiltered} languageFiltered={languageFiltered} onSelect={vi.fn()} />,
+      )
+      const heading = screen.getByRole('heading', { level: 3 }).textContent ?? ''
+      const hint = container.querySelector('.hint')?.textContent ?? ''
+      expect(heading).toMatch(headingPattern)
+      expect(hint).toMatch(hintPattern)
+      // The contradiction itself, stated directly: a heading crediting the
+      // reader's filters with selecting these languages cannot stand over a
+      // hint saying no language filter narrowed them.
+      const creditsFilters = /matches your filters, but no matching work/i.test(heading)
+      const deniesLanguageFilter = /no language filter is narrowing/i.test(hint)
+      expect(creditsFilters && deniesLanguageFilter).toBe(false)
+    },
+  )
 
   // Without a work filter the claim is about the DATASET, not the query.
   it('names it a dataset finding when no work filter is active', () => {
@@ -121,6 +167,21 @@ describe('the workless group states what it can', () => {
     // And the map card is not merely mis-titled but absent: nothing here is
     // unmappable, so there is no such finding to head.
     expect(screen.queryByLabelText(/map cannot show/i)).toBeNull()
+  })
+
+  // Final review, finding 4. An approximately located language IS drawn, only
+  // desaturated, so the map card's claim is only true with the adverb its own
+  // accessible name has always carried — and the visible label dropped it.
+  // Asserted on BOTH, because the defect was that they disagreed.
+  it('qualifies the map card, since an approximately located language is drawn', () => {
+    render(
+      <UnmappedList
+        languages={[lang('rough', { centre: { lat: 1, lon: 2, source: src, confidence: 'approximate' } })]}
+        noMatchingWork={[]} workFiltered={false} languageFiltered={false} onSelect={vi.fn()} />,
+    )
+    const card = screen.getByTestId('group-approximate').closest('section')!
+    expect(card.querySelector('.section-label')?.textContent).toMatch(/cannot show faithfully/i)
+    expect(card.getAttribute('aria-label')).toMatch(/cannot show faithfully/i)
   })
 
   // `?region=arctic` rendered "WHAT THE MAP CANNOT SHOW" over nothing at all —

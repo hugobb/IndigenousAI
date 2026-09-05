@@ -37,10 +37,18 @@ const STATIC_EMPTY_COPY = {
 // responsible even when none was — false on the same screens Task 2 already
 // corrected the rail and App banner for. Table-specific: it names the rows
 // (there are none) rather than repeating the rail's "atlas" framing verbatim.
-function noWorkButLanguagesCopy(workFiltered: boolean): string {
-  return workFiltered
+// Final review, finding 2: the work-filtered branch said "the languages that
+// matched", keyed on `workFiltered` alone, so at
+// `?view=initiatives&application=spellcheck` this table credited a language
+// filter while the rail beside it said none was narrowing the list — the same
+// false credit as the three surfaces already corrected, on a fourth.
+function noWorkButLanguagesCopy(workFiltered: boolean, languageFiltered: boolean): string {
+  if (!workFiltered) {
+    return 'This table has no rows because the atlas records no initiative for any of these languages — not because a filter narrowed anything. They are listed in the Languages view and in the rail.'
+  }
+  return languageFiltered
     ? 'No initiative matches the current filters. The languages that matched are listed in the Languages view and in the rail — no matching work is a finding, not an empty result.'
-    : 'This table has no rows because the atlas records no initiative for any of these languages — not because a filter narrowed anything. They are listed in the Languages view and in the rail.'
+    : 'No initiative matches the current filters. No language filter is narrowing the languages themselves; they are listed in the Languages view and in the rail — no matching work is a finding, not an empty result.'
 }
 
 // Fix round 2: a sixth surface, found by an independent reviewer while
@@ -91,7 +99,7 @@ export default function TableView({
   const state = emptyState(selection)
   const empty =
     state === 'no-work-but-languages'
-      ? noWorkButLanguagesCopy(selection.workFiltered)
+      ? noWorkButLanguagesCopy(selection.workFiltered, selection.languageFiltered)
       : STATIC_EMPTY_COPY[state]
 
   if (view === 'initiatives') {

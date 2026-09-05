@@ -221,8 +221,11 @@ describe('fix round 2: every workFiltered-driven surface, both directions', () =
     expect(group).not.toMatch(/matches your filters, but no matching work/i)
   })
 
+  // Final review, finding 1: re-pointed from `?application=asr`, where this
+  // heading is no longer the right one — a work filter alone credits no
+  // language filter. The URL changes; the intent and the strength do not.
   it('rail group: filter result when a work filter is active', () => {
-    at('/?application=asr')
+    at('/?region=africa&application=asr')
     const group = screen.getByTestId('group-no-matching-work').textContent ?? ''
     expect(group).toMatch(/matches your filters, but no matching work/i)
     expect(group).not.toMatch(/no work in the atlas/i)
@@ -274,9 +277,18 @@ describe('fix round 2: every workFiltered-driven surface, both directions', () =
   // component, so App dropping the prop fails here too.
   it('rail group hint: credits no language filter when none is set', () => {
     at('/?application=asr')
-    const group = screen.getByTestId('group-no-matching-work').textContent ?? ''
-    expect(group).toMatch(/no language filter is narrowing/i)
-    expect(group).not.toMatch(/match your language filters/i)
+    const group = screen.getByTestId('group-no-matching-work')
+    const text = group.textContent ?? ''
+    expect(text).toMatch(/no language filter is narrowing/i)
+    expect(text).not.toMatch(/match your language filters/i)
+    // "Unnarrowed" is not "all of them". `noMatchingWork` is a SUBSET of L1,
+    // and here it is four of the atlas's five languages — the fifth has ASR
+    // work. A first pass at this copy said "these are every language in the
+    // atlas", which was false on this very URL.
+    const listed = within(group).getAllByRole('button').length
+    const tabCount = screen.getByTestId('view-languages').textContent ?? ''
+    expect(tabCount).toContain(`(${listed + 1})`)
+    expect(text).not.toMatch(/every language in the atlas/i)
   })
 
   it('rail group hint: names the language filter when one is set', () => {
@@ -284,6 +296,51 @@ describe('fix round 2: every workFiltered-driven surface, both directions', () =
     const group = screen.getByTestId('group-no-matching-work').textContent ?? ''
     expect(group).toMatch(/match your language filters/i)
     expect(group).not.toMatch(/no language filter is narrowing/i)
+  })
+
+  // Final review, finding 1. The defect was not a wrong string, it was two
+  // correct strings pinned SEPARATELY: `app-wiring` asserted the heading at
+  // `?application=asr` and the hint at `?application=asr`, each right about
+  // its own text, and between them they held a heading and a hint that
+  // contradicted each other one line apart. This reads BOTH out of the same
+  // render, at every combination of the two flags a URL can reach, so no pair
+  // of single-string guards can lock a contradiction in again.
+  it.each([
+    ['/', /no work in the atlas for these languages/i, /no initiative anywhere in this atlas/i],
+    ['/?application=asr', /in the atlas, but no matching work/i, /no language filter is narrowing this list/i],
+    ['/?region=africa&application=asr', /matches your filters, but no matching work/i, /these languages match your language filters/i],
+    ['/?region=_none', /no work in the atlas for these languages/i, /no initiative anywhere in this atlas/i],
+  ])('rail group at %s: heading and hint credit the same filters', (url, headingPattern, hintPattern) => {
+    at(url)
+    const group = screen.getByTestId('group-no-matching-work')
+    const heading = within(group).getByRole('heading', { level: 3 }).textContent ?? ''
+    const hint = group.querySelector('.hint')?.textContent ?? ''
+    expect(heading).toMatch(headingPattern)
+    expect(hint).toMatch(hintPattern)
+    expect(
+      /matches your filters, but no matching work/i.test(heading) &&
+      /no language filter is narrowing/i.test(hint),
+    ).toBe(false)
+  })
+
+  // Finding 2: the same claim on a fourth surface, and the cross-surface half
+  // of it — at this URL the table message and the rail hint are on screen
+  // together, and one of them used to credit a language filter the other
+  // denied.
+  it('table empty message: credits no language filter when none is set', () => {
+    at('/?view=initiatives&application=spellcheck')
+    const table = screen.getByTestId('table-empty').textContent ?? ''
+    expect(table).toMatch(/no language filter is narrowing the languages/i)
+    expect(table).not.toMatch(/the languages that matched/i)
+    const hint = screen.getByTestId('group-no-matching-work').querySelector('.hint')?.textContent ?? ''
+    expect(hint).toMatch(/no language filter is narrowing/i)
+  })
+
+  it('table empty message: names the language filter when one is set', () => {
+    at('/?view=initiatives&region=africa&application=asr')
+    const table = screen.getByTestId('table-empty').textContent ?? ''
+    expect(table).toMatch(/the languages that matched/i)
+    expect(table).not.toMatch(/no language filter is narrowing/i)
   })
 
   // And on the caption, so all three surfaces are guarded through App.
