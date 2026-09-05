@@ -5,6 +5,16 @@
 # A root `pnpm install` is now possible (package.json declares the toolchain for
 # Vercel/CI). It has no dependencies, so it installs nothing — but pnpm still
 # materialises both of these at the root. Neither is authoritative: the only real
-# manifest and lockfile are atlas/package.json and atlas/pnpm-lock.yaml.
+# manifest and lockfile are atlas/package.json and atlas# The root lockfile IS tracked. It has no dependencies to lock — it exists so
+# Vercel's package-manager detection picks pnpm at the repository root and then
+# honours package.json#packageManager. Without it Vercel chose npm, never
+# provisioned pnpm 11, and build-site.sh met an ambient pnpm too old to read
+# atlas/pnpm-lock.yaml (lockfileVersion 9.0): "Ignoring not compatible lockfile"
+# then "Headless installation requires a pnpm-lock.yaml file"..
 node_modules/
-/pnpm-lock.yaml
+# The root lockfile IS tracked. It has no dependencies to lock — it exists so
+# Vercel's package-manager detection picks pnpm at the repository root and then
+# honours package.json#packageManager. Without it Vercel chose npm, never
+# provisioned pnpm 11, and build-site.sh met an ambient pnpm too old to read
+# atlas/pnpm-lock.yaml (lockfileVersion 9.0): "Ignoring not compatible lockfile"
+# then "Headless installation requires a pnpm-lock.yaml file".

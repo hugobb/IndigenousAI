@@ -11,6 +11,31 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT="${SITE_OUT:-$REPO/docs/site}"
 
+# atlas/pnpm-lock.yaml is lockfileVersion 9.0, which needs pnpm >= 9. An older
+# pnpm does not fail on that directly — it prints "Ignoring not compatible
+# lockfile", then `--frozen-lockfile` fails with "Headless installation requires
+# a pnpm-lock.yaml file", which points at a file that is present and readable.
+# That cost a deploy cycle to diagnose, so it is named here instead.
+#
+# The version is provisioned from the ROOT package.json#packageManager, and
+# Vercel only honours that once its package-manager detection has picked pnpm —
+# which it does from the tracked, dependency-free root pnpm-lock.yaml. If that
+# file is ever removed, Vercel silently falls back to npm and this check is what
+# tells you why the build broke.
+# `|| true` is load-bearing: under `set -e` an assignment whose command
+# substitution fails takes the script down at that line, so without it a MISSING
+# pnpm exits 127 silently and never reaches the message below — the guard
+# failing in one of the two cases it exists for.
+PNPM_VERSION="$(pnpm --version 2>/dev/null || true)"
+PNPM_MAJOR="$(printf '%s' "$PNPM_VERSION" | cut -d. -f1)"
+if [ -z "$PNPM_MAJOR" ] || [ "$PNPM_MAJOR" -lt 9 ]; then
+  echo "build-site.sh: pnpm ${PNPM_VERSION:-not found} cannot read" >&2
+  echo "  atlas/pnpm-lock.yaml (lockfileVersion 9.0), which needs pnpm >= 9." >&2
+  echo "  The root pnpm-lock.yaml must stay TRACKED: it is how Vercel's detection" >&2
+  echo "  picks pnpm and then honours package.json#packageManager (pnpm@11.25.0)." >&2
+  exit 1
+fi
+
 # A virtualenv, not the system interpreter. On this developer's machine `python3`
 # is 3.9.6 from the Command Line Tools, where `pip install` either fails under
 # PEP 668 or quietly pollutes a system Python — and mkdocs is not installed at
