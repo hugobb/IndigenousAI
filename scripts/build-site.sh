@@ -20,6 +20,13 @@ PY_BIN="${PY_BIN:-$(command -v python3.13 || command -v python3.12 || command -v
 VENV="$REPO/docs/.venv"
 [ -d "$VENV" ] || "$PY_BIN" -m venv "$VENV"
 "$VENV/bin/pip" install --quiet --disable-pip-version-check -r "$REPO/docs/requirements.txt"
+
+# The 92 paper summaries MkDocs will build, copied from litterature_review/
+# (the source of truth, never edited) into docs/docs/summaries — gitignored,
+# rebuilt every time, the one permitted write under docs/docs/. Must run
+# before `mkdocs build` or the site ships without them.
+( cd "$REPO/atlas" && pnpm install --frozen-lockfile && pnpm copy:summaries )
+
 "$VENV/bin/mkdocs" build --site-dir "$OUT" --config-file "$REPO/docs/mkdocs.yml"
 
 cd "$REPO/atlas"

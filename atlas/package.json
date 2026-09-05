@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "extract:methods": "tsx scripts/extract-methods.ts",
     "extract:papers": "tsx scripts/extract-papers.ts",
+    "copy:summaries": "tsx scripts/copy-summaries.ts",
     "validate": "tsx scripts/validate.ts",
     "bundle": "tsx scripts/bundle.ts",
     "seed": "tsx scripts/seed.ts",
