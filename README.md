@@ -20,8 +20,8 @@ One origin, built by one command (`scripts/build-site.sh`) and served at
 They share an origin so that the links between them are ordinary root-relative
 routes rather than a rewrite rule: every paper the atlas cites links to that
 paper's summary, and every method links to its technique document. The build
-walks all 131 of those routes against the tree it just produced and fails if one
-of them has no page, because a citation that 404s is the one defect this
+walks every one of those routes against the tree it just produced and fails if
+one of them has no page, because a citation that 404s is the one defect this
 artifact cannot ship.
 
 The whole state of an atlas view — the filters, the timeline window, the
