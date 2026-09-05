@@ -4,10 +4,11 @@ message: "If you use this atlas or its technique guide, please cite it."
 type: dataset
 authors:
   - name: "Mila — Indigenous AI"
-# The deployment hostname. This and docs/mkdocs.yml's site_url are the ONLY two
-# places it appears in the repository — see the SP2b plan, "Assumed value,
-# stated once". The Vercel project does not exist yet, so this is an assumption
-# to be corrected on the first real deploy.
+# The deployment hostname. It appears in THREE published files — here,
+# docs/mkdocs.yml's site_url, and the site link in README.md — and
+# atlas/tests/deploy-hostname.test.ts is what keeps them equal. The Vercel
+# project does not exist yet, so this is an assumption to be corrected on the
+# first real deploy; correct all three in one commit.
 url: "https://indigenous-ai-atlas.vercel.app/"
 license: CC-BY-4.0
 # NO doi: field. The DOI does not exist until a Zenodo release is cut, and a

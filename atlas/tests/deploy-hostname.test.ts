@@ -2,8 +2,17 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
-/** The deployment origin is stated twice — `site_url` in docs/mkdocs.yml and
- *  `url` in CITATION.cff — and nothing at deploy time reconciles them.
+/** The deployment origin is stated in THREE published files — `site_url` in
+ *  docs/mkdocs.yml, `url` in CITATION.cff, and the site link in README.md —
+ *  and nothing at deploy time reconciles them.
+ *
+ *  It was stated as two until the whole-branch review counted. The seam review
+ *  built a correct guard over the pair and then wrote, in three places, "exactly
+ *  two files" — two correct decisions and one wrong conclusion, which is this
+ *  project's signature defect. The consequence was concrete: on first deploy the
+ *  promoter follows the handoff, edits the two named files, watches the guard go
+ *  green, and the README still points at a host that does not exist — and the
+ *  README is what GitHub and the Zenodo record display.
  *
  *  It is ASSUMED, not observed: no deploy has happened, so the first person to
  *  learn the real hostname will be editing these files by hand. Editing one and
@@ -32,17 +41,35 @@ function field(source: string, key: string): string | undefined {
   return m?.[1]?.replace(/^["']|["']$/g, '')
 }
 
+/** Every markdown autolink in the README — `<https://…>`. That is the form the
+ *  site link uses, and reading them ALL rather than the first is what makes a
+ *  second, stale one impossible to leave behind. */
+function readmeAutolinks(): string[] {
+  return [...repo('README.md').matchAll(/<(https?:\/\/[^>]+)>/g)].map((m) => m[1] as string)
+}
+
 describe('the deployment origin', () => {
   const siteUrl = field(repo('docs/mkdocs.yml'), 'site_url')
   const citationUrl = field(repo('CITATION.cff'), 'url')
 
-  it('is stated in both files', () => {
+  it('is stated in all three files', () => {
     expect(siteUrl, 'docs/mkdocs.yml has no site_url').toBeDefined()
     expect(citationUrl, 'CITATION.cff has no url').toBeDefined()
+    expect(readmeAutolinks().length, 'README.md links to no site at all').toBeGreaterThan(0)
   })
 
   it('is the same origin in docs/mkdocs.yml and CITATION.cff', () => {
     expect(citationUrl).toBe(siteUrl)
+  })
+
+  /** The half that was missing. README.md is what GitHub renders and what the
+   *  Zenodo record shows, so a stale host there outlives the correction
+   *  everywhere else. Asserted over EVERY autolink, so adding a second site
+   *  link and updating only the first fails too. */
+  it('is the same origin in README.md', () => {
+    const origin = new URL(siteUrl as string).origin
+    const wrong = readmeAutolinks().filter((u) => new URL(u).origin !== origin)
+    expect(wrong, `README.md links to a host that is not ${origin}`).toEqual([])
   })
 
   it('puts the guide at the origin ROOT, which every atlas citation depends on', () => {
