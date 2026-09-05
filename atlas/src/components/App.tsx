@@ -114,15 +114,20 @@ export default function App(): React.JSX.Element {
             {selection.workFiltered
               ? 'No initiative matches the current filters.'
               : 'No initiative in this atlas works on these languages.'}{' '}
-            {nWorkless}{' '}
-            {nWorkless === 1 ? 'language' : 'languages'} matched your language filters
-            and {nWorkless === 1 ? 'is' : 'are'} listed below.
+            {/* Seam review (Task 8): the second sentence used to credit a
+                language filter unconditionally. In this state `noMatchingWork`
+                IS `languages`, so with no language facet set the number is the
+                whole atlas and no filter selected it. */}
+            {selection.languageFiltered
+              ? `${nWorkless} ${nWorkless === 1 ? 'language' : 'languages'} matched your language filters and ${nWorkless === 1 ? 'is' : 'are'} listed below.`
+              : `All ${nWorkless} ${nWorkless === 1 ? 'language' : 'languages'} in the atlas ${nWorkless === 1 ? 'is' : 'are'} listed below.`}
           </p>
         )}
         <UnmappedList
           languages={selection.languages}
           noMatchingWork={selection.noMatchingWork}
           workFiltered={selection.workFiltered}
+          languageFiltered={selection.languageFiltered}
           onSelect={(id) => dispatch({ type: 'selectLanguage', id })}
         />
         {outside !== null && (

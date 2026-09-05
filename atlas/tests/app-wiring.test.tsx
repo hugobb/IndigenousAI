@@ -250,6 +250,57 @@ describe('fix round 2: every workFiltered-driven surface, both directions', () =
     expect(said).not.toMatch(/no initiative in this atlas works/i)
   })
 
+  // --- rail banner: the language-filter half of the same sentence ---
+  //
+  // Seam review (Task 8). The banner's second sentence credited a language
+  // filter unconditionally. `?application=spellcheck` is a vocabulary value no
+  // fixture initiative carries, so I1 is empty while L1 is the whole atlas and
+  // NO language facet is set — the exact state the sentence was false in.
+  it('rail banner: credits no language filter when none is set', () => {
+    at('/?application=spellcheck')
+    const said = screen.getByTestId('no-matching-work').textContent ?? ''
+    expect(said).toMatch(/all \d+ languages in the atlas are listed below/i)
+    expect(said).not.toMatch(/your language filters/i)
+  })
+
+  it('rail banner: names the language filter when one is set', () => {
+    at('/?region=africa&application=asr')
+    const said = screen.getByTestId('no-matching-work').textContent ?? ''
+    expect(said).toMatch(/matched your language filters/i)
+    expect(said).not.toMatch(/in the atlas are listed below/i)
+  })
+
+  // Same seam on the rail GROUP, driven through the real App rather than the
+  // component, so App dropping the prop fails here too.
+  it('rail group hint: credits no language filter when none is set', () => {
+    at('/?application=asr')
+    const group = screen.getByTestId('group-no-matching-work').textContent ?? ''
+    expect(group).toMatch(/no language filter is narrowing this list/i)
+    expect(group).not.toMatch(/match your language filters/i)
+  })
+
+  it('rail group hint: names the language filter when one is set', () => {
+    at('/?region=africa&application=asr')
+    const group = screen.getByTestId('group-no-matching-work').textContent ?? ''
+    expect(group).toMatch(/match your language filters/i)
+    expect(group).not.toMatch(/no language filter is narrowing/i)
+  })
+
+  // And on the caption, so all three surfaces are guarded through App.
+  it('languages caption: credits no language filter when none is set', () => {
+    at('/?view=languages&application=asr')
+    const caption = screen.getByTestId('table-caption').textContent ?? ''
+    expect(caption).toMatch(/every language in the atlas/i)
+    expect(caption).not.toMatch(/current language filters/i)
+  })
+
+  it('languages caption: names the language filter when one is set', () => {
+    at('/?view=languages&region=north-america')
+    const caption = screen.getByTestId('table-caption').textContent ?? ''
+    expect(caption).toMatch(/current language filters/i)
+    expect(caption).not.toMatch(/every language in the atlas/i)
+  })
+
   // --- LanguagePanel "Matching initiatives" field ---
 
   it('language panel: dataset finding when nothing filtered this language at all', () => {

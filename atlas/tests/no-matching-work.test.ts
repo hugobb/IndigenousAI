@@ -97,4 +97,16 @@ describe('noMatchingWork', () => {
     expect(applyFilters(b, { ...EMPTY_FILTERS, from: 2000 }).workFiltered).toBe(true)
     expect(applyFilters(b, { ...EMPTY_FILTERS, region: ['africa'] }).workFiltered).toBe(false)
   })
+
+  // Seam review (Task 8). The symmetric flag, and it must be symmetric: a
+  // work facet or the date window must NOT set it, or the three surfaces that
+  // read it go back to crediting a language filter nobody applied.
+  it('reports whether a language filter is active', () => {
+    const b = bundleOf([lang('a')], [init('i', ['a'])])
+    expect(applyFilters(b, EMPTY_FILTERS).languageFiltered).toBe(false)
+    expect(applyFilters(b, { ...EMPTY_FILTERS, region: ['africa'] }).languageFiltered).toBe(true)
+    expect(applyFilters(b, { ...EMPTY_FILTERS, family: ['Algic'] }).languageFiltered).toBe(true)
+    expect(applyFilters(b, { ...EMPTY_FILTERS, application: ['asr'] }).languageFiltered).toBe(false)
+    expect(applyFilters(b, { ...EMPTY_FILTERS, from: 2000 }).languageFiltered).toBe(false)
+  })
 })

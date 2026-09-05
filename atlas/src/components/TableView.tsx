@@ -44,11 +44,17 @@ function noWorkButLanguagesCopy(workFiltered: boolean): string {
 // exists" — the opposite of what this caption's second sentence used to say
 // unconditionally, right beside a rail that (at the same URL) already says
 // exactly that. Same signal as the rest of this file.
-function languagesCaption(rowCount: number, workFiltered: boolean): string {
+function languagesCaption(rowCount: number, workFiltered: boolean, languageFiltered: boolean): string {
   const matchingWork = workFiltered
     ? '“Matching work” counts initiatives surviving every current filter, so 0 means no matching work — not that no work exists.'
     : '“Matching work” counts every initiative in the atlas, with no filter narrowing it, so 0 here means the atlas records none for this language.'
-  return `Languages matching the current language filters (${rowCount}). ${matchingWork} † marks a speaker count sources disagree about.`
+  // Seam review (Task 8): the row set is L1, and with no language facet set L1
+  // is the whole atlas — naming a filter there is the same false credit the
+  // rail hint and the App banner were giving.
+  const rows = languageFiltered
+    ? `Languages matching the current language filters (${rowCount}).`
+    : `Every language in the atlas (${rowCount}).`
+  return `${rows} ${matchingWork} † marks a speaker count sources disagree about.`
 }
 
 export default function TableView({
@@ -104,7 +110,7 @@ export default function TableView({
   const rows: Language[] = selection.languages
   return (
     <DataTable<Language>
-      caption={languagesCaption(rows.length, selection.workFiltered)}
+      caption={languagesCaption(rows.length, selection.workFiltered, selection.languageFiltered)}
       columns={LANGUAGE_COLUMNS} rows={rows} sort={sort} onSort={onSort}
       selectedId={selectedId} onSelect={onSelect} ctx={ctx} emptyMessage={empty}
     />

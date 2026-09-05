@@ -41,7 +41,7 @@ describe('TableView', () => {
         view="languages"
         selection={{
           languages: [kept, workless], initiatives: [], noMatchingWork: [workless],
-          undatedInitiatives: 0, workFiltered: true,
+          undatedInitiatives: 0, workFiltered: true, languageFiltered: false,
         }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
@@ -82,7 +82,7 @@ describe('TableView', () => {
         view="languages"
         selection={{
           languages: selection.languages, initiatives: [], noMatchingWork: selection.languages,
-          undatedInitiatives: 0, workFiltered: true,
+          undatedInitiatives: 0, workFiltered: true, languageFiltered: true,
         }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
@@ -92,6 +92,35 @@ describe('TableView', () => {
     expect(caption).toMatch(/every current filter/i)
     expect(caption).toMatch(/not.*no work/i)
     expect(caption).not.toMatch(/every initiative in the atlas/i)
+  })
+
+  // Seam review (Task 8). The caption opened "Languages matching the current
+  // language filters (n)" in EVERY state, including the one this table is most
+  // often read in: a work filter alone, where L1 is the whole atlas and no
+  // language filter exists. Third surface of the same false credit; the rail
+  // hint and the App banner are the other two, and all three now read one flag.
+  it('does not credit a language filter in the caption when none is set', () => {
+    view('languages')
+    const caption = screen.getByTestId('table-caption').textContent ?? ''
+    expect(caption).toMatch(/every language in the atlas/i)
+    expect(caption).not.toMatch(/current language filters/i)
+  })
+
+  it('names the language filter in the caption when one is set', () => {
+    render(
+      <TableView
+        view="languages"
+        selection={{
+          languages: selection.languages, initiatives: selection.initiatives,
+          noMatchingWork: [], undatedInitiatives: 0,
+          workFiltered: false, languageFiltered: true,
+        }}
+        bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
+      />,
+    )
+    const caption = screen.getByTestId('table-caption').textContent ?? ''
+    expect(caption).toMatch(/current language filters/i)
+    expect(caption).not.toMatch(/every language in the atlas/i)
   })
 
   it('explains the conflict dagger in the caption', () => {
@@ -127,7 +156,7 @@ describe('TableView', () => {
     render(
       <TableView
         view="languages"
-        selection={{ languages: [lang], initiatives: [], noMatchingWork: [], undatedInitiatives: 0, workFiltered: false }}
+        selection={{ languages: [lang], initiatives: [], noMatchingWork: [], undatedInitiatives: 0, workFiltered: false, languageFiltered: false }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
     )
@@ -148,7 +177,7 @@ describe('TableView', () => {
     render(
       <TableView
         view="languages"
-        selection={{ languages: [lang], initiatives: [], noMatchingWork: [], undatedInitiatives: 0, workFiltered: false }}
+        selection={{ languages: [lang], initiatives: [], noMatchingWork: [], undatedInitiatives: 0, workFiltered: false, languageFiltered: false }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
     )
@@ -171,7 +200,7 @@ describe('TableView', () => {
     render(
       <TableView
         view="initiatives"
-        selection={{ languages: [], initiatives: [only], noMatchingWork: [], undatedInitiatives: 0, workFiltered: false }}
+        selection={{ languages: [], initiatives: [only], noMatchingWork: [], undatedInitiatives: 0, workFiltered: false, languageFiltered: false }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
     )
@@ -193,7 +222,7 @@ describe('TableView', () => {
         view="languages"
         selection={{
           languages: [kept, workless], initiatives: [], noMatchingWork: [workless],
-          undatedInitiatives: 0, workFiltered: true,
+          undatedInitiatives: 0, workFiltered: true, languageFiltered: false,
         }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
@@ -215,7 +244,7 @@ describe('TableView', () => {
         view="initiatives"
         selection={{
           languages: [bundle.languages[0]!], initiatives: [],
-          noMatchingWork: [bundle.languages[0]!], undatedInitiatives: 0, workFiltered: true,
+          noMatchingWork: [bundle.languages[0]!], undatedInitiatives: 0, workFiltered: true, languageFiltered: false,
         }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
@@ -230,7 +259,7 @@ describe('TableView', () => {
   describe('the no-work-but-languages message follows the filter state', () => {
     const selWith = (workFiltered: boolean) => ({
       languages: [bundle.languages[0]!], initiatives: [],
-      noMatchingWork: [bundle.languages[0]!], undatedInitiatives: 0, workFiltered,
+      noMatchingWork: [bundle.languages[0]!], undatedInitiatives: 0, workFiltered, languageFiltered: false,
     })
 
     it('names it a filter result when a work filter is active', () => {
@@ -276,7 +305,7 @@ describe('TableView', () => {
         view="languages"
         selection={{
           languages: [], initiatives: [bundle.initiatives[0]!], noMatchingWork: [],
-          undatedInitiatives: 0, workFiltered: false,
+          undatedInitiatives: 0, workFiltered: false, languageFiltered: false,
         }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
@@ -314,7 +343,7 @@ describe('TableView', () => {
     render(
       <TableView
         view="initiatives"
-        selection={{ languages: [], initiatives: [dated], noMatchingWork: [], undatedInitiatives: 0, workFiltered: false }}
+        selection={{ languages: [], initiatives: [dated], noMatchingWork: [], undatedInitiatives: 0, workFiltered: false, languageFiltered: false }}
         bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
       />,
     )

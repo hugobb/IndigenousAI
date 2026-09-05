@@ -5,7 +5,7 @@ import type { Initiative, Language } from '../src/schema/index.js'
 const l = { id: 'x' } as Language
 const sel = (over: Partial<Selection>): Selection => ({
   languages: [], initiatives: [], noMatchingWork: [],
-  undatedInitiatives: 0, workFiltered: false, ...over,
+  undatedInitiatives: 0, workFiltered: false, languageFiltered: false, ...over,
 })
 
 describe('emptyState', () => {

@@ -22,13 +22,18 @@ import { unmappedLanguages } from '../map/layers.js'
  *  it has something to say: a headed card with nothing under it reads as a
  *  rendering bug, which is what `?region=arctic` used to show. */
 export default function UnmappedList({
-  languages, noMatchingWork, workFiltered, onSelect,
+  languages, noMatchingWork, workFiltered, languageFiltered, onSelect,
 }: {
   languages: Language[]
   /** A subset of `languages`, so a language may legitimately appear here AND
    *  in a location group. Both facts are true and both are stated. */
   noMatchingWork: Language[]
   workFiltered: boolean
+  /** Whether a LANGUAGE facet narrowed this list at all. The hint used to say
+   *  "these languages match your language filters" in every state; under a
+   *  work filter alone the list is the whole atlas and no language filter
+   *  exists, so the sentence credited a filter the reader never set. */
+  languageFiltered: boolean
   onSelect: (id: string) => void
 }): React.JSX.Element {
   const { notMapped, approximate } = unmappedLanguages(languages)
@@ -87,7 +92,9 @@ export default function UnmappedList({
             </h3>
             <p className="hint">
               {workFiltered
-                ? 'These languages match your language filters. No initiative in the current selection works on them — which is a finding, not an empty result.'
+                ? `${languageFiltered
+                    ? 'These languages match your language filters.'
+                    : 'No language filter is narrowing this list.'} No initiative in the current selection works on them — which is a finding, not an empty result.`
                 : 'No initiative anywhere in this atlas names these languages. That is the coverage gap this map exists to show, not a result of your filters.'}
             </p>
             <ul>

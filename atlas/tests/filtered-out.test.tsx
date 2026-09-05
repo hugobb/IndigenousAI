@@ -17,7 +17,7 @@ const lang = (id: string, over: Record<string, unknown> = {}) =>
 describe('the no-matching-work group', () => {
   it('is absent when the filter removed nothing', () => {
     render(
-      <UnmappedList languages={[lang('a')]} noMatchingWork={[]} workFiltered={true} onSelect={vi.fn()} />,
+      <UnmappedList languages={[lang('a')]} noMatchingWork={[]} workFiltered={true} languageFiltered={false} onSelect={vi.fn()} />,
     )
     expect(screen.queryByTestId('group-no-matching-work')).toBeNull()
   })
@@ -28,7 +28,7 @@ describe('the no-matching-work group', () => {
     render(
       <UnmappedList
         languages={[lang('a')]} noMatchingWork={[lang('choctaw')]}
-        workFiltered={true} onSelect={vi.fn()}
+        workFiltered={true} languageFiltered={false} onSelect={vi.fn()}
       />,
     )
     const group = screen.getByTestId('group-no-matching-work')
@@ -41,7 +41,7 @@ describe('the no-matching-work group', () => {
     render(
       <UnmappedList
         languages={[]} noMatchingWork={[lang('choctaw')]}
-        workFiltered={true} onSelect={onSelect}
+        workFiltered={true} languageFiltered={false} onSelect={onSelect}
       />,
     )
     fireEvent.click(screen.getByRole('button', { name: /choctaw/i }))
@@ -55,7 +55,7 @@ describe('the no-matching-work group', () => {
           lang('nocentre', { centre: null }),
           lang('rough', { centre: { lat: 1, lon: 2, source: src, confidence: 'approximate' } }),
         ]}
-        noMatchingWork={[]} workFiltered={true} onSelect={vi.fn()}
+        noMatchingWork={[]} workFiltered={true} languageFiltered={false} onSelect={vi.fn()}
       />,
     )
     expect(screen.getByTestId('group-not-mapped')).toBeDefined()
@@ -69,7 +69,7 @@ describe('the no-matching-work group', () => {
     render(
       <UnmappedList
         languages={[lang('mapped')]}
-        noMatchingWork={[lang('choctaw')]} workFiltered={true} onSelect={vi.fn()}
+        noMatchingWork={[lang('choctaw')]} workFiltered={true} languageFiltered={false} onSelect={vi.fn()}
       />,
     )
     expect(screen.queryByTestId('group-not-mapped')).toBeNull()
@@ -84,7 +84,7 @@ describe('the workless group states what it can', () => {
   it('names it a filter result when a work filter is active', () => {
     render(
       <UnmappedList languages={[workless]} noMatchingWork={[workless]}
-        workFiltered={true} onSelect={vi.fn()} />,
+        workFiltered={true} languageFiltered={false} onSelect={vi.fn()} />,
     )
     const group = screen.getByTestId('group-no-matching-work')
     expect(group.textContent).toMatch(/matches your filters, but no matching work/i)
@@ -95,7 +95,7 @@ describe('the workless group states what it can', () => {
   it('names it a dataset finding when no work filter is active', () => {
     render(
       <UnmappedList languages={[workless]} noMatchingWork={[workless]}
-        workFiltered={false} onSelect={vi.fn()} />,
+        workFiltered={false} languageFiltered={false} onSelect={vi.fn()} />,
     )
     const group = screen.getByTestId('group-no-matching-work')
     expect(group.textContent).toMatch(/no work in the atlas/i)
@@ -113,7 +113,7 @@ describe('the workless group states what it can', () => {
     const drawn = lang('drawn')
     render(
       <UnmappedList languages={[drawn]} noMatchingWork={[drawn]}
-        workFiltered={false} onSelect={vi.fn()} />,
+        workFiltered={false} languageFiltered={false} onSelect={vi.fn()} />,
     )
     const card = screen.getByTestId('group-no-matching-work').closest('section')
     expect(card).not.toBeNull()
@@ -129,9 +129,35 @@ describe('the workless group states what it can', () => {
   it('renders no card at all when it has nothing to report', () => {
     const { container } = render(
       <UnmappedList languages={[lang('drawn')]} noMatchingWork={[]}
-        workFiltered={false} onSelect={vi.fn()} />,
+        workFiltered={false} languageFiltered={false} onSelect={vi.fn()} />,
     )
     expect(container.querySelectorAll('section').length).toBe(0)
+  })
+
+  // Seam review (Task 8). The hint said "These languages match your language
+  // filters" whenever a WORK filter was active — the state that populates this
+  // group most often, and the one where L1 is the whole atlas because no
+  // language facet is set at all.
+  it('does not credit a language filter in the hint when none is set', () => {
+    const workless = lang('choctaw')
+    render(
+      <UnmappedList languages={[workless]} noMatchingWork={[workless]}
+        workFiltered={true} languageFiltered={false} onSelect={vi.fn()} />,
+    )
+    const group = screen.getByTestId('group-no-matching-work').textContent ?? ''
+    expect(group).toMatch(/no language filter is narrowing this list/i)
+    expect(group).not.toMatch(/match your language filters/i)
+  })
+
+  it('names the language filter in the hint when one is set', () => {
+    const workless = lang('choctaw')
+    render(
+      <UnmappedList languages={[workless]} noMatchingWork={[workless]}
+        workFiltered={true} languageFiltered={true} onSelect={vi.fn()} />,
+    )
+    const group = screen.getByTestId('group-no-matching-work').textContent ?? ''
+    expect(group).toMatch(/match your language filters/i)
+    expect(group).not.toMatch(/no language filter is narrowing/i)
   })
 
   // Both facts are true and both are stated. Suppressing either to avoid
@@ -140,7 +166,7 @@ describe('the workless group states what it can', () => {
     const both = lang('unmapped-and-workless', { centre: null })
     render(
       <UnmappedList languages={[both]} noMatchingWork={[both]}
-        workFiltered={false} onSelect={vi.fn()} />,
+        workFiltered={false} languageFiltered={false} onSelect={vi.fn()} />,
     )
     expect(screen.getByTestId('group-not-mapped').textContent).toContain(both.name)
     expect(screen.getByTestId('group-no-matching-work').textContent).toContain(both.name)

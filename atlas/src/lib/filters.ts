@@ -21,6 +21,15 @@ export interface Selection {
   /** `anyWorkFilter(state)`, exposed rather than re-derived: the rail's heading
    *  makes a different and stronger claim when no work filter is active. */
   workFiltered: boolean
+  /** `anyLanguageFilter(state)`, the symmetric flag, and for the symmetric
+   *  reason (seam review, Task 8). Three surfaces told the reader these
+   *  languages "match your language filters" — the rail hint, the rail banner
+   *  and the languages caption — and with only a WORK filter set, which is the
+   *  state that populates `noMatchingWork` most often, no language filter
+   *  exists. `l1` is then the whole atlas, and the page was crediting a filter
+   *  the reader never applied. One flag, three renderings, exactly as
+   *  `workFiltered` already does for the other half of the same sentence. */
+  languageFiltered: boolean
 }
 
 /** Selected values are OR within a facet; facets are AND with each other. The
@@ -82,6 +91,7 @@ export function applyFilters(bundle: AtlasBundle, state: FilterState): Selection
     // something that only becomes true once a work facet is touched.
     undatedInitiatives: i1.filter((i) => i.started === null).length,
     workFiltered: anyWorkFilter(state),
+    languageFiltered: anyLanguageFilter(state),
   }
 }
 
