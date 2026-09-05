@@ -62,7 +62,7 @@ describe('what App actually wires up', () => {
     // The point of the ruling: a language the rail names as having no matching
     // work is on the rail and ON the map at the same moment.
     expect(ids).toContain('fixture-approximate')
-    const group = screen.getByTestId('group-filtered-out')
+    const group = screen.getByTestId('group-no-matching-work')
     expect(group.textContent).toMatch(/Approximate Centre Language/)
   })
 
@@ -125,7 +125,7 @@ describe('the rail under a filter that finds no work', () => {
     const said = screen.getByTestId('no-matching-work')
     expect(said.textContent).toMatch(/No initiative matches/i)
     expect(said.textContent).toMatch(/1 language/)
-    expect(screen.getByTestId('group-filtered-out').textContent).toMatch(/Adjacent Language/)
+    expect(screen.getByTestId('group-no-matching-work').textContent).toMatch(/Adjacent Language/)
   })
 
   it('still says nothing matched when nothing did, filtered-out included', () => {
@@ -146,7 +146,7 @@ describe('the rail under a filter that finds no work', () => {
     at('/?region=africa')
     expect(screen.getByTestId('group-not-mapped')).toBeDefined()
     expect(screen.queryByTestId('group-approximate')).toBeNull()
-    expect(screen.queryByTestId('group-filtered-out')).toBeNull()
+    expect(screen.queryByTestId('group-no-matching-work')).toBeNull()
   })
 })
 

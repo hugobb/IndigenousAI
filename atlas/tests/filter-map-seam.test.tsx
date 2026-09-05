@@ -61,14 +61,14 @@ describe('the rail through App', () => {
   it('shows the filtered-out group, naming a language that matched but has no matching work', () => {
     window.history.replaceState({}, '', '/?application=asr')
     render(<App />)
-    const group = screen.getByTestId('group-filtered-out')
+    const group = screen.getByTestId('group-no-matching-work')
     expect(group.textContent).toMatch(/Conflicted Speakers Language/)
   })
 
   it('still opens a language panel for a filtered-out language clicked in the rail', () => {
     window.history.replaceState({}, '', '/?application=asr')
     render(<App />)
-    const group = screen.getByTestId('group-filtered-out')
+    const group = screen.getByTestId('group-no-matching-work')
     fireEvent.click(within(group).getByRole('button', { name: 'Conflicted Speakers Language' }))
     expect(screen.getByLabelText('Language: Conflicted Speakers Language')).toBeDefined()
   })

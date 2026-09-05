@@ -5,10 +5,13 @@ import { unmappedLanguages } from '../map/layers.js'
  *  no centre is simply invisible and a reader cannot tell "we found nothing"
  *  from "there is nothing". */
 export default function UnmappedList({
-  languages, filteredOut, onSelect,
+  languages, noMatchingWork, workFiltered, onSelect,
 }: {
   languages: Language[]
-  filteredOut: Language[]
+  /** A subset of `languages`, so a language may legitimately appear here AND
+   *  in a location group. Both facts are true and both are stated. */
+  noMatchingWork: Language[]
+  workFiltered: boolean
   onSelect: (id: string) => void
 }): React.JSX.Element {
   const { notMapped, approximate } = unmappedLanguages(languages)
@@ -49,15 +52,20 @@ export default function UnmappedList({
           </ul>
         </div>
       )}
-      {filteredOut.length > 0 && (
-        <div data-testid="group-filtered-out">
-          <h3>Matches your filters, but no matching work ({filteredOut.length})</h3>
+      {noMatchingWork.length > 0 && (
+        <div data-testid="group-no-matching-work">
+          <h3>
+            {workFiltered
+              ? `Matches your filters, but no matching work (${noMatchingWork.length})`
+              : `No work in the atlas for these languages (${noMatchingWork.length})`}
+          </h3>
           <p className="hint">
-            These languages match your language filters. No initiative in the current
-            selection works on them — which is a finding, not an empty result.
+            {workFiltered
+              ? 'These languages match your language filters. No initiative in the current selection works on them — which is a finding, not an empty result.'
+              : 'No initiative anywhere in this atlas names these languages. That is the coverage gap this map exists to show, not a result of your filters.'}
           </p>
           <ul>
-            {filteredOut.map((l) => (
+            {noMatchingWork.map((l) => (
               <li key={l.id}>
                 <button type="button" className="link-button" onClick={() => onSelect(l.id)}>
                   {l.name}

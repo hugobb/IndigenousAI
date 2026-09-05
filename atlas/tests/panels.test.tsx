@@ -107,13 +107,13 @@ describe('InitiativePanel', () => {
 
 describe('UnmappedList', () => {
   it('separates languages with no centre from those drawn but untrusted', () => {
-    render(<UnmappedList languages={languages} filteredOut={[]} onSelect={() => {}} />)
+    render(<UnmappedList languages={languages} noMatchingWork={[]} workFiltered={false} onSelect={() => {}} />)
     expect(within(screen.getByTestId('group-not-mapped')).getByText(/Unmapped Language/)).toBeDefined()
     expect(within(screen.getByTestId('group-approximate')).getByText(/Approximate Centre Language/)).toBeDefined()
   })
 
   it('labels an adjacent-tier language as tier-excluded, not as a data gap', () => {
-    render(<UnmappedList languages={languages} filteredOut={[]} onSelect={() => {}} />)
+    render(<UnmappedList languages={languages} noMatchingWork={[]} workFiltered={false} onSelect={() => {}} />)
     expect(within(screen.getByTestId('group-not-mapped')).getByText(/adjacent tier/i)).toBeDefined()
   })
 })

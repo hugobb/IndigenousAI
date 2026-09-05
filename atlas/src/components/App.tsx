@@ -102,14 +102,18 @@ export default function App(): React.JSX.Element {
         )}
         {empty === 'no-work-but-languages' && (
           <p className="card empty" data-testid="no-matching-work">
-            No initiative matches the current filters. {nWorkless}{' '}
+            {selection.workFiltered
+              ? 'No initiative matches the current filters.'
+              : 'No initiative in this atlas works on these languages.'}{' '}
+            {nWorkless}{' '}
             {nWorkless === 1 ? 'language' : 'languages'} matched your language filters
             and {nWorkless === 1 ? 'is' : 'are'} listed below.
           </p>
         )}
         <UnmappedList
           languages={selection.languages}
-          filteredOut={selection.noMatchingWork}
+          noMatchingWork={selection.noMatchingWork}
+          workFiltered={selection.workFiltered}
           onSelect={(id) => dispatch({ type: 'selectLanguage', id })}
         />
         {outside !== null && (
