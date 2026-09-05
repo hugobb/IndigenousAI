@@ -17,12 +17,22 @@ IndigenousAI/
 ├── reports/                    # Deep-dive technical and conceptual reports
 │   ├── README.md               # Reports index and naming conventions
 │   └── *.md                    # One report per focused topic
-├── docs/                       # MkDocs Material technique guide (cd docs && mkdocs serve)
+├── scripts/build-site.sh       # THE build. Guide + atlas into one deployable tree
+├── vercel.json                 # Points the deploy at that one script
+├── .github/workflows/ci.yml    # tests, types, browser suite, record review, site build
+├── CITATION.cff                # How to cite this work
+├── LICENSE / LICENSE-CONTENT   # MIT (code) / CC-BY-4.0 (prose, data, summaries)
+├── docs/                       # MkDocs Material technique guide, served at /
 │   ├── mkdocs.yml
 │   └── docs/
 │       ├── guide/              # End-to-end framework for building Indigenous language AI
 │       ├── ml-techniques/      # ML/NLP technique docs (21 docs + index)
-│       └── process-techniques/ # Process & methodology technique docs (18 docs + index)
+│       ├── process-techniques/ # Process & methodology technique docs (18 docs + index)
+│       └── summaries/          # GENERATED at build time from litterature_review/. Gitignored
+├── atlas/                      # The interactive map, served at /atlas/
+│   ├── data/                   # Hand-curated records; derived/ is generated
+│   ├── scripts/                # extract -> validate -> bundle, and the link check
+│   └── src/                    # The React app
 ├── tasks/                      # Task records — one dated subfolder per task
 │   └── YYYY-MM-DD-task-name/
 │       ├── PLAN.md             # Task prompt and methodology (reusable)
@@ -237,17 +247,30 @@ The MkDocs Material site at `docs/` is the primary output of the technique extra
 
 Each technique doc follows a fixed structure: Description → When to Use → How to Apply → Pseudocode → Evidence → Variations → Code & Tools → Strengths & Weaknesses → References → Self-Review Notes.
 
-**To run the site locally:** `cd docs && mkdocs serve`
+**To build the site:** `bash scripts/build-site.sh`. This is the ONE build command
+— the same one Vercel and CI run — and `cd docs && mkdocs build` is not a smaller
+version of it. That does three things wrong: `mkdocs` is not on PATH (it lives in
+`docs/.venv`, which this script creates), the 92 paper summaries are copied from
+`litterature_review/` by a step it skips, and the atlas is merged in at `/atlas/`
+by a step it skips too. The result is a `docs/site/` that looks built and is
+missing the `Paper summaries` tab, all 92 summary routes, and the atlas.
 
-**To build the site:** `cd docs && mkdocs build` (output in `docs/site/`)
+**To run the guide locally:** `cd docs && .venv/bin/mkdocs serve`, after
+`bash scripts/build-site.sh` has created that venv once. `/atlas/` and
+`/summaries/` do not exist under `mkdocs serve` — only in the merged build.
+
+`docs/site/` is gitignored build output; nothing in it is ever committed.
 
 **To add a new technique doc:**
 
 1. Create `docs/docs/ml-techniques/[slug].md` or `docs/docs/process-techniques/[slug].md` using the structure above.
 2. Add a row to the corresponding `index.md` table (use `[slug.md](slug.md)` links — MkDocs requires `.md` extensions).
 3. Add the technique to the `nav:` section in `docs/mkdocs.yml` under the appropriate category.
-4. Use `&lt;` instead of bare `<` before digits in prose (e.g., `&lt;1K`) — Markdown parsers may misinterpret them.
-5. Use `??? note "Title"` syntax for collapsible Self-Review Notes blocks (MkDocs Material `details` extension).
+4. Give it a `**Category:**` header line. `atlas/scripts/extract-methods.ts` SKIPS
+   any doc without one — deliberately, so index and stub pages are not techniques —
+   so a doc missing it never reaches the atlas and nothing reports that.
+5. Use `&lt;` instead of bare `<` before digits in prose (e.g., `&lt;1K`) — Markdown parsers may misinterpret them.
+6. Use `??? note "Title"` syntax for collapsible Self-Review Notes blocks (MkDocs Material `details` extension).
 
 ---
 
