@@ -4,8 +4,8 @@
 #
 # The draft-record gate is held DIFFERENTLY here than in CI, on purpose
 # (spec D2): a failing `build:data` must NOT fail the deploy, because the guide
-# is finished and should not wait on unrelated record review. CI fails loudly on
-# the same fact. Both postures are correct for their own job.
+# is published and should not wait on unrelated record review. CI fails loudly
+# on the same fact. Both postures are correct for their own job.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -18,19 +18,38 @@ OUT="${SITE_OUT:-$REPO/docs/site}"
 # this would have worked in CI and broken locally, which is the worse way round.
 PY_BIN="${PY_BIN:-$(command -v python3.13 || command -v python3.12 || command -v python3)}"
 VENV="$REPO/docs/.venv"
-[ -d "$VENV" ] || "$PY_BIN" -m venv "$VENV"
+if [ ! -d "$VENV" ]; then
+  # Said out loud because this is the ONE step of the deploy that has never run
+  # on the deployment image (spec D1). Some Debian-based images ship Python
+  # without `ensurepip`, where `-m venv` fails with a message about
+  # python3-venv that reads like a local misconfiguration rather than a build
+  # step to fix. Naming the alternative here is not the same as taking it: a
+  # silent fallback to a bare `pip install` is what this line exists to avoid.
+  "$PY_BIN" -m venv "$VENV" || {
+    echo "build-site.sh: '$PY_BIN -m venv' failed, so MkDocs cannot be installed." >&2
+    echo "  The build image needs a Python with venv support (Debian: python3-venv)," >&2
+    echo "  or PY_BIN set to an interpreter that has it. Do NOT switch to a bare" >&2
+    echo "  'pip install' without reading the note above this line." >&2
+    exit 1
+  }
+fi
 "$VENV/bin/pip" install --quiet --disable-pip-version-check -r "$REPO/docs/requirements.txt"
+
+# One install for the whole script. Everything below that needs node_modules —
+# the summaries copy, the data and app builds, the link check — runs from
+# atlas/. This used to run twice; idempotent, but the second one is latency on
+# every deploy.
+( cd "$REPO/atlas" && pnpm install --frozen-lockfile )
 
 # The 92 paper summaries MkDocs will build, copied from litterature_review/
 # (the source of truth, never edited) into docs/docs/summaries — gitignored,
 # rebuilt every time, the one permitted write under docs/docs/. Must run
 # before `mkdocs build` or the site ships without them.
-( cd "$REPO/atlas" && pnpm install --frozen-lockfile && pnpm copy:summaries )
+( cd "$REPO/atlas" && pnpm copy:summaries )
 
 "$VENV/bin/mkdocs" build --site-dir "$OUT" --config-file "$REPO/docs/mkdocs.yml"
 
 cd "$REPO/atlas"
-pnpm install --frozen-lockfile
 
 mkdir -p "$OUT/atlas"
 # `build:data` exits non-zero while any record is still `status: draft`. That is
