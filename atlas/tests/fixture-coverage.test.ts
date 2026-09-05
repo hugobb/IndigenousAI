@@ -34,8 +34,57 @@ describe('the fixture models every honesty case', () => {
     ).toBe(true)
   })
 
-  it('has a dimension nothing is coded for (renders "not yet curated")', () => {
-    expect(b.languages.every((l) => l.endangerment === null)).toBe(true)
+  // Task 7 gives `endangerment` a fixture path (extra scope, ruled in
+  // alongside the brief): a language now carries a status, so `endangerment`
+  // is no longer a dimension nothing is coded for — it was the only one of
+  // the four language facets (family, typology, endangerment, region) with
+  // zero coverage, so this assertion can no longer hold for ANY of them. That
+  // failure is the signal the new fixture path exists, not a regression: the
+  // "not yet curated" render itself stays independently guarded against
+  // synthetic `FacetGroup` summaries in facet-panel.test.tsx and
+  // facet-collapse.test.tsx, which never depended on the real fixture. The
+  // fixture's new fact is the opposite one — assert it explicitly rather than
+  // deleting the guard.
+  it('has some coded value for every language facet, now that endangerment does too', () => {
+    expect(b.languages.some((l) => l.family !== null)).toBe(true)
+    expect(b.languages.some((l) => l.typology.length > 0)).toBe(true)
+    expect(b.languages.some((l) => l.endangerment !== null)).toBe(true)
+    expect(b.languages.some((l) => l.region !== null)).toBe(true)
+  })
+
+  it('has an initiative with a link, so the links field has a path', () => {
+    expect(b.initiatives.some((i) => i.links.length > 0)).toBe(true)
+  })
+
+  it('has a language with every identifier populated', () => {
+    expect(
+      b.languages.some(
+        (l) => l.glottocode !== null && l.iso639_3 !== null &&
+               l.subfamily !== null && l.countries.length > 0,
+      ),
+    ).toBe(true)
+  })
+
+  // Exercises the rule that `retrieved` is omitted rather than called
+  // "not recorded" for a non-url source.
+  it('has a doc source with no retrieval date', () => {
+    const sources = [
+      ...b.languages.flatMap((l) => [l.centre?.source, l.speakers?.source, l.endangerment?.source]),
+      ...b.initiatives.flatMap((i) => [i.site.source, i.governance?.source]),
+    ].filter((s) => s != null)
+    expect(sources.some((s) => s.kind === 'doc' && s.retrieved === null)).toBe(true)
+  })
+
+  // Extra scope (ruled in alongside Task 7's brief): tasks 4-6 each found a
+  // guard for the joined-array rendering rule with no fixture record to
+  // exercise it. `typology` already had an empty-array case (four fixture
+  // languages carry `[]`); `countries` did not, on either side.
+  it('has a language with an empty countries array, so a joined empty list has a path', () => {
+    expect(b.languages.some((l) => l.countries.length === 0)).toBe(true)
+  })
+
+  it('has a language with more than one country, so the ", "-joined list has a path', () => {
+    expect(b.languages.some((l) => l.countries.length > 1)).toBe(true)
   })
 
   it('has an adjacent-tier initiative carrying a transferability note', () => {

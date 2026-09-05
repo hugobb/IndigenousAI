@@ -152,6 +152,24 @@ describe('LanguagePanel', () => {
     expect(screen.getByTestId('field-countries')).toBeDefined()
   })
 
+  // Task 7 (extra scope): `countries.join(', ')` had a fixture path for the
+  // single-element case only. `fixture-unmapped` now carries two.
+  it('joins multiple countries with ", "', () => {
+    const l = languages.find((x: Language) => x.countries.length > 1)!
+    render(<LanguagePanel language={l} initiatives={[]} filtered={true} />)
+    const dd = screen.getByTestId('field-countries').querySelector('dd')
+    expect(dd?.textContent).toBe(l.countries.join(', '))
+  })
+
+  // `typology` already had this fixture path (`fixture-approximate` and
+  // others carry `[]`); `countries` did not, on either side. `fixture-adjacent`
+  // now does.
+  it('renders an empty countries array as "not recorded", not as a blank', () => {
+    const l = languages.find((x: Language) => x.countries.length === 0)!
+    render(<LanguagePanel language={l} initiatives={[]} filtered={true} />)
+    expect(within(screen.getByTestId('field-countries')).getByText(/not recorded/i)).toBeDefined()
+  })
+
   // Every one of these is nullable and several are null across the fixture.
   it('renders an absent identifier as the words, never as a blank', () => {
     const l = languages.find((x: Language) => x.glottocode === null)!
@@ -411,18 +429,11 @@ function assertDisclosures(container: HTMLElement, expected: Record<string, stri
 }
 
 describe('source disclosures', () => {
-  // Built here rather than taken from the fixture: no fixture language carries
-  // an endangerment status, so the third of the language panel's disclosures
-  // would otherwise never be rendered by any panel test at all. Fixture growth
-  // belongs to Task 7.
-  const conflicted: Language = languages.find((x: Language) => (x.speakers?.conflicts.length ?? 0) > 0)!
-  const withEndangerment: Language = LanguageSchema.parse({
-    ...conflicted,
-    endangerment: {
-      status: 'severely-endangered', scale: 'unesco-2010',
-      source: { kind: 'doc', ref: 'fixture-endangerment', retrieved: null, quote: null },
-    },
-  })
+  // Task 7 gave `fixture-conflict` an `endangerment` directly in the fixture
+  // (it already had a sourced `speakers` with a conflict and a sourced
+  // `centre`), so the third of the language panel's disclosures is now
+  // rendered from real fixture data rather than a record built inline here.
+  const withEndangerment: Language = languages.find((x: Language) => (x.speakers?.conflicts.length ?? 0) > 0)!
 
   it('gives the language panel exactly the disclosures the schema sources', () => {
     const { container } = render(
