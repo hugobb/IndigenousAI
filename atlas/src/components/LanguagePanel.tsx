@@ -28,9 +28,15 @@ export default function LanguagePanel({
       <h2>{language.name}</h2>
       <PanelSection title="Identity">
         <Field label="Also known as" testId="field-aka">{language.also_known_as.join(', ')}</Field>
+        <Field label="Glottocode" testId="field-glottocode">{language.glottocode}</Field>
+        <Field label="ISO 639-3" testId="field-iso639-3">{language.iso639_3}</Field>
+        {/* D5: an adjacent-tier language is never mapped. Without this the
+            reader has no way to tell one from a coverage gap. */}
+        <Field label="Tier" testId="field-tier">{language.tier}</Field>
+        <Field label="Family" testId="field-family">{language.family}</Field>
+        <Field label="Subfamily" testId="field-subfamily">{language.subfamily}</Field>
       </PanelSection>
       <PanelSection title="Situation">
-        <Field label="Family" testId="field-family">{language.family}</Field>
         <Field label="Typology" testId="field-typology">{language.typology.join(', ')}</Field>
         <SourcedField
           label="Endangerment" testId="field-endangerment"
@@ -64,6 +70,10 @@ export default function LanguagePanel({
             </>
           )}
         </SourcedField>
+        {/* A facet the reader can filter by. Filtering on a dimension the
+            record never displays is a gap spec §7 did not anticipate. */}
+        <Field label="Region" testId="field-region">{language.region}</Field>
+        <Field label="Countries" testId="field-countries">{language.countries.join(', ')}</Field>
       </PanelSection>
       <PanelSection title="Place">
         {/* `not mapped` is a VALUE, not a null: we know this language has no

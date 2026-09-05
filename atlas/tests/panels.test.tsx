@@ -124,6 +124,43 @@ describe('LanguagePanel', () => {
       expect(row.textContent).not.toMatch(/no work exists/i)
     })
   })
+
+  // Spec §7 named these identifiers; the panel never displayed them.
+  it('shows the identity fields a reader would use to look the language up', () => {
+    render(<LanguagePanel language={lang('fixture-sourced')} initiatives={[]} filtered={true} />)
+    for (const id of ['field-glottocode', 'field-iso639-3', 'field-tier', 'field-subfamily']) {
+      expect(screen.getByTestId(id)).toBeDefined()
+    }
+  })
+
+  it('shows region and countries', () => {
+    render(<LanguagePanel language={lang('fixture-sourced')} initiatives={[]} filtered={true} />)
+    expect(screen.getByTestId('field-region')).toBeDefined()
+    expect(screen.getByTestId('field-countries')).toBeDefined()
+  })
+
+  // Every one of these is nullable and several are null across the fixture.
+  it('renders an absent identifier as the words, never as a blank', () => {
+    const l = languages.find((x: Language) => x.glottocode === null)!
+    render(<LanguagePanel language={l} initiatives={[]} filtered={true} />)
+    expect(screen.getByTestId('field-glottocode').textContent).toMatch(/not recorded/i)
+  })
+
+  // D5: an adjacent-tier language is never mapped — it is included because
+  // work on it transfers, not because the atlas claims coverage of it.
+  // Without the tier on the panel a reader has no way to tell that apart
+  // from a coverage gap.
+  it('names the tier, so an adjacent-tier language is legible as one', () => {
+    const l = languages.find((x: Language) => x.tier === 'adjacent')!
+    render(<LanguagePanel language={l} initiatives={[]} filtered={true} />)
+    expect(screen.getByTestId('field-tier').textContent).toContain('adjacent')
+  })
+
+  it('carries no source disclosure on a field the schema gives no source', () => {
+    render(<LanguagePanel language={lang('fixture-sourced')} initiatives={[]} filtered={true} />)
+    expect(screen.queryByTestId('source-field-family')).toBeNull()
+    expect(screen.queryByTestId('source-field-region')).toBeNull()
+  })
 })
 
 describe('InitiativePanel', () => {

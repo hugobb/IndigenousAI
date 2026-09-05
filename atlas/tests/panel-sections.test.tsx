@@ -59,10 +59,16 @@ describe('panel sections', () => {
 // failing test, not a silently-passing one.
 const LANGUAGE_FIELD_SECTIONS: Record<string, string> = {
   'field-aka': 'Identity',
-  'field-family': 'Situation',
+  'field-glottocode': 'Identity',
+  'field-iso639-3': 'Identity',
+  'field-tier': 'Identity',
+  'field-family': 'Identity',
+  'field-subfamily': 'Identity',
   'field-typology': 'Situation',
   'field-endangerment': 'Situation',
   'field-speakers': 'Situation',
+  'field-region': 'Situation',
+  'field-countries': 'Situation',
   'field-centre': 'Place',
   'field-initiatives': 'Work',
   'field-caveat': 'Note',
