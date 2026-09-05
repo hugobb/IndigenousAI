@@ -2,6 +2,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import SourcedField from '../src/components/SourcedField.js'
+import * as sourcedFieldModule from '../src/components/SourcedField.js'
 import type { Source } from '../src/schema/index.js'
 
 afterEach(() => cleanup())
@@ -73,5 +74,48 @@ describe('SourcedField', () => {
     render(<SourcedField label="Speakers" testId="field-speakers" source={url}>{null}</SourcedField>)
     expect(screen.getByTestId('field-speakers').textContent).toMatch(/not recorded/i)
     expect(screen.getByTestId('source-field-speakers')).toBeDefined()
+  })
+
+  // A field can show more than one figure — speakers keeps disagreeing counts
+  // rather than picking one — so the disclosure takes a LIST, as data. This is
+  // what makes a second, hand-built disclosure component unnecessary, which is
+  // what lets the module keep one private (see the export-surface guard below).
+  it('attributes each figure to its own source when given a list', () => {
+    render(
+      <SourcedField
+        label="Speakers" testId="field-speakers"
+        source={[{ source: url, figure: '9,600' }, { source: doc, figure: '300' }]}
+      >
+        9,600
+      </SourcedField>,
+    )
+    fireEvent.click(screen.getByTestId('source-field-speakers'))
+    const body = screen.getByTestId('source-body-field-speakers')
+    expect(body.textContent).toContain('9,600')
+    expect(body.textContent).toContain('https://example.org/x')
+    expect(body.textContent).toContain('300')
+    expect(body.textContent).toContain('data/REVIEW-QUEUE.md')
+  })
+
+  // "No source, no toggle" only means "this field structurally cannot have a
+  // source" if a toggle is NEVER rendered empty. An empty list is no source.
+  it('renders no disclosure for an empty list of sources', () => {
+    render(<SourcedField label="Speakers" testId="field-speakers" source={[]}>9,600</SourcedField>)
+    expect(screen.queryByTestId('source-field-speakers')).toBeNull()
+  })
+})
+
+// Fix round 1. `Field.aside` exists so a control can sit in a field without
+// counting as its value; through `children` instead, `isEmpty` sees a
+// non-empty node and a null-valued field silently loses its "not recorded".
+// Comments saying "use aside" did not make that unreachable: a caller holding
+// a disclosure component could still route it through `children` —
+// `<Field testId="f">{null}<SourceDisclosure …/></Field>` renders a `<dd>`
+// reading only "source". So the module exports NO way to build a disclosure.
+// This is the guard on that door: re-exporting `SourceDisclosure` (or
+// `SourceLine`) to make such a call site compile fails here.
+describe('the SourcedField module surface', () => {
+  it('exports nothing a caller could route through children instead of aside', () => {
+    expect(Object.keys(sourcedFieldModule).sort()).toEqual(['default'])
   })
 })

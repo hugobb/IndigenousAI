@@ -1,7 +1,7 @@
 import type { Initiative, Language } from '../schema/index.js'
 import Field from './Field.js'
 import PanelSection from './PanelSection.js'
-import SourcedField, { SourceDisclosure, SourceLine } from './SourcedField.js'
+import SourcedField from './SourcedField.js'
 
 export default function LanguagePanel({
   language, initiatives, filtered,
@@ -38,24 +38,19 @@ export default function LanguagePanel({
         >
           {language.endangerment?.status}
         </SourcedField>
-        {/* Not `SourcedField`: this field can show two disagreeing figures and
-            each carries its OWN source. One source under two numbers leaves
-            the reader unable to tell which source says which — and being able
-            to tell is the entire reason the schema keeps both instead of
-            picking one. */}
-        <Field
+        {/* A LIST of sources, not one: this field can show two disagreeing
+            figures and each carries its OWN source. One reference under two
+            numbers leaves the reader unable to tell which source says which —
+            and being able to tell is the entire reason the schema keeps both
+            instead of picking one. */}
+        <SourcedField
           label="Speakers" testId="field-speakers"
-          aside={s === null ? null : (
-            <SourceDisclosure label="Speakers" testId="field-speakers">
-              <SourceLine source={s.source} figure={s.value.toLocaleString('en')} />
-              {s.conflicts.map((c) => (
-                <SourceLine
-                  key={`${c.value}-${c.source.ref}`}
-                  source={c.source} figure={c.value.toLocaleString('en')}
-                />
-              ))}
-            </SourceDisclosure>
-          )}
+          source={s === null ? null : [
+            { source: s.source, figure: s.value.toLocaleString('en') },
+            ...s.conflicts.map((c) => ({
+              source: c.source, figure: c.value.toLocaleString('en'),
+            })),
+          ]}
         >
           {s === null ? null : (
             <>
@@ -68,7 +63,7 @@ export default function LanguagePanel({
               )}
             </>
           )}
-        </Field>
+        </SourcedField>
       </PanelSection>
       <PanelSection title="Place">
         {/* `not mapped` is a VALUE, not a null: we know this language has no

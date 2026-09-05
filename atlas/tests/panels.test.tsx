@@ -164,25 +164,46 @@ describe('UnmappedList', () => {
 
 // SP1c shipped five facet/column disclosure pairs whose accessible names were
 // identical, and only the one a test happened to name was noticed. This is the
-// class guard, not the case guard: it walks EVERY disclosure a panel renders
-// and checks its name against its own field's label, so a new sourced field
-// added with a copied `label` fails here rather than reaching a screen reader
-// as one more indistinguishable "source" button.
-function disclosureNames(container: HTMLElement): string[] {
-  const buttons = Array.from(container.querySelectorAll<HTMLElement>('button[data-testid^="source-"]'))
-  return buttons.map((b) => {
-    const field = b.closest('[data-testid^="field-"]')
-    expect(field, 'a source disclosure sits outside any field').not.toBeNull()
-    const label = field!.querySelector('dt')?.textContent
-    expect(b.getAttribute('aria-label')).toBe(`Source for ${label}`)
-    return b.getAttribute('aria-label') ?? ''
-  })
+// class guard, not the case guard.
+//
+// ONE walker, both panels (fix round 1: the first version covered only the
+// language panel, and a guard that has to be remembered twice is a guard that
+// will be remembered once). It is SYMMETRIC, like the section mapping table:
+// the set of fields carrying a disclosure must be EXACTLY the expected set, so
+// it fails BOTH when a sourced field loses its disclosure AND when a field the
+// schema gives no source acquires one — which is the whole content of "no
+// source, no toggle". Tasks 5 and 6 add rows here when they add sourced fields.
+function assertDisclosures(container: HTMLElement, expected: Record<string, string>): void {
+  const fields = Array.from(container.querySelectorAll<HTMLElement>('[data-testid^="field-"]'))
+  expect(fields.length).toBeGreaterThan(0)
+
+  const found: Record<string, string> = {}
+  for (const field of fields) {
+    const testId = field.getAttribute('data-testid')!
+    const buttons = field.querySelectorAll<HTMLElement>('button[data-testid^="source-"]')
+    expect(buttons.length, `${testId} renders ${buttons.length} source disclosures`)
+      .toBeLessThanOrEqual(1)
+    const button = buttons[0]
+    if (button === undefined) continue
+    // Named after its OWN field, read from the rendered `<dt>` rather than
+    // from this table, so a copied `label` fails here rather than reaching a
+    // screen reader as one more indistinguishable "source" button.
+    const label = field.querySelector('dt')?.textContent
+    expect(button.getAttribute('aria-label'), `${testId} is named for "${label}"`)
+      .toBe(`Source for ${label}`)
+    found[testId] = button.getAttribute('aria-label')!
+  }
+
+  expect(found).toEqual(expected)
+  const names = Object.values(found)
+  expect(new Set(names).size, `duplicate accessible names: ${names.join(', ')}`).toBe(names.length)
 }
 
-describe('source disclosure names', () => {
+describe('source disclosures', () => {
   // Built here rather than taken from the fixture: no fixture language carries
   // an endangerment status, so the third of the language panel's disclosures
-  // would otherwise never be rendered by any panel test at all.
+  // would otherwise never be rendered by any panel test at all. Fixture growth
+  // belongs to Task 7.
   const conflicted: Language = languages.find((x: Language) => (x.speakers?.conflicts.length ?? 0) > 0)!
   const withEndangerment: Language = LanguageSchema.parse({
     ...conflicted,
@@ -192,35 +213,37 @@ describe('source disclosure names', () => {
     },
   })
 
-  it('names each language-panel disclosure after its own field, all distinct', () => {
+  it('gives the language panel exactly the disclosures the schema sources', () => {
     const { container } = render(
       <LanguagePanel language={withEndangerment} initiatives={[]} filtered={true} />,
     )
-    const names = disclosureNames(container)
-    expect(names.sort()).toEqual(['Source for Centre', 'Source for Endangerment', 'Source for Speakers'])
-    expect(new Set(names).size).toBe(names.length)
+    assertDisclosures(container, {
+      'field-endangerment': 'Source for Endangerment',
+      'field-speakers': 'Source for Speakers',
+      'field-centre': 'Source for Centre',
+    })
   })
 
-  it('names each initiative-panel disclosure after its own field, all distinct', () => {
+  it('gives the initiative panel exactly the disclosures the schema sources', () => {
     const { container } = render(
       <InitiativePanel initiative={init('fixture-ongoing')} methods={methods} />,
     )
-    const names = disclosureNames(container)
-    expect(names.sort()).toEqual(['Source for Governance', 'Source for Location'])
-    expect(new Set(names).size).toBe(names.length)
+    assertDisclosures(container, {
+      'field-governance': 'Source for Governance',
+      'field-site': 'Source for Location',
+    })
   })
 
-  // The counterpart rule: a field that carries no `Source` in the schema shows
-  // NO toggle, and that silence only means "structurally cannot have one" if a
-  // toggle is never rendered empty.
-  it('renders no disclosure on the fields the schema gives no source', () => {
+  // Rendered against the adjacent-tier initiative so `field-transferability`
+  // is present — `TransferabilitySchema` carries no `Source`, and Task 6 owns
+  // the `Evidence` section, so a toggle here would invent an attribution.
+  // `fixture-adjacent-init` also has a null `governance`, which is the other
+  // half: an absent sub-object contributes no disclosure either.
+  it('gives an adjacent-tier initiative no disclosure it has no source for', () => {
     const { container } = render(
-      <LanguagePanel language={withEndangerment} initiatives={[]} filtered={true} />,
+      <InitiativePanel initiative={init('fixture-adjacent-init')} methods={methods} />,
     )
-    for (const testId of ['field-aka', 'field-family', 'field-typology', 'field-initiatives', 'field-caveat']) {
-      const field = container.querySelector(`[data-testid="${testId}"]`)
-      expect(field, testId).not.toBeNull()
-      expect(field!.querySelector('button[data-testid^="source-"]'), testId).toBeNull()
-    }
+    expect(container.querySelector('[data-testid="field-transferability"]')).not.toBeNull()
+    assertDisclosures(container, { 'field-site': 'Source for Location' })
   })
 })
