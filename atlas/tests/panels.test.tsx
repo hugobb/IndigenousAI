@@ -469,3 +469,87 @@ describe('source disclosures', () => {
     assertDisclosures(container, { 'field-site': 'Source for Location' })
   })
 })
+
+// Seam review (Task 8): the EMPTY-VALUE CLASS GUARD.
+//
+// `Field` renders "not recorded" for a null, an empty string or an empty
+// array, and four tasks added fields to these panels without anything
+// asserting that they all agree about what an absence says. Ruling R12 asked
+// for `papers: []` to read "the review holds none for this record" instead;
+// the seam review decided against it (the review corpus holds 92 papers, 2 of
+// them attached to any initiative, and the technique guide 39 docs with 0
+// attached — `[]` is unfinished linking, not a finding) and wrote the class
+// rule into `Field.tsx`. This is the guard for it.
+//
+// SYMMETRIC, like `assertDisclosures` and the section map: on a record with
+// nothing in it, the set of fields whose value is NOT the words "not recorded"
+// must be EXACTLY the exception set below. It fails when a field stops saying
+// "not recorded" (a fifth wording for an absence) and when an exception is
+// removed. There is no per-field list of array-valued fields to maintain:
+// the record IS the list.
+function assertAbsenceWording(
+  container: HTMLElement,
+  exceptions: Record<string, RegExp>,
+): void {
+  const fields = Array.from(container.querySelectorAll<HTMLElement>('[data-testid^="field-"]'))
+  expect(fields.length).toBeGreaterThan(0)
+  const other: Record<string, string> = {}
+  for (const field of fields) {
+    const testId = field.getAttribute('data-testid')!
+    const value = (field.querySelector('dd')?.textContent ?? '').trim()
+    expect(value, `${testId} renders a blank cell`).not.toBe('')
+    if (value === 'not recorded') continue
+    other[testId] = value
+  }
+  expect(Object.keys(other).sort()).toEqual(Object.keys(exceptions).sort())
+  for (const [testId, pattern] of Object.entries(exceptions)) {
+    expect(other[testId], `${testId} reads "${other[testId]}"`).toMatch(pattern)
+  }
+}
+
+describe('what an absent value says, as a class', () => {
+  // Every nullable null, every `.default([])` array empty. `tier` is a
+  // required enum and cannot be absent at all.
+  const emptyLanguage: Language = LanguageSchema.parse({
+    id: 'empty', name: 'Empty Language', tier: 'indigenous', status: 'verified',
+  })
+
+  it('says "not recorded" for every absent language field but the two with a better answer', () => {
+    const { container } = render(
+      <LanguagePanel language={emptyLanguage} initiatives={[]} filtered={false} />,
+    )
+    assertAbsenceWording(container, {
+      // A required enum: never absent, so never an absence to word.
+      'field-tier': /indigenous/,
+      // The one field whose absence the atlas asserts elsewhere — the map
+      // omits the point, the table's Location column and the rail's group
+      // heading both say "not mapped" — so the panel says the same thing.
+      'field-centre': /^not mapped$/,
+      // Not a property of the record at all: the list is scoped to I1, so an
+      // empty one is a filter result and the field says which.
+      'field-initiatives': /records no initiative/i,
+    })
+  })
+
+  it('says "not recorded" for every absent initiative field, papers and links included', () => {
+    const empty = InitiativeSchema.parse({
+      id: 'empty', name: 'Empty Initiative', kind: 'project', tier: 'indigenous',
+      languages: ['fixture-sourced'], status: 'verified',
+      site: { lat: 0, lon: 0, place: 'Nowhere', source: { kind: 'doc', ref: 'x' } },
+    })
+    const { container } = render(
+      <InitiativePanel initiative={empty} methods={methods} bundle={bundle} />,
+    )
+    // Named explicitly as well as covered by the walker: these two are the
+    // fields R12 was about, and a reader must be able to see them in the list.
+    expect(screen.getByTestId('field-papers').textContent).toMatch(/not recorded/)
+    expect(screen.getByTestId('field-links').textContent).toMatch(/not recorded/)
+    assertAbsenceWording(container, {
+      // All four are required by the schema and cannot be absent.
+      'field-kind': /project/,
+      'field-tier': /indigenous/,
+      'field-languages': /Sourced Centre Language/,
+      'field-site': /Nowhere/,
+    })
+  })
+})
