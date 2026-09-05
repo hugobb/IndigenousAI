@@ -43,8 +43,11 @@ Three things to do while you are in there:
   initiative panel's Methods field. As the data stands, the published atlas will
   show **not one method link**, while the build walks 39 method routes that
   nothing on screen cites.
-- **Expect CI's `site` job to stay green through the promotion.** It used not to;
-  see ruling R12.
+- **CI's `site` job stays green through the promotion.** It would not have: two
+  separate assertions each stated today's holding page as a fact and would have
+  failed on the success. Both now compare the published branch against the record
+  files themselves, so promoting flips the expectation with the data. See R12 and
+  R18.
 
 ### 3. Cut the release — push, promote, *then* tag
 
@@ -63,11 +66,16 @@ and a holding page, forever.
 
 **And if the deployment hostname is not what we assumed:**
 `https://indigenous-ai-atlas.vercel.app/` is an assumption — no deploy has
-happened. It is stated in exactly two files, `docs/mkdocs.yml`'s `site_url` and
-`CITATION.cff`'s `url`, and `atlas/tests/deploy-hostname.test.ts` fails if you
-change one and not the other. That test also insists the guide sits at the origin
-**root**: every citation in the atlas is a root-relative route, so a path prefix
-would 404 all of them.
+happened. It is stated in **three** published files — `docs/mkdocs.yml`'s
+`site_url`, `CITATION.cff`'s `url`, and the site link in `README.md` — and
+`atlas/tests/deploy-hostname.test.ts` fails if you change one and not the others.
+Correct all three in one commit. That test also insists the guide sits at the
+origin **root**: every citation in the atlas is a root-relative route, so a path
+prefix would 404 all of them.
+
+(This said "exactly two" until the whole-branch review counted. The guard was
+built over the pair and the README, which Task 7 had correctly added, was left
+out of it — see R17.)
 
 **The one thing to watch on the first real deploy (spec D1, still unverified).**
 Nothing has ever run `scripts/build-site.sh` on Vercel's build image. The Node
@@ -155,19 +163,78 @@ sub-project. A schema rule forbidding `/`-leading `doc` refs would block a
 legitimate future citation to buy a case with zero instances. The comment names
 the trigger instead, and says the fix belongs there rather than at the call site.
 
+### R17 (whole-branch review) — the guarded set is three files, and a comment is not a count
+
+`git grep -l indigenous-ai-atlas.vercel.app` returns three published files.
+Task 7 added the README link, correctly; the seam review guarded the other two
+and concluded "exactly two files" in three places. Two correct decisions, one
+wrong conclusion — the eleventh composition defect on this project, and its
+signature shape. The concrete consequence: the promoter edits the two named
+files, the guard goes green, and the README — what GitHub renders and what the
+Zenodo record shows — still names a host that does not exist.
+
+**Decided:** the guard reads every markdown autolink in README.md, not the first,
+so a second stale link fails too; and the comments in `mkdocs.yml` and
+`CITATION.cff` say not to trust a count written in a comment, including their own.
+
+### R18 (whole-branch review) — a canary that states today's fact has the same failure timing as the bug
+
+The R12 fix added `expect(atlasIndexBranch(html)).toBe('holding')` beside itself.
+That is the same unconditional assertion in a smaller box: red on promotion day,
+in the same run, for the same reason.
+
+**Decided:** compare the published branch against the RECORDS, read through
+`loadLanguages`/`loadInitiatives` so there is no second reader of record state.
+Read the other way round it is stronger than what it replaced — an app published
+at `/atlas/` while any record is still `draft` is the review gate breached on the
+tree that actually deploys, and nothing else looks at that.
+
+*Lesson worth keeping:* a fix and its own regression can ship in one commit. The
+seam review found SP2a's ninth defect inside SP2a's seam-review fix, then put one
+inside its own.
+
+### R19 (whole-branch review) — generated prose is content, and content gets guarded
+
+The `/summaries/` index — the page every paper citation routes a reader through —
+published "Each is cited from the atlas, and each links to its own source". Both
+false: 2 of 92 papers are named by any initiative, and 77 of 92 summaries contain
+no URL. No test read it, and `check-links` cannot: it walks routes, not sentences.
+
+**Decided:** state only what is measurable from the directory being described, and
+guard both halves — the claim that IS made, checked against the 92 real files, and
+the class of claim that must not come back (an assertion about how these files
+relate to something outside their own directory).
+
+### R20 (whole-branch review) — `mkdocs build --strict`
+
+Without it, anything MkDocs can only warn about ships green: with
+`summaries/index.md` missing the build exits 0 and the front page carries a raw
+`.md` href that 404s. Guide-internal links are outside `check-links` by
+construction. The tree is warning-clean today, so it was free.
+
+### R21 (coordinator ruling) — one line inside `docs/docs/`
+
+The standing prohibition on editing `docs/docs/` protects authored guide content.
+`docs/docs/index.md` shipped an anchor whose text promised
+`tasks/2026-06-11-technique-inventory/` and whose href was `https://github.com`.
+A link that lands somewhere it does not claim is not the author's content, it is
+a defect, and "never invent a destination" is the rule this sub-project built a
+CI gate to enforce. The coordinator ruled a narrow exception for that one line.
+
+**Decided:** remove the anchor, keep the path in the text. `git remote` gives
+`github.com/hugobb/IndigenousAI`, from which a URL could be composed — but the
+repository is unpushed and its visibility unknown, so that would replace one
+unverified destination with another.
+
 ---
 
-## Two claims still published that this task could not touch
+## Still published, and still the user's call
 
-Both are under `docs/docs/`, which SP2b was forbidden to edit outside the
-generated `summaries/`:
-
-- **`docs/docs/index.md` links to `https://github.com`.** The "Source" section
-  offers ``[`tasks/2026-06-11-technique-inventory/`](https://github.com)`` — a
-  live link on the site's front page that lands on GitHub's home page. It is an
-  invented destination, and it is outside `check-links` because that gate walks
-  what the *bundle* cites. The same page still says "two inventories" and never
-  mentions the paper summaries or the atlas.
 - **`docs/docs/guide/index.md` is a stub** — "_Content coming soon._" — behind a
   top-level nav tab and a home-page card reading "Read the Guide". The holding
-  page no longer calls the guide "complete"; the stub is still published.
+  page no longer calls the guide "complete"; the stub is still published. It
+  blocks announcing rather than deploying, and removing a tab from the author's
+  own guide is an editorial call, not ours.
+- **`docs/docs/index.md` still says "two inventories"** and never mentions the
+  paper summaries or the atlas, both of which are now top-level nav tabs. Same
+  reason: authored content, and beyond the one-line exception ruled above.
