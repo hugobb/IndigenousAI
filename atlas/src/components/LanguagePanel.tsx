@@ -1,6 +1,7 @@
 import type { Initiative, Language } from '../schema/index.js'
 import Field from './Field.js'
 import PanelSection from './PanelSection.js'
+import SourcedField, { SourceDisclosure, SourceLine } from './SourcedField.js'
 
 export default function LanguagePanel({
   language, initiatives, filtered,
@@ -31,8 +32,31 @@ export default function LanguagePanel({
       <PanelSection title="Situation">
         <Field label="Family" testId="field-family">{language.family}</Field>
         <Field label="Typology" testId="field-typology">{language.typology.join(', ')}</Field>
-        <Field label="Endangerment" testId="field-endangerment">{language.endangerment?.status}</Field>
-        <Field label="Speakers" testId="field-speakers">
+        <SourcedField
+          label="Endangerment" testId="field-endangerment"
+          source={language.endangerment?.source ?? null}
+        >
+          {language.endangerment?.status}
+        </SourcedField>
+        {/* Not `SourcedField`: this field can show two disagreeing figures and
+            each carries its OWN source. One source under two numbers leaves
+            the reader unable to tell which source says which — and being able
+            to tell is the entire reason the schema keeps both instead of
+            picking one. */}
+        <Field
+          label="Speakers" testId="field-speakers"
+          aside={s === null ? null : (
+            <SourceDisclosure label="Speakers" testId="field-speakers">
+              <SourceLine source={s.source} figure={s.value.toLocaleString('en')} />
+              {s.conflicts.map((c) => (
+                <SourceLine
+                  key={`${c.value}-${c.source.ref}`}
+                  source={c.source} figure={c.value.toLocaleString('en')}
+                />
+              ))}
+            </SourceDisclosure>
+          )}
+        >
           {s === null ? null : (
             <>
               <span>{s.value.toLocaleString('en')}</span>
@@ -52,14 +76,17 @@ export default function LanguagePanel({
             rail's "Not mapped" heading state. Routing it through `Field`'s
             null branch printed "not recorded", which claims we do not know
             it, and left three surfaces disagreeing about one fact. */}
-        <Field label="Centre" testId="field-centre">
+        <SourcedField
+          label="Centre" testId="field-centre"
+          source={language.centre?.source ?? null}
+        >
           {language.centre === null ? <span>not mapped</span> : (
             <>
               {language.centre.lat.toFixed(2)}, {language.centre.lon.toFixed(2)}
               {language.centre.confidence === 'approximate' && <strong> — approximate</strong>}
             </>
           )}
-        </Field>
+        </SourcedField>
       </PanelSection>
       <PanelSection title="Work">
         {/* Scoped to I1, not to the record — App passes the initiatives that

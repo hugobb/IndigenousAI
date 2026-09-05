@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { InitiativeSchema, LanguageSchema, MethodSchema } from '../src/schema/index.js'
+import { InitiativeSchema, LanguageSchema, MethodSchema, type Language } from '../src/schema/index.js'
 import LanguagePanel from '../src/components/LanguagePanel.js'
 import InitiativePanel from '../src/components/InitiativePanel.js'
 import UnmappedList from '../src/components/UnmappedList.js'
@@ -62,6 +62,25 @@ describe('LanguagePanel', () => {
     render(<LanguagePanel language={lang('fixture-conflict')} initiatives={[]} filtered={true} />)
     expect(screen.getByText(/9,?600/)).toBeDefined()
     expect(screen.getByText(/300/)).toBeDefined()
+  })
+
+  // The speakers field can show two disagreeing figures, and each carries its
+  // OWN source. One reference under two numbers leaves the reader unable to
+  // tell which source says which — and being able to tell is the whole reason
+  // the schema keeps both figures instead of picking one.
+  it('attributes each disagreeing speaker count to its own source', () => {
+    const l: Language = languages.find((x: Language) => (x.speakers?.conflicts.length ?? 0) > 0)!
+    render(<LanguagePanel language={l} initiatives={[]} filtered={true} />)
+    fireEvent.click(screen.getByTestId('source-field-speakers'))
+    const body = screen.getByTestId('source-body-field-speakers')
+    expect(body.textContent).toContain(l.speakers!.source.ref)
+    for (const c of l.speakers!.conflicts) {
+      // The disclosure formats a figure exactly as the field above it does, so
+      // the assertion formats it too. `String(c.value)` would pass only by
+      // accident, for conflict values under 1,000.
+      expect(body.textContent).toContain(c.value.toLocaleString('en'))
+      expect(body.textContent).toContain(c.source.ref)
+    }
   })
 
   it('surfaces the caveat when a centre is approximate', () => {
@@ -140,5 +159,68 @@ describe('UnmappedList', () => {
   it('labels an adjacent-tier language as tier-excluded, not as a data gap', () => {
     render(<UnmappedList languages={languages} noMatchingWork={[]} workFiltered={false} onSelect={() => {}} />)
     expect(within(screen.getByTestId('group-not-mapped')).getByText(/adjacent tier/i)).toBeDefined()
+  })
+})
+
+// SP1c shipped five facet/column disclosure pairs whose accessible names were
+// identical, and only the one a test happened to name was noticed. This is the
+// class guard, not the case guard: it walks EVERY disclosure a panel renders
+// and checks its name against its own field's label, so a new sourced field
+// added with a copied `label` fails here rather than reaching a screen reader
+// as one more indistinguishable "source" button.
+function disclosureNames(container: HTMLElement): string[] {
+  const buttons = Array.from(container.querySelectorAll<HTMLElement>('button[data-testid^="source-"]'))
+  return buttons.map((b) => {
+    const field = b.closest('[data-testid^="field-"]')
+    expect(field, 'a source disclosure sits outside any field').not.toBeNull()
+    const label = field!.querySelector('dt')?.textContent
+    expect(b.getAttribute('aria-label')).toBe(`Source for ${label}`)
+    return b.getAttribute('aria-label') ?? ''
+  })
+}
+
+describe('source disclosure names', () => {
+  // Built here rather than taken from the fixture: no fixture language carries
+  // an endangerment status, so the third of the language panel's disclosures
+  // would otherwise never be rendered by any panel test at all.
+  const conflicted: Language = languages.find((x: Language) => (x.speakers?.conflicts.length ?? 0) > 0)!
+  const withEndangerment: Language = LanguageSchema.parse({
+    ...conflicted,
+    endangerment: {
+      status: 'severely-endangered', scale: 'unesco-2010',
+      source: { kind: 'doc', ref: 'fixture-endangerment', retrieved: null, quote: null },
+    },
+  })
+
+  it('names each language-panel disclosure after its own field, all distinct', () => {
+    const { container } = render(
+      <LanguagePanel language={withEndangerment} initiatives={[]} filtered={true} />,
+    )
+    const names = disclosureNames(container)
+    expect(names.sort()).toEqual(['Source for Centre', 'Source for Endangerment', 'Source for Speakers'])
+    expect(new Set(names).size).toBe(names.length)
+  })
+
+  it('names each initiative-panel disclosure after its own field, all distinct', () => {
+    const { container } = render(
+      <InitiativePanel initiative={init('fixture-ongoing')} methods={methods} />,
+    )
+    const names = disclosureNames(container)
+    expect(names.sort()).toEqual(['Source for Governance', 'Source for Location'])
+    expect(new Set(names).size).toBe(names.length)
+  })
+
+  // The counterpart rule: a field that carries no `Source` in the schema shows
+  // NO toggle, and that silence only means "structurally cannot have one" if a
+  // toggle is never rendered empty.
+  it('renders no disclosure on the fields the schema gives no source', () => {
+    const { container } = render(
+      <LanguagePanel language={withEndangerment} initiatives={[]} filtered={true} />,
+    )
+    for (const testId of ['field-aka', 'field-family', 'field-typology', 'field-initiatives', 'field-caveat']) {
+      const field = container.querySelector(`[data-testid="${testId}"]`)
+      expect(field, testId).not.toBeNull()
+      expect(field!.querySelector('button[data-testid^="source-"]'), testId).toBeNull()
+    }
   })
 })

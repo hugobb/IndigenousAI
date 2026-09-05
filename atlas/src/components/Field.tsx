@@ -4,6 +4,11 @@ export interface FieldProps {
   label: string
   testId: string
   children?: React.ReactNode
+  /** Rendered after the value, inside the same `<dd>`. Deliberately NOT part
+   *  of `children`: `isEmpty` tests the value, and folding a control into it
+   *  makes every field carrying a control look non-empty — so a null value
+   *  would silently lose its "not recorded". */
+  aside?: React.ReactNode
 }
 
 const isEmpty = (v: React.ReactNode): boolean =>
@@ -13,11 +18,11 @@ const isEmpty = (v: React.ReactNode): boolean =>
  *  A blank reads as "nothing to say"; the words say "we don't know". All five
  *  real languages have an empty typology because nobody would assert one
  *  without a citation — that distinction is why they were left empty. */
-export default function Field({ label, testId, children }: FieldProps): React.JSX.Element {
+export default function Field({ label, testId, children, aside }: FieldProps): React.JSX.Element {
   return (
     <div data-testid={testId}>
       <dt>{label}</dt>
-      <dd>{isEmpty(children) ? <NotRecorded /> : children}</dd>
+      <dd>{isEmpty(children) ? <NotRecorded /> : children}{aside}</dd>
     </div>
   )
 }

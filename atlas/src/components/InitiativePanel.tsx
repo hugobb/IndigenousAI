@@ -1,6 +1,7 @@
 import type { Initiative, Method } from '../schema/index.js'
 import Field from './Field.js'
 import PanelSection from './PanelSection.js'
+import SourcedField from './SourcedField.js'
 
 export default function InitiativePanel({
   initiative, methods,
@@ -24,13 +25,18 @@ export default function InitiativePanel({
         <Field label="Models" testId="field-models">{initiative.models.join(', ')}</Field>
       </PanelSection>
       <PanelSection title="Governance">
-        <Field label="Governance" testId="field-governance">{initiative.governance?.posture}</Field>
+        <SourcedField
+          label="Governance" testId="field-governance"
+          source={initiative.governance?.source ?? null}
+        >
+          {initiative.governance?.posture}
+        </SourcedField>
       </PanelSection>
       <PanelSection title="Place">
-        <Field label="Location" testId="field-site">
+        <SourcedField label="Location" testId="field-site" source={initiative.site.source}>
           {initiative.site.place}
           {initiative.site.confidence === 'approximate' && <strong> — approximate</strong>}
-        </Field>
+        </SourcedField>
       </PanelSection>
       <PanelSection title="Note">
         <Field label="Note" testId="field-caveat">{initiative.caveat}</Field>

@@ -593,6 +593,21 @@ a { color: var(--accent-ink); }
   padding-bottom: 0.15rem;
 }
 
+/* ------------------------------------------------------ source disclosure --- */
+/* Provenance sits with the claim it supports, folded away until asked for: the
+ * reference text would otherwise outweigh the figure it supports. */
+.source-toggle {
+  background: none; border: 0; padding: 0 0 0 0.4rem; font: inherit;
+  font-size: 0.75rem; color: var(--accent-ink); cursor: pointer; text-decoration: underline;
+}
+.source-body {
+  font-size: 0.75rem; color: var(--text-soft); margin-top: 0.2rem;
+  padding-left: 0.5rem; border-left: 2px solid var(--rule);
+}
+.source-line + .source-line { margin-top: 0.3rem; }
+.source-kind { text-transform: uppercase; letter-spacing: 0.04em; }
+.source-body blockquote { margin: 0.2rem 0 0; font-style: italic; }
+
 /* ------------------------------------------------------------ maplibre ---- */
 /* The basemap is OpenFreeMap's Positron over OpenStreetMap data (ODbL); the
  * attribution is a licence condition, so it is left legible rather than tucked

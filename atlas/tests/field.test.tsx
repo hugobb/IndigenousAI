@@ -32,6 +32,23 @@ describe('Field', () => {
     expect(within(screen.getByTestId('f')).getByText(/not recorded/i)).toBeDefined()
   })
 
+  // `aside` exists precisely so a control can sit in a field WITHOUT counting
+  // as the field's value. Folded into `children` it would make every field
+  // carrying a control look non-empty, and a null value would silently lose
+  // its "not recorded" — the one thing this component exists to guarantee.
+  it('does not let an aside stand in for a missing value', () => {
+    render(<Field label="L" testId="f" aside={<button type="button">source</button>}>{null}</Field>)
+    const row = screen.getByTestId('f')
+    expect(within(row).getByText(/not recorded/i)).toBeDefined()
+    expect(within(row).getByRole('button')).toBeDefined()
+  })
+
+  it('renders the aside after the value, inside the same dd', () => {
+    render(<Field label="L" testId="f" aside={<button type="button">source</button>}>Cree</Field>)
+    const dd = screen.getByTestId('f').querySelector('dd')
+    expect(dd?.textContent).toBe('Creesource')
+  })
+
   it('renders real content as-is, not as "not recorded"', () => {
     render(<Field label="L" testId="f">Cree</Field>)
     const row = screen.getByTestId('f')
