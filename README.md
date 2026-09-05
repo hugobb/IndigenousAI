@@ -6,6 +6,26 @@ Research project with Abundant Intelligence exploring how generative AI can be d
 
 How can generative AI technologies be designed to align with Indigenous worldviews, knowledge practices, and data sovereignty? And conversely, how might Indigenous perspectives reshape AI itself — informing new algorithms, architectures, or design paradigms?
 
+## The atlas
+
+An interactive map of NLP initiatives for Indigenous languages, published as a
+companion to the review paper: <https://indigenous-ai-atlas.vercel.app/atlas/>
+
+The whole state of a view — the filters, the timeline window, the selected
+record — is encoded in the URL, so a particular view can be cited directly by
+copying the address bar. There is no separate share step and no shortener; the
+link is the state.
+
+Records are published only after a person has reviewed them. While any record is
+still under review the atlas serves a holding page rather than provisional data,
+and the build refuses to ship the unreviewed ones.
+
+## Licence
+
+Prose, data and paper summaries are CC-BY-4.0 (`LICENSE-CONTENT`); the source
+code is MIT (`LICENSE`). If you use this work, `CITATION.cff` says how to cite
+it.
+
 ## Repository Structure
 
 ```text

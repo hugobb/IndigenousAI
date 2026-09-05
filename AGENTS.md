@@ -17,9 +17,8 @@ IndigenousAI/
 ├── reports/                    # Deep-dive technical and conceptual reports
 │   ├── README.md               # Reports index and naming conventions
 │   └── *.md                    # One report per focused topic
-├── docs/                       # Docusaurus technique guide (pnpm start to run)
-│   ├── docusaurus.config.ts
-│   ├── sidebars.ts
+├── docs/                       # MkDocs Material technique guide (cd docs && mkdocs serve)
+│   ├── mkdocs.yml
 │   └── docs/
 │       ├── guide/              # End-to-end framework for building Indigenous language AI
 │       ├── ml-techniques/      # ML/NLP technique docs (21 docs + index)

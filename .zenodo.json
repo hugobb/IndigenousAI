@@ -1,0 +1,7 @@
+{
+  "title": "Indigenous AI: an atlas of NLP initiatives for Indigenous languages",
+  "upload_type": "dataset",
+  "license": "cc-by-4.0",
+  "creators": [{ "name": "Mila — Indigenous AI" }],
+  "description": "An interactive map of NLP initiatives for Indigenous languages worldwide, published as a companion to a review paper, alongside a technique guide extracted from the literature."
+}
