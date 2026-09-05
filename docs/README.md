@@ -5,15 +5,23 @@ review; deployed at the site root, with the atlas served under `/atlas/`.
 
 ## Run it locally
 
+`scripts/build-site.sh` creates `docs/.venv` and installs MkDocs into it, so the
+simplest way to get a working environment is to run the real build once and then
+serve from the venv it made:
+
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
+bash ../scripts/build-site.sh   # once: creates docs/.venv, builds everything
 .venv/bin/mkdocs serve
 ```
 
 A virtualenv rather than a system install: `mkdocs` is not a system dependency
-of this repository, and `scripts/build-site.sh` creates the same `.venv` when it
-builds.
+of this repository. Do not create the venv from a bare `python3` here — on this
+developer's machine that is 3.9.6 from the Command Line Tools; the build script
+prefers `python3.13`/`python3.12` and honours `PY_BIN`.
+
+`mkdocs serve` shows the guide alone. The **Atlas** nav entry is an absolute
+`/atlas/`, which only exists in the merged output tree — it 404s under
+`mkdocs serve` and resolves after `scripts/build-site.sh`.
 
 ## Build it
 

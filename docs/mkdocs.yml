@@ -126,3 +126,10 @@ nav:
       - Machine-in-the-Loop Annotation: process-techniques/machine-in-the-loop-annotation.md
       - Human-in-the-Loop AI Safety Workflows: process-techniques/human-in-the-loop-ai-safety.md
   - Paper summaries: summaries/index.md
+  # An absolute path, not a page: /atlas/ is the Vite app that
+  # scripts/build-site.sh merges into this same output tree, so MkDocs has no
+  # file for it and renders a plain link (mkdocs.structure.nav logs this at
+  # INFO, not as a warning). Without it the two halves of one origin link only
+  # ONE way: the atlas cites summaries and technique pages, and a reader who
+  # follows a citation lands in a guide that never mentions the atlas exists.
+  - Atlas: /atlas/
