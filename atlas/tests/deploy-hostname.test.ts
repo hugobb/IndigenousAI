@@ -43,7 +43,12 @@ function field(source: string, key: string): string | undefined {
 
 /** Every markdown autolink in the README — `<https://…>`. That is the form the
  *  site link uses, and reading them ALL rather than the first is what makes a
- *  second, stale one impossible to leave behind. */
+ *  second, stale one impossible to leave behind.
+ *
+ *  The README has no other absolute URL today. If a third-party link is ever
+ *  added, write it as `[text](url)` rather than as an autolink — this reads the
+ *  autolink form as "a link to our own deployment", and widening it to guess
+ *  which hosts are ours is how a guard starts asserting less than its name. */
 function readmeAutolinks(): string[] {
   return [...repo('README.md').matchAll(/<(https?:\/\/[^>]+)>/g)].map((m) => m[1] as string)
 }
