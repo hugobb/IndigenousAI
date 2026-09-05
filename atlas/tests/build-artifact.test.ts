@@ -128,6 +128,35 @@ describe('the built shell', () => {
       .toBeGreaterThan(0)
     expect(urls.filter((u) => !u.startsWith('/atlas/'))).toEqual([])
   }, 180_000)
+
+  /** The holding page (atlas/holding/atlas-pending.html) says, in the present
+   *  tense, that no record has been signed off yet. `scripts/build-site.sh`
+   *  publishes it at /atlas/ INSTEAD of the app while that is true. It must
+   *  never ship ALONGSIDE the app, because the build that ships the app is
+   *  exactly the build on which the sentence became false — and
+   *  /atlas/atlas-pending.html is the URL a collaborator would have bookmarked
+   *  during the holding period, so the reader most likely to reach it is the one
+   *  most likely to conclude the atlas never shipped.
+   *
+   *  This is a real hazard rather than a hypothetical: while the file lived in
+   *  `public/`, Vite copied it verbatim into `dist/`, and `build-site.sh`'s
+   *  success branch is `cp -R dist/.`. Moving it to `holding/` is the fix; this
+   *  is the guard. tests/deploy-output.test.ts cannot cover it — every
+   *  assertion there runs against the failing-`build:data` branch, so the day
+   *  the branch flips, nothing there looks at what lands in the tree.
+   *
+   *  NOTE ON THE FLAG: `buildInto` uses ATLAS_ALLOW_NO_BUNDLE=1 (a fresh clone
+   *  has no src/data/atlas.json). That is a layout assertion — it exercises what
+   *  files a successful build EMITS — and is emphatically not a blessing of that
+   *  flag as a deploy path. build-site.sh never sets it; the two tests in
+   *  tests/deploy-output.test.ts guard that separately. */
+  it('carries no holding page beside the app', () => {
+    const out = buildInto({ NODE_ENV: 'production' })
+    const strays = readdirSync(out, { recursive: true })
+      .map(String)
+      .filter((f) => /pending|holding/i.test(f))
+    expect(strays).toEqual([])
+  }, 180_000)
 })
 
 describe('the build gate', () => {

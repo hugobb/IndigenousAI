@@ -33,6 +33,10 @@ if pnpm build:data && pnpm build:app; then
   cp -R dist/. "$OUT/atlas/"
   echo "atlas: shipped with reviewed records"
 else
-  cp public/atlas-pending.html "$OUT/atlas/index.html"
+  # Copied from holding/, NOT from public/: Vite copies public/ into dist/, so a
+  # holding page kept there would also ship beside the real app on the first
+  # successful build — a live "nothing has been signed off yet" page published at
+  # the moment that became false. See atlas/holding/README.md.
+  cp holding/atlas-pending.html "$OUT/atlas/index.html"
   echo "atlas: records still under review — holding page served"
 fi

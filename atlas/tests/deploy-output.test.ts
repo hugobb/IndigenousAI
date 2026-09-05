@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 
 /** Excluded from `pnpm test` in vitest.config.ts and run only by `pnpm test:site`:
@@ -12,15 +12,25 @@ const REPO = resolve(import.meta.dirname, '../..')
 const out = mkdtempSync(join(tmpdir(), 'atlas-deploy-'))
 afterAll(() => rmSync(out, { recursive: true, force: true }))
 
-/** Every file the build emitted, as one string. Small enough to scan whole. */
-function emitted(dir: string): string {
-  let text = ''
+/** Every invented-record identifier found in the emitted tree, as
+ *  `<path>: <needle>`.
+ *
+ *  Returns the hits rather than the haystack, the way `leaks()` in
+ *  build-artifact.test.ts does. An earlier version concatenated all ~6 MB of
+ *  emitted HTML/JS/JSON/CSS and asserted `not.toMatch(/fixture-/)` on it, which
+ *  worked — but a failure printed the whole deployed tree, several hundred KB of
+ *  MkDocs' bundled Lunr stemmers included, before it reached the assertion. The
+ *  one time this guard fires will be the one time somebody needs to read it. */
+function fixtureLeaks(dir: string): string[] {
+  const hits: string[] = []
   for (const entry of readdirSync(dir, { withFileTypes: true, recursive: true })) {
     if (!entry.isFile()) continue
+    if (!/\.(html|js|json|css)$/.test(entry.name)) continue
     const p = join(entry.parentPath, entry.name)
-    if (/\.(html|js|json|css)$/.test(entry.name)) text += readFileSync(p, 'utf8')
+    const found = new Set(readFileSync(p, 'utf8').match(/fixture-[\w-]*/g) ?? [])
+    for (const needle of found) hits.push(`${relative(dir, p)}: ${needle}`)
   }
-  return text
+  return hits.sort()
 }
 
 describe('the deployed tree', () => {
@@ -43,7 +53,7 @@ describe('the deployed tree', () => {
   // The fixture is invented; `ATLAS_ALLOW_NO_BUNDLE=1` compiles an app with no
   // data. Either reaching a deployable tree is the failure this guards.
   it('never emits a fixture record, whichever path /atlas/ took', () => {
-    expect(emitted(out)).not.toMatch(/fixture-/)
+    expect(fixtureLeaks(out)).toEqual([])
   })
 
   it('serves the holding page while the data build fails', () => {

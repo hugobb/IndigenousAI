@@ -1,3 +1,10 @@
 *.h5
 .worktrees/
 .superpowers/
+
+# A root `pnpm install` is now possible (package.json declares the toolchain for
+# Vercel/CI). It has no dependencies, so it installs nothing — but pnpm still
+# materialises both of these at the root. Neither is authoritative: the only real
+# manifest and lockfile are atlas/package.json and atlas/pnpm-lock.yaml.
+node_modules/
+/pnpm-lock.yaml
