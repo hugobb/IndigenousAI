@@ -190,6 +190,44 @@ describe('TableView', () => {
     expect(screen.getByTestId('table-empty').textContent).toMatch(/no matching work/i)
   })
 
+  // Fix round 1: the sentence above used to be static, and so claimed a
+  // filter was responsible even with none active. It now follows
+  // `selection.workFiltered`, the same signal the rail and App banner
+  // already use for this exact fact.
+  describe('the no-work-but-languages message follows the filter state', () => {
+    const selWith = (workFiltered: boolean) => ({
+      languages: [bundle.languages[0]!], initiatives: [],
+      noMatchingWork: [bundle.languages[0]!], undatedInitiatives: 0, workFiltered,
+    })
+
+    it('names it a filter result when a work filter is active', () => {
+      render(
+        <TableView
+          view="initiatives" selection={selWith(true)} bundle={bundle} sort={null}
+          onSort={() => {}} selectedId={null} onSelect={() => {}}
+        />,
+      )
+      const text = screen.getByTestId('table-empty').textContent ?? ''
+      expect(text).toMatch(/no initiative matches the current filters/i)
+      expect(text).not.toMatch(/records no initiative/i)
+    })
+
+    // Without a work filter, a zero-row initiatives table is a dataset fact,
+    // not a query result — the same distinction Task 2 already drew for the
+    // rail and the App empty-state banner.
+    it('names it a dataset finding when no work filter is active', () => {
+      render(
+        <TableView
+          view="initiatives" selection={selWith(false)} bundle={bundle} sort={null}
+          onSort={() => {}} selectedId={null} onSelect={() => {}}
+        />,
+      )
+      const text = screen.getByTestId('table-empty').textContent ?? ''
+      expect(text).toMatch(/records no initiative/i)
+      expect(text).not.toMatch(/no initiative matches the current filters/i)
+    })
+  })
+
   // Important 1 (review round 1): the `matched`-but-empty ruling in
   // TableView had no guard at all — reverting `matched:` back to `null` in
   // EMPTY_COPY passed every test in this file. The state it was built on

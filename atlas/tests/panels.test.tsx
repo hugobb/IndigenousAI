@@ -28,7 +28,7 @@ afterEach(() => cleanup())
 
 describe('LanguagePanel', () => {
   it('renders an empty typology as "not recorded", not as a blank', () => {
-    render(<LanguagePanel language={lang('fixture-approximate')} initiatives={[]} />)
+    render(<LanguagePanel language={lang('fixture-approximate')} initiatives={[]} workFiltered={true} />)
     const row = screen.getByTestId('field-typology')
     expect(within(row).getByText(/not recorded/i)).toBeDefined()
   })
@@ -42,7 +42,7 @@ describe('LanguagePanel', () => {
   // false claim. Both halves asserted: the words must be gone AND the scope
   // must be stated, so deleting the sentence entirely cannot pass.
   it('does not call a filtered-away initiative list "not recorded"', () => {
-    render(<LanguagePanel language={lang('fixture-sourced')} initiatives={[]} />)
+    render(<LanguagePanel language={lang('fixture-sourced')} initiatives={[]} workFiltered={true} />)
     const row = screen.getByTestId('field-initiatives')
     expect(within(row).queryByText(/not recorded/i)).toBeNull()
     expect(row.textContent).toMatch(/current filters/i)
@@ -51,7 +51,7 @@ describe('LanguagePanel', () => {
 
   it('lists the matching initiatives when there are any', () => {
     render(
-      <LanguagePanel language={lang('fixture-sourced')} initiatives={[init('fixture-ongoing')]} />,
+      <LanguagePanel language={lang('fixture-sourced')} initiatives={[init('fixture-ongoing')]} workFiltered={true} />,
     )
     const row = screen.getByTestId('field-initiatives')
     expect(row.textContent).toContain('Ongoing Initiative')
@@ -59,13 +59,13 @@ describe('LanguagePanel', () => {
   })
 
   it('shows a speaker-count disagreement as a disagreement', () => {
-    render(<LanguagePanel language={lang('fixture-conflict')} initiatives={[]} />)
+    render(<LanguagePanel language={lang('fixture-conflict')} initiatives={[]} workFiltered={true} />)
     expect(screen.getByText(/9,?600/)).toBeDefined()
     expect(screen.getByText(/300/)).toBeDefined()
   })
 
   it('surfaces the caveat when a centre is approximate', () => {
-    render(<LanguagePanel language={lang('fixture-approximate')} initiatives={[]} />)
+    render(<LanguagePanel language={lang('fixture-approximate')} initiatives={[]} workFiltered={true} />)
     expect(screen.getByText(/placeholder-looking centroid/i)).toBeDefined()
   })
 
@@ -75,10 +75,35 @@ describe('LanguagePanel', () => {
   // know, which is a stronger and false claim; this guard fails on that
   // regression the same way it fails on the field going blank.
   it('says "not mapped", not "not recorded", when a language has no centre at all', () => {
-    render(<LanguagePanel language={lang('fixture-unmapped')} initiatives={[]} />)
+    render(<LanguagePanel language={lang('fixture-unmapped')} initiatives={[]} workFiltered={true} />)
     const field = screen.getByTestId('field-centre')
     expect(field.textContent).toMatch(/not mapped/i)
     expect(field.textContent).not.toMatch(/not recorded/i)
+  })
+
+  // Fix round 1: found while auditing for a fourth/fifth "matches the current
+  // filters" sentence. This field is reachable with zero filters at all — a
+  // reader can select a language the atlas simply has no initiative for — and
+  // the old unconditional wording both blamed a filter that wasn't there and
+  // denied "no work exists" in exactly the case where that IS the fact.
+  describe('the empty matching-initiatives message follows the filter state', () => {
+    it('names it a filter result when a work filter is active', () => {
+      render(
+        <LanguagePanel language={lang('fixture-sourced')} initiatives={[]} workFiltered={true} />,
+      )
+      const row = screen.getByTestId('field-initiatives')
+      expect(row.textContent).toMatch(/no work exists/i)
+      expect(row.textContent).not.toMatch(/atlas records/i)
+    })
+
+    it('names it a dataset finding when no work filter is active', () => {
+      render(
+        <LanguagePanel language={lang('fixture-sourced')} initiatives={[]} workFiltered={false} />,
+      )
+      const row = screen.getByTestId('field-initiatives')
+      expect(row.textContent).toMatch(/atlas records/i)
+      expect(row.textContent).not.toMatch(/no work exists/i)
+    })
   })
 })
 

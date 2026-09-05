@@ -15,12 +15,28 @@ import DataTable from './DataTable.js'
 // reads as a rendering bug, not a finding.
 // `emptyState` still answers "did anything match"; stating this table's own
 // row count is not re-deriving that.
-const EMPTY_COPY = {
+//
+// `no-work-but-languages` is NOT here: unlike the other two states, it is
+// reachable with no work filter active (Task 1), and only ever renders in the
+// initiatives table (the languages table has rows whenever this state holds).
+// A zero-row initiatives table means a filter narrowed it OR the atlas holds
+// none at all for the languages shown — two different reasons, so it needs
+// `selection.workFiltered` and gets its own function below rather than a
+// static entry in this map.
+const STATIC_EMPTY_COPY = {
   'nothing-matched': 'Nothing matches the current filters.',
-  'no-work-but-languages':
-    'No initiative matches the current filters. The languages that matched are listed in the Languages view and in the rail — no matching work is a finding, not an empty result.',
   matched: 'Nothing in this view matches the current filters.',
 } as const
+
+// Fix round 1: this used to be a static entry claiming a filter was
+// responsible even when none was — false on the same screens Task 2 already
+// corrected the rail and App banner for. Table-specific: it names the rows
+// (there are none) rather than repeating the rail's "atlas" framing verbatim.
+function noWorkButLanguagesCopy(workFiltered: boolean): string {
+  return workFiltered
+    ? 'No initiative matches the current filters. The languages that matched are listed in the Languages view and in the rail — no matching work is a finding, not an empty result.'
+    : 'This table has no rows because the atlas records no initiative for any of these languages — not because a filter narrowed anything. They are listed in the Languages view and in the rail.'
+}
 
 export default function TableView({
   view, selection, bundle, sort, onSort, selectedId, onSelect,
@@ -48,7 +64,11 @@ export default function TableView({
     }
   }, [bundle, selection])
 
-  const empty = EMPTY_COPY[emptyState(selection)]
+  const state = emptyState(selection)
+  const empty =
+    state === 'no-work-but-languages'
+      ? noWorkButLanguagesCopy(selection.workFiltered)
+      : STATIC_EMPTY_COPY[state]
 
   if (view === 'initiatives') {
     const rows = selection.initiatives

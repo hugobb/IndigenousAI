@@ -128,6 +128,18 @@ describe('the rail under a filter that finds no work', () => {
     expect(screen.getByTestId('group-no-matching-work').textContent).toMatch(/Adjacent Language/)
   })
 
+  // Fix round 1: App's own `workFiltered` wiring to LanguagePanel had no App-
+  // level guard — hardcoding `workFiltered={false}` there left the whole
+  // suite green. fixture-approximate has no initiative under ANY filter
+  // state, so `?application=asr` (a real work filter) is enough to prove the
+  // panel is told a filter IS active, not the constant.
+  it('tells the language panel a work filter is active when one is', () => {
+    at('/?application=asr&lang=fixture-approximate')
+    const row = screen.getByTestId('field-initiatives')
+    expect(row.textContent).toMatch(/current filters/i)
+    expect(row.textContent).not.toMatch(/atlas records/i)
+  })
+
   it('still says nothing matched when nothing did, filtered-out included', () => {
     // No language is `arctic`, so L1 is empty and there is nothing to demote.
     at('/?region=arctic')

@@ -133,6 +133,7 @@ export default function App(): React.JSX.Element {
           <LanguagePanel
             language={language}
             initiatives={selection.initiatives.filter((i) => i.languages.includes(language.id))}
+            workFiltered={selection.workFiltered}
           />
         )}
         {initiative !== null && <InitiativePanel initiative={initiative} methods={bundle.methods} />}

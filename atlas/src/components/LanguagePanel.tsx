@@ -2,8 +2,17 @@ import type { Initiative, Language } from '../schema/index.js'
 import Field from './Field.js'
 
 export default function LanguagePanel({
-  language, initiatives,
-}: { language: Language; initiatives: Initiative[] }): React.JSX.Element {
+  language, initiatives, workFiltered,
+}: {
+  language: Language
+  initiatives: Initiative[]
+  /** `selection.workFiltered` from the caller. An empty `initiatives` list
+   *  here is a filter result only when a work filter is active — with none
+   *  active it is the same dataset fact the rail and the table state for
+   *  this language, and the two claims must not share one sentence (fix
+   *  round 1, found while auditing TableView for the same defect). */
+  workFiltered: boolean
+}): React.JSX.Element {
   const s = language.speakers
   return (
     <aside className="card panel" aria-label={`Language: ${language.name}`}>
@@ -51,7 +60,9 @@ export default function LanguagePanel({
         <Field label="Matching initiatives" testId="field-initiatives">
           {initiatives.length === 0 ? (
             <span className="hint">
-              None matching the current filters — not a claim that no work exists.
+              {workFiltered
+                ? 'None matching the current filters — not a claim that no work exists.'
+                : 'The atlas records no initiative for this language — not a result of the current filters.'}
             </span>
           ) : (
             <ul>{initiatives.map((i) => <li key={i.id}>{i.name}</li>)}</ul>
