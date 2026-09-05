@@ -604,7 +604,11 @@ a { color: var(--accent-ink); }
 .panel dd .citations > li + li { margin-top: 0.5rem; }
 .panel dd cite { font-style: italic; }
 
-.panel dd .repo-path { font-size: 0.75rem; }
+/* One note for the whole list, not one per citation — see InitiativePanel.
+ * Set as a caption above the paths it explains, not as a footnote after them. */
+.panel dd .paths-note { margin: 0 0 0.4rem; font-size: 0.75rem; }
+
+.panel dd .repo-path { margin: 0.15rem 0 0; font-size: 0.75rem; }
 .panel dd .repo-path code {
   font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   font-size: 0.9em;
@@ -617,6 +621,13 @@ a { color: var(--accent-ink); }
   border-radius: 2px;
   padding: 0 0.2em;
 }
+
+/* A claim covered by a source that ANOTHER field in the same section
+ * discloses — the licence, cited to the same reference as the governance
+ * posture above it. Quieter than the value it follows, but plain text at
+ * reading weight: it is an attribution, not a disclaimer, so it is neither
+ * italic nor accented. See `SourcedField`'s doc comment, case 2. */
+.panel dd .cited-to { color: var(--text-soft); font-size: 0.8125rem; }
 
 /* ------------------------------------------------------ source disclosure --- */
 /* Provenance sits with the claim it supports, folded away until asked for: the

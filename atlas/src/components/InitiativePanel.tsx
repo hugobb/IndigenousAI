@@ -67,9 +67,24 @@ export default function InitiativePanel({
         </SourcedField>
         {/* No disclosure of its own: the licence is a member of the same
             `governance` object as the posture above, backed by that one
-            `Source`, and a second toggle over the same reference in the same
-            section would read as a second, independent attribution. */}
-        <Field label="Licence" testId="field-licence">
+            `Source`, and a second toggle over the same reference would read as
+            a second, INDEPENDENT attribution — two sources corroborating one
+            governance claim.
+            So it says where its citation comes from instead. Without that
+            line, a reader applying the rule `SourcedField` documents — no
+            toggle, no source — reads a cited claim as an uncited curator
+            assertion, on the one page whose whole premise is that every claim
+            carries provenance. This is case 2 of that comment; see it.
+            Through `aside`, never `children`: a note is not the value, and
+            folding it in would make a null licence look non-empty and lose its
+            "not recorded". Rendered only when there IS a licence — under "not
+            recorded" an attribution would be citing an absence. */}
+        <Field
+          label="Licence" testId="field-licence"
+          aside={initiative.governance?.licence == null ? null : (
+            <span className="cited-to"> — cited to the governance source above</span>
+          )}
+        >
           {initiative.governance?.licence ?? null}
         </Field>
       </PanelSection>
@@ -90,28 +105,44 @@ export default function InitiativePanel({
             difference is visible rather than merely true. */}
         <Field label="Papers" testId="field-papers">
           {papers.length === 0 ? null : (
-            <ul className="citations">
-              {papers.map(({ id, paper }) => (
-                <li key={id}>
-                  {paper === null ? (
-                    // Never silently drop a reference the record makes — the
-                    // same rule `columns.ts` uses for an unresolvable
-                    // language id. A bare id would read as noise, so it is
-                    // marked as the dangling reference it is.
-                    <span>{id} <em>— unresolved reference</em></span>
-                  ) : (
-                    <>
-                      <cite>{paper.title}</cite> · {paper.authors} · {paper.year}
-                      {paper.venue !== null && <> · {paper.venue}</>}
-                      <p className="repo-path">
-                        Summary in the repository at <code>{paper.summary_url}</code> — a file
-                        in the review, not a page published on this site.
-                      </p>
-                    </>
-                  )}
-                </li>
-              ))}
-            </ul>
+            <>
+              {/* ONCE for the list, not once per citation: `americasnlp`
+                  carries two papers, and the sentence repeated under two long
+                  proceedings strings in a 25rem rail buries the citations it
+                  exists to explain. Suppressed when nothing resolved, or it
+                  would caption paths that are not on screen. */}
+              {papers.some((p) => p.paper !== null) && (
+                <p className="paths-note">
+                  Summary paths below are files in the review repository, not pages
+                  published on this site.
+                </p>
+              )}
+              <ul className="citations">
+                {/* Keyed by POSITION as well as id: neither
+                    `papers: z.array(z.string())` nor the `links` array below
+                    enforces uniqueness, so a record naming one paper twice —
+                    or two labels on one URL — is schema-valid and would
+                    collide. No record does it today; one line makes it
+                    impossible rather than latent. */}
+                {papers.map(({ id, paper }, n) => (
+                  <li key={`${n}-${id}`}>
+                    {paper === null ? (
+                      // Never silently drop a reference the record makes — the
+                      // same rule `columns.ts` uses for an unresolvable
+                      // language id. A bare id would read as noise, so it is
+                      // marked as the dangling reference it is.
+                      <span>{id} <em>— unresolved reference</em></span>
+                    ) : (
+                      <>
+                        <cite>{paper.title}</cite> · {paper.authors} · {paper.year}
+                        {paper.venue !== null && <> · {paper.venue}</>}
+                        <p className="repo-path"><code>{paper.summary_url}</code></p>
+                      </>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </Field>
         {/* These ARE somewhere you can go. `retrieved` is required by the
@@ -120,8 +151,8 @@ export default function InitiativePanel({
         <Field label="Links" testId="field-links">
           {initiative.links.length === 0 ? null : (
             <ul>
-              {initiative.links.map((l) => (
-                <li key={l.url}>
+              {initiative.links.map((l, n) => (
+                <li key={`${n}-${l.url}`}>
                   <a href={l.url} rel="noreferrer">{l.label}</a> · retrieved {l.retrieved}
                 </li>
               ))}

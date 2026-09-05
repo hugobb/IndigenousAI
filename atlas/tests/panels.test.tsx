@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
@@ -267,6 +267,96 @@ describe('InitiativePanel', () => {
   it('shows the governance licence', () => {
     render(<InitiativePanel initiative={bundle.initiatives[0]!} methods={bundle.methods} bundle={bundle} />)
     expect(screen.getByTestId('field-licence')).toBeDefined()
+  })
+
+  // Fix round 1, finding 1. `governance.posture`, `governance.licence` and
+  // `governance.source` are ONE schema object, so the licence is a cited
+  // claim — but it carries no toggle of its own, because a second toggle over
+  // the identical reference would read as a second, INDEPENDENT attribution.
+  // `assertDisclosures` below pins which fields HAVE a toggle and is blind to
+  // what an absent one means, so without this the render says "uncited" to a
+  // reader applying the rule `SourcedField` documents, and nothing fails.
+  // This is the only executable half of that guard; the class-level property
+  // lives in `SourcedField`'s doc comment and cannot be tested — see the
+  // report.
+  it('says where the licence is cited, since it carries no toggle of its own', () => {
+    const i = bundle.initiatives.find((x) => x.governance?.licence != null)!
+    render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={bundle} />)
+    const field = screen.getByTestId('field-licence')
+    expect(field.textContent).toContain(i.governance!.licence!)
+    expect(field.textContent).toMatch(/cited to the governance source/i)
+    // The claim it makes must stay TRUE: the field it points at has to be the
+    // one actually rendering that disclosure.
+    expect(screen.getByTestId('source-field-governance')).toBeDefined()
+    // And it must not become a toggle of its own — that is the thing this
+    // wording exists instead of.
+    expect(screen.queryByTestId('source-field-licence')).toBeNull()
+  })
+
+  // The value is what `Field` tests for emptiness, so the attribution goes
+  // through `aside`. Routed through `children` it would make a null licence
+  // look non-empty and silently lose its "not recorded" — and it would be
+  // citing an absence.
+  it('does not attribute a licence it does not have', () => {
+    const i = bundle.initiatives.find((x) => x.governance?.licence == null)!
+    render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={bundle} />)
+    const field = screen.getByTestId('field-licence')
+    expect(field.textContent).toMatch(/not recorded/i)
+    expect(field.textContent).not.toMatch(/cited to/i)
+  })
+
+  // Fix round 1, finding 3. The rail is 25rem and `americasnlp` carries two
+  // papers, so the explanation repeated under two long proceedings strings
+  // buries the citations it exists to explain. The fixture holds ONE paper and
+  // one paper cannot tell "once" from "once per item" apart, so the second is
+  // built here — Task 7 owns fixture growth. Same construction as
+  // `withEndangerment` below.
+  it('explains the summary paths once for the list, not once per paper', () => {
+    const p1 = bundle.papers[0]!
+    const p2 = PaperSchema.parse({
+      ...p1, id: 'fixture-paper-2', title: 'Another Fixture Paper',
+      summary_url: 'litterature_review/summaries/fixture-paper-2.md',
+    })
+    const two: AtlasBundle = { ...bundle, papers: [p1, p2] }
+    const i = { ...bundle.initiatives[0]!, papers: [p1.id, p2.id] }
+    render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={two} />)
+    const text = screen.getByTestId('field-papers').textContent ?? ''
+    expect(text.match(/repository/gi) ?? []).toHaveLength(1)
+    // Hoisting the sentence must not take the paths with it: the note explains
+    // the list, it does not stand in for it.
+    expect(text).toContain(p1.summary_url)
+    expect(text).toContain(p2.summary_url)
+  })
+
+  // A caption over paths that are not on screen would explain nothing.
+  it('does not caption summary paths when no paper resolved', () => {
+    const i = { ...bundle.initiatives[0]!, papers: ['no-such-paper'] }
+    render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={bundle} />)
+    expect(screen.getByTestId('field-papers').textContent).not.toMatch(/repository/i)
+  })
+
+  // Fix round 1, finding 2. Neither `papers: z.array(z.string())` nor the
+  // `links` array enforces uniqueness, so a record naming one paper twice — or
+  // two labels on one URL — is schema-valid. Keyed on the value alone that is
+  // a duplicate-key warning and unstable reconciliation; React reports it on
+  // `console.error` and nothing else would.
+  it('renders a repeated paper id and a repeated link URL without colliding keys', () => {
+    const errors: unknown[][] = []
+    const spy = vi.spyOn(console, 'error').mockImplementation((...a: unknown[]) => { errors.push(a) })
+    try {
+      const l = bundle.initiatives.find((x) => x.links.length > 0)!.links[0]!
+      const i = {
+        ...bundle.initiatives[0]!,
+        papers: ['fixture-paper', 'fixture-paper'],
+        links: [l, { ...l, label: 'The same page, a second label' }],
+      }
+      render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={bundle} />)
+      expect(screen.getByTestId('field-papers').textContent).toContain('A Fixture Paper')
+      expect(screen.getByTestId('field-links').textContent).toContain('a second label')
+    } finally {
+      spy.mockRestore()
+    }
+    expect(errors.map((a) => String(a[0])).filter((m) => /key/i.test(m))).toEqual([])
   })
 })
 

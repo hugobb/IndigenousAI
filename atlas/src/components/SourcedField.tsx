@@ -81,10 +81,32 @@ function SourceDisclosure({
  *  at the panel foot: pooled, a reader checking one number has to match it to
  *  a source by eye.
  *
- *  A field with no source renders NO toggle, and that silence is meaningful —
- *  those fields carry no `Source` in the schema at all. It only stays
- *  meaningful if a toggle is never rendered empty, so an EMPTY `SourceEntry[]`
- *  renders nothing too, exactly as `null` does.
+ *  A field with no source renders NO toggle, and that silence is meaningful.
+ *  It only stays meaningful if a toggle is never rendered empty, so an EMPTY
+ *  `SourceEntry[]` renders nothing too, exactly as `null` does.
+ *
+ *  WHAT an absent toggle means is one of TWO things, and this comment used to
+ *  claim only the first:
+ *
+ *  1. The schema gives that field no `Source` at all — family, region,
+ *     typology, countries. Nothing was cited because nothing is cited.
+ *  2. The field is one of SEVERAL claims backed by a SINGLE `Source` that
+ *     another field in the same section already discloses. `InitiativePanel`'s
+ *     `Licence` is the case: `governance.posture`, `governance.licence` and
+ *     `governance.source` are one object, so the licence IS cited, to the
+ *     reference the `Governance` toggle above it opens. A second toggle
+ *     labelled "Source for Licence" opening that identical reference would
+ *     read as a second, INDEPENDENT attribution — two sources corroborating
+ *     one governance claim — and inventing corroboration in a cited artifact
+ *     is worse than the toggle being absent.
+ *
+ *  An absent toggle NEVER means "the curator asserts this without a citation".
+ *  Case 2 is only honest if the field SAYS where its citation comes from, in
+ *  its own render, because nothing in this module can say it for them:
+ *  `assertDisclosures` in `tests/panels.test.tsx` pins which fields carry a
+ *  toggle and is blind to what an absent one means. So a case-2 field owes the
+ *  reader that line, and the only thing holding the two together is this
+ *  comment and the guard at that call site.
  *
  *  `source` takes a list as well as a single `Source` because a field can show
  *  more than one figure — speakers keeps disagreeing counts instead of picking
