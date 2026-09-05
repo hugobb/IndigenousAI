@@ -17,7 +17,8 @@ These are not optional and their **order matters**.
 
 ### 1. Push the repository
 
-The branch is **152 commits ahead of `origin/main`** and nothing has been pushed.
+The branch is **more than 150 commits ahead of `origin/main`** and nothing has
+been pushed (`git rev-list --count origin/main..HEAD` for the exact figure).
 Zenodo reads from GitHub: it archives what the repository contains at the moment
 a release is created, so an unpushed commit is not in the DOI'd record. Push
 before anything else.
