@@ -3,6 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node
 import { tmpdir } from 'node:os'
 import { join, relative, resolve } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
+import { atlasIndexBranch, atlasIndexProblems } from './lib/atlas-index.js'
 
 /** Excluded from `pnpm test` in vitest.config.ts and run only by `pnpm test:site`:
  *  it shells out to scripts/build-site.sh, which runs `pip install` and
@@ -56,16 +57,28 @@ describe('the deployed tree', () => {
     expect(fixtureLeaks(out)).toEqual([])
   })
 
-  it('serves the holding page while the data build fails', () => {
-    const html = readFileSync(join(out, 'atlas/index.html'), 'utf8')
-    expect(html).toMatch(/awaiting record review/i)
-    // A holding page that shipped the app shell would carry its script bundle.
-    expect(html).not.toMatch(/<script[^>]+src=/)
+  /** `build-site.sh` publishes ONE of two things at /atlas/, and which one swaps
+   *  over exactly once: the holding page while `pnpm build:data` exits non-zero,
+   *  the built app the day the ten curated records are promoted.
+   *
+   *  This used to assert the holding page unconditionally, which would have
+   *  failed ON THAT PROMOTION — turning CI's `site` job red at the moment
+   *  `records-reviewed` finally went green, on a repository whose release
+   *  procedure is "push, promote, then tag". So it checks the branch the tree
+   *  actually took. `atlasIndexProblems` is pure and both of its branches are
+   *  covered in tests/atlas-index.test.ts; only the holding one can be reached
+   *  by a real build today. */
+  it('publishes a coherent /atlas/, whichever branch the build took', () => {
+    const dir = join(out, 'atlas')
+    const html = readFileSync(join(dir, 'index.html'), 'utf8')
+    const files = readdirSync(dir, { recursive: true }).map(String)
+    expect(atlasIndexProblems(html, files)).toEqual([])
   })
 
-  // `base: '/atlas/'` is deliberately NOT asserted here. While `build:data`
-  // exits non-zero the holding-page branch is taken, no app assets exist in
-  // this tree, and any assertion about their URLs would pass vacuously —
-  // exactly the shape of guard this project has been bitten by. It is asserted
-  // instead in tests/build-artifact.test.ts, on a build that always runs.
+  // Which branch it took today, stated out loud. When this flips, the atlas has
+  // shipped — and the assertion above is what will still be checking it.
+  it('is serving the holding page, because records are still under review', () => {
+    const html = readFileSync(join(out, 'atlas/index.html'), 'utf8')
+    expect(atlasIndexBranch(html)).toBe('holding')
+  })
 })
