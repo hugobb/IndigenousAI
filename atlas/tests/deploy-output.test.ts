@@ -72,7 +72,11 @@ describe('the deployed tree', () => {
     const dir = join(out, 'atlas')
     const html = readFileSync(join(dir, 'index.html'), 'utf8')
     const files = readdirSync(dir, { recursive: true }).map(String)
-    expect(atlasIndexProblems(html, files)).toEqual([])
+    // Resolved against the WHOLE deployed tree, not just /atlas/: the holding
+    // page links out into the guide.
+    const routeExists = (r: string): boolean =>
+      existsSync(join(out, r, 'index.html')) || existsSync(join(out, r))
+    expect(atlasIndexProblems(html, files, routeExists)).toEqual([])
   })
 
   // Which branch it took today, stated out loud. When this flips, the atlas has

@@ -24,8 +24,14 @@ export function atlasIndexBranch(html: string): AtlasIndexBranch {
 }
 
 /** Problems with the published `/atlas/` tree, as readable sentences. Empty is
- *  the pass. `files` are the paths inside `<out>/atlas`, relative to it. */
-export function atlasIndexProblems(html: string, files: readonly string[]): string[] {
+ *  the pass. `files` are the paths inside `<out>/atlas`, relative to it, and
+ *  `routeExists` answers whether a root-relative route has a page in the WHOLE
+ *  deployed tree (the guide included). */
+export function atlasIndexProblems(
+  html: string,
+  files: readonly string[],
+  routeExists: (route: string) => boolean = () => true,
+): string[] {
   const problems: string[] = []
 
   if (atlasIndexBranch(html) === 'holding') {
@@ -34,6 +40,16 @@ export function atlasIndexProblems(html: string, files: readonly string[]): stri
     // feed it did not — a page that renders nothing and says nothing.
     if (/<script[^>]+src=/.test(html)) {
       problems.push('the holding page carries a script bundle; it must be the hand-written static page')
+    }
+    // It is prose with links out into the guide, hand-written and therefore
+    // outside `scripts/check-links.ts`, which walks only what the BUNDLE cites.
+    // It is also the page every visitor to /atlas/ reads while the records are
+    // under review, so a dead link here is the first thing they meet.
+    const dead = [...html.matchAll(/href="(\/[^"#?]*)"/g)]
+      .map((m) => m[1] as string)
+      .filter((r) => !routeExists(r))
+    if (dead.length > 0) {
+      problems.push(`the holding page links to route(s) with no page: ${dead.join(', ')}`)
     }
   } else {
     // The real app. `base: '/atlas/'` is what makes one origin work, and this

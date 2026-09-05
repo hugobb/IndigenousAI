@@ -10,7 +10,12 @@ import { atlasIndexBranch, atlasIndexProblems } from './lib/atlas-index.js'
  *  the day it matters, which is the failure this whole file exists to prevent. */
 
 const HOLDING = `<!doctype html><title>Atlas — awaiting record review</title>
-<main><h1>The atlas is awaiting record review</h1></main>`
+<main><h1>The atlas is awaiting record review</h1>
+<p><a href="/">Read the guide</a> · <a href="/summaries/">Browse the paper summaries</a></p></main>`
+
+/** Stands in for the built tree. The real one is passed by
+ *  tests/deploy-output.test.ts and answers off the emitted files. */
+const published = (...routes: string[]) => (r: string): boolean => routes.includes(r)
 
 const APP = `<!doctype html><html><head><title>Atlas of Indigenous Language NLP</title>
 <script type="module" crossorigin src="/atlas/assets/index-abc.js"></script>
@@ -29,16 +34,26 @@ describe('atlasIndexBranch', () => {
 
 describe('the holding branch', () => {
   it('passes the real holding page', () => {
-    expect(atlasIndexProblems(HOLDING, ['index.html'])).toEqual([])
+    expect(atlasIndexProblems(HOLDING, ['index.html'], published('/', '/summaries/'))).toEqual([])
   })
 
   it('rejects a holding page carrying the app bundle', () => {
     const problems = atlasIndexProblems(
       `${HOLDING}<script type="module" src="/atlas/assets/index-abc.js"></script>`,
       ['index.html'],
+      published('/', '/summaries/'),
     )
     expect(problems).toHaveLength(1)
     expect(problems[0]).toMatch(/script bundle/)
+  })
+
+  // Hand-written prose links, so `scripts/check-links.ts` never sees them — it
+  // walks what the BUNDLE cites. This page is what every visitor to /atlas/
+  // reads while the records are under review.
+  it('rejects a holding page linking somewhere the build did not produce', () => {
+    const problems = atlasIndexProblems(HOLDING, ['index.html'], published('/'))
+    expect(problems).toHaveLength(1)
+    expect(problems[0]).toMatch(/no page: \/summaries\//)
   })
 })
 
@@ -73,6 +88,6 @@ describe('either branch', () => {
   })
 
   it('does not mistake the holding page served AS index.html for a stray', () => {
-    expect(atlasIndexProblems(HOLDING, ['index.html'])).toEqual([])
+    expect(atlasIndexProblems(HOLDING, ['index.html'], published('/', '/summaries/'))).toEqual([])
   })
 })
