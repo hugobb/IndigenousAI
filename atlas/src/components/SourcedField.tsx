@@ -27,9 +27,17 @@ function SourceLine({ source, figure }: SourceEntry): React.JSX.Element {
     <div className="source-line">
       {figure !== undefined && <><strong>{figure}</strong>{' — '}</>}
       <span className="source-kind">{source.kind}</span>{' '}
-      {/* Only a url ref is a resource. A paper ref is a citation string and a
-          doc ref is a repo path; linking either invents a destination we do
-          not have. */}
+      {/* Only a url ref is a resource. A paper ref is a citation string, and
+          every doc ref in the records today is a repo path; linking either
+          invents a destination we do not have. Checked rather than assumed: all
+          13 `Source.kind` values across the ten curated records are `url`, and
+          the fixture's doc refs carry `ref: "fixture"` — a label, not a path.
+
+          THIS BECOMES FALSE the day a doc ref names a published summary.
+          `/summaries/<id>/` has been a real route on this origin since SP2b, so
+          such a ref would be a destination we DO have, rendered as inert text.
+          The fix then is here, not at the call site: `tests/sourced-field.test.tsx`
+          pins "a non-url ref is never an anchor", so changing it is deliberate. */}
       {source.kind === 'url'
         ? <a href={source.ref} rel="noreferrer">{source.ref}</a>
         : <span>{source.ref}</span>}
