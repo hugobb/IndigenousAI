@@ -50,4 +50,4 @@ A **Self-Review Notes** block at the end of each doc flags any gaps identified d
 ## Source
 
 Built from a literature review of 92 papers. The first extraction pass covered 26 high-priority papers.
-See [`tasks/2026-06-11-technique-inventory/`](https://github.com) for the full methodology and the list of 63 remaining papers for a second pass.
+See `tasks/2026-06-11-technique-inventory/` in the repository for the full methodology and the list of 63 remaining papers for a second pass.
