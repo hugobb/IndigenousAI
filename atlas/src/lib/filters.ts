@@ -7,12 +7,29 @@ import {
 } from './facets.js'
 
 export interface Selection {
+  /** L1: every language passing the language facets. The map draws all of
+   *  these — a language is never deleted by a filter, only labelled. */
   languages: Language[]
   initiatives: Initiative[]
-  /** Matched the language facets but has no initiative left. Spec F1: these are a
-   *  finding, not an error — they are surfaced in the rail, never deleted. */
-  filteredOut: Language[]
+  /** A SUBSET of `languages` — those with no covering initiative in `initiatives`.
+   *  Computed for every filter state, not only under a work filter: reporting
+   *  this finding in one case and not the other made the map and the rail
+   *  disagree about the same language depending on which control was touched.
+   *  NOT a complement. `[...languages, ...noMatchingWork]` double-counts. */
+  noMatchingWork: Language[]
   undatedInitiatives: number
+  /** `anyWorkFilter(state)`, exposed rather than re-derived: the rail's heading
+   *  makes a different and stronger claim when no work filter is active. */
+  workFiltered: boolean
+  /** `anyLanguageFilter(state)`, the symmetric flag, and for the symmetric
+   *  reason (seam review, Task 8). Three surfaces told the reader these
+   *  languages "match your language filters" — the rail hint, the rail banner
+   *  and the languages caption — and with only a WORK filter set, which is the
+   *  state that populates `noMatchingWork` most often, no language filter
+   *  exists. `l1` is then the whole atlas, and the page was crediting a filter
+   *  the reader never applied. One flag, three renderings, exactly as
+   *  `workFiltered` already does for the other half of the same sentence. */
+  languageFiltered: boolean
 }
 
 /** Selected values are OR within a facet; facets are AND with each other. The
@@ -62,23 +79,19 @@ export function applyFilters(bundle: AtlasBundle, state: FilterState): Selection
       (!anyLanguageFilter(state) || i.languages.some((id) => l1ids.has(id))),
   )
 
-  // Spec §6: the timeline reports how many of the initiatives on screen it
-  // cannot constrain. That is a standing property of `i1`, true on the very
-  // first EMPTY_FILTERS render (Te Hiku Media has no `started`) — not
-  // something that only becomes true once a work facet is touched. Computed
-  // uniformly in both branches below.
-  const undatedInitiatives = i1.filter((i) => i.started === null).length
-
-  if (!anyWorkFilter(state)) {
-    return { languages: l1, initiatives: i1, filteredOut: [], undatedInitiatives }
-  }
-
   const covered = new Set(i1.flatMap((i) => i.languages))
+
   return {
-    languages: l1.filter((l) => covered.has(l.id)),
+    languages: l1,
     initiatives: i1,
-    filteredOut: l1.filter((l) => !covered.has(l.id)),
-    undatedInitiatives,
+    noMatchingWork: l1.filter((l) => !covered.has(l.id)),
+    // Spec §6: the timeline reports how many of the initiatives on screen it
+    // cannot constrain. That is a standing property of `i1`, true on the very
+    // first EMPTY_FILTERS render (Te Hiku Media has no `started`) — not
+    // something that only becomes true once a work facet is touched.
+    undatedInitiatives: i1.filter((i) => i.started === null).length,
+    workFiltered: anyWorkFilter(state),
+    languageFiltered: anyLanguageFilter(state),
   }
 }
 
@@ -122,14 +135,12 @@ export function facetSummaries(bundle: AtlasBundle, state: FilterState): FacetSu
   })
 
   return [
-    // Spec F1, one layer up: a language demoted to `filteredOut` by a work
-    // filter is still ON the rail, not gone. Counting only `.languages` (L2)
-    // would let an option's badge undercount by exactly the languages a click
-    // would newly reveal in the "no matching work" group — ruling: count
-    // against L1 (`languages` + `filteredOut`), never the narrower L2 pool.
     ...LANGUAGE_FACETS.map((f) => {
+      // `languages` is L1: every language passing the OTHER language facets,
+      // workless ones included. Concatenating `noMatchingWork` here would
+      // count those languages twice, because it is now a subset of this list.
       const sel = applyFilters(bundle, { ...state, [f.id]: [] })
-      return summarise(f, [...sel.languages, ...sel.filteredOut], bundle.languages)
+      return summarise(f, sel.languages, bundle.languages)
     }),
     // Initiative facets have no analogous demoted state — count against the
     // survivors exactly as before.
@@ -147,10 +158,11 @@ export type EmptyState = 'matched' | 'no-work-but-languages' | 'nothing-matched'
  *  directly above the finding it denied. There is one predicate so there is
  *  one thing to be wrong. */
 export function emptyState(s: Selection): EmptyState {
-  if (s.languages.length === 0 && s.initiatives.length === 0 && s.filteredOut.length === 0) {
-    return 'nothing-matched'
-  }
-  if (s.initiatives.length === 0 && s.filteredOut.length > 0) return 'no-work-but-languages'
+  if (s.languages.length === 0 && s.initiatives.length === 0) return 'nothing-matched'
+  // Reachable now in every filter state, not only under a work filter — which
+  // is what made the SP1c-parked case (languages match, no work, nothing said)
+  // unexplainable.
+  if (s.initiatives.length === 0) return 'no-work-but-languages'
   return 'matched'
 }
 

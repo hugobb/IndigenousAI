@@ -27,10 +27,17 @@ export default function App(): React.JSX.Element {
   const language = bundle.languages.find((l) => l.id === state.lang) ?? null
   const initiative = bundle.initiatives.find((i) => i.id === state.init) ?? null
 
-  const languageInSelection =
-    selection.languages.some((l) => l.id === state.lang) ||
-    selection.filteredOut.some((l) => l.id === state.lang)
+  const languageInSelection = selection.languages.some((l) => l.id === state.lang)
   const initiativeInSelection = selection.initiatives.some((i) => i.id === state.init)
+
+  // `selection.workFiltered` alone under-reports whether a filter could
+  // explain an empty work list on the LanguagePanel: a language a facet has
+  // excluded from L1 can still name a real initiative, one the
+  // language-intersection clause in `applyFilters` then drops from
+  // `selection.initiatives` with no work filter active at all (fix round 2 —
+  // this was a false "no work exists" claim on a language whose work a
+  // region/typology/etc. filter, not the atlas, was hiding).
+  const languagePanelFiltered = selection.workFiltered || !languageInSelection
 
   const outside: 'language' | 'initiative' | null =
     language !== null && !languageInSelection ? 'language'
@@ -55,7 +62,7 @@ export default function App(): React.JSX.Element {
     summaries.reduce((n, s) => n + s.selected.length, 0) + (timelineActive ? 1 : 0)
 
   const empty = emptyState(selection)
-  const nFilteredOut = selection.filteredOut.length
+  const nWorkless = selection.noMatchingWork.length
 
   return (
     <main className="atlas">
@@ -104,14 +111,23 @@ export default function App(): React.JSX.Element {
         )}
         {empty === 'no-work-but-languages' && (
           <p className="card empty" data-testid="no-matching-work">
-            No initiative matches the current filters. {nFilteredOut}{' '}
-            {nFilteredOut === 1 ? 'language' : 'languages'} matched your language filters
-            and {nFilteredOut === 1 ? 'is' : 'are'} listed below.
+            {selection.workFiltered
+              ? 'No initiative matches the current filters.'
+              : 'No initiative in this atlas works on these languages.'}{' '}
+            {/* Seam review (Task 8): the second sentence used to credit a
+                language filter unconditionally. In this state `noMatchingWork`
+                IS `languages`, so with no language facet set the number is the
+                whole atlas and no filter selected it. */}
+            {selection.languageFiltered
+              ? `${nWorkless} ${nWorkless === 1 ? 'language' : 'languages'} matched your language filters and ${nWorkless === 1 ? 'is' : 'are'} listed below.`
+              : `All ${nWorkless} ${nWorkless === 1 ? 'language' : 'languages'} in the atlas ${nWorkless === 1 ? 'is' : 'are'} listed below.`}
           </p>
         )}
         <UnmappedList
           languages={selection.languages}
-          filteredOut={selection.filteredOut}
+          noMatchingWork={selection.noMatchingWork}
+          workFiltered={selection.workFiltered}
+          languageFiltered={selection.languageFiltered}
           onSelect={(id) => dispatch({ type: 'selectLanguage', id })}
         />
         {outside !== null && (
@@ -129,11 +145,27 @@ export default function App(): React.JSX.Element {
         )}
         {language !== null && (
           <LanguagePanel
+            // Keyed by the record, so every piece of per-record UI state in the
+            // panel belongs to the record it describes (seam review, Task 8).
+            // Without it React reconciles the two panels position by position
+            // and a source disclosure opened on one language stays open on the
+            // next — but only for the fields whose neighbours happen to have a
+            // source on the new record too, since the others unmount. That is
+            // not a "stay expanded" preference, it is reconciliation showing
+            // through: on Choctaw -> Approximate, Centre stayed open and
+            // Endangerment silently did not.
+            key={language.id}
             language={language}
             initiatives={selection.initiatives.filter((i) => i.languages.includes(language.id))}
+            filtered={languagePanelFiltered}
           />
         )}
-        {initiative !== null && <InitiativePanel initiative={initiative} methods={bundle.methods} />}
+        {initiative !== null && (
+          <InitiativePanel
+            key={initiative.id}
+            initiative={initiative} methods={bundle.methods} bundle={bundle}
+          />
+        )}
       </div>
 
       <div className="atlas__pane">
@@ -141,7 +173,7 @@ export default function App(): React.JSX.Element {
           view={state.view}
           counts={{
             initiatives: selection.initiatives.length,
-            languages: selection.languages.length + selection.filteredOut.length,
+            languages: selection.languages.length,
           }}
           onChange={(view) => dispatch({ type: 'setView', view })}
         />

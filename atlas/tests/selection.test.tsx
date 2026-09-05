@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../src/components/App.js'
 
@@ -75,5 +75,30 @@ describe('selection', () => {
     })
     expect(screen.getByLabelText('Language: Unmapped Language')).toBeDefined()
     expect(screen.queryByLabelText('Initiative: Ongoing Initiative')).toBeNull()
+  })
+
+  // Seam review (Task 8), routed observation from Task 4. A disclosure opened
+  // on one record stayed open when the reader moved to another — and only for
+  // SOME fields, because a `SourcedField` whose new record has no source
+  // unmounts and loses its state while its neighbours keep theirs. Provenance
+  // the reader did not ask to see, on a record they did not open it for, in a
+  // set that varies by which other fields happen to be sourced.
+  it('opens the next record with its disclosures closed, not with the last one\'s', () => {
+    window.history.replaceState({}, '', '/?lang=fixture-conflict')
+    render(<App />)
+    const toggle = screen.getByTestId('source-field-centre')
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(toggle)
+    expect(screen.getByTestId('source-field-centre').getAttribute('aria-expanded')).toBe('true')
+
+    act(() => {
+      // Named twice in the rail — once as approximately located, once as
+      // workless — which is the point of the two cards. Either opens it.
+      screen.getAllByRole('button', { name: 'Approximate Centre Language' })[0]!.click()
+    })
+    expect(screen.getByLabelText('Language: Approximate Centre Language')).toBeDefined()
+    expect(screen.getByTestId('source-field-centre').getAttribute('aria-expanded')).toBe('false')
+    // And the body is genuinely unmounted, not merely hidden.
+    expect(screen.getByTestId('source-body-field-centre').textContent).toBe('')
   })
 })

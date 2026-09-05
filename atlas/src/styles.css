@@ -283,8 +283,10 @@ a { color: var(--accent-ink); }
   margin: 0 0 0.75rem;
 }
 
-/* ------------------------------------------------------------ unmapped ---- */
-.unmapped h3 {
+/* ------------------------------------------------------------ rail lists -- */
+/* Shared by both of `UnmappedList`'s cards. Named for the shape it styles, not
+ * for one card's subject: the second card is about work coverage, not the map. */
+.rail-list h3 {
   font-family: var(--sans);
   font-size: 0.75rem;
   font-weight: 600;
@@ -294,23 +296,23 @@ a { color: var(--accent-ink); }
   margin: 0 0 0.4rem;
 }
 
-.unmapped > div + div { margin-top: 1rem; }
+.rail-list > div + div { margin-top: 1rem; }
 
-.unmapped ul {
+.rail-list ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.unmapped li {
+.rail-list li {
   padding: 0.3rem 0;
   border-top: 1px solid var(--rule);
 }
 
-.unmapped li:first-child { border-top: 0; }
+.rail-list li:first-child { border-top: 0; }
 
-.unmapped li span,
-.unmapped li p {
+.rail-list li span,
+.rail-list li p {
   display: block;
   margin: 0.1rem 0 0;
   color: var(--text-soft);
@@ -584,6 +586,65 @@ a { color: var(--accent-ink); }
   color: var(--text-soft);
   font-size: 0.8125rem;
 }
+
+.panel__section { margin-top: 0.75rem; }
+.panel__section:first-of-type { margin-top: 0; }
+.panel__section-title {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-soft); margin: 0 0 0.25rem; border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.15rem;
+}
+
+/* ------------------------------------------------------------ evidence --- */
+/* The Evidence section holds two lists that look alike and are not: `Links`
+ * are destinations, `Papers` are references we hold. A paper's `summary_url`
+ * is a repo-relative path to a file that is not in the built site, so it is
+ * never an anchor — and if it were merely unstyled it would read as a link
+ * that failed rather than as a citation. Set as a path: a title in italics,
+ * the location in a monospace face at the size of a footnote. */
+.panel dd .citations { list-style: none; padding-left: 0; }
+.panel dd .citations > li + li { margin-top: 0.5rem; }
+.panel dd cite { font-style: italic; }
+
+/* One note for the whole list, not one per citation — see InitiativePanel.
+ * Set as a caption above the paths it explains, not as a footnote after them. */
+.panel dd .paths-note { margin: 0 0 0.4rem; font-size: 0.75rem; }
+
+.panel dd .repo-path { margin: 0.15rem 0 0; font-size: 0.75rem; }
+.panel dd .repo-path code {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+  /* No underline and no accent: the one styled thing in this block must not
+   * be the thing you cannot click. */
+  color: var(--text-soft);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 0 0.2em;
+}
+
+/* A claim covered by a source that ANOTHER field in the same section
+ * discloses — the licence, cited to the same reference as the governance
+ * posture above it. Quieter than the value it follows, but plain text at
+ * reading weight: it is an attribution, not a disclaimer, so it is neither
+ * italic nor accented. See `SourcedField`'s doc comment, case 2. */
+.panel dd .cited-to { color: var(--text-soft); font-size: 0.8125rem; }
+
+/* ------------------------------------------------------ source disclosure --- */
+/* Provenance sits with the claim it supports, folded away until asked for: the
+ * reference text would otherwise outweigh the figure it supports. */
+.source-toggle {
+  background: none; border: 0; padding: 0 0 0 0.4rem; font: inherit;
+  font-size: 0.75rem; color: var(--accent-ink); cursor: pointer; text-decoration: underline;
+}
+.source-body {
+  font-size: 0.75rem; color: var(--text-soft); margin-top: 0.2rem;
+  padding-left: 0.5rem; border-left: 2px solid var(--rule);
+}
+.source-line + .source-line { margin-top: 0.3rem; }
+.source-kind { text-transform: uppercase; letter-spacing: 0.04em; }
+.source-body blockquote { margin: 0.2rem 0 0; font-style: italic; }
 
 /* ------------------------------------------------------------ maplibre ---- */
 /* The basemap is OpenFreeMap's Positron over OpenStreetMap data (ODbL); the

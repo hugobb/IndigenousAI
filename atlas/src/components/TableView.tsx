@@ -7,20 +7,68 @@ import type { AtlasBundle } from '../lib/load.js'
 import type { Initiative, Language } from '../schema/index.js'
 import DataTable from './DataTable.js'
 
-// Ruling (Task 5): `DataTable` must never receive a null `emptyMessage`. The
-// `matched` state is reachable with zero rows in THIS table — a language-only
-// filter with no work facet active leaves `filteredOut: []` and
-// `initiatives: []`, so the shared predicate reports `matched` while the
-// initiatives table has nothing to show. A null message there renders bare
-// column headers over nothing, which reads as a rendering bug, not a finding.
+// Ruling (Task 5): `DataTable` must never receive a null `emptyMessage`. A
+// null message renders bare column headers over nothing, which reads as a
+// rendering bug rather than a finding.
+//
+// Seam review (Task 8) corrected the reason given here. `matched` with zero
+// rows is NOT reachable through `applyFilters`: with a language facet active
+// an empty L1 forces I1 empty through the intersection clause, and with none
+// active L1 is the whole bundle — which `scripts/validate.ts` will not let
+// hold initiatives without languages. The copy stays anyway, because this
+// component takes a `Selection` and nothing in its own signature carries that
+// invariant. It is defence in depth against a caller, not a described state.
 // `emptyState` still answers "did anything match"; stating this table's own
 // row count is not re-deriving that.
-const EMPTY_COPY = {
+//
+// `no-work-but-languages` is NOT here: unlike the other two states, it is
+// reachable with no work filter active (Task 1), and only ever renders in the
+// initiatives table (the languages table has rows whenever this state holds).
+// A zero-row initiatives table means a filter narrowed it OR the atlas holds
+// none at all for the languages shown — two different reasons, so it needs
+// `selection.workFiltered` and gets its own function below rather than a
+// static entry in this map.
+const STATIC_EMPTY_COPY = {
   'nothing-matched': 'Nothing matches the current filters.',
-  'no-work-but-languages':
-    'No initiative matches the current filters. The languages that matched are listed in the Languages view and in the rail — no matching work is a finding, not an empty result.',
   matched: 'Nothing in this view matches the current filters.',
 } as const
+
+// Fix round 1: this used to be a static entry claiming a filter was
+// responsible even when none was — false on the same screens Task 2 already
+// corrected the rail and App banner for. Table-specific: it names the rows
+// (there are none) rather than repeating the rail's "atlas" framing verbatim.
+// Final review, finding 2: the work-filtered branch said "the languages that
+// matched", keyed on `workFiltered` alone, so at
+// `?view=initiatives&application=spellcheck` this table credited a language
+// filter while the rail beside it said none was narrowing the list — the same
+// false credit as the three surfaces already corrected, on a fourth.
+function noWorkButLanguagesCopy(workFiltered: boolean, languageFiltered: boolean): string {
+  if (!workFiltered) {
+    return 'This table has no rows because the atlas records no initiative for any of these languages — not because a filter narrowed anything. They are listed in the Languages view and in the rail.'
+  }
+  return languageFiltered
+    ? 'No initiative matches the current filters. The languages that matched are listed in the Languages view and in the rail — no matching work is a finding, not an empty result.'
+    : 'No initiative matches the current filters. No language filter is narrowing the languages themselves; they are listed in the Languages view and in the rail — no matching work is a finding, not an empty result.'
+}
+
+// Fix round 2: a sixth surface, found by an independent reviewer while
+// checking the first five. With no work filter active, `workCount` is
+// scoped to I1 = every initiative in the atlas, so 0 there IS "no work
+// exists" — the opposite of what this caption's second sentence used to say
+// unconditionally, right beside a rail that (at the same URL) already says
+// exactly that. Same signal as the rest of this file.
+function languagesCaption(rowCount: number, workFiltered: boolean, languageFiltered: boolean): string {
+  const matchingWork = workFiltered
+    ? '“Matching work” counts initiatives surviving every current filter, so 0 means no matching work — not that no work exists.'
+    : '“Matching work” counts every initiative in the atlas, with no filter narrowing it, so 0 here means the atlas records none for this language.'
+  // Seam review (Task 8): the row set is L1, and with no language facet set L1
+  // is the whole atlas — naming a filter there is the same false credit the
+  // rail hint and the App banner were giving.
+  const rows = languageFiltered
+    ? `Languages matching the current language filters (${rowCount}).`
+    : `Every language in the atlas (${rowCount}).`
+  return `${rows} ${matchingWork} † marks a speaker count sources disagree about.`
+}
 
 export default function TableView({
   view, selection, bundle, sort, onSort, selectedId, onSelect,
@@ -48,7 +96,11 @@ export default function TableView({
     }
   }, [bundle, selection])
 
-  const empty = EMPTY_COPY[emptyState(selection)]
+  const state = emptyState(selection)
+  const empty =
+    state === 'no-work-but-languages'
+      ? noWorkButLanguagesCopy(selection.workFiltered, selection.languageFiltered)
+      : STATIC_EMPTY_COPY[state]
 
   if (view === 'initiatives') {
     const rows = selection.initiatives
@@ -66,12 +118,12 @@ export default function TableView({
     )
   }
 
-  // L1: the languages the map keeps PLUS the ones it drops for having no
-  // matching work. Dropping the second group here would delete the finding.
-  const rows: Language[] = [...selection.languages, ...selection.filteredOut]
+  // `selection.languages` IS L1 now, workless languages included. The old
+  // concatenation would double-count every one of them.
+  const rows: Language[] = selection.languages
   return (
     <DataTable<Language>
-      caption={`Languages matching the current language filters (${rows.length}). “Matching work” counts initiatives surviving every current filter, so 0 means no matching work — not that no work exists. † marks a speaker count sources disagree about.`}
+      caption={languagesCaption(rows.length, selection.workFiltered, selection.languageFiltered)}
       columns={LANGUAGE_COLUMNS} rows={rows} sort={sort} onSort={onSort}
       selectedId={selectedId} onSelect={onSelect} ctx={ctx} emptyMessage={empty}
     />

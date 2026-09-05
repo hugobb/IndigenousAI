@@ -3,8 +3,8 @@
   "languages": [
     {
       "id": "fixture-sourced", "name": "Sourced Centre Language", "also_known_as": [],
-      "glottocode": null, "iso639_3": null, "tier": "indigenous", "family": "Fixture Family",
-      "subfamily": null, "typology": ["polysynthetic"], "endangerment": null, "speakers": null,
+      "glottocode": "fixt1234", "iso639_3": "fix", "tier": "indigenous", "family": "Fixture Family",
+      "subfamily": "Fixture Subfamily", "typology": ["polysynthetic"], "endangerment": null, "speakers": null,
       "region": "north-america", "countries": ["CA"],
       "centre": { "lat": 45.5, "lon": -73.6, "confidence": "sourced",
         "source": { "kind": "doc", "ref": "fixture", "retrieved": null, "quote": null } },
@@ -24,20 +24,22 @@
       "id": "fixture-unmapped", "name": "Unmapped Language", "also_known_as": [],
       "glottocode": null, "iso639_3": null, "tier": "indigenous", "family": "Fixture Family",
       "subfamily": null, "typology": [], "endangerment": null, "speakers": null,
-      "region": "north-america", "countries": ["CA"],
+      "region": "north-america", "countries": ["CA", "US"],
       "centre": null, "caveat": null, "status": "verified"
     },
     {
       "id": "fixture-adjacent", "name": "Adjacent Language", "also_known_as": [],
       "glottocode": null, "iso639_3": null, "tier": "adjacent", "family": "Fixture Family",
       "subfamily": null, "typology": [], "endangerment": null, "speakers": null,
-      "region": "africa", "countries": ["ET"],
+      "region": "africa", "countries": [],
       "centre": null, "caveat": null, "status": "verified"
     },
     {
       "id": "fixture-conflict", "name": "Conflicted Speakers Language", "also_known_as": ["Alt Name"],
       "glottocode": null, "iso639_3": null, "tier": "indigenous", "family": "Fixture Family",
-      "subfamily": null, "typology": [], "endangerment": null,
+      "subfamily": null, "typology": [],
+      "endangerment": { "status": "severely-endangered", "scale": "unesco-2010",
+        "source": { "kind": "doc", "ref": "fixture-endangerment", "retrieved": null, "quote": null } },
       "speakers": { "value": 9600, "as_of": null,
         "source": { "kind": "doc", "ref": "fixture-a", "retrieved": null, "quote": null },
         "conflicts": [{ "value": 300,
@@ -58,7 +60,12 @@
       "data_regime": "1k-10k",
       "governance": { "posture": "community-controlled", "licence": "Fixture Licence",
         "source": { "kind": "doc", "ref": "fixture", "retrieved": null, "quote": null } },
-      "papers": ["fixture-paper"], "links": [], "transferability": null,
+      "papers": ["fixture-paper"],
+      "links": [
+        { "label": "Fixture project page", "url": "https://example.org/fixture-project",
+          "retrieved": "2026-09-03" }
+      ],
+      "transferability": null,
       "caveat": null, "status": "verified"
     },
     {

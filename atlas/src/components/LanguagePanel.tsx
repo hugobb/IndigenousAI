@@ -1,19 +1,63 @@
 import type { Initiative, Language } from '../schema/index.js'
 import Field from './Field.js'
+import PanelSection from './PanelSection.js'
+import SourcedField from './SourcedField.js'
 
 export default function LanguagePanel({
-  language, initiatives,
-}: { language: Language; initiatives: Initiative[] }): React.JSX.Element {
+  language, initiatives, filtered,
+}: {
+  language: Language
+  initiatives: Initiative[]
+  /** Whether SOME active filter could plausibly explain an empty
+   *  `initiatives` list here — not `selection.workFiltered` alone (fix round
+   *  2: that under-reported it). `App` looks `language` up in the BUNDLE, so
+   *  a language a facet excludes from L1 can still have real initiatives —
+   *  ones the language-intersection clause in `applyFilters` then drops from
+   *  `selection.initiatives` too, with no work filter in sight. The caller
+   *  passes `workFiltered || !languageInSelection`: an L1 language's own
+   *  initiatives can only ever be narrowed by a WORK filter, because the
+   *  intersection clause is satisfied trivially by the language's own id
+   *  once it is in L1 — so `workFiltered` alone is exactly right there, and
+   *  the `!languageInSelection` term only ever adds true for a language a
+   *  facet has already excluded. */
+  filtered: boolean
+}): React.JSX.Element {
   const s = language.speakers
   return (
     <aside className="card panel" aria-label={`Language: ${language.name}`}>
       <h2>{language.name}</h2>
-      <dl>
+      <PanelSection title="Identity">
         <Field label="Also known as" testId="field-aka">{language.also_known_as.join(', ')}</Field>
+        <Field label="Glottocode" testId="field-glottocode">{language.glottocode}</Field>
+        <Field label="ISO 639-3" testId="field-iso639-3">{language.iso639_3}</Field>
+        {/* D5: an adjacent-tier language is never mapped. Without this the
+            reader has no way to tell one from a coverage gap. */}
+        <Field label="Tier" testId="field-tier">{language.tier}</Field>
         <Field label="Family" testId="field-family">{language.family}</Field>
+        <Field label="Subfamily" testId="field-subfamily">{language.subfamily}</Field>
+      </PanelSection>
+      <PanelSection title="Situation">
         <Field label="Typology" testId="field-typology">{language.typology.join(', ')}</Field>
-        <Field label="Endangerment" testId="field-endangerment">{language.endangerment?.status}</Field>
-        <Field label="Speakers" testId="field-speakers">
+        <SourcedField
+          label="Endangerment" testId="field-endangerment"
+          source={language.endangerment?.source ?? null}
+        >
+          {language.endangerment?.status}
+        </SourcedField>
+        {/* A LIST of sources, not one: this field can show two disagreeing
+            figures and each carries its OWN source. One reference under two
+            numbers leaves the reader unable to tell which source says which —
+            and being able to tell is the entire reason the schema keeps both
+            instead of picking one. */}
+        <SourcedField
+          label="Speakers" testId="field-speakers"
+          source={s === null ? null : [
+            { source: s.source, figure: s.value.toLocaleString('en') },
+            ...s.conflicts.map((c) => ({
+              source: c.source, figure: c.value.toLocaleString('en'),
+            })),
+          ]}
+        >
           {s === null ? null : (
             <>
               <span>{s.value.toLocaleString('en')}</span>
@@ -25,21 +69,31 @@ export default function LanguagePanel({
               )}
             </>
           )}
-        </Field>
+        </SourcedField>
+        {/* A facet the reader can filter by. Filtering on a dimension the
+            record never displays is a gap spec §7 did not anticipate. */}
+        <Field label="Region" testId="field-region">{language.region}</Field>
+        <Field label="Countries" testId="field-countries">{language.countries.join(', ')}</Field>
+      </PanelSection>
+      <PanelSection title="Place">
         {/* `not mapped` is a VALUE, not a null: we know this language has no
             cited centre — the same fact the table's Location column and the
             rail's "Not mapped" heading state. Routing it through `Field`'s
             null branch printed "not recorded", which claims we do not know
             it, and left three surfaces disagreeing about one fact. */}
-        <Field label="Centre" testId="field-centre">
+        <SourcedField
+          label="Centre" testId="field-centre"
+          source={language.centre?.source ?? null}
+        >
           {language.centre === null ? <span>not mapped</span> : (
             <>
               {language.centre.lat.toFixed(2)}, {language.centre.lon.toFixed(2)}
               {language.centre.confidence === 'approximate' && <strong> — approximate</strong>}
             </>
           )}
-        </Field>
-        <Field label="Note" testId="field-caveat">{language.caveat}</Field>
+        </SourcedField>
+      </PanelSection>
+      <PanelSection title="Work">
         {/* Scoped to I1, not to the record — App passes the initiatives that
             survived every current filter. An empty list here is therefore a
             filter result, and routing it through `Field`'s null branch printed
@@ -51,13 +105,23 @@ export default function LanguagePanel({
         <Field label="Matching initiatives" testId="field-initiatives">
           {initiatives.length === 0 ? (
             <span className="hint">
-              None matching the current filters — not a claim that no work exists.
+              {filtered
+                ? 'None matching the current filters — not a claim that no work exists.'
+                : 'The atlas records no initiative for this language — not a result of the current filters.'}
             </span>
           ) : (
             <ul>{initiatives.map((i) => <li key={i.id}>{i.name}</li>)}</ul>
           )}
         </Field>
-      </dl>
+      </PanelSection>
+      <PanelSection title="Note">
+        {/* Not "Note": the section heading already says that, and a `<dt>`
+            repeating its own `<h3>` reads as a rendering slip. This is what
+            the field IS — the schema calls it "the curator's own hedge about
+            this record" — and it distinguishes the hedge from the
+            transferability note the initiative panel keeps in this section. */}
+        <Field label="Curator's note" testId="field-caveat">{language.caveat}</Field>
+      </PanelSection>
     </aside>
   )
 }

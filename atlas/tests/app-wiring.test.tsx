@@ -39,23 +39,30 @@ const bundle = loadBundle()
  *  one module with no test of its own wiring, and it is the module that decides
  *  what every other one is shown. Each test below names the mutation it kills. */
 describe('what App actually wires up', () => {
-  // MUTATION: `languages={languageFields([...selection.languages,
-  // ...selection.filteredOut])}` — the union of L1 instead of L2.
+  // REVERSED BY TASK 1 (ruling C2). This test previously asserted the
+  // opposite: that a work filter deletes a workless language from the map.
+  // That is the asymmetry `noMatchingWork` exists to remove — the same
+  // language, with the same absence of work, was drawn under a language
+  // filter and erased under a work filter, so the map and the rail disagreed
+  // about it depending on which control the reader touched. The map now draws
+  // L1 in every filter state: a language is labelled, never deleted.
   //
-  // This is spec F1's other half. A language with no matching work is demoted
-  // to the rail, and it must NOT stay on the map: a pin says "work happens
-  // here", and drawing one for a language the current filter found no work for
-  // states the opposite of the finding. `?region=africa` cannot catch this —
-  // its `filteredOut` is empty, so the two expressions are equal. `?application=asr`
-  // splits them: one language survives, four are demoted, and two of those four
-  // carry a centre and would therefore appear as extra pins.
-  it('gives the map only the languages with matching work, never the demoted ones', () => {
+  // MUTATION this still kills: `languages={languageFields(
+  //   selection.languages.filter((l) => !selection.noMatchingWork.includes(l)))}`
+  // — the old L2 map. `?region=africa` cannot catch that (its `noMatchingWork`
+  // would be the whole list); `?application=asr` splits them: fixture-sourced
+  // keeps its work, the other four do not, and two of those four carry a
+  // centre and must still be drawn.
+  it('gives the map every L1 language with a centre, including the workless ones', () => {
     at('/?application=asr')
-    expect(screen.getByTestId('map-language-ids').textContent).toBe('fixture-sourced')
-
-    // Proves the assertion above is doing work: a demoted language that HAS a
-    // centre is on the rail and off the map at the same moment.
-    const group = screen.getByTestId('group-filtered-out')
+    const ids = (screen.getByTestId('map-language-ids').textContent ?? '').split(' ')
+    // Derived, not hardcoded: L1 under a work filter is every language in the
+    // bundle, and `languageFields` draws exactly the ones with a centre.
+    expect(ids).toEqual(bundle.languages.filter((l) => l.centre !== null).map((l) => l.id))
+    // The point of the ruling: a language the rail names as having no matching
+    // work is on the rail and ON the map at the same moment.
+    expect(ids).toContain('fixture-approximate')
+    const group = screen.getByTestId('group-no-matching-work')
     expect(group.textContent).toMatch(/Approximate Centre Language/)
   })
 
@@ -98,6 +105,23 @@ describe('what App actually wires up', () => {
     expect(window.location.search).toBe('?application=mt')
   })
 
+  // MUTATION: `bundle={{ ...bundle, papers: [], languages: [] }}` on the
+  // InitiativePanel. Found by running exactly that: it left all 458 tests
+  // green. `InitiativePanel`'s own tests build a bundle and hand it to the
+  // component directly, so they prove the RESOLUTION works and say nothing
+  // about whether App ever passes the real records to resolve against — a
+  // substituted bundle degrades every paper to "unresolved reference" and
+  // every language to its raw id, on the deployed page, silently. This is
+  // that prop's only guard.
+  it('gives the initiative panel the real bundle to resolve against, not a hollowed-out one', () => {
+    const i = bundle.initiatives.find((x) => x.papers.length > 0)!
+    at(`/?init=${i.id}`)
+    const paper = bundle.papers.find((p) => p.id === i.papers[0])!
+    expect(screen.getByTestId('field-papers').textContent).toContain(paper.title)
+    const language = bundle.languages.find((l) => l.id === i.languages[0])!
+    expect(screen.getByTestId('field-languages').textContent).toContain(language.name)
+  })
+
   // MUTATION: `undatedCount={0}`. The Timeline's own tests pass the number in
   // directly, so they say nothing about whether App ever computes it.
   it('tells the timeline how many initiatives it cannot constrain', () => {
@@ -118,7 +142,19 @@ describe('the rail under a filter that finds no work', () => {
     const said = screen.getByTestId('no-matching-work')
     expect(said.textContent).toMatch(/No initiative matches/i)
     expect(said.textContent).toMatch(/1 language/)
-    expect(screen.getByTestId('group-filtered-out').textContent).toMatch(/Adjacent Language/)
+    expect(screen.getByTestId('group-no-matching-work').textContent).toMatch(/Adjacent Language/)
+  })
+
+  // Fix round 1: App's own `workFiltered` wiring to LanguagePanel had no App-
+  // level guard — hardcoding `workFiltered={false}` there left the whole
+  // suite green. fixture-approximate has no initiative under ANY filter
+  // state, so `?application=asr` (a real work filter) is enough to prove the
+  // panel is told a filter IS active, not the constant.
+  it('tells the language panel a work filter is active when one is', () => {
+    at('/?application=asr&lang=fixture-approximate')
+    const row = screen.getByTestId('field-initiatives')
+    expect(row.textContent).toMatch(/current filters/i)
+    expect(row.textContent).not.toMatch(/atlas records/i)
   })
 
   it('still says nothing matched when nothing did, filtered-out included', () => {
@@ -128,11 +164,241 @@ describe('the rail under a filter that finds no work', () => {
     expect(screen.queryByTestId('no-matching-work')).toBeNull()
   })
 
+  // The URL this used to assert on was `?region=africa&application=asr`, where
+  // the old L2 `languages` was empty and so both mapping groups were. L1 keeps
+  // fixture-adjacent now, and it has no centre, so "Not mapped" is legitimately
+  // non-empty there — the state no longer exercises suppression. `?region=africa`
+  // alone reaches it instead: fixture-adjacent is the only L1 language, it has
+  // no centre (so "Not mapped" is the one group with content), and its own
+  // initiative survives (so "no matching work" is genuinely empty).
   it('heads no group with a zero when that group is empty', () => {
-    at('/?region=africa&application=asr')
-    expect(screen.queryByTestId('group-not-mapped')).toBeNull()
+    at('/?region=africa')
+    expect(screen.getByTestId('group-not-mapped')).toBeDefined()
     expect(screen.queryByTestId('group-approximate')).toBeNull()
-    expect(screen.getByTestId('group-filtered-out')).toBeDefined()
+    expect(screen.queryByTestId('group-no-matching-work')).toBeNull()
+  })
+
+  // Seam review (Task 8). Task 1 made `languages` L1, so `?region=arctic`
+  // empties it and BOTH mapping groups with it — leaving the rail rendering
+  // the card's heading over nothing. The card itself must not render.
+  it('renders no rail card at all when nothing matched', () => {
+    at('/?region=arctic')
+    expect(screen.queryByLabelText(/map cannot show/i)).toBeNull()
+    expect(screen.queryByLabelText(/no matching work/i)).toBeNull()
+  })
+
+  // The other half of the same seam, through the real App: at
+  // `?application=asr` the workless group holds `fixture-conflict`, which has a
+  // sourced centre and is on the map at that moment. The card naming it must
+  // not be the one claiming the map cannot show it.
+  it('does not file a language the map is drawing under "what the map cannot show"', () => {
+    at('/?application=asr')
+    const ids = (screen.getByTestId('map-language-ids').textContent ?? '').split(' ')
+    expect(ids).toContain('fixture-conflict')
+    const group = screen.getByTestId('group-no-matching-work')
+    expect(group.textContent).toMatch(/Conflicted Speakers Language/)
+    expect(group.closest('section')!.getAttribute('aria-label')).not.toMatch(/map cannot show/i)
+  })
+})
+
+// Fix round 2: a reviewer substituted `workFiltered`/`filtered` per call site
+// and per direction (not the fix-round-1 blanket `sed` across the whole of
+// `App.tsx`, which only proved SOME site was guarded) and found six of eight
+// left the full suite green — including hardcoding the rail's own heading to
+// the pre-Task-2 wording with zero filters set, the exact regression this
+// task exists to prevent. Every test below is driven through real URL state
+// via the real `App`, not a hand-built `Selection`, so it fails if the
+// underlying `workFiltered`/`filtered` read is ever replaced by either
+// constant. Two tests per surface (both directions); see the report for the
+// full before/after substitution table.
+describe('fix round 2: every workFiltered-driven surface, both directions', () => {
+  // --- rail group heading (UnmappedList) ---
+
+  it('rail group: dataset finding when no work filter is active', () => {
+    at('/')
+    const group = screen.getByTestId('group-no-matching-work').textContent ?? ''
+    expect(group).toMatch(/no work in the atlas/i)
+    expect(group).not.toMatch(/matches your filters, but no matching work/i)
+  })
+
+  // Final review, finding 1: re-pointed from `?application=asr`, where this
+  // heading is no longer the right one — a work filter alone credits no
+  // language filter. The URL changes; the intent and the strength do not.
+  it('rail group: filter result when a work filter is active', () => {
+    at('/?region=africa&application=asr')
+    const group = screen.getByTestId('group-no-matching-work').textContent ?? ''
+    expect(group).toMatch(/matches your filters, but no matching work/i)
+    expect(group).not.toMatch(/no work in the atlas/i)
+  })
+
+  // --- rail empty-state banner (App's own ternary) ---
+
+  // `region=_none` (the NOT-RECORDED sentinel) selects fixture-approximate
+  // alone — the only language with no recorded region — which has zero
+  // initiatives anywhere, so this reaches `no-work-but-languages` with
+  // `workFiltered: false`. `/` cannot: at `/` the OVERALL selection still has
+  // matching work (three other languages have initiatives), so the banner
+  // — unlike the rail group — never renders there at all.
+  it('rail banner: dataset finding when no work filter is active', () => {
+    at('/?region=_none')
+    const said = screen.getByTestId('no-matching-work').textContent ?? ''
+    expect(said).toMatch(/no initiative in this atlas works/i)
+    expect(said).not.toMatch(/no initiative matches the current filters/i)
+  })
+
+  it('rail banner: filter result when a work filter is active', () => {
+    at('/?region=africa&application=asr')
+    const said = screen.getByTestId('no-matching-work').textContent ?? ''
+    expect(said).toMatch(/no initiative matches the current filters/i)
+    expect(said).not.toMatch(/no initiative in this atlas works/i)
+  })
+
+  // --- rail banner: the language-filter half of the same sentence ---
+  //
+  // Seam review (Task 8). The banner's second sentence credited a language
+  // filter unconditionally. `?application=spellcheck` is a vocabulary value no
+  // fixture initiative carries, so I1 is empty while L1 is the whole atlas and
+  // NO language facet is set — the exact state the sentence was false in.
+  it('rail banner: credits no language filter when none is set', () => {
+    at('/?application=spellcheck')
+    const said = screen.getByTestId('no-matching-work').textContent ?? ''
+    expect(said).toMatch(/all \d+ languages in the atlas are listed below/i)
+    expect(said).not.toMatch(/your language filters/i)
+  })
+
+  it('rail banner: names the language filter when one is set', () => {
+    at('/?region=africa&application=asr')
+    const said = screen.getByTestId('no-matching-work').textContent ?? ''
+    expect(said).toMatch(/matched your language filters/i)
+    expect(said).not.toMatch(/in the atlas are listed below/i)
+  })
+
+  // Same seam on the rail GROUP, driven through the real App rather than the
+  // component, so App dropping the prop fails here too.
+  it('rail group hint: credits no language filter when none is set', () => {
+    at('/?application=asr')
+    const group = screen.getByTestId('group-no-matching-work')
+    const text = group.textContent ?? ''
+    expect(text).toMatch(/no language filter is narrowing/i)
+    expect(text).not.toMatch(/match your language filters/i)
+    // "Unnarrowed" is not "all of them". `noMatchingWork` is a SUBSET of L1,
+    // and here it is four of the atlas's five languages — the fifth has ASR
+    // work. A first pass at this copy said "these are every language in the
+    // atlas", which was false on this very URL.
+    const listed = within(group).getAllByRole('button').length
+    const tabCount = screen.getByTestId('view-languages').textContent ?? ''
+    expect(tabCount).toContain(`(${listed + 1})`)
+    expect(text).not.toMatch(/every language in the atlas/i)
+  })
+
+  it('rail group hint: names the language filter when one is set', () => {
+    at('/?region=africa&application=asr')
+    const group = screen.getByTestId('group-no-matching-work').textContent ?? ''
+    expect(group).toMatch(/match your language filters/i)
+    expect(group).not.toMatch(/no language filter is narrowing/i)
+  })
+
+  // Final review, finding 1. The defect was not a wrong string, it was two
+  // correct strings pinned SEPARATELY: `app-wiring` asserted the heading at
+  // `?application=asr` and the hint at `?application=asr`, each right about
+  // its own text, and between them they held a heading and a hint that
+  // contradicted each other one line apart. This reads BOTH out of the same
+  // render, at every combination of the two flags a URL can reach, so no pair
+  // of single-string guards can lock a contradiction in again.
+  it.each([
+    ['/', /no work in the atlas for these languages/i, /no initiative anywhere in this atlas/i],
+    ['/?application=asr', /in the atlas, but no matching work/i, /no language filter is narrowing this list/i],
+    ['/?region=africa&application=asr', /matches your filters, but no matching work/i, /these languages match your language filters/i],
+    ['/?region=_none', /no work in the atlas for these languages/i, /no initiative anywhere in this atlas/i],
+  ])('rail group at %s: heading and hint credit the same filters', (url, headingPattern, hintPattern) => {
+    at(url)
+    const group = screen.getByTestId('group-no-matching-work')
+    const heading = within(group).getByRole('heading', { level: 3 }).textContent ?? ''
+    const hint = group.querySelector('.hint')?.textContent ?? ''
+    expect(heading).toMatch(headingPattern)
+    expect(hint).toMatch(hintPattern)
+    expect(
+      /matches your filters, but no matching work/i.test(heading) &&
+      /no language filter is narrowing/i.test(hint),
+    ).toBe(false)
+  })
+
+  // Finding 2: the same claim on a fourth surface, and the cross-surface half
+  // of it — at this URL the table message and the rail hint are on screen
+  // together, and one of them used to credit a language filter the other
+  // denied.
+  it('table empty message: credits no language filter when none is set', () => {
+    at('/?view=initiatives&application=spellcheck')
+    const table = screen.getByTestId('table-empty').textContent ?? ''
+    expect(table).toMatch(/no language filter is narrowing the languages/i)
+    expect(table).not.toMatch(/the languages that matched/i)
+    const hint = screen.getByTestId('group-no-matching-work').querySelector('.hint')?.textContent ?? ''
+    expect(hint).toMatch(/no language filter is narrowing/i)
+  })
+
+  it('table empty message: names the language filter when one is set', () => {
+    at('/?view=initiatives&region=africa&application=asr')
+    const table = screen.getByTestId('table-empty').textContent ?? ''
+    expect(table).toMatch(/the languages that matched/i)
+    expect(table).not.toMatch(/no language filter is narrowing/i)
+  })
+
+  // And on the caption, so all three surfaces are guarded through App.
+  it('languages caption: credits no language filter when none is set', () => {
+    at('/?view=languages&application=asr')
+    const caption = screen.getByTestId('table-caption').textContent ?? ''
+    expect(caption).toMatch(/every language in the atlas/i)
+    expect(caption).not.toMatch(/current language filters/i)
+  })
+
+  it('languages caption: names the language filter when one is set', () => {
+    at('/?view=languages&region=north-america')
+    const caption = screen.getByTestId('table-caption').textContent ?? ''
+    expect(caption).toMatch(/current language filters/i)
+    expect(caption).not.toMatch(/every language in the atlas/i)
+  })
+
+  // --- LanguagePanel "Matching initiatives" field ---
+
+  it('language panel: dataset finding when nothing filtered this language at all', () => {
+    at('/?lang=fixture-approximate')
+    const row = screen.getByTestId('field-initiatives').textContent ?? ''
+    expect(row).toMatch(/atlas records/i)
+    expect(row).not.toMatch(/no work exists/i)
+  })
+
+  // Finding #1's regression, reproduced directly: fixture-adjacent IS named
+  // by a real initiative (fixture-adjacent-init), but `region=north-america`
+  // excludes the language itself from L1 — and `applyFilters`'s
+  // language-intersection clause then drops that initiative from
+  // `selection.initiatives` too, with NO work filter active
+  // (`workFiltered: false`). `workFiltered` alone would call this a dataset
+  // gap; it is a language-filter result, and `languagePanelFiltered` in
+  // `App` (`workFiltered || !languageInSelection`) is what tells the panel
+  // so. (The route to this same `true` branch via an actual WORK filter is
+  // covered by the "tells the language panel a work filter is active" test
+  // above, at `?application=asr&lang=fixture-approximate`.)
+  it('language panel: filter result when a LANGUAGE filter — not a work filter — hid this language\'s real work', () => {
+    at('/?region=north-america&lang=fixture-adjacent')
+    const row = screen.getByTestId('field-initiatives').textContent ?? ''
+    expect(row).toMatch(/no work exists/i)
+    expect(row).not.toMatch(/atlas records/i)
+  })
+
+  // --- TableView's empty-initiatives-table message ---
+
+  it('table empty message: dataset finding when no work filter is active', () => {
+    at('/?region=_none&view=initiatives')
+    const text = screen.getByTestId('table-empty').textContent ?? ''
+    expect(text).toMatch(/records no initiative/i)
+    expect(text).not.toMatch(/no initiative matches the current filters/i)
+  })
+
+  it('table empty message: filter result when a work filter is active', () => {
+    at('/?region=africa&application=asr&view=initiatives')
+    const text = screen.getByTestId('table-empty').textContent ?? ''
+    expect(text).toMatch(/no initiative matches the current filters/i)
+    expect(text).not.toMatch(/records no initiative/i)
   })
 })
 
@@ -182,16 +448,17 @@ describe('view wiring', () => {
     expect(screen.getByTestId('view-map').getAttribute('aria-pressed')).toBe('true')
   })
 
-  // Important 4 (whole-branch review): dropping `filteredOut` from
-  // `counts.languages` passes 389/389 and makes the view-switch strip read
-  // "Languages (1)" above a five-row table captioned "(5)" — two numbers for
-  // one thing on one screen, and it counts the coverage-gap languages OUT of
-  // the very tab that exists to show them. `tests/app-wiring.test.tsx:207`
-  // (below) only ever changes the INITIATIVES count under a filter; this is
-  // its languages-side counterpart, using the same `?application=asr`
-  // fixture scenario as the map test above (one language keeps matching
-  // work, four are demoted to the rail but still render as table rows).
-  it('counts the demoted languages in the Languages tab total, not just the ones with matching work', () => {
+  // Important 4 (whole-branch review): narrowing `counts.languages` to the
+  // languages WITH matching work — after this task, subtracting
+  // `selection.noMatchingWork.length` — makes the view-switch strip read
+  // "Languages (1)" above a five-row table captioned "(5)": two numbers for
+  // one thing on one screen, counting the coverage-gap languages OUT of the
+  // very tab that exists to show them. The count is now a single term, so the
+  // mutation is the subtraction rather than dropping an addend; the failure it
+  // produces is the same. Uses the same `?application=asr` fixture scenario as
+  // the map test above (one language keeps matching work, four do not but
+  // still render as table rows).
+  it('counts the workless languages in the Languages tab total, not just the ones with matching work', () => {
     at('/?view=languages&application=asr')
     const rows = screen.getAllByTestId(/^row-/).length
     expect(rows).toBeGreaterThan(1)

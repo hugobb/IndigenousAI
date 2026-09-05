@@ -70,7 +70,15 @@ describe('Timeline', () => {
   // Spec F5, stated on screen rather than buried in a design document.
   it('says how many initiatives it cannot constrain', () => {
     render(<Timeline {...props} undatedCount={1} />)
-    expect(screen.getByTestId('timeline-undated').textContent).toMatch(/1 initiative/i)
+    const one = screen.getByTestId('timeline-undated').textContent?.replace(/\s+/g, ' ') ?? ''
+    // Seam review (Task 8): the noun agreed and the verb did not, so the
+    // sentence a reader meets on first load read "1 initiative record no start
+    // year". Both forms asserted, or fixing one direction breaks the other.
+    expect(one).toMatch(/1 initiative records no start year and is always shown/i)
+    cleanup()
+    render(<Timeline {...props} undatedCount={3} />)
+    const many = screen.getByTestId('timeline-undated').textContent?.replace(/\s+/g, ' ') ?? ''
+    expect(many).toMatch(/3 initiatives record no start year and are always shown/i)
   })
 
   it('says nothing about undated initiatives when there are none', () => {

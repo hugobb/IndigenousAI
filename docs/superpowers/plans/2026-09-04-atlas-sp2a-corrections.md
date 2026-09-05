@@ -77,6 +77,7 @@ const init = (id: string, languages: string[], over: Partial<Initiative> = {}): 
     source: { kind: 'doc', ref: 'fixture', retrieved: null, quote: null } },
   applications: [], methods: [], models: [], data_regime: null, governance: null,
   papers: [], links: [], transferability: null, caveat: null, status: 'draft',
+  ...over,
 } as unknown as Initiative)
 
 const bundleOf = (languages: Language[], initiatives: Initiative[]): AtlasBundle =>
