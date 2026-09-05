@@ -1,8 +1,8 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { checkLinks } from '../scripts/check-links.js'
+import { bundleIsStale, checkLinks, routedBundle } from '../scripts/check-links.js'
 import type { AtlasBundle } from '../src/lib/load.js'
 
 let site: string
@@ -55,5 +55,86 @@ describe('checkLinks', () => {
   // stop guarding.
   it('throws rather than pass a bundle with no routes at all', () => {
     expect(() => checkLinks(bundleWith([], []), site)).toThrow(/no routes/i)
+  })
+})
+
+/** `pnpm bundle` runs only after `validate` passes, so any validation failure
+ *  leaves an atlas.json from an earlier run beside freshly regenerated derived
+ *  files. Walking that bundle checks routes older than the ones just extracted —
+ *  a newly added paper whose summary failed to copy would pass unseen while the
+ *  log said every route resolves. */
+describe('bundleIsStale', () => {
+  it('is stale when either derived file was regenerated after the bundle', () => {
+    expect(bundleIsStale(1_000, [900, 1_001])).toBe(true)
+    expect(bundleIsStale(1_000, [1_001, 900])).toBe(true)
+  })
+
+  it('is not stale when the bundle was written after every derived file', () => {
+    expect(bundleIsStale(2_000, [1_000, 1_500])).toBe(false)
+  })
+
+  // `pnpm bundle` reads both derived files and writes atlas.json in one run, so
+  // equal timestamps are the ordinary successful case, not a near miss.
+  it('is not stale when the timestamps are equal', () => {
+    expect(bundleIsStale(1_000, [1_000, 1_000])).toBe(false)
+  })
+})
+
+/** The wiring around `bundleIsStale`: which file the CLI actually opens. The
+ *  predicate being right is not the same fact as the caller honouring it, and
+ *  the whole defect this closes was a caller that opened the wrong file while
+ *  reporting success. */
+describe('routedBundle picks its source', () => {
+  let root: string
+  beforeEach(() => { root = mkdtempSync(join(tmpdir(), 'root-')) })
+  afterEach(() => rmSync(root, { recursive: true, force: true }))
+
+  const paper = (id: string) => ({
+    id, title: id, authors: 'A', year: 2025, venue: null, themes: [],
+    summary_url: `/summaries/${id}/`,
+  })
+  const method = (id: string) => ({
+    id, name: id, category: 'ml' as const, data_regime: ['zero'] as const,
+    data_regime_note: null, applicable_languages: null, doc_url: `/ml-techniques/${id}/`,
+  })
+
+  /** Writes the derived pair, and optionally a bundle `ageSeconds` older. */
+  function seed(opts: { bundle?: { ageSeconds: number } }): void {
+    mkdirSync(join(root, 'atlas/data/derived'), { recursive: true })
+    writeFileSync(join(root, 'atlas/data/derived/papers.json'), JSON.stringify([paper('derived')]))
+    writeFileSync(join(root, 'atlas/data/derived/methods.json'), JSON.stringify([method('derived')]))
+    if (!opts.bundle) return
+    mkdirSync(join(root, 'atlas/src/data'), { recursive: true })
+    const at = join(root, 'atlas/src/data/atlas.json')
+    writeFileSync(at, JSON.stringify({
+      generated: '2026-01-01', languages: [], initiatives: [],
+      papers: [paper('bundled')], methods: [method('bundled')],
+    }))
+    const when = Date.now() / 1000 - opts.bundle.ageSeconds
+    utimesSync(at, when, when)
+  }
+
+  it('walks the derived files when there is no bundle', () => {
+    seed({})
+    const { bundle, source } = routedBundle(root)
+    expect(bundle.papers.map((p) => p.summary_url)).toEqual(['/summaries/derived/'])
+    expect(source).toMatch(/no bundle yet/)
+  })
+
+  it('walks the bundle when it is newer than the derived files', () => {
+    seed({ bundle: { ageSeconds: -60 } })
+    const { bundle, source } = routedBundle(root)
+    expect(bundle.papers.map((p) => p.summary_url)).toEqual(['/summaries/bundled/'])
+    expect(source).toMatch(/reviewed bundle/)
+  })
+
+  // The defect: `pnpm bundle` runs only after `validate` passes, so a validation
+  // failure leaves a bundle from an earlier run beside freshly extracted derived
+  // files. Trusting it checks routes that predate the change being made.
+  it('ignores a bundle older than the derived files, and says so', () => {
+    seed({ bundle: { ageSeconds: 3600 } })
+    const { bundle, source } = routedBundle(root)
+    expect(bundle.papers.map((p) => p.summary_url)).toEqual(['/summaries/derived/'])
+    expect(source).toMatch(/STALE/)
   })
 })

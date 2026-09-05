@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { z } from 'zod'
 import { MethodSchema, PaperSchema, type Method, type Paper } from '../src/schema/index.js'
@@ -53,9 +53,51 @@ export function checkLinks(bundle: RoutedBundle, siteDir: string): string[] {
  *  initiatives, are not filtered by `status`), so these are the same 131 routes
  *  the real bundle will carry the day the records are promoted. The check is
  *  therefore already a gate over real data, not a rehearsal on two fakes. */
-function routedBundle(root: string): { bundle: RoutedBundle; source: string } {
+/** True when a derived file has been regenerated since the bundle was written.
+ *
+ *  `pnpm bundle` runs only after `validate` passes, so ANY validation failure —
+ *  one record reverted to draft is enough — leaves an `atlas.json` from an
+ *  earlier successful run sitting beside freshly regenerated `data/derived/*.json`.
+ *  Preferring the bundle in that window would walk routes older than the ones
+ *  just extracted: a newly added paper whose summary failed to copy would pass
+ *  unseen, and the log would say every route resolves. "The gate silently checked
+ *  something older than what you just changed" is a bad hour at a bad moment.
+ *
+ *  Local-only in practice — `src/data/atlas.json` is gitignored, so CI and Vercel
+ *  see either a bundle written moments earlier in the same script run or none at
+ *  all — which is why the answer is to fall back loudly rather than to refuse.
+ *  Refusing would fail a build that has nothing wrong with it, over an artifact
+ *  the person did not know was there, and the fix they would reach for is
+ *  deleting the check. */
+export function bundleIsStale(bundleMtimeMs: number, derivedMtimesMs: readonly number[]): boolean {
+  return derivedMtimesMs.some((m) => m > bundleMtimeMs)
+}
+
+export function routedBundle(root: string): { bundle: RoutedBundle; source: string } {
+  const derivedPaths = {
+    papers: join(root, 'atlas/data/derived/papers.json'),
+    methods: join(root, 'atlas/data/derived/methods.json'),
+  }
   const real = join(root, 'atlas/src/data/atlas.json')
-  if (existsSync(real)) {
+
+  const stale =
+    existsSync(real) &&
+    bundleIsStale(
+      statSync(real).mtimeMs,
+      Object.values(derivedPaths).filter(existsSync).map((p) => statSync(p).mtimeMs),
+    )
+  if (stale) {
+    console.warn(
+      'check-links: src/data/atlas.json is OLDER than data/derived/*.json, so it is ' +
+        'NOT being walked — the derived files are. `pnpm bundle` runs only after ' +
+        '`validate` passes, so this bundle is left over from an earlier run and does ' +
+        'not describe the records that were just extracted. Run `pnpm build:data` to ' +
+        'rebuild it. Saying so rather than trusting it: a gate that quietly checks ' +
+        'something older than what you just changed is worse than no gate.',
+    )
+  }
+
+  if (existsSync(real) && !stale) {
     const raw = JSON.parse(readFileSync(real, 'utf8')) as { papers: unknown; methods: unknown }
     return {
       // Parsed, never cast — `readDerived`'s reason applies here too: a route
@@ -71,19 +113,21 @@ function routedBundle(root: string): { bundle: RoutedBundle; source: string } {
   return {
     bundle: {
       papers: readDerived({
-        path: join(root, 'atlas/data/derived/papers.json'),
+        path: derivedPaths.papers,
         label: 'data/derived/papers.json',
         regenerate: 'pnpm extract:papers',
         schema: z.array(PaperSchema),
       }),
       methods: readDerived({
-        path: join(root, 'atlas/data/derived/methods.json'),
+        path: derivedPaths.methods,
         label: 'data/derived/methods.json',
         regenerate: 'pnpm extract:methods',
         schema: z.array(MethodSchema),
       }),
     },
-    source: 'data/derived/*.json (no bundle yet — records still under review)',
+    source: stale
+      ? 'data/derived/*.json (the bundle beside them is STALE — see above)'
+      : 'data/derived/*.json (no bundle yet — records still under review)',
   }
 }
 
@@ -91,6 +135,11 @@ if (import.meta.filename === process.argv[1]) {
   const root = resolve(import.meta.dirname, '../..')
   const site = process.env['SITE_OUT'] ?? join(root, 'docs/site')
   const { bundle, source } = routedBundle(root)
+  // Equal to the number of routes WALKED only because `PaperSchema.summary_url`
+  // and `MethodSchema.doc_url` both assert `.startsWith('/')`, which is what
+  // `checkLinks`' filter keeps. Relax either schema and this count silently
+  // exceeds the walk, turning "every one of the N routes resolves" into an
+  // over-claim about routes that were dropped rather than checked.
   const total = bundle.papers.length + bundle.methods.length
 
   console.log(`check-links: walking ${total} route(s) from ${source} against ${site}`)

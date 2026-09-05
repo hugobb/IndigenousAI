@@ -59,4 +59,8 @@ fi
 # bundle afterwards — the same 131 real routes either way, because `bundle.ts`
 # copies both derived files into the bundle verbatim. Deliberately NOT the
 # fixture, whose one paper and one method are invented and could never resolve.
+# Do not pipe this line into `head`. Measured 5/5: `pnpm run` returns 0 when a pipe
+# consumer closes stdin early, so `| head` disarms the gate — while `| tee` and
+# `| cat` correctly return 1. `pipefail` is on and works; it is pnpm losing its
+# child's status, not the shell. Unpiped is the only form measured safe.
 ( cd "$REPO/atlas" && SITE_OUT="$OUT" pnpm check:links )
