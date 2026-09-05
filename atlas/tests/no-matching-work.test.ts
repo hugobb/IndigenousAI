@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { applyFilters, emptyState } from '../src/lib/filters.js'
+import { INITIATIVE_FACETS, LANGUAGE_FACETS, NOT_RECORDED, VOCAB_FOR } from '../src/lib/facets.js'
+import { loadBundle } from '../src/lib/load.js'
 import { EMPTY_FILTERS } from '../src/lib/url-state.js'
 import type { AtlasBundle } from '../src/lib/load.js'
+import type { FilterState } from '../src/lib/url-state.js'
 import type { Initiative, Language } from '../src/schema/index.js'
 
 const lang = (id: string, over: Partial<Language> = {}): Language => ({
@@ -108,5 +111,81 @@ describe('noMatchingWork', () => {
     expect(applyFilters(b, { ...EMPTY_FILTERS, family: ['Algic'] }).languageFiltered).toBe(true)
     expect(applyFilters(b, { ...EMPTY_FILTERS, application: ['asr'] }).languageFiltered).toBe(false)
     expect(applyFilters(b, { ...EMPTY_FILTERS, from: 2000 }).languageFiltered).toBe(false)
+  })
+})
+
+// Seam review (Task 8), settling the question Task 1's reviewer routed here:
+// is `emptyState === 'matched'` with an EMPTY language list reachable?
+//
+// It is not, and the argument has three legs, each checked somewhere:
+//  1. With a language facet active, an empty L1 forces I1 empty through the
+//     intersection clause in `applyFilters` — so `matched` cannot hold. That
+//     is what the sweep below checks, over every filter state the fixture can
+//     express one and two facets deep.
+//  2. With NO language facet active, L1 IS `bundle.languages`, so the state
+//     needs a bundle with initiatives and no languages at all.
+//  3. That bundle cannot be built: `InitiativeSchema` requires at least one
+//     language id, and `scripts/validate.ts` fails both on any unresolved
+//     language reference and on any record still `draft` — so every verified
+//     initiative's languages are verified languages too. (Guarded by
+//     "fails an initiative referencing an unknown language" in
+//     tests/validate.test.ts.)
+//
+// The guard in tests/table-view.test.tsx is therefore NOT deleted but
+// re-pointed: it now asserts the property that is actually load-bearing —
+// no `EmptyState` may leave a zero-row table with no message — rather than
+// claiming this state occurs.
+describe('an empty language list never coexists with surviving work', () => {
+  const bundle = loadBundle()
+
+  const states = (): FilterState[] => {
+    const single: FilterState[] = [EMPTY_FILTERS]
+    const language: FilterState[] = []
+    const initiative: FilterState[] = []
+    // The WHOLE vocabulary, not just the values the fixture happens to carry:
+    // `?region=arctic` is the state that empties L1, and a sweep built only
+    // from present values would never reach it — and would then pass
+    // vacuously. `family` and `method` have no vocabulary (any string is a
+    // legitimate value), so they get an absent one by hand.
+    const allValues = <T>(
+      f: { id: string; values: (r: T) => string[] }, records: T[],
+    ): string[] => [
+      NOT_RECORDED, 'no-such-value',
+      ...new Set([...(VOCAB_FOR[f.id as never] ?? []), ...records.flatMap((r) => f.values(r))]),
+    ]
+    for (const f of LANGUAGE_FACETS) {
+      for (const v of allValues(f, bundle.languages)) {
+        language.push({ ...EMPTY_FILTERS, [f.id]: [v] })
+      }
+    }
+    for (const f of INITIATIVE_FACETS) {
+      for (const v of allValues(f, bundle.initiatives)) {
+        initiative.push({ ...EMPTY_FILTERS, [f.id]: [v] })
+      }
+    }
+    // Every language facet crossed with every initiative facet, which is the
+    // shape that produces an empty L1 beside surviving work if anything does.
+    const crossed = language.flatMap((l) =>
+      initiative.map((i) => ({ ...l, ...Object.fromEntries(
+        INITIATIVE_FACETS.map((f) => [f.id, i[f.id]]),
+      ) }) as FilterState),
+    )
+    return [...single, ...language, ...initiative, ...crossed]
+  }
+
+  it('holds across every one- and two-facet filter state the fixture can express', () => {
+    const all = states()
+    expect(all.length).toBeGreaterThan(50)
+    let sawEmptyL1 = false
+    for (const state of all) {
+      const s = applyFilters(bundle, state)
+      if (s.languages.length === 0) {
+        sawEmptyL1 = true
+        expect(s.initiatives, JSON.stringify(state)).toEqual([])
+        expect(emptyState(s), JSON.stringify(state)).toBe('nothing-matched')
+      }
+    }
+    // The sweep would pass vacuously if no state ever emptied L1.
+    expect(sawEmptyL1).toBe(true)
   })
 })

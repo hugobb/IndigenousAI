@@ -7,12 +7,17 @@ import type { AtlasBundle } from '../lib/load.js'
 import type { Initiative, Language } from '../schema/index.js'
 import DataTable from './DataTable.js'
 
-// Ruling (Task 5): `DataTable` must never receive a null `emptyMessage`. The
-// `matched` state is reachable with zero rows in THIS table — a language-only
-// filter can leave `initiatives: []` while languages match, so the shared
-// predicate speaks about the page while the initiatives table has nothing to
-// show. A null message there renders bare column headers over nothing, which
-// reads as a rendering bug, not a finding.
+// Ruling (Task 5): `DataTable` must never receive a null `emptyMessage`. A
+// null message renders bare column headers over nothing, which reads as a
+// rendering bug rather than a finding.
+//
+// Seam review (Task 8) corrected the reason given here. `matched` with zero
+// rows is NOT reachable through `applyFilters`: with a language facet active
+// an empty L1 forces I1 empty through the intersection clause, and with none
+// active L1 is the whole bundle — which `scripts/validate.ts` will not let
+// hold initiatives without languages. The copy stays anyway, because this
+// component takes a `Selection` and nothing in its own signature carries that
+// invariant. It is defence in depth against a caller, not a described state.
 // `emptyState` still answers "did anything match"; stating this table's own
 // row count is not re-deriving that.
 //

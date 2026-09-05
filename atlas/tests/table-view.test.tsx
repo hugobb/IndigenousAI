@@ -2,9 +2,9 @@
 import { cleanup, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import TableView from '../src/components/TableView.js'
-import { INITIATIVE_COLUMNS, LANGUAGE_COLUMNS } from '../src/lib/columns.js'
+import { INITIATIVE_COLUMNS, LANGUAGE_COLUMNS, type TableViewId } from '../src/lib/columns.js'
 import { loadBundle } from '../src/lib/load.js'
-import { applyFilters } from '../src/lib/filters.js'
+import { applyFilters, emptyState, type EmptyState, type Selection } from '../src/lib/filters.js'
 import { EMPTY_FILTERS } from '../src/lib/url-state.js'
 
 afterEach(() => cleanup())
@@ -292,27 +292,64 @@ describe('TableView', () => {
 
   // Important 1 (review round 1): the `matched`-but-empty ruling in
   // TableView had no guard at all — reverting `matched:` back to `null` in
-  // EMPTY_COPY passed every test in this file. The state it was built on
-  // (languages present, initiatives empty) now reads `no-work-but-languages`
-  // rather than `matched`, because `emptyState` no longer needs a non-empty
-  // second list to say so. `matched` with zero rows in THIS table is still
-  // reachable, on the other tab: work survives while the language list is
-  // empty, so the languages table has nothing to show and a null message
-  // would render bare column headers over nothing.
-  it('renders a message rather than bare headers when matched but this table has no rows', () => {
-    render(
-      <TableView
-        view="languages"
-        selection={{
-          languages: [], initiatives: [bundle.initiatives[0]!], noMatchingWork: [],
-          undatedInitiatives: 0, workFiltered: false, languageFiltered: false,
-        }}
-        bundle={bundle} sort={null} onSort={() => {}} selectedId={null} onSelect={() => {}}
-      />,
-    )
-    expect(screen.queryAllByTestId(/^row-/).length).toBe(0)
-    expect(screen.getByTestId('table-empty').textContent?.trim()).not.toBe('')
+  // EMPTY_COPY passed every test in this file.
+  //
+  // Seam review (Task 8) RE-POINTED this rather than deleting it. Task 1's
+  // reviewer asked whether `matched` with zero rows is still reachable, and it
+  // is not: with a language facet active an empty L1 forces I1 empty through
+  // the intersection clause, with none active L1 is `bundle.languages`, and a
+  // bundle holding initiatives but no languages cannot pass `scripts/validate.ts`
+  // (every initiative names at least one language id, and every id must resolve
+  // to a non-draft record). The sweep in tests/no-matching-work.test.ts checks
+  // the first leg; tests/validate.test.ts checks the third.
+  //
+  // So the old test asserted a state that does not occur. What IS load-bearing
+  // is the property behind it — `TableView` takes a `Selection`, not a bundle,
+  // and nothing in its own signature enforces that invariant, so a zero-row
+  // table must never render bare column headers whatever state it is handed.
+  // Driven off the `EmptyState` union rather than one case, so a future member
+  // added without copy fails here instead of shipping blank.
+  const EMPTY_ROW_CASES: [EmptyState, TableViewId, Selection][] = [
+    ['nothing-matched', 'initiatives', {
+      languages: [], initiatives: [], noMatchingWork: [],
+      undatedInitiatives: 0, workFiltered: false, languageFiltered: false,
+    }],
+    ['nothing-matched', 'languages', {
+      languages: [], initiatives: [], noMatchingWork: [],
+      undatedInitiatives: 0, workFiltered: false, languageFiltered: false,
+    }],
+    ['no-work-but-languages', 'initiatives', {
+      languages: [bundle.languages[0]!], initiatives: [],
+      noMatchingWork: [bundle.languages[0]!],
+      undatedInitiatives: 0, workFiltered: true, languageFiltered: false,
+    }],
+    // Unreachable through `applyFilters` (see above), and kept precisely
+    // because this component cannot know that.
+    ['matched', 'languages', {
+      languages: [], initiatives: [bundle.initiatives[0]!], noMatchingWork: [],
+      undatedInitiatives: 0, workFiltered: false, languageFiltered: false,
+    }],
+  ]
+
+  it('covers every empty state the page can decide on', () => {
+    const states: EmptyState[] = ['matched', 'no-work-but-languages', 'nothing-matched']
+    expect([...new Set(EMPTY_ROW_CASES.map(([st]) => st))].sort()).toEqual([...states].sort())
   })
+
+  it.each(EMPTY_ROW_CASES)(
+    'renders a message rather than bare headers: %s, %s tab',
+    (state, v, selection) => {
+      expect(emptyState(selection)).toBe(state)
+      render(
+        <TableView
+          view={v} selection={selection} bundle={bundle} sort={null}
+          onSort={() => {}} selectedId={null} onSelect={() => {}}
+        />,
+      )
+      expect(screen.queryAllByTestId(/^row-/).length).toBe(0)
+      expect(screen.getByTestId('table-empty').textContent?.trim()).not.toBe('')
+    },
+  )
 
   // Seam review (Task 11). Every column carries a declared `scope`, and the
   // caption is the only place a non-`record` scope reaches a reader. Only
