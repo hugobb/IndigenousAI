@@ -1,0 +1,60 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  # The tests, types and browser suite must report INDEPENDENTLY of the
+  # data-build gate below. That gate is expected to be red until every record is
+  # human-reviewed, and a standing red that also swallowed a real regression
+  # would make the whole workflow unreadable.
+  test:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: atlas } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: atlas/.nvmrc, cache: pnpm, cache-dependency-path: atlas/pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+
+  browser:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: atlas } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: atlas/.nvmrc, cache: pnpm, cache-dependency-path: atlas/pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:browser
+
+  # EXPECTED RED until every record is promoted out of `status: draft` via
+  # atlas/data/REVIEW-QUEUE.md. It is not a broken build: it is the review gate
+  # doing its job, in the open, where it cannot be forgotten. Do not add
+  # continue-on-error — a gate nobody sees fail is not a gate.
+  records-reviewed:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: atlas } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: atlas/.nvmrc, cache: pnpm, cache-dependency-path: atlas/pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:data
+
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: atlas/.nvmrc, cache: pnpm, cache-dependency-path: atlas/pnpm-lock.yaml }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: bash scripts/build-site.sh
+      - run: cd atlas && pnpm install --frozen-lockfile && pnpm test:site
