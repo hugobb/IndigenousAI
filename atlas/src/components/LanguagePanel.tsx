@@ -115,7 +115,12 @@ export default function LanguagePanel({
         </Field>
       </PanelSection>
       <PanelSection title="Note">
-        <Field label="Note" testId="field-caveat">{language.caveat}</Field>
+        {/* Not "Note": the section heading already says that, and a `<dt>`
+            repeating its own `<h3>` reads as a rendering slip. This is what
+            the field IS — the schema calls it "the curator's own hedge about
+            this record" — and it distinguishes the hedge from the
+            transferability note the initiative panel keeps in this section. */}
+        <Field label="Curator's note" testId="field-caveat">{language.caveat}</Field>
       </PanelSection>
     </aside>
   )

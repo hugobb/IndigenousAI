@@ -9,6 +9,23 @@ afterEach(() => cleanup())
 const bundle = loadBundle()
 
 describe('panel sections', () => {
+  // Seam review (Task 8). Task 3 created a section titled "Note" whose only
+  // field was also labelled "Note", so the language panel rendered the word
+  // twice in a row over one value. A field label may not simply repeat its own
+  // section heading; both panels are checked, since both have that section.
+  it.each([
+    ['language', () => <LanguagePanel language={bundle.languages[0]!} initiatives={[]} filtered={true} />],
+    ['initiative', () => <InitiativePanel initiative={bundle.initiatives[0]!} methods={bundle.methods} bundle={bundle} />],
+  ])('never labels a %s-panel field with its own section heading', (_name, panel) => {
+    const { container } = render(panel())
+    for (const section of Array.from(container.querySelectorAll('section'))) {
+      const heading = section.querySelector('h3')?.textContent?.trim()
+      const labels = Array.from(section.querySelectorAll('dt')).map((d) => d.textContent?.trim())
+      expect(labels.length).toBeGreaterThan(0)
+      expect(labels, `section "${heading}"`).not.toContain(heading)
+    }
+  })
+
   it('groups the language panel under headings', () => {
     render(<LanguagePanel language={bundle.languages[0]!} initiatives={[]} filtered={true} />)
     const headings = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)

@@ -94,7 +94,7 @@ function SourceDisclosure({
  *     another field in the same section already discloses. `InitiativePanel`'s
  *     `Licence` is the case: `governance.posture`, `governance.licence` and
  *     `governance.source` are one object, so the licence IS cited, to the
- *     reference the `Governance` toggle above it opens. A second toggle
+ *     reference the `Posture` toggle above it opens. A second toggle
  *     labelled "Source for Licence" opening that identical reference would
  *     read as a second, INDEPENDENT attribution — two sources corroborating
  *     one governance claim — and inventing corroboration in a cited artifact

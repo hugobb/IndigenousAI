@@ -451,7 +451,7 @@ describe('source disclosures', () => {
       <InitiativePanel bundle={bundle} initiative={init('fixture-ongoing')} methods={methods} />,
     )
     assertDisclosures(container, {
-      'field-governance': 'Source for Governance',
+      'field-governance': 'Source for Posture',
       'field-site': 'Source for Location',
     })
   })

@@ -59,8 +59,14 @@ export default function InitiativePanel({
         <Field label="Data regime" testId="field-regime">{initiative.data_regime}</Field>
       </PanelSection>
       <PanelSection title="Governance">
+        {/* "Posture", not "Governance": the section heading already says
+            Governance, and a `<dt>` repeating its own `<h3>` renders the word
+            twice over one value. `posture` is the schema's own name for this
+            claim, and the DIMENSION stays "Governance" everywhere it is named
+            as one — the section, the table column, the facet group — so the
+            reader's path from column to panel is unbroken. */}
         <SourcedField
-          label="Governance" testId="field-governance"
+          label="Posture" testId="field-governance"
           source={initiative.governance?.source ?? null}
         >
           {initiative.governance?.posture}
@@ -161,7 +167,7 @@ export default function InitiativePanel({
         </Field>
       </PanelSection>
       <PanelSection title="Note">
-        <Field label="Note" testId="field-caveat">{initiative.caveat}</Field>
+        <Field label="Curator's note" testId="field-caveat">{initiative.caveat}</Field>
         {initiative.transferability !== null && (
           <Field label="Does this transfer?" testId="field-transferability">
             <p>{initiative.transferability.note}</p>

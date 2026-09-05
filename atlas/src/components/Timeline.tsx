@@ -55,8 +55,12 @@ export default function Timeline({
       </p>
       {undatedCount > 0 && (
         <p className="timeline__undated" data-testid="timeline-undated">
-          {undatedCount} initiative{undatedCount === 1 ? '' : 's'} record no start year and
-          {undatedCount === 1 ? ' is' : ' are'} always shown.
+          {/* The verb agrees too. Pluralising only the noun printed "1
+              initiative record no start year", which the fixture shows on
+              first load — Te Hiku Media has no `started` in the real data, so
+              this is the sentence a reader meets, not an edge case. */}
+          {undatedCount} initiative{undatedCount === 1 ? ' records' : 's record'} no start
+          year and {undatedCount === 1 ? 'is' : 'are'} always shown.
         </p>
       )}
     </section>
