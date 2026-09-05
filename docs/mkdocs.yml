@@ -2,6 +2,13 @@ site_name: Indigenous AI — Technique Guide
 site_description: A practical guide for building AI for indigenous language revitalization
 site_author: Mila — Indigenous AI
 
+# Required for root-relative routes to resolve from the deployed origin:
+# Method.doc_url is `/ml-techniques/<id>/` and (after SP2b Task 5) summary_url is
+# `/summaries/<id>/`. Without site_url MkDocs cannot compute them and the atlas
+# ships dead links. If the deployment hostname changes, this and CITATION.cff's
+# `url` are the ONLY two places to change.
+site_url: https://indigenous-ai-atlas.vercel.app/
+
 docs_dir: docs
 theme:
   name: material
