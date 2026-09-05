@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { bundleIsStale, checkLinks, routedBundle } from '../scripts/check-links.js'
+import { bundleIsStale, checkLinks, routedBundle, routesOf } from '../scripts/check-links.js'
 import type { AtlasBundle } from '../src/lib/load.js'
 
 let site: string
@@ -55,6 +55,31 @@ describe('checkLinks', () => {
   // stop guarding.
   it('throws rather than pass a bundle with no routes at all', () => {
     expect(() => checkLinks(bundleWith([], []), site)).toThrow(/no routes/i)
+  })
+
+  // The T5/T6 seam. `PaperSchema.summary_url` and `MethodSchema.doc_url` both
+  // assert `.startsWith('/')` and so does this walk — two guards on one fact in
+  // two files, which is the pair that drifts. Relaxing the schema used to make
+  // the walk DROP the route while the CLI's count still included it, so a
+  // route nobody checked was reported as resolving.
+  it('refuses a route that is not root-relative rather than skipping it', () => {
+    publish('ml-techniques/m')
+    expect(() => checkLinks(
+      bundleWith([{ id: 'a', summary_url: 'summaries/a/' }], [{ id: 'm', doc_url: '/ml-techniques/m/' }]),
+      site,
+    )).toThrow(/not root-relative[\s\S]*summaries\/a\//)
+  })
+
+  // Nothing is published here, so every walked route comes back dead — which is
+  // how the walked SET becomes visible rather than only its size. The CLI's
+  // "N routes" is `routesOf(bundle).length`, the same list.
+  it('walks exactly the routes routesOf yields, and nothing else', () => {
+    const bundle = bundleWith(
+      [{ id: 'a', summary_url: '/summaries/a/' }],
+      [{ id: 'm', doc_url: '/ml-techniques/m/' }],
+    )
+    expect(routesOf(bundle)).toEqual(['/summaries/a/', '/ml-techniques/m/'])
+    expect(checkLinks(bundle, site)).toEqual(routesOf(bundle))
   })
 })
 

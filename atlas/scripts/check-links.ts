@@ -14,19 +14,33 @@ export interface RoutedBundle {
   papers: readonly { summary_url: string }[]
 }
 
-/** Every route the bundle asks a reader to follow, and whether the built site
- *  actually has a page there.
- *
- *  "Never invent a destination" has been this project's rule for three
- *  sub-projects, enforced by comments and careful review. This is the version a
- *  machine can check — and the only thing that catches a summary that failed to
- *  copy, a slug that does not match its file, or a site_url that is subtly
- *  wrong. None of those is visible to any other test. */
-export function checkLinks(bundle: RoutedBundle, siteDir: string): string[] {
-  const routes = [
+/** Every route the bundle asks a reader to follow. The ONE derivation of that
+ *  list: `checkLinks` walks it and the CLI counts it, so the number in "every
+ *  one of the N routes resolves" cannot describe a different set from the one
+ *  that was checked. */
+export function routesOf(bundle: RoutedBundle): string[] {
+  const claimed = [
     ...bundle.papers.map((p) => p.summary_url),
     ...bundle.methods.map((m) => m.doc_url),
-  ].filter((r): r is string => typeof r === 'string' && r.startsWith('/'))
+  ]
+  const routes = claimed.filter((r): r is string => typeof r === 'string' && r.startsWith('/'))
+
+  // A route this walk cannot check is not a route that is fine — it is a
+  // destination nobody verified. `PaperSchema.summary_url` and
+  // `MethodSchema.doc_url` both assert `.startsWith('/')`, so nothing reaches
+  // here today; relax either one and the old `.filter()` would have DROPPED the
+  // offender and then reported "every one of the N routes resolves", where N
+  // still counted it. Two guards on the same fact in two files is exactly the
+  // pair that drifts, so this one refuses rather than trusting the other.
+  if (routes.length !== claimed.length) {
+    const dropped = claimed.filter((r) => !(typeof r === 'string' && r.startsWith('/')))
+    throw new Error(
+      'check-links: the bundle carries route(s) that are not root-relative, so this ' +
+        `walk cannot check them: ${dropped.map((r) => JSON.stringify(r)).join(', ')}. ` +
+        'Fix the record or the generator — silently skipping them would report a ' +
+        'clean walk over destinations nobody verified.',
+    )
+  }
 
   if (routes.length === 0) {
     throw new Error(
@@ -36,8 +50,20 @@ export function checkLinks(bundle: RoutedBundle, siteDir: string): string[] {
     )
   }
 
+  return routes
+}
+
+/** Every route the bundle asks a reader to follow, and whether the built site
+ *  actually has a page there.
+ *
+ *  "Never invent a destination" has been this project's rule for three
+ *  sub-projects, enforced by comments and careful review. This is the version a
+ *  machine can check — and the only thing that catches a summary that failed to
+ *  copy, a slug that does not match its file, or a site_url that is subtly
+ *  wrong. None of those is visible to any other test. */
+export function checkLinks(bundle: RoutedBundle, siteDir: string): string[] {
   // MkDocs writes `<route>/index.html` for every page.
-  return routes.filter((r) => !existsSync(join(siteDir, r, 'index.html')))
+  return routesOf(bundle).filter((r) => !existsSync(join(siteDir, r, 'index.html')))
 }
 
 /** The records to walk, and how to name them in the build log.
@@ -135,12 +161,13 @@ if (import.meta.filename === process.argv[1]) {
   const root = resolve(import.meta.dirname, '../..')
   const site = process.env['SITE_OUT'] ?? join(root, 'docs/site')
   const { bundle, source } = routedBundle(root)
-  // Equal to the number of routes WALKED only because `PaperSchema.summary_url`
-  // and `MethodSchema.doc_url` both assert `.startsWith('/')`, which is what
-  // `checkLinks`' filter keeps. Relax either schema and this count silently
-  // exceeds the walk, turning "every one of the N routes resolves" into an
-  // over-claim about routes that were dropped rather than checked.
-  const total = bundle.papers.length + bundle.methods.length
+  // The number of routes actually WALKED, from the same function `checkLinks`
+  // walks — not `papers.length + methods.length`, which was equal to it only
+  // for as long as both schemas asserted `.startsWith('/')`. A count derived
+  // separately from the walk is a count that can outgrow it, and "every one of
+  // the N routes resolves" would then be an over-claim about routes that were
+  // dropped rather than checked.
+  const total = routesOf(bundle).length
 
   console.log(`check-links: walking ${total} route(s) from ${source} against ${site}`)
 
