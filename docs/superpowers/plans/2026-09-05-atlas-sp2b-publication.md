@@ -56,8 +56,11 @@ The deployment hostname is not known until the Vercel project exists. This plan 
 ### Task 1: Stop committing the built site
 
 **Files:**
-- Modify: `.gitignore`, `docs/.gitignore`, `docs/mkdocs.yml`
+- Modify: `docs/.gitignore`, `docs/mkdocs.yml`
 - Delete from the index: `docs/site/**` (90 files)
+
+The repo-root `.gitignore` needs no change: it already carries `.worktrees/` and
+`.superpowers/`, and everything this sub-project generates lives under `docs/`.
 
 **Interfaces:**
 - Produces: a repo where `docs/site/` is build output, and `site_url` exists so root-relative routes resolve.
@@ -96,6 +99,10 @@ site/
 # edit here is destroyed by the next build.
 docs/summaries/
 
+# The build's Python virtualenv. mkdocs is installed here rather than into the
+# system interpreter.
+.venv/
+
 .DS_Store
 ```
 
@@ -125,7 +132,7 @@ Expected: the suite is untouched at its current count, and the only staged delet
 - [ ] **Step 6: Commit**
 
 ```bash
-git add -A .gitignore docs/.gitignore docs/mkdocs.yml docs/site
+git add -A docs/.gitignore docs/mkdocs.yml docs/site
 git commit -m "chore: stop committing the built site, and give MkDocs a site_url
 
 90 files of MkDocs output were tracked because docs/.gitignore carried Docusaurus
@@ -301,17 +308,25 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT="${SITE_OUT:-$REPO/docs/site}"
 
-python3 -m pip install --quiet -r "$REPO/docs/requirements.txt"
-mkdocs build --site-dir "$OUT" --config-file "$REPO/docs/mkdocs.yml"
+# A virtualenv, not the system interpreter. On this developer's machine `python3`
+# is 3.9.6 from the Command Line Tools, where `pip install` either fails under
+# PEP 668 or quietly pollutes a system Python — and mkdocs is not installed at
+# all. Vercel's image has 3.12 and would have tolerated a bare pip install, so
+# this would have worked in CI and broken locally, which is the worse way round.
+PY_BIN="${PY_BIN:-$(command -v python3.13 || command -v python3.12 || command -v python3)}"
+VENV="$REPO/docs/.venv"
+[ -d "$VENV" ] || "$PY_BIN" -m venv "$VENV"
+"$VENV/bin/pip" install --quiet --disable-pip-version-check -r "$REPO/docs/requirements.txt"
+"$VENV/bin/mkdocs" build --site-dir "$OUT" --config-file "$REPO/docs/mkdocs.yml"
 
 cd "$REPO/atlas"
-corepack pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile
 
 mkdir -p "$OUT/atlas"
 # `build:data` exits non-zero while any record is still `status: draft`. That is
 # the design, so it is tolerated here and NEVER worked around: no fixture, and
 # no ATLAS_ALLOW_NO_BUNDLE, which compiles an app carrying no data at all.
-if corepack pnpm build:data && corepack pnpm build:app; then
+if pnpm build:data && pnpm build:app; then
   cp -R dist/. "$OUT/atlas/"
   echo "atlas: shipped with reviewed records"
 else
@@ -664,7 +679,7 @@ Add to `atlas/package.json` scripts:
 In `scripts/build-site.sh`, **before** the `mkdocs build` line:
 
 ```bash
-( cd "$REPO/atlas" && corepack pnpm install --frozen-lockfile && corepack pnpm copy:summaries )
+( cd "$REPO/atlas" && pnpm install --frozen-lockfile && pnpm copy:summaries )
 ```
 
 In `docs/mkdocs.yml`, add one nav entry — **one, not 92**. The explicit nav is 65 lines already and would be swamped. Place it last:
@@ -1016,7 +1031,7 @@ At the **end** of `scripts/build-site.sh`, after the atlas branch:
 # Runs against the fixture bundle until the records are promoted, and becomes a
 # gate over real data the day they are. Fails the build either way: a citation
 # that 404s is the one defect this artifact cannot ship.
-( cd "$REPO/atlas" && SITE_OUT="$OUT" corepack pnpm check:links )
+( cd "$REPO/atlas" && SITE_OUT="$OUT" pnpm check:links )
 ```
 
 The `site` job in `.github/workflows/ci.yml` already runs `build-site.sh`, so this reaches CI with no workflow change. Confirm that by reading the job rather than assuming it.
