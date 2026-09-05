@@ -145,13 +145,26 @@ export default function App(): React.JSX.Element {
         )}
         {language !== null && (
           <LanguagePanel
+            // Keyed by the record, so every piece of per-record UI state in the
+            // panel belongs to the record it describes (seam review, Task 8).
+            // Without it React reconciles the two panels position by position
+            // and a source disclosure opened on one language stays open on the
+            // next — but only for the fields whose neighbours happen to have a
+            // source on the new record too, since the others unmount. That is
+            // not a "stay expanded" preference, it is reconciliation showing
+            // through: on Choctaw -> Approximate, Centre stayed open and
+            // Endangerment silently did not.
+            key={language.id}
             language={language}
             initiatives={selection.initiatives.filter((i) => i.languages.includes(language.id))}
             filtered={languagePanelFiltered}
           />
         )}
         {initiative !== null && (
-          <InitiativePanel initiative={initiative} methods={bundle.methods} bundle={bundle} />
+          <InitiativePanel
+            key={initiative.id}
+            initiative={initiative} methods={bundle.methods} bundle={bundle}
+          />
         )}
       </div>
 
