@@ -283,8 +283,10 @@ a { color: var(--accent-ink); }
   margin: 0 0 0.75rem;
 }
 
-/* ------------------------------------------------------------ unmapped ---- */
-.unmapped h3 {
+/* ------------------------------------------------------------ rail lists -- */
+/* Shared by both of `UnmappedList`'s cards. Named for the shape it styles, not
+ * for one card's subject: the second card is about work coverage, not the map. */
+.rail-list h3 {
   font-family: var(--sans);
   font-size: 0.75rem;
   font-weight: 600;
@@ -294,23 +296,23 @@ a { color: var(--accent-ink); }
   margin: 0 0 0.4rem;
 }
 
-.unmapped > div + div { margin-top: 1rem; }
+.rail-list > div + div { margin-top: 1rem; }
 
-.unmapped ul {
+.rail-list ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.unmapped li {
+.rail-list li {
   padding: 0.3rem 0;
   border-top: 1px solid var(--rule);
 }
 
-.unmapped li:first-child { border-top: 0; }
+.rail-list li:first-child { border-top: 0; }
 
-.unmapped li span,
-.unmapped li p {
+.rail-list li span,
+.rail-list li p {
   display: block;
   margin: 0.1rem 0 0;
   color: var(--text-soft);

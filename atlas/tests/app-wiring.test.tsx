@@ -177,6 +177,28 @@ describe('the rail under a filter that finds no work', () => {
     expect(screen.queryByTestId('group-approximate')).toBeNull()
     expect(screen.queryByTestId('group-no-matching-work')).toBeNull()
   })
+
+  // Seam review (Task 8). Task 1 made `languages` L1, so `?region=arctic`
+  // empties it and BOTH mapping groups with it — leaving the rail rendering
+  // the card's heading over nothing. The card itself must not render.
+  it('renders no rail card at all when nothing matched', () => {
+    at('/?region=arctic')
+    expect(screen.queryByLabelText(/map cannot show/i)).toBeNull()
+    expect(screen.queryByLabelText(/no matching work/i)).toBeNull()
+  })
+
+  // The other half of the same seam, through the real App: at
+  // `?application=asr` the workless group holds `fixture-conflict`, which has a
+  // sourced centre and is on the map at that moment. The card naming it must
+  // not be the one claiming the map cannot show it.
+  it('does not file a language the map is drawing under "what the map cannot show"', () => {
+    at('/?application=asr')
+    const ids = (screen.getByTestId('map-language-ids').textContent ?? '').split(' ')
+    expect(ids).toContain('fixture-conflict')
+    const group = screen.getByTestId('group-no-matching-work')
+    expect(group.textContent).toMatch(/Conflicted Speakers Language/)
+    expect(group.closest('section')!.getAttribute('aria-label')).not.toMatch(/map cannot show/i)
+  })
 })
 
 // Fix round 2: a reviewer substituted `workFiltered`/`filtered` per call site

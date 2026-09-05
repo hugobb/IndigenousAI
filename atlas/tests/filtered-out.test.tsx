@@ -102,6 +102,38 @@ describe('the workless group states what it can', () => {
     expect(group.textContent).not.toMatch(/matches your filters/i)
   })
 
+  // Seam review (Task 8). The workless group used to live INSIDE the card
+  // headed "What the map cannot show". That was right while `filteredOut` was
+  // the complement of `languages` — such a language had been removed from the
+  // map. Task 1 made `noMatchingWork` a SUBSET of `languages`, and App draws
+  // all of `languages`, so this card was naming languages the map was
+  // simultaneously drawing. `drawn` has a sourced centre precisely so that
+  // contradiction is what fails here.
+  it('states the work gap outside the card that says what the map cannot show', () => {
+    const drawn = lang('drawn')
+    render(
+      <UnmappedList languages={[drawn]} noMatchingWork={[drawn]}
+        workFiltered={false} onSelect={vi.fn()} />,
+    )
+    const card = screen.getByTestId('group-no-matching-work').closest('section')
+    expect(card).not.toBeNull()
+    expect(card!.getAttribute('aria-label')).not.toMatch(/map cannot show/i)
+    // And the map card is not merely mis-titled but absent: nothing here is
+    // unmappable, so there is no such finding to head.
+    expect(screen.queryByLabelText(/map cannot show/i)).toBeNull()
+  })
+
+  // `?region=arctic` rendered "WHAT THE MAP CANNOT SHOW" over nothing at all —
+  // a heading with no content reads as a rendering bug, which is the same
+  // judgment `FacetGroup` already makes about a bare label.
+  it('renders no card at all when it has nothing to report', () => {
+    const { container } = render(
+      <UnmappedList languages={[lang('drawn')]} noMatchingWork={[]}
+        workFiltered={false} onSelect={vi.fn()} />,
+    )
+    expect(container.querySelectorAll('section').length).toBe(0)
+  })
+
   // Both facts are true and both are stated. Suppressing either to avoid
   // repeating a name would hide a finding.
   it('names a language that is BOTH unmapped and workless in both groups', () => {
