@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { atlasIndexBranch, atlasIndexProblems } from './lib/atlas-index.js'
+import { atlasIndexBranch, atlasIndexProblems, expectedBranch } from './lib/atlas-index.js'
 
 /** Both branches of what `scripts/build-site.sh` can publish at `/atlas/`.
  *
@@ -29,6 +29,21 @@ describe('atlasIndexBranch', () => {
 
   it('reads a built app shell as the app', () => {
     expect(atlasIndexBranch(APP)).toBe('app')
+  })
+})
+
+/** The branch the RECORDS call for, both ways round. The `app` case cannot be
+ *  produced by a real build until the ten records are promoted — which is
+ *  precisely why stating today's branch as a constant was the defect. */
+describe('expectedBranch', () => {
+  it('calls for the holding page while any record is still a draft', () => {
+    expect(expectedBranch(['verified', 'verified', 'draft'])).toBe('holding')
+    expect(expectedBranch(['draft'])).toBe('holding')
+  })
+
+  it('calls for the app once no record is a draft', () => {
+    expect(expectedBranch(['verified', 'verified'])).toBe('app')
+    expect(expectedBranch(['verified', 'rejected'])).toBe('app')
   })
 })
 

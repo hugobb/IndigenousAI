@@ -23,6 +23,23 @@ export function atlasIndexBranch(html: string): AtlasIndexBranch {
   return /awaiting record review/i.test(html) ? 'holding' : 'app'
 }
 
+/** Which branch the RECORDS call for. `scripts/validate.ts` fails on any record
+ *  still `status: draft`, and `pnpm build:data` is what `build-site.sh` branches
+ *  on — so this is the same question asked of the source of truth rather than of
+ *  the output.
+ *
+ *  Stating today's branch as a bare constant is what the whole-branch review
+ *  caught: `expect(branch).toBe('holding')` is correct until the ten records are
+ *  promoted and then fails ON THE PROMOTION, which is the exact failure timing
+ *  the rest of this module was written to remove. Comparing against the record
+ *  state instead keeps the assertion and loses the timing — and it is stronger
+ *  in the direction that matters most: an app published while a record is still
+ *  a draft is the review gate breached, and this is the only place that would
+ *  say so about the tree that actually deploys. */
+export function expectedBranch(statuses: readonly string[]): AtlasIndexBranch {
+  return statuses.some((s) => s === 'draft') ? 'holding' : 'app'
+}
+
 /** Problems with the published `/atlas/` tree, as readable sentences. Empty is
  *  the pass. `files` are the paths inside `<out>/atlas`, relative to it, and
  *  `routeExists` answers whether a root-relative route has a page in the WHOLE

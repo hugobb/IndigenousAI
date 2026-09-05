@@ -3,7 +3,8 @@ import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node
 import { tmpdir } from 'node:os'
 import { join, relative, resolve } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
-import { atlasIndexBranch, atlasIndexProblems } from './lib/atlas-index.js'
+import { atlasIndexBranch, atlasIndexProblems, expectedBranch } from './lib/atlas-index.js'
+import { loadInitiatives, loadLanguages } from '../scripts/lib/load-records.js'
 
 /** Excluded from `pnpm test` in vitest.config.ts and run only by `pnpm test:site`:
  *  it shells out to scripts/build-site.sh, which runs `pip install` and
@@ -79,10 +80,23 @@ describe('the deployed tree', () => {
     expect(atlasIndexProblems(html, files, routeExists)).toEqual([])
   })
 
-  // Which branch it took today, stated out loud. When this flips, the atlas has
-  // shipped — and the assertion above is what will still be checking it.
-  it('is serving the holding page, because records are still under review', () => {
+  /** Which branch it took, checked against the RECORDS rather than stated as a
+   *  constant. `expect(…).toBe('holding')` is what stood here, and it would have
+   *  failed on the promotion — reintroducing, inside the fix for it, exactly the
+   *  timing that fix removed: `pnpm test:site` red at the moment
+   *  `records-reviewed` goes green.
+   *
+   *  Read the way round that matters: an app published at /atlas/ while any
+   *  record is still `status: draft` is the review gate breached on the tree
+   *  that actually deploys, and nothing else looks at that. */
+  it('serves the branch the record review state calls for', () => {
     const html = readFileSync(join(out, 'atlas/index.html'), 'utf8')
-    expect(atlasIndexBranch(html)).toBe('holding')
+    const data = join(REPO, 'atlas/data')
+    const statuses = [
+      ...loadLanguages(join(data, 'languages')),
+      ...loadInitiatives(join(data, 'initiatives')),
+    ].map((r) => r.status)
+    expect(statuses.length, 'no records were read, so this would pass vacuously').toBeGreaterThan(0)
+    expect(atlasIndexBranch(html)).toBe(expectedBranch(statuses))
   })
 })
