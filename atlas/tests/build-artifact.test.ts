@@ -57,8 +57,8 @@ afterEach(() => {
 })
 
 /** Builds into a throwaway directory so `dist/` is never clobbered, and returns
- *  the concatenated JS the build emitted. */
-function buildAndReadJs(env: Record<string, string>): string {
+ *  that directory. */
+function buildInto(env: Record<string, string>): string {
   const out = mkdtempSync(join(tmpdir(), 'atlas-build-artifact-'))
   scratch.push(out)
 
@@ -79,7 +79,12 @@ function buildAndReadJs(env: Record<string, string>): string {
     env: { ...base, ATLAS_ALLOW_NO_BUNDLE: '1', ...env },
   })
   expect(result.status, `vite build failed:\n${result.stdout}\n${result.stderr}`).toBe(0)
+  return out
+}
 
+/** The concatenated JS a build emitted. */
+function buildAndReadJs(env: Record<string, string>): string {
+  const out = buildInto(env)
   const assets = join(out, 'assets')
   const js = readdirSync(assets).filter((f) => f.endsWith('.js'))
   expect(js.length, 'the build emitted no JS at all, so any grep below would pass vacuously')
@@ -103,6 +108,54 @@ describe('the built artifact', () => {
     const js = buildAndReadJs({})
     expect(leaks(js)).toEqual([])
     expect(js.includes(GUARD), 'the build guard is missing from the emitted JS').toBe(true)
+  }, 180_000)
+})
+
+/** `base: '/atlas/'` (vite.config.ts) is what makes one origin work: the atlas
+ *  is served under /atlas/ beside the MkDocs guide, so its root-relative links
+ *  INTO the guide resolve by construction. Asserted here rather than in
+ *  tests/deploy-output.test.ts because while `build:data` exits non-zero the
+ *  deployed tree takes the holding-page branch and carries no app assets at
+ *  all — an assertion there would pass vacuously today. This build always runs.
+ *  Asserted on the emitted artifact, not on the config object, so it fails if
+ *  anything (an --base flag, a plugin, a mode file) overrides the setting. */
+describe('the built shell', () => {
+  it('points every root-relative asset URL under /atlas/', () => {
+    const out = buildInto({ NODE_ENV: 'production' })
+    const html = readFileSync(join(out, 'index.html'), 'utf8')
+    const urls = [...html.matchAll(/(?:src|href)="(\/[^"]*)"/g)].map((m) => m[1]!)
+    expect(urls.length, 'the shell emitted no root-relative asset URLs to check')
+      .toBeGreaterThan(0)
+    expect(urls.filter((u) => !u.startsWith('/atlas/'))).toEqual([])
+  }, 180_000)
+
+  /** The holding page (atlas/holding/atlas-pending.html) says, in the present
+   *  tense, that no record has been signed off yet. `scripts/build-site.sh`
+   *  publishes it at /atlas/ INSTEAD of the app while that is true. It must
+   *  never ship ALONGSIDE the app, because the build that ships the app is
+   *  exactly the build on which the sentence became false — and
+   *  /atlas/atlas-pending.html is the URL a collaborator would have bookmarked
+   *  during the holding period, so the reader most likely to reach it is the one
+   *  most likely to conclude the atlas never shipped.
+   *
+   *  This is a real hazard rather than a hypothetical: while the file lived in
+   *  `public/`, Vite copied it verbatim into `dist/`, and `build-site.sh`'s
+   *  success branch is `cp -R dist/.`. Moving it to `holding/` is the fix; this
+   *  is the guard. tests/deploy-output.test.ts cannot cover it — every
+   *  assertion there runs against the failing-`build:data` branch, so the day
+   *  the branch flips, nothing there looks at what lands in the tree.
+   *
+   *  NOTE ON THE FLAG: `buildInto` uses ATLAS_ALLOW_NO_BUNDLE=1 (a fresh clone
+   *  has no src/data/atlas.json). That is a layout assertion — it exercises what
+   *  files a successful build EMITS — and is emphatically not a blessing of that
+   *  flag as a deploy path. build-site.sh never sets it; the two tests in
+   *  tests/deploy-output.test.ts guard that separately. */
+  it('carries no holding page beside the app', () => {
+    const out = buildInto({ NODE_ENV: 'production' })
+    const strays = readdirSync(out, { recursive: true })
+      .map(String)
+      .filter((f) => /pending|holding/i.test(f))
+    expect(strays).toEqual([])
   }, 180_000)
 })
 

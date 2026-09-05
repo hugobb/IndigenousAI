@@ -2,6 +2,18 @@ site_name: Indigenous AI — Technique Guide
 site_description: A practical guide for building AI for indigenous language revitalization
 site_author: Mila — Indigenous AI
 
+# Required for root-relative routes to resolve from the deployed origin:
+# Method.doc_url is `/ml-techniques/<id>/` and (after SP2b Task 5) summary_url is
+# `/summaries/<id>/`. Without site_url MkDocs cannot compute them and the atlas
+# ships dead links.
+#
+# If the deployment hostname changes, THREE published files must change together:
+# this line, CITATION.cff's `url`, and the site link in README.md.
+# atlas/tests/deploy-hostname.test.ts fails if you change one and not the others
+# — do not trust a count written in a comment, including this one; that test is
+# the thing that counts.
+site_url: https://indigenous-ai-atlas.vercel.app/
+
 docs_dir: docs
 theme:
   name: material
@@ -118,3 +130,11 @@ nav:
       - Thick Evaluation of Cultural Representation: process-techniques/thick-evaluation-cultural-representation.md
       - Machine-in-the-Loop Annotation: process-techniques/machine-in-the-loop-annotation.md
       - Human-in-the-Loop AI Safety Workflows: process-techniques/human-in-the-loop-ai-safety.md
+  - Paper summaries: summaries/index.md
+  # An absolute path, not a page: /atlas/ is the Vite app that
+  # scripts/build-site.sh merges into this same output tree, so MkDocs has no
+  # file for it and renders a plain link (mkdocs.structure.nav logs this at
+  # INFO, not as a warning). Without it the two halves of one origin link only
+  # ONE way: the atlas cites summaries and technique pages, and a reader who
+  # follows a citation lands in a guide that never mentions the atlas exists.
+  - Atlas: /atlas/

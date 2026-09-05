@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+title: "Indigenous AI: an atlas of NLP initiatives for Indigenous languages"
+message: "If you use this atlas or its technique guide, please cite it."
+type: dataset
+authors:
+  - name: "Mila — Indigenous AI"
+# The deployment hostname. It appears in THREE published files — here,
+# docs/mkdocs.yml's site_url, and the site link in README.md — and
+# atlas/tests/deploy-hostname.test.ts is what keeps them equal. The Vercel
+# project does not exist yet, so this is an assumption to be corrected on the
+# first real deploy; correct all three in one commit.
+url: "https://indigenous-ai-atlas.vercel.app/"
+license: CC-BY-4.0
+# NO doi: field. The DOI does not exist until a Zenodo release is cut, and a
+# placeholder would be exactly the claim-more-than-is-true failure that this
+# repository's build gate exists to prevent. Add it here, and to README.md,
+# once the release is minted.

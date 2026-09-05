@@ -1,10 +1,11 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import type { Method, Paper } from '../src/schema/index.js'
+import { z } from 'zod'
+import { MethodSchema, PaperSchema } from '../src/schema/index.js'
 import { loadInitiatives, loadLanguages, recordDirStatus } from './lib/load-records.js'
+import { readDerived } from './lib/read-derived.js'
 
 const url = (p: string): string => fileURLToPath(new URL(p, import.meta.url))
-const readJson = <T>(p: string): T => JSON.parse(readFileSync(url(p), 'utf8')) as T
 
 // The gate checks this too, but `pnpm bundle` can be run on its own and an
 // absent record directory would otherwise write an atlas with no pins.
@@ -21,8 +22,21 @@ const bundle = {
   generated: new Date().toISOString(),
   languages: loadLanguages(url('../data/languages')).filter((l) => l.status === 'verified'),
   initiatives: loadInitiatives(url('../data/initiatives')).filter((i) => i.status === 'verified'),
-  methods: readJson<Method[]>('../data/derived/methods.json'),
-  papers: readJson<Paper[]>('../data/derived/papers.json'),
+  // BOTH derived files, parsed rather than cast — see `readDerived`. Closing
+  // one and leaving the other means the next person to change a generator finds
+  // out in a visitor's browser instead of here.
+  methods: readDerived({
+    path: url('../data/derived/methods.json'),
+    label: 'data/derived/methods.json',
+    regenerate: 'pnpm extract:methods',
+    schema: z.array(MethodSchema),
+  }),
+  papers: readDerived({
+    path: url('../data/derived/papers.json'),
+    label: 'data/derived/papers.json',
+    regenerate: 'pnpm extract:papers',
+    schema: z.array(PaperSchema),
+  }),
 }
 
 mkdirSync(new URL('../src/data/', import.meta.url), { recursive: true })

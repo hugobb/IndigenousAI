@@ -6,10 +6,14 @@ import { defineConfig } from '@playwright/test'
 export default defineConfig({
   testDir: './browser-tests',
   fullyParallel: false,
+  // `vite.config.ts` sets `base: '/atlas/'` — the app is served under /atlas/ on
+  // the deployed origin and, identically, by `vite dev`. The origin root is a
+  // 404 there, so both the readiness probe and every `page.goto` below name the
+  // real path the app has rather than the one it used to have.
   use: { baseURL: 'http://localhost:5174' },
   webServer: {
     command: 'pnpm dev --port 5174 --strictPort',
-    url: 'http://localhost:5174',
+    url: 'http://localhost:5174/atlas/',
     reuseExistingServer: false,
     timeout: 60_000,
   },

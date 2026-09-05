@@ -20,7 +20,7 @@ Node lives under nvm on this machine. Before any command:
     pnpm test:browser  # browser regression suite (Playwright, drives `vite dev`)
     pnpm typecheck     # tsc --noEmit
     pnpm build:data    # extract -> validate -> bundle (the DATA)
-    pnpm dev           # dev server on http://localhost:5173, showing the fixture
+    pnpm dev           # dev server on http://localhost:5173/atlas/, showing the fixture
     pnpm build:app     # production build of the APP; refuses without a real bundle
     pnpm preview       # serve a built dist/ locally
 

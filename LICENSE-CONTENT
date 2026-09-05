@@ -1,0 +1,23 @@
+SPDX-License-Identifier: CC-BY-4.0
+
+Applies to prose, data and paper summaries: README.md, Draft.md, docs/,
+reports/, litterature_review/ and atlas/data/. Source code is licensed
+separately under MIT; see LICENSE.
+
+Copyright (c) 2026 Mila — Indigenous AI
+
+This material is licensed under the Creative Commons Attribution 4.0
+International License (CC BY 4.0). You are free to share and adapt it for any
+purpose, including commercially, provided you give appropriate credit, link to
+the licence, and indicate if changes were made.
+
+The full legal text is published by Creative Commons and is not reproduced
+here, so that this file cannot drift from it:
+
+    https://creativecommons.org/licenses/by/4.0/legalcode
+
+A human-readable summary, which is not a substitute for the licence:
+
+    https://creativecommons.org/licenses/by/4.0/
+
+Attribution: cite the atlas as described in CITATION.cff.

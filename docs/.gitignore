@@ -1,20 +1,16 @@
-# Dependencies
-/node_modules
+# MkDocs build output. Rebuilt by scripts/build-site.sh on every deploy; never
+# committed. This file previously carried Docusaurus ignores for a generator
+# this project does not use, and did not ignore site/ — which is how 90 build
+# artifacts reached the repository.
+site/
 
-# Production
-/build
+# Summaries copied from litterature_review/ at build time (spec D3). The source
+# of truth is litterature_review/summaries/; these are reproducible and a manual
+# edit here is destroyed by the next build.
+docs/summaries/
 
-# Generated files
-.docusaurus
-.cache-loader
+# The build's Python virtualenv. mkdocs is installed here rather than into the
+# system interpreter.
+.venv/
 
-# Misc
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*

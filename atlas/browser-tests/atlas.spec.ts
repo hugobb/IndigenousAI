@@ -49,7 +49,7 @@ test.beforeEach(async ({ page }) => { await offline(page) })
 // Parameterised over all three view modes.
 for (const view of ['map', 'initiatives', 'languages']) {
   test(`the pane has real height in ${view} view`, async ({ page }) => {
-    await page.goto(view === 'map' ? '/' : `/?view=${view}`)
+    await page.goto(view === 'map' ? '/atlas/' : `/atlas/?view=${view}`)
     const [pane, rail] = await Promise.all([
       page.locator('.atlas__pane').boundingBox(),
       page.locator('.atlas__rail').boundingBox(),
@@ -61,7 +61,7 @@ for (const view of ['map', 'initiatives', 'languages']) {
 }
 
 test('the body never scrolls horizontally, even with the widest table', async ({ page }) => {
-  await page.goto('/?view=initiatives')
+  await page.goto('/atlas/?view=initiatives')
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   )
@@ -90,7 +90,7 @@ test('the body never scrolls horizontally, even with the widest table', async ({
 // `scrollTop` and it reads back as 0.
 test('the table scrolls inside its own pane rather than growing the page', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 380 })
-  await page.goto('/?view=languages')
+  await page.goto('/atlas/?view=languages')
   const wrap = page.locator('.table-wrap')
 
   const [scrollHeight, clientHeight] = await Promise.all([
@@ -108,7 +108,7 @@ test('the table scrolls inside its own pane rather than growing the page', async
 
 test('the view switch does not wrap at a narrow viewport', async ({ page }) => {
   await page.setViewportSize({ width: 380, height: 720 })
-  await page.goto('/?view=initiatives')
+  await page.goto('/atlas/?view=initiatives')
   const heights = await page.locator('.view-switch button').evaluateAll(
     // Rounded: sub-pixel layout jitter between buttons on the same visual row
     // is real (fractional flex remainders) and must not read as a wrap.
@@ -127,7 +127,7 @@ test('the view switch does not wrap at a narrow viewport', async ({ page }) => {
 // rail. This is the mutation-checked SP1a-shaped regression at narrow width.
 test('the pane spans full width at a narrow viewport, not squeezed into the rail column', async ({ page }) => {
   await page.setViewportSize({ width: 380, height: 720 })
-  await page.goto('/')
+  await page.goto('/atlas/')
   const box = await page.locator('.atlas__pane').boundingBox()
   expect(box).not.toBeNull()
   expect(box!.width).toBeGreaterThan(370)
@@ -143,19 +143,19 @@ test('the pane spans full width at a narrow viewport, not squeezed into the rail
 // `offline()` route (aborting the style document, not just tile data) was
 // silently doing.
 test('the map repaints when a filter removes records', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/atlas/')
   const canvas = page.locator('.atlas__canvas')
   await expect(canvas).toBeVisible()
   await waitForMapIdle(page)
   const before = await canvas.screenshot()
-  await page.goto('/?region=africa')
+  await page.goto('/atlas/?region=africa')
   await waitForMapIdle(page)
   const after = await canvas.screenshot()
   expect(Buffer.compare(before, after)).not.toBe(0)
 })
 
 test('a table row is reachable and openable from the keyboard', async ({ page }) => {
-  await page.goto('/?view=languages')
+  await page.goto('/atlas/?view=languages')
   const firstRowName = page.locator('tbody tr td:first-child button').first()
   await firstRowName.focus()
   await expect(firstRowName).toBeFocused()

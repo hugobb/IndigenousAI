@@ -1,0 +1,9 @@
+{
+  "name": "indigenous-ai",
+  "private": true,
+  "description": "Repository root. NOT a workspace root and not a package: it declares only the toolchain Vercel and CI should provision, because vercel.json sets framework:null and the only package (atlas/) is a directory down. Everything is built by scripts/build-site.sh; add no dependencies and no scripts here.",
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": "22.x"
+  }
+}

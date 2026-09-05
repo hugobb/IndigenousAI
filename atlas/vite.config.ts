@@ -59,5 +59,10 @@ export default defineConfig(({ command }) => {
     ],
     define: { __ATLAS_ALLOW_FIXTURE__: JSON.stringify(command === 'serve') },
     build: { outDir: 'dist' },
+    // Served from /atlas/ on the deployed origin (spec D1): one project, one
+    // build, one origin, so the atlas's root-relative links INTO the guide
+    // (`/ml-techniques/<id>/`, and after Task 5 `/summaries/<id>/`) resolve by
+    // construction rather than by a rewrite rule that fails as a silent 404.
+    base: '/atlas/',
   }
 })

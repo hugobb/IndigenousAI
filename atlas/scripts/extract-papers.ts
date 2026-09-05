@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { PaperSchema, type Paper } from '../src/schema/paper.js'
+import { summaryRoute } from './copy-summaries.js'
 import { decodeEntities } from './lib/md.js'
 
 /** `| 1 | [Title](summaries/slug.md) | Authors | 2025 | a, b |` */
@@ -54,7 +55,11 @@ export function extractPapers(reviewRoot: string): Paper[] {
         year: Number(year.trim()),
         venue: readVenue(reviewRoot, id),
         themes: (themes ?? '').split(',').map((t) => t.trim()).filter(Boolean),
-        summary_url: `litterature_review/summaries/${id}.md`,
+        // `summaryRoute`, never the string again: `copy-summaries.ts` decides
+        // where a summary is PUBLISHED, and a second derivation that drifts by
+        // one character turns every citation in the atlas into a 404 that
+        // nothing else in the system can see.
+        summary_url: summaryRoute(id),
       }),
     )
   }
