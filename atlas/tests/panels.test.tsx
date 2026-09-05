@@ -229,25 +229,35 @@ describe('InitiativePanel', () => {
     expect(field.textContent).toContain(String(p.year))
   })
 
-  // summary_url points at an unpublished repo path. An anchor would be dead
-  // from the deployed origin, which is inventing a destination.
-  it('does not link a paper to its unpublished summary path', () => {
+  // Was "does not link a paper to its unpublished summary path" until SP2b
+  // published the summaries. The premise reversed, not the rule: the rule was
+  // always "never invent a destination", and this destination now exists.
+  // Rewritten to the new correct expectation rather than relaxed — and asserted
+  // through the ACCESSIBLE NAME, which is what makes it a citation a reader can
+  // act on. The href SHAPE is pinned separately below; a link whose name were
+  // the bare route would satisfy that one and fail this.
+  it('links a paper to its published summary, under the paper title', () => {
     const i = bundle.initiatives.find((x) => x.papers.length > 0)!
+    const p = bundle.papers.find((x) => x.id === i.papers[0])!
     render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={bundle} />)
-    const links = within(screen.getByTestId('field-papers')).queryAllByRole('link')
-    expect(links).toEqual([])
+    const link = within(screen.getByTestId('field-papers')).getByRole('link', { name: p.title })
+    expect(link.getAttribute('href')).toBe(p.summary_url)
   })
 
-  // The path is still SHOWN — inert is not the same as hidden — and it has to
-  // read as a repository location rather than as a link that failed to render.
-  it('names the summary path as a repository file, not as a page of this site', () => {
+  // Was "names the summary path as a repository file, not as a page of this
+  // site". The path is no longer SHOWN at all: it is the anchor's destination,
+  // and a route repeated as visible text beside the link it belongs to is noise
+  // in a 25rem rail. This asserts the chip is gone — a `.repo-path` left behind
+  // would print `/summaries/<id>/` under a title that already links there.
+  it('shows the summary as a destination rather than as a path to read', () => {
     const i = bundle.initiatives.find((x) => x.papers.length > 0)!
     const p = bundle.papers.find((x) => x.id === i.papers[0])!
     render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={bundle} />)
     const field = screen.getByTestId('field-papers')
-    expect(field.textContent).toContain(p.summary_url)
-    expect(field.textContent).toMatch(/repository/i)
-    expect(field.textContent).toMatch(/not (a )?(page|published)/i)
+    expect(field.querySelector('code')).toBeNull()
+    expect(field.textContent).not.toContain(p.summary_url)
+    expect(field.textContent).not.toMatch(/litterature_review/)
+    expect(field.textContent).not.toMatch(/repository/i)
   })
 
   it('renders an unresolvable paper id rather than dropping it', () => {
@@ -256,6 +266,40 @@ describe('InitiativePanel', () => {
     const field = screen.getByTestId('field-papers')
     expect(field.textContent).toContain('no-such-paper')
     expect(field.textContent).toMatch(/unresolved/i)
+  })
+
+  it('links a paper summary, now that the summaries are published', () => {
+    const ongoing = init('fixture-ongoing')
+    const { container } = render(
+      <InitiativePanel initiative={ongoing} methods={bundle.methods} bundle={bundle} />,
+    )
+    const a = container.querySelector('[data-testid="field-papers"] a[href^="/summaries/"]')
+    expect(a).not.toBeNull()
+    expect(a?.getAttribute('href')).toBe('/summaries/fixture-paper/')
+  })
+
+  // The sentence that was true until Task 4 and is false afterwards. Asserted
+  // as an ABSENCE because the defect it guards is prose left behind by a
+  // change, which no type and no route can catch.
+  it('no longer says the summaries are unpublished', () => {
+    const ongoing = init('fixture-ongoing')
+    const { container } = render(
+      <InitiativePanel initiative={ongoing} methods={bundle.methods} bundle={bundle} />,
+    )
+    expect(container.textContent ?? '').not.toMatch(/not pages published on this site/i)
+    expect(container.textContent ?? '').not.toMatch(/review repository/i)
+  })
+
+  // An unresolvable id still renders as the id with a marker — Task 6 of SP2a's
+  // rule, unchanged. A published destination for the resolvable case must not
+  // quietly become an invented one for the dangling case.
+  it('still never links an unresolved reference', () => {
+    const dangling = { ...init('fixture-ongoing'), papers: ['no-such-paper'] }
+    const { container } = render(
+      <InitiativePanel initiative={dangling} methods={bundle.methods} bundle={bundle} />,
+    )
+    expect(container.querySelector('[data-testid="field-papers"] a')).toBeNull()
+    expect(container.textContent ?? '').toMatch(/unresolved reference/i)
   })
 
   it('shows kind, tier, languages and data regime', () => {
@@ -323,34 +367,42 @@ describe('InitiativePanel', () => {
     expect(field.textContent).not.toMatch(/cited to/i)
   })
 
-  // Fix round 1, finding 3. The rail is 25rem and `americasnlp` carries two
-  // papers, so the explanation repeated under two long proceedings strings
-  // buries the citations it exists to explain. The fixture holds ONE paper and
-  // one paper cannot tell "once" from "once per item" apart, so the second is
-  // built here — Task 7 owns fixture growth. Same construction as
-  // `withEndangerment` below.
-  it('explains the summary paths once for the list, not once per paper', () => {
+  // Was "explains the summary paths once for the list, not once per paper".
+  // The note it counted is gone with the repo paths it explained, but the case
+  // it was built for is not: `americasnlp` carries two papers, and the fixture
+  // holds ONE, which cannot tell "per list" from "per item" apart. Rewritten to
+  // assert what per-item now means — each citation links to its OWN summary, so
+  // one route reused for both, or one anchor for the pair, fails here.
+  it('gives each of two papers its own summary link', () => {
     const p1 = bundle.papers[0]!
     const p2 = PaperSchema.parse({
       ...p1, id: 'fixture-paper-2', title: 'Another Fixture Paper',
-      summary_url: 'litterature_review/summaries/fixture-paper-2.md',
+      summary_url: '/summaries/fixture-paper-2/',
     })
     const two: AtlasBundle = { ...bundle, papers: [p1, p2] }
     const i = { ...bundle.initiatives[0]!, papers: [p1.id, p2.id] }
     render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={two} />)
-    const text = screen.getByTestId('field-papers').textContent ?? ''
-    expect(text.match(/repository/gi) ?? []).toHaveLength(1)
-    // Hoisting the sentence must not take the paths with it: the note explains
-    // the list, it does not stand in for it.
-    expect(text).toContain(p1.summary_url)
-    expect(text).toContain(p2.summary_url)
+    const field = screen.getByTestId('field-papers')
+    const links = within(field).getAllByRole('link')
+    expect(links.map((a) => a.getAttribute('href'))).toEqual([p1.summary_url, p2.summary_url])
+    expect(links.map((a) => a.textContent)).toEqual([p1.title, p2.title])
   })
 
-  // A caption over paths that are not on screen would explain nothing.
-  it('does not caption summary paths when no paper resolved', () => {
-    const i = { ...bundle.initiatives[0]!, papers: ['no-such-paper'] }
+  // Was "does not caption summary paths when no paper resolved" — a caption
+  // over paths that are not on screen. There is no caption any more, so that
+  // test would now pass over an empty render. The successor concern is the one
+  // that survives: in a MIXED list the anchor goes only on the paper that
+  // resolved, and the dangling id stays inert text beside it.
+  it('links the resolved paper and not the dangling one beside it', () => {
+    const p = bundle.papers[0]!
+    const i = { ...bundle.initiatives[0]!, papers: [p.id, 'no-such-paper'] }
     render(<InitiativePanel initiative={i} methods={bundle.methods} bundle={bundle} />)
-    expect(screen.getByTestId('field-papers').textContent).not.toMatch(/repository/i)
+    const field = screen.getByTestId('field-papers')
+    const links = within(field).getAllByRole('link')
+    expect(links.map((a) => a.getAttribute('href'))).toEqual([p.summary_url])
+    const dangling = within(field).getByText(/no-such-paper/).closest('li')!
+    expect(within(dangling as HTMLElement).queryAllByRole('link')).toEqual([])
+    expect(dangling.textContent).toMatch(/unresolved reference/i)
   })
 
   // Fix round 1, finding 2. Neither `papers: z.array(z.string())` nor the

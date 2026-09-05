@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { fileURLToPath } from 'node:url'
 import { extractPapers } from '../scripts/extract-papers.js'
+import { summaryRoute } from '../scripts/copy-summaries.js'
 
 const ROOT = fileURLToPath(new URL('./fixtures/review', import.meta.url))
 const BROKEN = fileURLToPath(new URL('./fixtures/review-broken', import.meta.url))
@@ -37,6 +38,17 @@ describe('extractPapers', () => {
 
   it('leaves venue null for the **Citation:** format rather than guessing', () => {
     expect(papers[1]?.venue).toBeNull()
+  })
+
+  // The route is CONSUMED from `copy-summaries.ts`, never derived a second
+  // time here: `copySummaries` decides where a summary is published, and two
+  // derivations that drift by one character turn every citation in the atlas
+  // into a 404 nothing else in the system can see. Asserted against
+  // `summaryRoute` rather than a literal so this test cannot itself become the
+  // second derivation.
+  it('gives every paper the published route for its summary, not a repo path', () => {
+    for (const p of papers) expect(p.summary_url).toBe(summaryRoute(p.id))
+    expect(papers[0]?.summary_url).toBe('/summaries/alpha-et-al-2025-thing/')
   })
 })
 

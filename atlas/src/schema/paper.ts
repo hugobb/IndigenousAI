@@ -10,7 +10,11 @@ export const PaperSchema = z.object({
    *  than an absent one in a cited artifact. */
   venue: z.string().nullable(),
   themes: z.array(z.string()).default([]),
-  summary_url: z.string().min(1),
+  /** The published route for this paper's summary, e.g. `/summaries/<id>/`.
+   *  A site route rather than a repo path since SP2b published the summaries;
+   *  `startsWith('/')` is asserted so a reverted generator fails validation
+   *  rather than silently shipping an anchor to a file nobody can fetch. */
+  summary_url: z.string().min(1).startsWith('/'),
 })
 
 export type Paper = z.infer<typeof PaperSchema>

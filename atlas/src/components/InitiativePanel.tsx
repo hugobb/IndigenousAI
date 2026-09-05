@@ -101,28 +101,14 @@ export default function InitiativePanel({
         </SourcedField>
       </PanelSection>
       <PanelSection title="Evidence">
-        {/* Citations, NOT navigation. Every paper's `summary_url` is a
-            repo-relative path (`litterature_review/summaries/<id>.md`) to a
-            file that is in neither the MkDocs nav nor the built site, so an
-            anchor on it would 404 from the deployed origin — inventing a
-            destination we do not have, which is the same rule `SourceLine`
-            applies to a `doc` ref. `Method.doc_url` is a published route and
-            is a real link; these are not, and are set as a path so the
-            difference is visible rather than merely true. */}
+        {/* Published since SP2b: `summary_url` is a route (`/summaries/<id>/`)
+            served from this same origin, so an anchor points at a page that
+            exists. The rule did not change — it was always "never invent a
+            destination", and the destination now exists. An UNRESOLVED id is
+            still never a link: nothing published corresponds to it. */}
         <Field label="Papers" testId="field-papers">
           {papers.length === 0 ? null : (
             <>
-              {/* ONCE for the list, not once per citation: `americasnlp`
-                  carries two papers, and the sentence repeated under two long
-                  proceedings strings in a 25rem rail buries the citations it
-                  exists to explain. Suppressed when nothing resolved, or it
-                  would caption paths that are not on screen. */}
-              {papers.some((p) => p.paper !== null) && (
-                <p className="paths-note">
-                  Summary paths below are files in the review repository, not pages
-                  published on this site.
-                </p>
-              )}
               <ul className="citations">
                 {/* Keyed by POSITION as well as id: neither
                     `papers: z.array(z.string())` nor the `links` array below
@@ -140,9 +126,9 @@ export default function InitiativePanel({
                       <span>{id} <em>— unresolved reference</em></span>
                     ) : (
                       <>
-                        <cite>{paper.title}</cite> · {paper.authors} · {paper.year}
+                        <cite><a href={paper.summary_url}>{paper.title}</a></cite>
+                        {' · '}{paper.authors} · {paper.year}
                         {paper.venue !== null && <> · {paper.venue}</>}
-                        <p className="repo-path"><code>{paper.summary_url}</code></p>
                       </>
                     )}
                   </li>

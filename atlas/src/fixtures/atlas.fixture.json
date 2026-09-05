@@ -111,6 +111,6 @@
   "papers": [
     { "id": "fixture-paper", "title": "A Fixture Paper", "authors": "Fixture et al.", "year": 2025,
       "venue": "Fixture Proceedings", "themes": ["evaluation"],
-      "summary_url": "litterature_review/summaries/fixture-paper.md" }
+      "summary_url": "/summaries/fixture-paper/" }
   ]
 }

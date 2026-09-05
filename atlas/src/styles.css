@@ -596,33 +596,19 @@ a { color: var(--accent-ink); }
 }
 
 /* ------------------------------------------------------------ evidence --- */
-/* The Evidence section holds two lists that look alike and are not: `Links`
- * are destinations, `Papers` are references we hold. A paper's `summary_url`
- * is a repo-relative path to a file that is not in the built site, so it is
- * never an anchor — and if it were merely unstyled it would read as a link
- * that failed rather than as a citation. Set as a path: a title in italics,
- * the location in a monospace face at the size of a footnote. */
+/* The Evidence section holds two lists of destinations. Since SP2b published
+ * the summaries, a paper's `summary_url` is a route on this same origin, so a
+ * citation's title is an anchor exactly as `Method.doc_url` is — the chip that
+ * set the old repo path apart is gone with the path it described. What still
+ * distinguishes the two lists is the shape of the entry, not its clickability:
+ * a `Links` row is a label and a retrieval date, a `Papers` row is a citation —
+ * title in italics, then authors, year and venue — and only the title carries
+ * the link, so the citation reads as a reference that happens to have a page
+ * rather than as one long anchor. An UNRESOLVED id has no anchor at all and is
+ * marked in `em` like every other absence in this panel. */
 .panel dd .citations { list-style: none; padding-left: 0; }
 .panel dd .citations > li + li { margin-top: 0.5rem; }
 .panel dd cite { font-style: italic; }
-
-/* One note for the whole list, not one per citation — see InitiativePanel.
- * Set as a caption above the paths it explains, not as a footnote after them. */
-.panel dd .paths-note { margin: 0 0 0.4rem; font-size: 0.75rem; }
-
-.panel dd .repo-path { margin: 0.15rem 0 0; font-size: 0.75rem; }
-.panel dd .repo-path code {
-  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-  font-size: 0.9em;
-  overflow-wrap: anywhere;
-  /* No underline and no accent: the one styled thing in this block must not
-   * be the thing you cannot click. */
-  color: var(--text-soft);
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  padding: 0 0.2em;
-}
 
 /* A claim covered by a source that ANOTHER field in the same section
  * discloses — the licence, cited to the same reference as the governance
