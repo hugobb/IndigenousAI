@@ -11,6 +11,7 @@
     "extract:papers": "tsx scripts/extract-papers.ts",
     "copy:summaries": "tsx scripts/copy-summaries.ts",
     "validate": "tsx scripts/validate.ts",
+    "check:links": "tsx scripts/check-links.ts",
     "bundle": "tsx scripts/bundle.ts",
     "seed": "tsx scripts/seed.ts",
     "build:data": "pnpm extract:methods && pnpm extract:papers && pnpm validate && pnpm bundle",

@@ -47,3 +47,16 @@ else
   cp holding/atlas-pending.html "$OUT/atlas/index.html"
   echo "atlas: records still under review — holding page served"
 fi
+
+# Every paper citation and every method link in the atlas is a promise that a
+# page exists. This walks all of them against the tree that is about to be
+# deployed and fails the build if one does not resolve — a citation that 404s is
+# the one defect this artifact cannot ship, and it is the only defect no other
+# test can see (a summary that failed to copy, a slug that does not match its
+# file, a subtly wrong site_url).
+#
+# It walks data/derived/*.json until the records are promoted and the real
+# bundle afterwards — the same 131 real routes either way, because `bundle.ts`
+# copies both derived files into the bundle verbatim. Deliberately NOT the
+# fixture, whose one paper and one method are invented and could never resolve.
+( cd "$REPO/atlas" && SITE_OUT="$OUT" pnpm check:links )

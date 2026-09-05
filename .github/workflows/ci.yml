@@ -47,6 +47,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build:data
 
+  # Also the link gate. `build-site.sh` ends with `pnpm check:links`, which walks
+  # every paper summary route and every method doc route against the tree it just
+  # built and exits non-zero if one has no page. It needs no step of its own — but
+  # it is the reason a red `site` job may be about a 404 rather than a build error.
   site:
     runs-on: ubuntu-latest
     steps:
