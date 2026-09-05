@@ -1,5 +1,6 @@
 import type { Initiative, Language } from '../schema/index.js'
 import Field from './Field.js'
+import PanelSection from './PanelSection.js'
 
 export default function LanguagePanel({
   language, initiatives, filtered,
@@ -24,8 +25,10 @@ export default function LanguagePanel({
   return (
     <aside className="card panel" aria-label={`Language: ${language.name}`}>
       <h2>{language.name}</h2>
-      <dl>
+      <PanelSection title="Identity">
         <Field label="Also known as" testId="field-aka">{language.also_known_as.join(', ')}</Field>
+      </PanelSection>
+      <PanelSection title="Situation">
         <Field label="Family" testId="field-family">{language.family}</Field>
         <Field label="Typology" testId="field-typology">{language.typology.join(', ')}</Field>
         <Field label="Endangerment" testId="field-endangerment">{language.endangerment?.status}</Field>
@@ -42,6 +45,8 @@ export default function LanguagePanel({
             </>
           )}
         </Field>
+      </PanelSection>
+      <PanelSection title="Place">
         {/* `not mapped` is a VALUE, not a null: we know this language has no
             cited centre — the same fact the table's Location column and the
             rail's "Not mapped" heading state. Routing it through `Field`'s
@@ -55,7 +60,8 @@ export default function LanguagePanel({
             </>
           )}
         </Field>
-        <Field label="Note" testId="field-caveat">{language.caveat}</Field>
+      </PanelSection>
+      <PanelSection title="Work">
         {/* Scoped to I1, not to the record — App passes the initiatives that
             survived every current filter. An empty list here is therefore a
             filter result, and routing it through `Field`'s null branch printed
@@ -75,7 +81,10 @@ export default function LanguagePanel({
             <ul>{initiatives.map((i) => <li key={i.id}>{i.name}</li>)}</ul>
           )}
         </Field>
-      </dl>
+      </PanelSection>
+      <PanelSection title="Note">
+        <Field label="Note" testId="field-caveat">{language.caveat}</Field>
+      </PanelSection>
     </aside>
   )
 }

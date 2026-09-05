@@ -585,6 +585,14 @@ a { color: var(--accent-ink); }
   font-size: 0.8125rem;
 }
 
+.panel__section { margin-top: 0.75rem; }
+.panel__section:first-of-type { margin-top: 0; }
+.panel__section-title {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-soft); margin: 0 0 0.25rem; border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.15rem;
+}
+
 /* ------------------------------------------------------------ maplibre ---- */
 /* The basemap is OpenFreeMap's Positron over OpenStreetMap data (ODbL); the
  * attribution is a licence condition, so it is left legible rather than tucked
