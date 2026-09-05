@@ -145,7 +145,7 @@ describe('the workless group states what it can', () => {
         workFiltered={true} languageFiltered={false} onSelect={vi.fn()} />,
     )
     const group = screen.getByTestId('group-no-matching-work').textContent ?? ''
-    expect(group).toMatch(/no language filter is narrowing this list/i)
+    expect(group).toMatch(/no language filter is narrowing/i)
     expect(group).not.toMatch(/match your language filters/i)
   })
 

@@ -94,7 +94,7 @@ export default function UnmappedList({
               {workFiltered
                 ? `${languageFiltered
                     ? 'These languages match your language filters.'
-                    : 'No language filter is narrowing this list.'} No initiative in the current selection works on them — which is a finding, not an empty result.`
+                    : 'These are every language in the atlas — no language filter is narrowing the list.'} No initiative in the current selection works on them — which is a finding, not an empty result.`
                 : 'No initiative anywhere in this atlas names these languages. That is the coverage gap this map exists to show, not a result of your filters.'}
             </p>
             <ul>

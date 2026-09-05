@@ -275,7 +275,7 @@ describe('fix round 2: every workFiltered-driven surface, both directions', () =
   it('rail group hint: credits no language filter when none is set', () => {
     at('/?application=asr')
     const group = screen.getByTestId('group-no-matching-work').textContent ?? ''
-    expect(group).toMatch(/no language filter is narrowing this list/i)
+    expect(group).toMatch(/no language filter is narrowing/i)
     expect(group).not.toMatch(/match your language filters/i)
   })
 
