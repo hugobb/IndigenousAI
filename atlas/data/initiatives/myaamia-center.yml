@@ -1,4 +1,7 @@
-# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+# Reviewed 2026-09-05: REJECTED. Excluded from the atlas by the maintainer.
+# `rejected` is a reviewed outcome, not a failure: the record is kept in the
+# repository with its sources intact and is simply not published. Reversing it
+# is a one-word edit to `status` below.
 id: myaamia-center
 name: Myaamia Center
 kind: organisation
@@ -55,4 +58,4 @@ caveat: >-
   `started: 2001` is the year leaders from the Miami Tribe of Oklahoma and Miami
   University created the Myaamia PROJECT. The Myaamia Center is its successor, and none
   of the Center's pages read on 2026-09-03 date the Project-to-Center transition.
-status: draft
+status: rejected

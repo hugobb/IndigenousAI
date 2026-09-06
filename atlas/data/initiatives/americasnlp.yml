@@ -1,4 +1,7 @@
-# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+# Reviewed 2026-09-05: REJECTED. Excluded from the atlas by the maintainer.
+# `rejected` is a reviewed outcome, not a failure: the record is kept in the
+# repository with its sources intact and is simply not published. Reversing it
+# is a one-word edit to `status` below.
 id: americasnlp
 name: "AmericasNLP — Workshop on NLP for Indigenous Languages of the Americas"
 kind: workshop
@@ -54,4 +57,4 @@ caveat: >-
   with a Language record in this atlas so far, linked because Choctaw work appears in the
   2026 proceedings. The site is an organiser's stated affiliation, not a venue: the
   workshop is co-located with a different conference each year.
-status: draft
+status: rejected
