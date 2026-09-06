@@ -11,9 +11,9 @@ const lang = (id: string, mapped: boolean): Language => ({
   region: 'north-america', countries: ['US'], caveat: null, status: 'verified',
   centre: mapped ? { lat: 1, lon: 2, source: { kind: 'url', ref: 'r', retrieved: '2026-01-01', quote: null }, confidence: 'sourced' } : null,
 } as Language)
-const map = (p: string, langs: string[]): PaperLanguage => ({
+const map = (p: string, langs: string[], note: string | null = null): PaperLanguage => ({
   paper: p, languages: langs,
-  source: { kind: 'paper', ref: 'r', retrieved: null, quote: 'q' }, note: null, status: 'verified',
+  source: { kind: 'paper', ref: 'r', retrieved: null, quote: 'q' }, note, status: 'verified',
 })
 
 const BUNDLE = {
@@ -24,10 +24,26 @@ const BUNDLE = {
 
 describe('papersForLanguage', () => {
   it('returns the papers that study that language', () => {
-    expect(papersForLanguage(BUNDLE, 'has-centre').map((p) => p.id)).toEqual(['drawn'])
+    expect(papersForLanguage(BUNDLE, 'has-centre').map((x) => x.paper.id)).toEqual(['drawn'])
   })
   it('returns nothing for a language nothing studies', () => {
     expect(papersForLanguage(BUNDLE, 'unstudied')).toEqual([])
+  })
+  /** The whole point of returning `{ paper, note }` instead of a bare `Paper`
+   *  (FIX 1 of the whole-branch review): a mapping's `note` is the curator's
+   *  hedge and the schema's own doc comment says it "travels into the
+   *  bundle" — dropping it here is how it stopped reaching `LanguagePanel`. */
+  it('carries the mapping’s note alongside its paper', () => {
+    const b = {
+      ...BUNDLE,
+      paperLanguages: [map('drawn', ['has-centre'], 'weaker than title-level evidence')],
+    }
+    expect(papersForLanguage(b, 'has-centre')).toEqual([
+      { paper: b.papers[0], note: 'weaker than title-level evidence' },
+    ])
+  })
+  it('reports no note when the mapping does not carry one', () => {
+    expect(papersForLanguage(BUNDLE, 'has-centre')).toEqual([{ paper: BUNDLE.papers[0], note: null }])
   })
 })
 

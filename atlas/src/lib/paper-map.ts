@@ -6,12 +6,25 @@ export interface PaperMapInput {
   paperLanguages: PaperLanguage[]
 }
 
-/** The papers that STUDY this language, per the curated mappings. */
-export function papersForLanguage(input: PaperMapInput, languageId: string): Paper[] {
-  const ids = new Set(
-    input.paperLanguages.filter((m) => m.languages.includes(languageId)).map((m) => m.paper),
-  )
-  return input.papers.filter((p) => ids.has(p.id))
+/** The papers that STUDY this language, per the curated mappings, paired with
+ *  the mapping's own `note` — the curator's hedge on how strong that evidence
+ *  is (spec D2, `PaperLanguageSchema.note`'s own doc comment: "the curator's
+ *  hedge and it travels into the bundle"). Returning the bare `Paper[]` this
+ *  used to return drops that hedge on the floor: `feng-et-al-2025-culfit`
+ *  carries a note saying Amharic is one of 23 evaluation languages, not the
+ *  paper's subject, and a reader of the bare list would see it listed
+ *  identically to a title-level match with no qualifier at all. */
+export function papersForLanguage(
+  input: PaperMapInput,
+  languageId: string,
+): { paper: Paper; note: string | null }[] {
+  const byId = new Map(input.papers.map((p) => [p.id, p]))
+  return input.paperLanguages
+    .filter((m) => m.languages.includes(languageId))
+    .flatMap((m) => {
+      const paper = byId.get(m.paper)
+      return paper === undefined ? [] : [{ paper, note: m.note }]
+    })
 }
 
 /** The two reasons a paper is not on the map, kept apart (spec D4).

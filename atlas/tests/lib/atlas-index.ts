@@ -35,15 +35,39 @@ export function atlasIndexBranch(html: string): AtlasIndexBranch {
  *  state instead keeps the assertion and loses the timing — and it is stronger
  *  in the direction that matters most: an app published while a record is still
  *  a draft is the review gate breached, and this is the only place that would
- *  say so about the tree that actually deploys. */
-export function expectedBranch(statuses: readonly string[]): AtlasIndexBranch {
-  if (statuses.some((s) => s === 'draft')) return 'holding'
-  // And the other end of the same question. `bundle.ts` refuses a set with no
-  // verified records (see `scripts/lib/empty-record-set.ts`), so `build:data`
-  // fails and build-site.sh serves the holding page. Asking only about drafts
-  // said 'app' for a fully-rejected set — the two definitions of "publishable"
-  // disagreeing, which is the shape this module was written to remove.
-  return statuses.some((s) => s === 'verified') ? 'app' : 'holding'
+ *  say so about the tree that actually deploys.
+ *
+ *  TWO ARGUMENTS, asking two DIFFERENT questions of two DIFFERENT inputs — this
+ *  is itself the fix for a re-review finding (SP3a Task 8, fix round 2). A
+ *  single merged `statuses` array answered both questions from the same list,
+ *  which was correct only as long as every gating record type also fed
+ *  `emptyRecordSetProblem`. Once paper-language mappings joined `gating`
+ *  (Task 4) without also joining `scripts/lib/empty-record-set.ts` — which
+ *  reads only `bundle.languages` and `bundle.initiatives`, never
+ *  `bundle.paperLanguages` — the two questions quietly started reading
+ *  different ground truth, and asking both from one array made this function
+ *  wrong again in the exact shape it was written to stop being wrong in: a
+ *  fully-rejected language/initiative set plus one verified mapping predicts
+ *  'app' from `gating` alone, while the real build serves 'holding' because
+ *  `bundle.ts` refuses a bundle with no verified languages or initiatives
+ *  regardless of what mappings survived. So:
+ *  - `gating` — EVERY record type `validate.ts` can fail a build over (today:
+ *    languages, initiatives, paper-language mappings). Any draft among these
+ *    blocks the build, full stop.
+ *  - `publishable` — only the record types `emptyRecordSetProblem` actually
+ *    checks (today: languages, initiatives). Whether ANY of these reached
+ *    `verified` is what decides whether the bundle carries a single pin.
+ *  A future gating record type that also feeds `emptyRecordSetProblem`
+ *  belongs in both arrays; one that gates the build without ever being able
+ *  to make the bundle non-empty (paper-language mappings today) belongs only
+ *  in `gating`. Collapsing them back into one array is the mistake this
+ *  comment exists to stop the next person from making. */
+export function expectedBranch(
+  gating: readonly string[],
+  publishable: readonly string[],
+): AtlasIndexBranch {
+  if (gating.some((s) => s === 'draft')) return 'holding'
+  return publishable.some((s) => s === 'verified') ? 'app' : 'holding'
 }
 
 /** Problems with the published `/atlas/` tree, as readable sentences. Empty is

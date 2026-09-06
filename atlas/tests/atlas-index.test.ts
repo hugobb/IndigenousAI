@@ -37,13 +37,13 @@ describe('atlasIndexBranch', () => {
  *  precisely why stating today's branch as a constant was the defect. */
 describe('expectedBranch', () => {
   it('calls for the holding page while any record is still a draft', () => {
-    expect(expectedBranch(['verified', 'verified', 'draft'])).toBe('holding')
-    expect(expectedBranch(['draft'])).toBe('holding')
+    expect(expectedBranch(['verified', 'verified', 'draft'], ['verified', 'verified'])).toBe('holding')
+    expect(expectedBranch(['draft'], [])).toBe('holding')
   })
 
   it('calls for the app once no record is a draft', () => {
-    expect(expectedBranch(['verified', 'verified'])).toBe('app')
-    expect(expectedBranch(['verified', 'rejected'])).toBe('app')
+    expect(expectedBranch(['verified', 'verified'], ['verified', 'verified'])).toBe('app')
+    expect(expectedBranch(['verified', 'rejected'], ['verified', 'rejected'])).toBe('app')
   })
 
   /** The other end of the same question, and the half the re-review found
@@ -52,8 +52,23 @@ describe('expectedBranch', () => {
    *  said 'app', because nothing here asked whether anything survived review.
    *  Two correct decisions, one wrong conclusion, again. */
   it('calls for the holding page when review left nothing to publish', () => {
-    expect(expectedBranch(['rejected', 'rejected'])).toBe('holding')
-    expect(expectedBranch([])).toBe('holding')
+    expect(expectedBranch(['rejected', 'rejected'], ['rejected', 'rejected'])).toBe('holding')
+    expect(expectedBranch([], [])).toBe('holding')
+  })
+
+  /** The SECOND re-review finding (fix round 2): `gating` and `publishable`
+   *  must be asked of the right inputs, not the same one twice. This is
+   *  exactly the composition shape `emptyRecordSetProblem` was written to
+   *  catch, one level down — every language and initiative rejected (so the
+   *  bundle would carry no pins at all), but one paper-language mapping
+   *  survived to `verified`. Feeding that mapping's status into BOTH
+   *  questions (as the old single-array `expectedBranch` necessarily did)
+   *  predicts 'app'; the real build serves 'holding' because
+   *  `emptyRecordSetProblem` never looks at `bundle.paperLanguages`. */
+  it('does not let a verified mapping mask an empty language/initiative set', () => {
+    const gating = ['rejected', 'rejected', 'verified'] // languages+initiatives rejected, one mapping verified
+    const publishable = ['rejected', 'rejected'] // emptyRecordSetProblem's own inputs: languages+initiatives only
+    expect(expectedBranch(gating, publishable)).toBe('holding')
   })
 })
 

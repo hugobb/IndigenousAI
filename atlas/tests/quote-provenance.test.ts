@@ -96,4 +96,18 @@ The approach would transfer to Mohawk at Six Nations.
     const summary = '## Core\n\nWe evaluate machine translation.\n\n### Results\n\nThe results are strong.'
     expect(quoteProvenance(summary, 'machine translation. The results are strong')).toBe('absent')
   })
+
+  /** The test above is already split by blank lines on both sides of
+   *  `### Results`, so it passes whether or not `HEADING_LINE` does anything
+   *  at all — the heading rule in `splitBlocks` was never the thing deciding
+   *  it. This fixture has NO blank line anywhere near the heading, so blank
+   *  lines alone would merge all three lines into one block and the spliced
+   *  quote below WOULD be found there; only the heading-line rule keeps them
+   *  apart. Mutation-checked: deleting the `HEADING_LINE.test(line)` branch
+   *  from `splitBlocks` turns this failing (RED); restoring it turns it
+   *  passing (GREEN) again. See the fix report for both runs. */
+  it('refuses a quote spliced across a heading with no surrounding blank line', () => {
+    const summary = 'We evaluate machine translation.\n### Results\nThe results are strong.'
+    expect(quoteProvenance(summary, 'machine translation.\n### Results\nThe results are strong.')).toBe('absent')
+  })
 })

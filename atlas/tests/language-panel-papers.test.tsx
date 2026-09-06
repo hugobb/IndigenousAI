@@ -20,7 +20,7 @@ const PAPER: Paper = {
 
 describe('the language panel’s Papers section', () => {
   it('links each paper to its published summary', () => {
-    render(<LanguagePanel language={LANG} initiatives={[]} filtered={false} papers={[PAPER]} />)
+    render(<LanguagePanel language={LANG} initiatives={[]} filtered={false} papers={[{ paper: PAPER, note: null }]} />)
     const link = screen.getByRole('link', { name: /A Paper About Testish/ })
     expect(link.getAttribute('href')).toBe('/summaries/a-paper/')
   })
@@ -32,5 +32,30 @@ describe('the language panel’s Papers section', () => {
     render(<LanguagePanel language={LANG} initiatives={[]} filtered={false} papers={[]} />)
     expect(screen.getByTestId('field-papers').textContent).toMatch(/no paper in this atlas/i)
     expect(screen.getByTestId('field-papers').textContent).not.toMatch(/not recorded/i)
+  })
+
+  /** FIX 1 of the whole-branch review: `papersForLanguage` used to return a
+   *  bare `Paper[]`, so a mapping's hedge (e.g.
+   *  `feng-et-al-2025-culfit`'s "Amharic is one of 23 evaluation languages,
+   *  not the paper's subject") never reached a reader — the panel listed it
+   *  identically to a title-level match. This pins that the note now renders
+   *  beside the entry it belongs to. */
+  it('renders a mapping’s note beside the paper it hedges', () => {
+    render(
+      <LanguagePanel
+        language={LANG}
+        initiatives={[]}
+        filtered={false}
+        papers={[{ paper: PAPER, note: 'One of 23 evaluation languages, not the paper’s subject.' }]}
+      />,
+    )
+    expect(screen.getByTestId('field-papers').textContent).toMatch(
+      /One of 23 evaluation languages, not the paper’s subject\./,
+    )
+  })
+
+  it('renders no hedge text when the mapping carries no note', () => {
+    render(<LanguagePanel language={LANG} initiatives={[]} filtered={false} papers={[{ paper: PAPER, note: null }]} />)
+    expect(screen.getByTestId('field-papers').querySelector('p.hint')).toBeNull()
   })
 })

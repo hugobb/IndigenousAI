@@ -7,7 +7,10 @@
 # `## Relevance to Indigenous AI`. That section is the REVIEWER writing about
 # applicability to this project: 86 of 92 summaries name Mohawk there and only
 # 6 in their own subject matter. A quote taken from it is refused by
-# validate.ts and by tests/paper-mappings.test.ts.
+# validate.ts and by tests/paper-mappings.test.ts — except for a
+# `status: rejected` entry, which both exclude from this check entirely: a
+# mapping withdrawn from the shipped set is withdrawn from every gate that
+# would otherwise apply to its quote.
 #
 # THE STUDIES RULE (not mechanically enforced — curator judgment): passing a
 # quote's LOCATION does not mean it is evidence the paper STUDIES the
@@ -29,11 +32,14 @@
 #
 # Candidates were found with the shell command in the task brief (11 papers
 # naming Mohawk/Kanien'kéha, Māori, or Amharic anywhere before the Relevance
-# heading). Of those 11, only 3 survive both rules. See task-3-report.md for
-# the full accept/reject table and reasoning, including a fix round that
-# caught two accepts held to a looser standard than the rejects.
+# heading). Of those 11, only 3 survive both rules; the other 8 are recorded
+# below at `status: rejected`, each with its own verbatim quote and the reason
+# it was refused. This file is now the only record of that reasoning — the
+# task report it used to live in is gitignored and will not ship with the
+# repository.
 #
-# Every entry is `status: draft` until the maintainer reviews it.
+# Every entry below is `status: draft` until the maintainer reviews it, except
+# the 8 already reviewed to `status: rejected`.
 
 - paper: kuhn-et-al-2020-nrc-canada
   languages: [kanienkeha]
@@ -43,6 +49,11 @@
     quote: >-
       A software framework for building verb conjugators for polysynthetic languages,
       instantiated for Kanyen'kéha (Mohawk).
+  note: >-
+    The NRC project this paper describes also built for Inuktut (the Nunavut Hansard
+    corpus) and SENĆOŦEN (decentralized predictive text) — this mapping names only
+    kanienkeha because the atlas has no language record for either of those two yet,
+    not because the paper's own work is limited to Mohawk.
   status: draft
 
 - paper: rai-and-pal-2025-amharic
@@ -70,3 +81,133 @@
     regions), which is more than a passing mention — but a reader should not read this
     as an Amharic-focused paper.
   status: draft
+
+# The 8 candidates below were considered and refused. Kept at
+# `status: rejected` (not deleted) so re-sourcing never re-proposes them
+# without a curator seeing why they were turned down the first time.
+
+- paper: arnett-and-bergen-2025-morphologically-complex
+  languages: [kanienkeha]
+  source:
+    kind: paper
+    ref: /summaries/arnett-and-bergen-2025-morphologically-complex/
+    quote: >-
+      Agglutinative languages (Turkish, Finnish, Mohawk) stack distinct morphemes,
+      producing many unique word forms.
+  note: >-
+    Mohawk is named only as one of three typological examples in a morphology
+    glossary. The paper's own Limitations section confirms it: no genuinely
+    polysynthetic language (like Mohawk) is included in its 22-language MorphScore
+    evaluation. The paper does not study Kanien'kéha. Rejected.
+  status: rejected
+
+- paper: haddow-et-al-2022-survey-low-ressource
+  languages: [kanienkeha]
+  source:
+    kind: paper
+    ref: /summaries/haddow-et-al-2022-survey-low-ressource/
+    quote: >-
+      Transfer from related languages is most effective when source and target
+      languages are typologically similar; this limits transfer to Mohawk, which has
+      few close linguistic relatives with NLP resources.
+  note: >-
+    This is the survey's general typological-transfer finding applied to Mohawk in
+    the summary's own words, not something the survey (a broad literature review of
+    low-resource MT methods) specifically investigates about Kanien'kéha. Too close to
+    relevance-shaped commentary to trust as evidence the paper studies Mohawk.
+    Rejected.
+  status: rejected
+
+- paper: le-and-sadat-2021-canada
+  languages: [kanienkeha]
+  source:
+    kind: paper
+    ref: /summaries/le-and-sadat-2021-canada/
+    quote: >-
+      The study confirms that Inuktitut, while still polysynthetic, has reached a
+      "medium-resource" level thanks to the Nunavut Hansard — a level Mohawk has not
+      reached.
+  note: >-
+    The paper's subject is Inuktitut/Inuinnaqtun machine translation; Mohawk appears
+    only once, as a comparative aside benchmarking Inuktitut's resource level against
+    it. Not a language the paper studies. Rejected.
+  status: rejected
+
+- paper: liu-et-al-2021-morphological-segmentation
+  languages: [kanienkeha]
+  source:
+    kind: paper
+    ref: /summaries/liu-et-al-2021-morphological-segmentation/
+    quote: >-
+      Seneca has both agglutinative features (morphemes combine without phonological
+      change) and fusional features (combining morphemes undergo phonological
+      changes). This is structurally parallel to Mohawk.
+  note: >-
+    The paper's subject is Seneca morphological segmentation; Mohawk appears only as
+    a same-family structural comparison, never as data the paper works with.
+    Rejected.
+  status: rejected
+
+- paper: pinhanez-et-al-2024-vitalize
+  languages: [kanienkeha]
+  source:
+    kind: paper
+    ref: /summaries/pinhanez-et-al-2024-vitalize/
+    quote: >-
+      The paper situates Mohawk (~3,900 speakers) in the 1,000–10,000 speaker range —
+      a group with enough written data for digital text tools to be feasible but with
+      clear signs of endangerment.
+  note: >-
+    The paper's fieldwork and results are entirely Nheengatu and Guarani Mbya
+    (Brazil); Mohawk is used once as an illustrative speaker-count-bracket example to
+    motivate the approach's target range, not a language the paper studies. Rejected.
+  status: rejected
+
+- paper: godwin-jones-2025-ai-pedagogical-tools
+  languages: [te-reo-maori]
+  source:
+    kind: paper
+    ref: /summaries/godwin-jones-2025-ai-pedagogical-tools/
+    quote: >-
+      The most effective Indigenous language programs (Hawaiian, Māori) use total
+      immersion — no English, no code-switching.
+  note: >-
+    Māori is named, paired with Hawaiian, only as an example of languages with
+    successful immersion programs inside a generic definition of "immersion
+    tension"; the paper's subject is a pedagogical framework for less-commonly-taught
+    languages in general, not Māori specifically. Rejected.
+  status: rejected
+
+- paper: meighan-2021-decolonizing
+  languages: [te-reo-maori]
+  source:
+    kind: paper
+    ref: /summaries/meighan-2021-decolonizing/
+    quote: >-
+      From the earliest Web 1.0 era, Indigenous communities pioneered ILR technology
+      use: Te Wahapu (Māori, 1990) and Leoki ("Powerful Voice," Hawaiian, 1993)
+      predate most mainstream digital language tools.
+  note: >-
+    Te Wahapu (Māori) is named alongside Leoki (Hawaiian) as a paired example inside
+    a general historical taxonomy of ILR technology stages, not as something the
+    paper investigates on its own terms — the same shape as the rejected
+    godwin-jones-2025-ai-pedagogical-tools. Rejected.
+  status: rejected
+
+- paper: pinhanez-and-wornyo-2025-co-development
+  languages: [te-reo-maori]
+  source:
+    kind: paper
+    ref: /summaries/pinhanez-and-wornyo-2025-co-development/
+    quote: >-
+      The Māori license "Kaitiakitanga" (Guardianship License, New Zealand) is
+      presented as a case study — a software license that restricts usage to
+      beneficial purposes as defined by the community, representing a decolonial
+      approach to IP.
+  note: >-
+    Same shape as the rejected pinhanez-et-al-2024-vitalize: a single passing mention
+    of a non-Brazilian language/artifact (the Kaitiakitanga license) in a
+    Brazil-grounded course; the paper's own Limitations section states its cases are
+    Brazil (FOIRN, Nheengatu) and New Zealand (Māori), confirming its actual
+    fieldwork is elsewhere, not that it studies Māori. Rejected.
+  status: rejected

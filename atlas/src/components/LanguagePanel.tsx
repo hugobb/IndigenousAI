@@ -21,11 +21,13 @@ export default function LanguagePanel({
    *  the `!languageInSelection` term only ever adds true for a language a
    *  facet has already excluded. */
   filtered: boolean
-  /** Papers that STUDY this language, per data/paper-languages.yml. Scoped to
-   *  the record, not to the current filters: unlike `initiatives` above, no
-   *  facet narrows papers today, so an empty list here is a fact about the
-   *  atlas rather than a filter result — and the copy says exactly that. */
-  papers: Paper[]
+  /** Papers that STUDY this language, per data/paper-languages.yml, each
+   *  paired with its mapping's `note` — the curator's hedge on how strong
+   *  that evidence is, when the mapping has one. Scoped to the record, not to
+   *  the current filters: unlike `initiatives` above, no facet narrows papers
+   *  today, so an empty list here is a fact about the atlas rather than a
+   *  filter result — and the copy says exactly that. */
+  papers: { paper: Paper; note: string | null }[]
 }): React.JSX.Element {
   const s = language.speakers
   return (
@@ -127,10 +129,18 @@ export default function LanguagePanel({
             </span>
           ) : (
             <ul>
-              {papers.map((p) => (
+              {papers.map(({ paper: p, note }) => (
                 <li key={p.id}>
                   <a href={p.summary_url}>{p.title}</a>{' '}
                   <span>({p.year})</span>
+                  {/* The curator's hedge on the mapping, e.g. "one of 23
+                      evaluation languages, not the paper's subject" — same
+                      `hint` treatment the empty-list case above and the Work
+                      section use for subordinate, non-claim text. Rendered
+                      only when the mapping actually carries one: most
+                      mappings have none, and an empty hedge would be a
+                      confusing blank line. */}
+                  {note !== null && <p className="hint">{note}</p>}
                 </li>
               ))}
             </ul>

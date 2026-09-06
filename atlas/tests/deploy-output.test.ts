@@ -96,17 +96,25 @@ describe('the deployed tree', () => {
     // THREE record types can each independently block `build:data` and put
     // the holding page up: languages, initiatives, and (since SP3a Task 4)
     // paper-language mappings. This canary is only as good as this list —
-    // when a fourth gating record type is added, it has to join this array
-    // too, or `expectedBranch` will keep predicting 'app' from the first two
-    // while the real build correctly serves 'holding' because of the third.
-    // That silent mismatch (Task 4's mappings going unnoticed here) is
-    // exactly what SP3a Task 8's fix round 1 found and fixed.
-    const statuses = [
-      ...loadLanguages(join(data, 'languages')),
-      ...loadInitiatives(join(data, 'initiatives')),
-      ...loadPaperLanguages(join(data, 'paper-languages.yml')),
-    ].map((r) => r.status)
-    expect(statuses.length, 'no records were read, so this would pass vacuously').toBeGreaterThan(0)
-    expect(atlasIndexBranch(html)).toBe(expectedBranch(statuses))
+    // when a fourth gating record type is added, it has to join `gating`
+    // below too, or `expectedBranch` will keep predicting 'app' from the
+    // first two while the real build correctly serves 'holding' because of
+    // the third. That silent mismatch (Task 4's mappings going unnoticed
+    // here) is exactly what SP3a Task 8's fix round 1 found and fixed.
+    const languageRecords = loadLanguages(join(data, 'languages'))
+    const initiativeRecords = loadInitiatives(join(data, 'initiatives'))
+    const mappingRecords = loadPaperLanguages(join(data, 'paper-languages.yml'))
+    // `gating` answers "is anything still draft?" — every record type
+    // `validate.ts` can fail a build over. `publishable` answers "did
+    // anything survive review to publish?" — only the record types
+    // `scripts/lib/empty-record-set.ts` actually reads (languages and
+    // initiatives; it never looks at paper-language mappings). Fix round 2
+    // (Task 8's re-review) found these had collapsed into one array, which
+    // is wrong for exactly the reason `emptyRecordSetProblem` exists: a
+    // mapping surviving to `verified` does not put a single pin on the map.
+    const gating = [...languageRecords, ...initiativeRecords, ...mappingRecords].map((r) => r.status)
+    const publishable = [...languageRecords, ...initiativeRecords].map((r) => r.status)
+    expect(gating.length, 'no records were read, so this would pass vacuously').toBeGreaterThan(0)
+    expect(atlasIndexBranch(html)).toBe(expectedBranch(gating, publishable))
   })
 })
