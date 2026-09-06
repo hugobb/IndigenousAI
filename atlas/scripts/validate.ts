@@ -25,8 +25,15 @@ export interface ValidateInput {
    *  directories: a draft blocks the build and an unresolvable id is refused. */
   paperLanguages: PaperLanguage[]
   /** Where each mapping's quote sits in its summary, computed by the CLI below
-   *  because `validate` stays pure and filesystem-free. Spec D2. */
-  paperLanguageQuotes: { paper: string; where: QuoteProvenance }[]
+   *  because `validate` stays pure and filesystem-free. Spec D2.
+   *
+   *  `where` adds `'summary-unreadable'` to `QuoteProvenance`'s four outcomes:
+   *  a failure that happens before `quoteProvenance` (which is pure and never
+   *  touches disk) can even run, when the CLI could not read the summary file
+   *  at all. `summaryPath` is carried alongside so that branch's message can
+   *  name the exact path the CLI looked for — otherwise a curator cannot tell
+   *  a wrong paper id from a summary that was simply never added. */
+  paperLanguageQuotes: { paper: string; where: QuoteProvenance | 'summary-unreadable'; summaryPath: string }[]
   /** The mapping file is absent or unreadable — the same failure class as a
    *  missing record directory: zero mappings loaded reads exactly like a file
    *  nobody has written. */
@@ -108,7 +115,16 @@ export function validate(input: ValidateInput): string[] {
 
   // Spec D2. Kept separate from the loop above because it is the rule most
   // likely to be quietly relaxed by someone who does not know why it exists.
-  for (const q of input.paperLanguageQuotes) {
+  //
+  // The tool's own closing line tells a curator that `status: rejected` is
+  // how to withdraw a mapping — including one whose quote is the problem.
+  // Every check below must honour that, or the escape hatch it recommends is
+  // false for whichever mapping happens to have a bad quote. `mappings`
+  // above is already the rejected-filtered set; a quote is only checked when
+  // it belongs to one of those, never to a mapping that was rejected (or to
+  // no mapping at all).
+  const mappingPaperIds = new Set(mappings.map((m) => m.paper))
+  for (const q of input.paperLanguageQuotes.filter((q) => mappingPaperIds.has(q.paper))) {
     if (q.where === 'relevance-only') {
       problems.push(
         `mapping ${q.paper}: the quote appears in the summary only at or after ` +
@@ -124,6 +140,12 @@ export function validate(input: ValidateInput): string[] {
       problems.push(
         `mapping ${q.paper}: its summary's relevance heading was not recognised (expected "## Relevance..."), ` +
           'so the mapping cannot be checked — fix the heading or drop the mapping',
+      )
+    }
+    if (q.where === 'summary-unreadable') {
+      problems.push(
+        `mapping ${q.paper}: could not read its summary at "${q.summaryPath}" — ` +
+          'check the mapping\'s paper id, or that the summary file actually exists',
       )
     }
   }
@@ -153,10 +175,21 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     missingDirs: dirs.filter((d) => recordDirStatus(d.path) !== 'ok').map((d) => d.label),
     strayFiles: dirs.flatMap((d) => findStrayFiles(d.path)),
     paperLanguages,
-    paperLanguageQuotes: paperLanguages.map((m) => ({
-      paper: m.paper,
-      where: quoteProvenance(readFileSync(join(SUMMARY_DIR, `${m.paper}.md`), 'utf8'), m.source.quote ?? ''),
-    })),
+    // Rejected mappings are skipped here too: nobody is going to publish one,
+    // so its summary is never read and it can never trip the unreadable-file
+    // path below on a mapping the maintainer already withdrew.
+    paperLanguageQuotes: paperLanguages
+      .filter((m) => m.status !== 'rejected')
+      .map((m) => {
+        const summaryPath = join(SUMMARY_DIR, `${m.paper}.md`)
+        try {
+          return { paper: m.paper, where: quoteProvenance(readFileSync(summaryPath, 'utf8'), m.source.quote ?? ''), summaryPath }
+        } catch {
+          // A missing/unreadable summary must become a listed problem, not an
+          // uncaught exception that kills the script before it can print one.
+          return { paper: m.paper, where: 'summary-unreadable' as const, summaryPath }
+        }
+      }),
     missingMappingFile: mappingStatus !== 'ok',
   })
   if (problems.length > 0) {

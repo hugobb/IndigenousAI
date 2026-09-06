@@ -177,13 +177,47 @@ describe('paper-language mappings', () => {
   })
 
   it('refuses a quote taken from the relevance section', () => {
-    expect(run({ paperLanguageQuotes: [{ paper: 'x-2025', where: 'relevance-only' }] }).join('\n'))
-      .toMatch(/relevance/i)
+    // A quote check is only meaningful attached to a real (non-rejected)
+    // mapping — the CLI always builds `paperLanguageQuotes` from `paperLanguages`
+    // this way, so an orphaned quote entry with no matching mapping is not a
+    // state the real build can produce.
+    expect(run({
+      paperLanguages: [mapping()],
+      paperLanguageQuotes: [{ paper: 'x-2025', where: 'relevance-only', summaryPath: 'unused' }],
+    }).join('\n')).toMatch(/relevance/i)
   })
 
   it('refuses a quote that is not in the summary at all', () => {
-    expect(run({ paperLanguageQuotes: [{ paper: 'x-2025', where: 'absent' }] }).join('\n'))
-      .toMatch(/does not appear/i)
+    expect(run({
+      paperLanguages: [mapping()],
+      paperLanguageQuotes: [{ paper: 'x-2025', where: 'absent', summaryPath: 'unused' }],
+    }).join('\n')).toMatch(/does not appear/i)
+  })
+
+  it('refuses a mapping whose summary file could not be read at all, naming the paper', () => {
+    // This happens before `quoteProvenance` (pure, no filesystem access) ever
+    // runs: the CLI could not read the summary file, so it reports
+    // 'summary-unreadable' instead of throwing and killing the build silently.
+    expect(run({
+      paperLanguages: [mapping()],
+      paperLanguageQuotes: [{ paper: 'x-2025', where: 'summary-unreadable', summaryPath: '/no/such/file.md' }],
+    }).join('\n')).toMatch(/x-2025/)
+  })
+
+  it('excludes a rejected mapping from the quote-provenance gate too', () => {
+    // Regression test for the hole where `status: rejected` — the escape
+    // hatch the tool's own closing message recommends — did not actually
+    // withdraw a mapping from the D2 quote check, so a curator rejecting a
+    // mapping specifically because its quote was bad still had the build
+    // blocked by that same quote.
+    expect(run({
+      paperLanguages: [mapping({ status: 'rejected' })],
+      paperLanguageQuotes: [{ paper: 'x-2025', where: 'relevance-only', summaryPath: 'unused' }],
+    })).toEqual([])
+  })
+
+  it('excludes a rejected mapping naming an unknown paper too, consistently with every other check', () => {
+    expect(run({ paperLanguages: [mapping({ status: 'rejected', paper: 'nope' })] })).toEqual([])
   })
 
   it('says so when the mapping file is absent, which is not the same as empty', () => {
@@ -191,9 +225,12 @@ describe('paper-language mappings', () => {
   })
 
   it('passes a clean mapping', () => {
+    // A sanity check, not primary coverage: this alone would also pass
+    // against a `validate` that checked nothing at all. The tests above are
+    // what actually prove the gate fires.
     expect(run({
       paperLanguages: [mapping()],
-      paperLanguageQuotes: [{ paper: 'x-2025', where: 'subject-matter' }],
+      paperLanguageQuotes: [{ paper: 'x-2025', where: 'subject-matter', summaryPath: 'unused' }],
     })).toEqual([])
   })
 })
