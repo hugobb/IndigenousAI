@@ -81,4 +81,26 @@ describe('chooseBundle', () => {
     const bad = { ...empty, languages: [{ id: 'nope' }] }
     expect(() => chooseBundle({ real: bad, fixture, isProduction: true })).toThrow()
   })
+
+  it('carries paper-language mappings through the bundle', () => {
+    const real = {
+      generated: 'now', languages: [], initiatives: [], methods: [], papers: [],
+      paperLanguages: [{
+        paper: 'p1', languages: ['l1'],
+        source: { kind: 'paper', ref: 'r', retrieved: null, quote: 'q' },
+        note: null, status: 'verified',
+      }],
+    }
+    const out = chooseBundle({ real, fixture: null, isProduction: false })
+    expect(out.paperLanguages).toHaveLength(1)
+    expect(out.paperLanguages[0]?.paper).toBe('p1')
+  })
+
+  /** An older bundle predates this field. Defaulting rather than failing keeps a
+   *  stale `src/data/atlas.json` from white-screening a developer who has not
+   *  re-run `pnpm build:data`. */
+  it('defaults paperLanguages to empty when a bundle predates the field', () => {
+    const real = { generated: 'now', languages: [], initiatives: [], methods: [], papers: [] }
+    expect(chooseBundle({ real, fixture: null, isProduction: false }).paperLanguages).toEqual([])
+  })
 })

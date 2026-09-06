@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import {
-  InitiativeSchema, LanguageSchema, MethodSchema, PaperSchema,
-  type Initiative, type Language, type Method, type Paper,
+  InitiativeSchema, LanguageSchema, MethodSchema, PaperLanguageSchema, PaperSchema,
+  type Initiative, type Language, type Method, type Paper, type PaperLanguage,
 } from '../schema/index.js'
 import fixtureModule from '../fixtures/atlas.fixture.json'
 
@@ -11,6 +11,7 @@ export interface AtlasBundle {
   initiatives: Initiative[]
   methods: Method[]
   papers: Paper[]
+  paperLanguages: PaperLanguage[]
   /** True when these records came from the committed development fixture rather
    *  than from a generated bundle. Derived from which object was actually
    *  returned — never from an environment variable — so the banner the UI shows
@@ -26,6 +27,7 @@ const BundleSchema = z.object({
   initiatives: z.array(InitiativeSchema),
   methods: z.array(MethodSchema),
   papers: z.array(PaperSchema),
+  paperLanguages: z.array(PaperLanguageSchema).default([]),
 })
 
 /** Pure. `real` is the generated bundle or null when it does not exist.

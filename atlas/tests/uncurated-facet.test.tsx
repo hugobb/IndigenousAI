@@ -49,7 +49,7 @@ const initiatives: Initiative[] = [
 
 const bundle: AtlasBundle = {
   generated: '2026-01-01T00:00:00.000Z',
-  languages, initiatives, methods: [], papers: [], isDemoData: true,
+  languages, initiatives, methods: [], papers: [], paperLanguages: [], isDemoData: true,
 }
 
 vi.mock('../src/lib/load.js', () => ({ loadBundle: () => bundle }))

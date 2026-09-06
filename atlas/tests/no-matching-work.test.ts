@@ -29,7 +29,7 @@ const init = (id: string, languages: string[], over: Partial<Initiative> = {}): 
 } as unknown as Initiative)
 
 const bundleOf = (languages: Language[], initiatives: Initiative[]): AtlasBundle =>
-  ({ generated: '2026-01-01', languages, initiatives, methods: [], papers: [], isDemoData: true })
+  ({ generated: '2026-01-01', languages, initiatives, methods: [], papers: [], paperLanguages: [], isDemoData: true })
 
 describe('noMatchingWork', () => {
   // The asymmetry this task exists to remove: the SAME language, with the same

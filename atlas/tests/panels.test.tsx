@@ -34,7 +34,7 @@ const init = (id: string) => initiatives.find((i: { id: string }) => i.id === id
 // above rather than from `loadBundle()`, so `bundle.initiatives[0]` and
 // `init('fixture-ongoing')` are the same object rather than two parses of it.
 const bundle: AtlasBundle = {
-  generated: raw.generated, languages, initiatives, methods, papers, isDemoData: true,
+  generated: raw.generated, languages, initiatives, methods, papers, paperLanguages: [], isDemoData: true,
 }
 
 afterEach(() => cleanup())

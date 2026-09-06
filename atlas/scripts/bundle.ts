@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { MethodSchema, PaperSchema } from '../src/schema/index.js'
 import { emptyRecordSetProblem } from './lib/empty-record-set.js'
 import { loadInitiatives, loadLanguages, recordDirStatus } from './lib/load-records.js'
+import { loadPaperLanguages, paperLanguagesFileStatus } from './lib/load-paper-languages.js'
 import { readDerived } from './lib/read-derived.js'
 
 const url = (p: string): string => fileURLToPath(new URL(p, import.meta.url))
@@ -17,6 +18,17 @@ for (const label of ['data/languages', 'data/initiatives']) {
       `record directory "${label}" is ${status} — nothing was loaded from it; refusing to bundle a partial dataset`,
     )
   }
+}
+
+// Same failure class as the record directories above, one level down: a
+// missing/unreadable mapping FILE yields zero mappings, indistinguishable from
+// "nobody has mapped a paper yet" unless we say so before loading it.
+const mappingsFile = 'data/paper-languages.yml'
+const mappingsStatus = paperLanguagesFileStatus(url(`../${mappingsFile}`))
+if (mappingsStatus !== 'ok') {
+  throw new Error(
+    `paper-languages file "${mappingsFile}" is ${mappingsStatus} — nothing was loaded from it; refusing to bundle a partial dataset`,
+  )
 }
 
 const bundle = {
@@ -38,6 +50,10 @@ const bundle = {
     regenerate: 'pnpm extract:papers',
     schema: z.array(PaperSchema),
   }),
+  // Only mappings that survived review, mirroring the language and initiative
+  // filters directly above: `rejected` and `draft` are both excluded, so the
+  // bundle carries exactly what a reader may see.
+  paperLanguages: loadPaperLanguages(url(`../${mappingsFile}`)).filter((m) => m.status === 'verified'),
 }
 
 // Read off the object that is about to be written, not off the record files a
@@ -49,5 +65,6 @@ mkdirSync(new URL('../src/data/', import.meta.url), { recursive: true })
 writeFileSync(url('../src/data/atlas.json'), `${JSON.stringify(bundle, null, 2)}\n`)
 console.log(
   `bundle: ${bundle.languages.length} languages, ${bundle.initiatives.length} initiatives, ` +
-    `${bundle.methods.length} methods, ${bundle.papers.length} papers -> src/data/atlas.json`,
+    `${bundle.methods.length} methods, ${bundle.papers.length} papers, ` +
+    `${bundle.paperLanguages.length} mappings -> src/data/atlas.json`,
 )

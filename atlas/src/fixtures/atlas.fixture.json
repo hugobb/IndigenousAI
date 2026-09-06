@@ -112,5 +112,6 @@
     { "id": "fixture-paper", "title": "A Fixture Paper", "authors": "Fixture et al.", "year": 2025,
       "venue": "Fixture Proceedings", "themes": ["evaluation"],
       "summary_url": "/summaries/fixture-paper/" }
-  ]
+  ],
+  "paperLanguages": []
 }
