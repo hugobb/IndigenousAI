@@ -1,4 +1,4 @@
-# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+# Reviewed 2026-09-05; see data/REVIEW-QUEUE.md for what was and was not sourced.
 id: myaamia
 name: Myaamia
 also_known_as: [Miami, Miami-Illinois, myaamiataweenki, Peewaalia]
@@ -12,9 +12,12 @@ endangerment: null
 speakers: null
 region: north-america
 countries: [US]
-# NOTE for the reviewer: Glottolog's point for miam1252 is the round pair
-# (40.0, -90.0). That is a coarse placeholder-looking centroid, not a
-# researched location. Keep it, replace it, or null it — but decide knowingly.
+# Reviewed 2026-09-05: KEPT knowingly. Glottolog's point for miam1252 is the
+# round pair (40.0, -90.0) — a coarse placeholder-looking centroid, not a
+# researched location. It was kept because it falls inside the historical
+# Miami-Illinois range: it is vague rather than wrong, which is precisely what
+# `confidence: approximate` states. Contrast kanienkeha, whose Glottolog point
+# names no living community and was nulled for that reason.
 centre:
   lat: 40.0
   lon: -90.0
@@ -31,4 +34,4 @@ caveat: >-
   The centre is Glottolog's point for miam1252, the round pair (40.0, -90.0). That is a
   coarse placeholder-looking centroid, not a researched location, and it must not be read
   as a cited coordinate. A reviewer should keep it, replace it, or null it — knowingly.
-status: draft
+status: verified

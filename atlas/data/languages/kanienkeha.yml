@@ -1,4 +1,4 @@
-# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+# Reviewed 2026-09-05; see data/REVIEW-QUEUE.md for what was and was not sourced.
 id: kanienkeha
 name: "Kanien'kéha"
 also_known_as: [Mohawk, "Kanyen'kéha", Kanien'kehá:ka]
@@ -13,13 +13,20 @@ speakers: null
 region: north-america
 # Glottolog states "Countries: Canada and United States" for moha1258.
 countries: [CA, US]
-centre:
-  lat: 43.72
-  lon: -74.66836
-  source:
-    kind: url
-    ref: https://glottolog.org/resource/languoid/id/moha1258
-    retrieved: "2026-09-03"
-    quote: "Mohawk moha1258 moh latitude 43.72 longitude -74.66836 (Glottolog, CC-BY-4.0)"
-  confidence: sourced
-status: draft
+# Deliberately NOT mapped, decided at review 2026-09-05. Glottolog gives
+# (43.72, -74.66836) for moha1258, which sits in the central Adirondacks in New
+# York State — north of the historical Mohawk Valley and near no living
+# Kanien'kéha community. The language is spoken at Kahnawà:ke, Kanehsatà:ke,
+# Akwesasne, Tyendinaga and Six Nations; one point stands honestly for none of
+# them. Six Nations still appears on the map through the onkwawenna-kentyohkwa
+# site pin, so nulling this loses no coverage.
+centre: null
+# js-yaml drops comments, so the hedge is repeated as a field. This is the copy
+# that reaches the bundle and the reader; a hedge that does not travel is not a
+# hedge.
+caveat: >-
+  Deliberately not mapped. Glottolog gives (43.72, -74.66836) for moha1258, which sits in
+  the central Adirondacks in New York State, near no living Kanien'kéha community. The
+  language is spoken at Kahnawà:ke, Kanehsatà:ke, Akwesasne, Tyendinaga and Six Nations,
+  and no single point stands honestly for all of them.
+status: verified

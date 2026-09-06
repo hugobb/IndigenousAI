@@ -1,4 +1,4 @@
-# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+# Reviewed 2026-09-05; see data/REVIEW-QUEUE.md for what was and was not sourced.
 id: choctaw
 name: Choctaw
 also_known_as: [Chahta, Chahta Anumpa]
@@ -11,23 +11,30 @@ typology: []
 endangerment: null
 # Sources disagree by more than an order of magnitude and the schema keeps
 # that disagreement rather than resolving it (spec §10). The two figures are
-# not counting the same thing: one is census self-report of native speakers,
-# the other is the Choctaw Nation's own count of FLUENT speakers after COVID-19.
+# not counting the same thing: the headline is the Choctaw Nation's own count of
+# FLUENT speakers after COVID-19; the conflict is a census self-report of NATIVE
+# speakers.
+#
+# Reviewed 2026-09-05: the two were SWAPPED. The 9,600 figure had been the
+# headline on a Wikipedia infobox — a tertiary source, and the weakest citation
+# in the record set — while the better-attested figure, stated by the Choctaw
+# Nation's own language program director, sat in the subordinate slot. The
+# census figure is kept, with its provenance visible, rather than discarded.
 speakers:
-  value: 9600
-  as_of: 2015
+  value: 300
+  as_of: 2025
   source:
     kind: url
-    ref: https://en.wikipedia.org/wiki/Choctaw_language
+    ref: https://www.kgou.org/indigenous-news/2025-12-18/choctaw-nation-partners-with-rosetta-stone-to-revitalize-language-promote-accessibility
     retrieved: "2026-09-03"
-    quote: "Native speakers: 9,600 (2015 census)"
+    quote: "Williston estimated that it took the lives of about 75 elders, leaving about 300 fluent language speakers"
   conflicts:
-    - value: 300
+    - value: 9600
       source:
         kind: url
-        ref: https://www.kgou.org/indigenous-news/2025-12-18/choctaw-nation-partners-with-rosetta-stone-to-revitalize-language-promote-accessibility
+        ref: https://en.wikipedia.org/wiki/Choctaw_language
         retrieved: "2026-09-03"
-        quote: "Williston estimated that it took the lives of about 75 elders, leaving about 300 fluent language speakers"
+        quote: "Native speakers: 9,600 (2015 census)"
 region: north-america
 countries: [US]
 # Deliberately NOT mapped. Glottolog gives (32.25, -88.5) for choc1276, which
@@ -41,6 +48,9 @@ caveat: >-
   Deliberately not mapped. Glottolog gives (32.25, -88.5) for choc1276, which sits in
   Mississippi and would misplace the Choctaw Nation of Oklahoma; a reviewer decides
   whether one point can honestly stand for this language. The two speaker figures are
-  also not counting the same thing — a 2015 census self-report of native speakers, and
-  the Choctaw Nation's own post-COVID-19 count of FLUENT speakers.
-status: draft
+  also not counting the same thing. The headline figure counts FLUENT speakers — the
+  Choctaw Nation's own post-COVID-19 count, stated by its language program director — and
+  is therefore a narrower measure than the 9,600 shown beside it, which is a 2015 census
+  self-report of NATIVE speakers cited to a Wikipedia infobox. Neither number should be
+  read as the size of the Choctaw people.
+status: verified

@@ -1,4 +1,4 @@
-# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+# Reviewed 2026-09-05; see data/REVIEW-QUEUE.md for what was and was not sourced.
 # tier: adjacent. Per spec D5 an adjacent-tier language carries NO centre:
 # soft fields are an Indigenous-tier feature and the schema enforces it.
 id: amharic
@@ -15,4 +15,4 @@ speakers: null
 region: africa
 countries: [ET]
 centre: null
-status: draft
+status: verified
