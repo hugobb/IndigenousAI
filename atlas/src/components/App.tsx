@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { loadBundle } from '../lib/load.js'
 import { applyFilters, emptyState, facetSummaries, yearRange } from '../lib/filters.js'
-import { papersForLanguage } from '../lib/paper-map.js'
+import { papersForLanguage, unmappedPapers } from '../lib/paper-map.js'
 import { snapshotDate } from '../lib/snapshot.js'
 import { useFilters } from '../state/useFilters.js'
 import { initiativeSites, languageFields } from '../map/layers.js'
@@ -22,6 +22,16 @@ export default function App(): React.JSX.Element {
   const selection = useMemo(() => applyFilters(bundle, state), [bundle, state])
   const summaries = useMemo(() => facetSummaries(bundle, state), [bundle, state])
   const years = useMemo(() => yearRange(bundle), [bundle])
+
+  // Computed once here, not per-render inside UnmappedList: both groups are
+  // properties of the WHOLE atlas, not of the current filter selection.
+  const unmapped = useMemo(
+    () =>
+      unmappedPapers({
+        papers: bundle.papers, languages: bundle.languages, paperLanguages: bundle.paperLanguages,
+      }),
+    [bundle],
+  )
 
   // Looked up in the BUNDLE, not the selection: a record the filters exclude
   // still exists, and the page has to be able to say so.
@@ -130,6 +140,8 @@ export default function App(): React.JSX.Element {
           workFiltered={selection.workFiltered}
           languageFiltered={selection.languageFiltered}
           onSelect={(id) => dispatch({ type: 'selectLanguage', id })}
+          noLanguagePapers={unmapped.noLanguage}
+          languageNotMappedPapers={unmapped.languageNotMapped}
         />
         {outside !== null && (
           <OutsideFiltersNotice

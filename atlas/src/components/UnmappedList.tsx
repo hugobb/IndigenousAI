@@ -1,4 +1,4 @@
-import type { Language } from '../schema/index.js'
+import type { Language, Paper } from '../schema/index.js'
 import { unmappedLanguages } from '../map/layers.js'
 
 /** TWO cards, not one, and that is the whole point of this component's shape.
@@ -23,6 +23,7 @@ import { unmappedLanguages } from '../map/layers.js'
  *  rendering bug, which is what `?region=arctic` used to show. */
 export default function UnmappedList({
   languages, noMatchingWork, workFiltered, languageFiltered, onSelect,
+  noLanguagePapers, languageNotMappedPapers,
 }: {
   languages: Language[]
   /** A subset of `languages`, so a language may legitimately appear here AND
@@ -35,6 +36,13 @@ export default function UnmappedList({
    *  exists, so the sentence credited a filter the reader never set. */
   languageFiltered: boolean
   onSelect: (id: string) => void
+  /** Papers that study no specific language at all — a property of the
+   *  literature (surveys, methods, process work), not a sourcing gap. */
+  noLanguagePapers: Paper[]
+  /** Papers mapped to a language, but every language they map to has no
+   *  `centre`, so the map draws nothing for them. Distinct from
+   *  `noLanguagePapers`: the atlas DOES know what these study. */
+  languageNotMappedPapers: { paper: Paper; languages: Language[] }[]
 }): React.JSX.Element {
   const { notMapped, approximate } = unmappedLanguages(languages)
   const n = noMatchingWork.length
@@ -132,6 +140,58 @@ export default function UnmappedList({
               ))}
             </ul>
           </div>
+        </section>
+      )}
+      {(noLanguagePapers.length > 0 || languageNotMappedPapers.length > 0) && (
+        <section className="card rail-list" aria-label="Papers the map cannot show">
+          <p className="section-label">Papers the map cannot show</p>
+          {noLanguagePapers.length > 0 && (
+            <div data-testid="group-papers-no-language">
+              <h3>Study no specific language ({noLanguagePapers.length})</h3>
+              {/* A property of the literature, not a sourcing gap: surveys,
+                  tokenizer methods and process papers study no one language.
+                  Measured on this corpus: 59 of 92. */}
+              <p className="hint">
+                These study the field rather than a language — surveys, methods, process work. They are
+                not missing a mapping.
+              </p>
+              <ul>
+                {noLanguagePapers.map((p) => (
+                  <li key={p.id}><a href={p.summary_url}>{p.title}</a> <span>({p.year})</span></li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {languageNotMappedPapers.length > 0 && (
+            <div data-testid="group-papers-language-not-mapped">
+              <h3>Placed, but their language is not mapped ({languageNotMappedPapers.length})</h3>
+              {/* Spec D3: a paper inherits its language's centre, so a language
+                  with `centre: null` leaves its papers undrawn. The atlas DOES
+                  know what these papers study — saying only "not mapped" would
+                  claim less than we know. */}
+              <p className="hint">
+                We know which language each of these studies. That language has no cited centre, so the
+                map cannot draw it.
+              </p>
+              <ul>
+                {languageNotMappedPapers.map(({ paper, languages }) => (
+                  <li key={paper.id}>
+                    <a href={paper.summary_url}>{paper.title}</a>{' '}
+                    {/* Task 6's review: an entry can in principle carry an empty
+                        `languages` array (a mapping named an id absent from the
+                        bundle — unreachable today since `validate.ts` refuses an
+                        unknown id at build time, but the render must not silently
+                        claim a language it does not have). `join(', ')` on an
+                        empty array prints '', which would state the reason for
+                        this card while naming nothing — the same "headed with
+                        nothing under it" defect the card-level guard above
+                        exists to catch, one level down. */}
+                    <span>{languages.length > 0 ? languages.map((l) => l.name).join(', ') : 'language unknown'}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
       )}
     </>

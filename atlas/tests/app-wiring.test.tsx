@@ -181,9 +181,14 @@ describe('the rail under a filter that finds no work', () => {
   // Seam review (Task 8). Task 1 made `languages` L1, so `?region=arctic`
   // empties it and BOTH mapping groups with it — leaving the rail rendering
   // the card's heading over nothing. The card itself must not render.
+  //
+  // The regex is scoped to "Languages ... cannot show" rather than the bare
+  // "map cannot show": SP3a Task 8 added a second, unrelated card ("Papers the
+  // map cannot show") built from the whole bundle, not from `selection`, so it
+  // is unaffected by this region filter and legitimately still renders here.
   it('renders no rail card at all when nothing matched', () => {
     at('/?region=arctic')
-    expect(screen.queryByLabelText(/map cannot show/i)).toBeNull()
+    expect(screen.queryByLabelText(/languages.*cannot show/i)).toBeNull()
     expect(screen.queryByLabelText(/no matching work/i)).toBeNull()
   })
 
