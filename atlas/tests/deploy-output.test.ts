@@ -5,6 +5,7 @@ import { join, relative, resolve } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 import { atlasIndexBranch, atlasIndexProblems, expectedBranch } from './lib/atlas-index.js'
 import { loadInitiatives, loadLanguages } from '../scripts/lib/load-records.js'
+import { loadPaperLanguages } from '../scripts/lib/load-paper-languages.js'
 
 /** Excluded from `pnpm test` in vitest.config.ts and run only by `pnpm test:site`:
  *  it shells out to scripts/build-site.sh, which runs `pip install` and
@@ -92,9 +93,18 @@ describe('the deployed tree', () => {
   it('serves the branch the record review state calls for', () => {
     const html = readFileSync(join(out, 'atlas/index.html'), 'utf8')
     const data = join(REPO, 'atlas/data')
+    // THREE record types can each independently block `build:data` and put
+    // the holding page up: languages, initiatives, and (since SP3a Task 4)
+    // paper-language mappings. This canary is only as good as this list —
+    // when a fourth gating record type is added, it has to join this array
+    // too, or `expectedBranch` will keep predicting 'app' from the first two
+    // while the real build correctly serves 'holding' because of the third.
+    // That silent mismatch (Task 4's mappings going unnoticed here) is
+    // exactly what SP3a Task 8's fix round 1 found and fixed.
     const statuses = [
       ...loadLanguages(join(data, 'languages')),
       ...loadInitiatives(join(data, 'initiatives')),
+      ...loadPaperLanguages(join(data, 'paper-languages.yml')),
     ].map((r) => r.status)
     expect(statuses.length, 'no records were read, so this would pass vacuously').toBeGreaterThan(0)
     expect(atlasIndexBranch(html)).toBe(expectedBranch(statuses))
