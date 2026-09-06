@@ -55,4 +55,45 @@ describe('quoteProvenance', () => {
   it('treats a summary with no relevance section as entirely subject matter', () => {
     expect(quoteProvenance('# T\n\nwe study Cree', 'we study Cree')).toBe('subject-matter')
   })
+
+  /** Fix-round-1, finding 1: `RELEVANCE_HEADING` only matches the exact
+   *  `## Relevance` shape. Before this fix, a `###`-level (or otherwise
+   *  spelled) relevance heading made `exec` return null, so the WHOLE
+   *  summary — reviewer commentary included — was silently promoted to
+   *  subject matter. That is the corpus-wide mispin this function exists to
+   *  prevent, and it must fail loudly (as this new variant), not silently. */
+  it('treats an unrecognised relevance heading as dangerous, not subject matter', () => {
+    const summaryWithWrongHeadingLevel = `# A Paper About Nahuatl
+
+## Core Argument
+
+We evaluate machine translation for Nahuatl.
+
+### Relevance to Indigenous AI
+
+The approach would transfer to Mohawk at Six Nations.
+`
+    expect(quoteProvenance(summaryWithWrongHeadingLevel, 'machine translation for Nahuatl')).toBe(
+      'unrecognised-relevance-heading',
+    )
+    expect(quoteProvenance(summaryWithWrongHeadingLevel, 'transfer to Mohawk at Six Nations')).toBe(
+      'unrecognised-relevance-heading',
+    )
+  })
+
+  /** Fix-round-1, finding 2: flattening the ENTIRE head into one string let a
+   *  quote spliced from the tail of one paragraph and the head of the next
+   *  read as one contiguous substring, and be accepted as subject-matter
+   *  even though the paper never wrote that phrase as a run of text. */
+  it('refuses a quote spliced across a paragraph boundary', () => {
+    const summary = '## Core\n\nWe evaluate machine translation.\n\nThe results are strong.'
+    expect(quoteProvenance(summary, 'translation. The results')).toBe('absent')
+  })
+
+  /** Same defect, but the splice crosses a sub-heading rather than a blank
+   *  line — a heading must be its own block too, not glue between blocks. */
+  it('refuses a quote spliced across a heading boundary', () => {
+    const summary = '## Core\n\nWe evaluate machine translation.\n\n### Results\n\nThe results are strong.'
+    expect(quoteProvenance(summary, 'machine translation. The results are strong')).toBe('absent')
+  })
 })
