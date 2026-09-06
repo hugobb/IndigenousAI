@@ -1,4 +1,7 @@
-# Reviewed by: nobody yet. status: draft — the build gate blocks on this.
+# Reviewed 2026-09-05: REJECTED. The maintainer's decision is that the atlas
+# does not map initiatives at all; papers are the entity of interest. The record
+# is kept with its sources intact and simply is not published. Reversing it is a
+# one-word edit to `status` below.
 id: te-hiku-media
 name: Te Hiku Media
 kind: organisation
@@ -56,4 +59,4 @@ caveat: >-
   the ASR/TTS work at all. It was the weakest claim in this record, so `started` is null
   rather than inferred. A reviewer should set the year Kōrero Māori / Papa Reo began, or
   confirm 1991 against a source that states it.
-status: draft
+status: rejected
