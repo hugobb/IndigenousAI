@@ -1,0 +1,73 @@
+# Which language each paper STUDIES. Hand-curated; the one place this link can
+# live, since data/derived/papers.json is generator output and
+# litterature_review/OVERVIEW.md is never edited.
+#
+# THE RULE (spec D2): the quote must come from the paper's own subject matter —
+# its title, header block, or a section BEFORE `## Relevance to Indigenous AI`.
+# That section is the REVIEWER writing about applicability to this project: 86
+# of 92 summaries name Mohawk there and only 6 in their own subject matter.
+# A quote taken from it is refused by validate.ts and by
+# tests/paper-mappings.test.ts. Ambiguity means OMIT the paper, never guess.
+#
+# Candidates were found with the shell command in the task brief (11 papers
+# naming Mohawk/Kanien'kéha, Māori, or Amharic anywhere before the Relevance
+# heading). Of those 11, only 5 survive: the other 6 name the language only as
+# a passing typological/comparative example (an entry in a list of example
+# languages, a speaker-count bracket illustration, a family-relatedness aside)
+# rather than as something the paper itself studies. See task-3-report.md for
+# the full accept/reject table and reasoning.
+#
+# Every entry is `status: draft` until the maintainer reviews it.
+
+- paper: kuhn-et-al-2020-nrc-canada
+  languages: [kanienkeha]
+  source:
+    kind: paper
+    ref: /summaries/kuhn-et-al-2020-nrc-canada/
+    quote: >-
+      A software framework for building verb conjugators for polysynthetic languages,
+      instantiated for Kanyen'kéha (Mohawk).
+  status: draft
+
+- paper: rai-and-pal-2025-amharic
+  languages: [amharic]
+  source:
+    kind: paper
+    ref: /summaries/rai-and-pal-2025-amharic/
+    quote: >-
+      A Transformer-Based Framework for Domain-Sensitive Amharic to English Machine
+      Translation with Character-Aware Subword Encoding
+  status: draft
+
+- paper: feng-et-al-2025-culfit
+  languages: [amharic]
+  source:
+    kind: paper
+    ref: /summaries/feng-et-al-2025-culfit/
+    quote: >-
+      Low-resource language regions (Sundanese in West Java, Amharic in Ethiopia) show
+      the largest gains, validating the approach for truly under-represented cultures.
+  status: draft
+
+- paper: meighan-2021-decolonizing
+  languages: [te-reo-maori]
+  source:
+    kind: paper
+    ref: /summaries/meighan-2021-decolonizing/
+    quote: >-
+      From the earliest Web 1.0 era, Indigenous communities pioneered ILR technology
+      use: Te Wahapu (Māori, 1990) and Leoki ("Powerful Voice," Hawaiian, 1993) predate
+      most mainstream digital language tools.
+  status: draft
+
+- paper: pinhanez-and-wornyo-2025-co-development
+  languages: [te-reo-maori]
+  source:
+    kind: paper
+    ref: /summaries/pinhanez-and-wornyo-2025-co-development/
+    quote: >-
+      The Māori license "Kaitiakitanga" (Guardianship License, New Zealand) is
+      presented as a case study — a software license that restricts usage to
+      beneficial purposes as defined by the community, representing a decolonial
+      approach to IP.
+  status: draft
