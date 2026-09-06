@@ -37,7 +37,13 @@ export function atlasIndexBranch(html: string): AtlasIndexBranch {
  *  a draft is the review gate breached, and this is the only place that would
  *  say so about the tree that actually deploys. */
 export function expectedBranch(statuses: readonly string[]): AtlasIndexBranch {
-  return statuses.some((s) => s === 'draft') ? 'holding' : 'app'
+  if (statuses.some((s) => s === 'draft')) return 'holding'
+  // And the other end of the same question. `bundle.ts` refuses a set with no
+  // verified records (see `scripts/lib/empty-record-set.ts`), so `build:data`
+  // fails and build-site.sh serves the holding page. Asking only about drafts
+  // said 'app' for a fully-rejected set — the two definitions of "publishable"
+  // disagreeing, which is the shape this module was written to remove.
+  return statuses.some((s) => s === 'verified') ? 'app' : 'holding'
 }
 
 /** Problems with the published `/atlas/` tree, as readable sentences. Empty is

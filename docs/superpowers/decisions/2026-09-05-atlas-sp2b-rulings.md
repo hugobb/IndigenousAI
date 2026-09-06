@@ -226,6 +226,44 @@ CI gate to enforce. The coordinator ruled a narrow exception for that one line.
 repository is unpushed and its visibility unknown, so that would replace one
 unverified destination with another.
 
+### R22 (scoped re-review, 2026-09-05) — two definitions of "publishable" disagreed
+
+The re-review that R17-R21 were never checked by. Every new guard held under
+mutation, and it found one hole that the fixes themselves had widened.
+
+`expectedBranch` asked *is any record a draft?*; `bundle.ts` filtered on
+`status === 'verified'`. Those disagree on `rejected`. With every record
+rejected, `validate.ts` passes (rejected is an outcome of review, not an error),
+`bundle.ts` writes two empty arrays, and an atlas with no pins publishes as the
+real app with the suite green. `recordDirStatus` does not see it — every file is
+present and readable.
+
+It was already noted as a residual, too kindly. The assertion R18 replaced,
+`expect(branch).toBe('holding')`, would have caught this; removing its bad
+timing removed the only thing standing in front of the path. A fix and its own
+regression in one commit, one layer down — the same shape R18 records.
+
+**Decided:** close it on both sides, because a guard on one side alone
+recreates the disagreement. `scripts/lib/empty-record-set.ts` refuses to write a
+bundle with no verified records, reading the object about to be written rather
+than the record files a second time; `expectedBranch` gains the matching arm, so
+the branch it predicts is the branch `build-site.sh` actually takes.
+
+Deliberately narrow: it refuses the EMPTY set, not a lopsided one. Verified
+languages with every initiative rejected is a thin atlas, not a broken one, and
+a curator working the review queue can legitimately be there.
+
+The guard's first message named `rejected` as the cause. That would have been
+false the day it shipped — all ten records are `draft` — so it now states only
+what the bundle shows and points at `pnpm validate` for which.
+
+*Verified by consumption, not existence:* with the production filter mutated so
+nothing matches, the real `pnpm bundle` exits non-zero with that message and
+writes no `atlas.json`.
+
+*Cost if wrong:* one pure module and four tests; the refusal is reachable only
+from a state no curator has asked for.
+
 ---
 
 ## Still published, and still the user's call

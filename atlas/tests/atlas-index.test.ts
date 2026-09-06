@@ -45,6 +45,16 @@ describe('expectedBranch', () => {
     expect(expectedBranch(['verified', 'verified'])).toBe('app')
     expect(expectedBranch(['verified', 'rejected'])).toBe('app')
   })
+
+  /** The other end of the same question, and the half the re-review found
+   *  missing. `bundle.ts` refuses a set with no verified records at all, so
+   *  `build:data` fails and build-site.sh serves the holding page — while this
+   *  said 'app', because nothing here asked whether anything survived review.
+   *  Two correct decisions, one wrong conclusion, again. */
+  it('calls for the holding page when review left nothing to publish', () => {
+    expect(expectedBranch(['rejected', 'rejected'])).toBe('holding')
+    expect(expectedBranch([])).toBe('holding')
+  })
 })
 
 describe('the holding branch', () => {

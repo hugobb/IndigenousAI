@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { z } from 'zod'
 import { MethodSchema, PaperSchema } from '../src/schema/index.js'
+import { emptyRecordSetProblem } from './lib/empty-record-set.js'
 import { loadInitiatives, loadLanguages, recordDirStatus } from './lib/load-records.js'
 import { readDerived } from './lib/read-derived.js'
 
@@ -38,6 +39,11 @@ const bundle = {
     schema: z.array(PaperSchema),
   }),
 }
+
+// Read off the object that is about to be written, not off the record files a
+// second time: the guard and the artifact cannot disagree.
+const problem = emptyRecordSetProblem(bundle)
+if (problem !== null) throw new Error(problem)
 
 mkdirSync(new URL('../src/data/', import.meta.url), { recursive: true })
 writeFileSync(url('../src/data/atlas.json'), `${JSON.stringify(bundle, null, 2)}\n`)
