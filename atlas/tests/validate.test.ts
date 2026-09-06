@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { findStrayFiles, recordDirStatus } from '../scripts/lib/load-records.js'
 import { validate } from '../scripts/validate.js'
-import type { Initiative, Language } from '../src/schema/index.js'
+import type { Initiative, Language, PaperLanguage } from '../src/schema/index.js'
 
 const src = { kind: 'url' as const, ref: 'https://example.test', retrieved: '2026-09-03', quote: null }
 
@@ -28,6 +28,9 @@ const base = {
   paperIds: new Set(['x-2025']),
   missingDirs: [],
   strayFiles: [],
+  paperLanguages: [],
+  paperLanguageQuotes: [],
+  missingMappingFile: false,
 }
 
 describe('validate', () => {
@@ -143,5 +146,54 @@ describe('validate', () => {
 
     expect(recordDirStatus(join(parent, 'renamed-by-accident'))).toBe('missing')
     rmSync(parent, { recursive: true, force: true })
+  })
+})
+
+/** A mapping is a record like any other: draft blocks the build, unknown ids
+ *  are refused, and a quote from the relevance section is refused loudest —
+ *  it is the one error that looks correct in review. */
+describe('paper-language mappings', () => {
+  const mapping = (over: Partial<PaperLanguage> = {}): PaperLanguage => ({
+    paper: 'x-2025', languages: ['kanienkeha'],
+    source: { kind: 'paper', ref: 'r', retrieved: null, quote: 'q' },
+    note: null, status: 'verified', ...over,
+  })
+  const run = (over: Record<string, unknown>) =>
+    validate({ languages: [lang()], initiatives: [init()], ...base, ...over })
+
+  it('blocks the build while a mapping is draft', () => {
+    expect(run({ paperLanguages: [mapping({ status: 'draft' })] }).join('\n'))
+      .toMatch(/mapping x-2025: status is draft/)
+  })
+
+  it('refuses a mapping naming an unknown paper', () => {
+    expect(run({ paperLanguages: [mapping({ paper: 'nope' })] }).join('\n'))
+      .toMatch(/unknown paper "nope"/)
+  })
+
+  it('refuses a mapping naming an unknown language', () => {
+    expect(run({ paperLanguages: [mapping({ languages: ['nope'] })] }).join('\n'))
+      .toMatch(/unknown language "nope"/)
+  })
+
+  it('refuses a quote taken from the relevance section', () => {
+    expect(run({ paperLanguageQuotes: [{ paper: 'x-2025', where: 'relevance-only' }] }).join('\n'))
+      .toMatch(/relevance/i)
+  })
+
+  it('refuses a quote that is not in the summary at all', () => {
+    expect(run({ paperLanguageQuotes: [{ paper: 'x-2025', where: 'absent' }] }).join('\n'))
+      .toMatch(/does not appear/i)
+  })
+
+  it('says so when the mapping file is absent, which is not the same as empty', () => {
+    expect(run({ missingMappingFile: true }).join('\n')).toMatch(/paper-languages\.yml/)
+  })
+
+  it('passes a clean mapping', () => {
+    expect(run({
+      paperLanguages: [mapping()],
+      paperLanguageQuotes: [{ paper: 'x-2025', where: 'subject-matter' }],
+    })).toEqual([])
   })
 })

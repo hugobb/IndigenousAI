@@ -33,6 +33,11 @@ function inputFrom(d: string) {
       .filter((name) => recordDirStatus(join(d, name)) !== 'ok')
       .map((name) => `data/${name}`),
     strayFiles: dirs.flatMap((name) => findStrayFiles(join(d, name))),
+    // This harness stages no mapping file at all; the paper-language mapping
+    // gate is exercised on real data by validate.test.ts and paper-mappings.test.ts.
+    paperLanguages: [],
+    paperLanguageQuotes: [],
+    missingMappingFile: false,
   }
 }
 
