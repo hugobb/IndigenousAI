@@ -1,6 +1,6 @@
 # SP3 — Papers on the map
 
-**Status:** design approved 2026-09-05, not yet planned
+**Status:** SP3a shipped 2026-09-05. SP3b decisions D6-D9 resolved 2026-09-06; planning next.
 **Supersedes:** nothing. Extends the atlas built in SP0–SP2b.
 
 ## Why
@@ -159,17 +159,129 @@ SP3a ships something publishable on its own: a map with two pins, a populated
 language panel, and 81 papers honestly listed as unmapped with the reason
 given, is a truthful artifact. Today's two-pin, nothing-reachable atlas is not.
 
-## Open question — the adjacent tier
+## SP3b decisions — resolved 2026-09-06
 
-The 28 studied languages include Nahuatl, Guarani, Quechua, Bribri and Wixarika,
-but also Nepali, Basque, Yoruba and Swahili. The second group is not Indigenous
-in this atlas's sense and would presumably be `tier: adjacent` — which per the
-PARENT spec's D5 means **no centre at all**, so those papers would map and still
-never draw.
+The adjacent-tier question this spec left open is answered below, together with
+two further questions that only became visible once the corpus was measured
+against the studies rule rather than by counting mentions.
 
-This needs a tier rule before SP3b sourcing begins. It does not block SP3a,
-which touches only the five existing records. Left open deliberately rather than
-decided here: it is an editorial judgement about what the atlas is for.
+### Correction to the measurement above
+
+The "What the corpus can support" table overstates the corpus. Its rows were
+produced by counting *mentions* of a language name; SP3a then established that a
+mention is not evidence a paper **studies** a language, and the studies rule cut
+SP3a's 11 candidates to 3. Read "33 of 92" and "28 distinct languages" as an
+upper bound on candidates, never as a count of mappable papers. The rows below
+are the corrected picture, measured 2026-09-06 against the same 92 pre-Relevance
+heads.
+
+### D6 — The adjacent tier keeps its no-centre rule
+
+A language the atlas does not count as Indigenous gets a `tier: adjacent`
+record with `centre: null`, exactly as the schema already enforces and as the
+existing `amharic` record already does. Its papers map, are listed on the
+language panel, and are carried by SP3a's "language has no centre" card with the
+reason stated. They never draw.
+
+Adjacent candidates found in the corpus: **Persian (4 papers), Swahili, Yoruba,
+Wolof, Basque, Nepali, Manchu, Sundanese, Welsh.**
+
+Rejected alternatives: giving the adjacent tier a centre would erase D5's entire
+stated rationale — the tier distinction is encoded visually rather than in a
+legend — and would turn the artifact into a low-resource-NLP map. Dropping the
+tier entirely would contradict the parent spec's D2, which names Manchu and
+Amharic as the intended adjacent examples, and would mean withdrawing a language
+record the maintainer has already reviewed.
+
+**Recorded gap, deliberately not closed here.** The parent spec's D2 created the
+adjacent tier to answer "does this transfer?", and `transferability` is the field
+that answers it — but that field exists only on the *initiative* schema, where it
+is required, and every initiative is now `status: rejected`. In a papers-only
+atlas the adjacent tier therefore still marks scope but carries no transposability
+judgement at all. Closing that gap means either adding a `transferability` note to
+adjacent-tier language records or moving it onto the paper mapping. Both are out
+of scope for SP3b, which is already the largest sub-project; this is written down
+so the gap is inherited deliberately rather than discovered later.
+
+### D7 — Shared tasks map to every language they evaluate; surveys map to none
+
+A shared task runs real experiments on each of its languages and therefore
+satisfies the studies rule for all of them. A survey reviews other people's work
+*about* languages without studying any, and its "evidence" is a bibliography —
+precisely the reviewer-shaped reasoning the studies rule exists to exclude.
+
+- Maps to all: `gibert-et-al-2025-americas-nlp`, `ebrahimi-et-al-2023-americas-nlp`,
+  and any paper that reports its own measured results per language.
+- Maps to none: `tonja-et-al-2024-latin-american`, `mager-et-al-2023-americas`,
+  and the other surveys, however many languages they name.
+
+Each individual mapping still carries its own verbatim quote and still passes the
+location rule independently. D7 licenses a paper to produce many mappings; it
+never licenses a mapping without its own evidence.
+
+### D8 — A cover term gets a record with no centre
+
+Measured against Glottolog: "Quechua" spans 43 languages, "Nahuatl" 31, "Maya"
+34, "Otomanguean" 181. Glottolog's family-level entries carry **no coordinates
+and no ISO 639-3 code** — verified by fetching `quec1387`, `azte1234`,
+`maya1287`, `chat1268`, `otom1299` and `tupi1275`, all of which return
+`latitude: null`. The corpus names these at cover-term level nearly everywhere;
+across all 92 heads there is exactly one variety-level narrowing ("Nahuatl,
+Western Sierra Puebla variety").
+
+**Decided:** each cover term gets an `indigenous`-tier record with `centre: null`
+and a `caveat` naming how many varieties it spans and stating that the corpus
+never narrows it. The papers attach and are listed; the language is visibly in
+the atlas; the "language has no centre" card explains why it does not draw.
+
+This keeps the Latin American literature reachable while asserting nothing false.
+The alternative of an approximate centroid was rejected: placing a 43-language
+family at a single invented point is exactly the plausible-looking fabrication
+the project's rules exist to prevent, and it is not comparable to the `myaamia`
+record's approximate centre, which approximates one language's location rather
+than standing in for dozens.
+
+Cover terms identified: **Quechua, Nahuatl, Maya, Otomí, Chatino, Cree, Yupik,
+Aymara, Guarani, Rarámuri** — each to be confirmed against Glottolog during
+sourcing, since some may resolve to a single languoid after all.
+
+### D9 — Glottolog's JSON endpoint is the sourcing method
+
+`https://glottolog.org/resource/languoid/id/<glottocode>.json` returns `name`,
+`id`, `iso639-3`, `latitude`, `longitude`, `level` and `classification` as
+structured data. The HTML page drops coordinates in conversion; the JSON does
+not. Verified against `cher1273`, which returns latitude 35.4664, longitude
+-83.163.
+
+This is the same source the existing `te-reo-maori` record already quotes, so
+SP3b introduces no new authority — only a more reliable way to read it. Every
+sourced field traces to a fetched value, and the `quote` records that value
+verbatim.
+
+**The resolution hazard.** Going from a name in a paper to a glottocode is the
+one step that can fail silently: "Maya" matches ~86 languoids on Glottolog's
+search, "Nahuatl" ~144, "Quechua" ~185, and picking the wrong one produces a
+record that looks entirely correct. Resolution therefore has two rules:
+
+1. The fetched `name` and `level` must be echoed into the review queue beside the
+   name the paper used, so a reviewer can see what was matched to what.
+2. `level` must be `language`. A `level: family` result means the name is a cover
+   term and D8 applies — never silently substitute the family for a language.
+
+Ambiguity that neither rule resolves means **omit**, per D2.
+
+### What SP3b delivers
+
+| | |
+| --- | --- |
+| New language records | ~31, all at `status: draft` |
+| …Indigenous tier, resolvable, with a sourced centre | ~11 |
+| …Indigenous tier, cover terms, `centre: null` (D8) | ~10 |
+| …adjacent tier, `centre: null` (D6) | ~9 |
+| New pins on the map | **~11, up from 2** |
+| Paper→language mappings | ~50-70, each with its own quote |
+
+The map going from two pins to roughly a dozen is the point of the sub-project.
 
 ## Non-goals
 
