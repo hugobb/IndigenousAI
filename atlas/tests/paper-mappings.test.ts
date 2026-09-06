@@ -14,6 +14,14 @@ const paperIds = new Set(
 
 describe('the curated paper-language mappings', () => {
   const rows = loadPaperLanguages(FILE)
+  const languages = loadLanguages(url('../data/languages'))
+  /** Every surface form (`name` plus `also_known_as`) a language record
+   *  offers, lowercased. Built from the record rather than hardcoded so this
+   *  test keeps working as records change — a new alias in `also_known_as`
+   *  is picked up automatically, and a renamed language cannot go stale. */
+  const surfaceForms = new Map<string, string[]>(
+    languages.map((l) => [l.id, [l.name, ...l.also_known_as].map((s) => s.toLowerCase())]),
+  )
 
   it('the file exists and is non-empty', () => {
     expect(paperLanguagesFileStatus(FILE)).toBe('ok')
@@ -51,5 +59,21 @@ describe('the curated paper-language mappings', () => {
 
   it('ships nothing as verified: promotion is the maintainer’s signature', () => {
     expect(rows.filter((r) => r.status === 'verified')).toEqual([])
+  })
+
+  /** Being sourced from the right SECTION (the test above) says nothing about
+   *  whether the quote actually names the language it is mapped to. A quote
+   *  could sit safely before the Relevance heading and still not mention the
+   *  language at all. Surface forms come from the language record itself
+   *  (`name` + `also_known_as`), not a hardcoded list, so this keeps working
+   *  as records change. */
+  it('names the mapped language somewhere in its own quote', () => {
+    const bad = rows.flatMap((r) => {
+      const quote = (r.source.quote ?? '').toLowerCase()
+      return r.languages
+        .filter((lang) => !(surfaceForms.get(lang) ?? []).some((form) => quote.includes(form)))
+        .map((lang) => `${r.paper} -> ${lang}`)
+    })
+    expect(bad).toEqual([])
   })
 })

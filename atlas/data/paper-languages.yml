@@ -2,20 +2,36 @@
 # live, since data/derived/papers.json is generator output and
 # litterature_review/OVERVIEW.md is never edited.
 #
-# THE RULE (spec D2): the quote must come from the paper's own subject matter —
-# its title, header block, or a section BEFORE `## Relevance to Indigenous AI`.
-# That section is the REVIEWER writing about applicability to this project: 86
-# of 92 summaries name Mohawk there and only 6 in their own subject matter.
-# A quote taken from it is refused by validate.ts and by
-# tests/paper-mappings.test.ts. Ambiguity means OMIT the paper, never guess.
+# THE LOCATION RULE (spec D2): the quote must come from the paper's own
+# subject matter — its title, header block, or a section BEFORE
+# `## Relevance to Indigenous AI`. That section is the REVIEWER writing about
+# applicability to this project: 86 of 92 summaries name Mohawk there and only
+# 6 in their own subject matter. A quote taken from it is refused by
+# validate.ts and by tests/paper-mappings.test.ts.
+#
+# THE STUDIES RULE (not mechanically enforced — curator judgment): passing a
+# quote's LOCATION does not mean it is evidence the paper STUDIES the
+# language. A mapping asserts the paper builds for the language, runs
+# experiments on it, or takes it as its subject. Naming the language as a
+# typological example (one of several languages listed to illustrate a
+# category), a comparison to another language the paper actually studies, a
+# speaker-count-bracket illustration, or a community artifact mentioned in
+# passing (a license, a project name) is NOT enough, even when the sentence
+# sits safely before the Relevance heading — reviewer-shaped reasoning can
+# leak into a Key Concepts or Main Findings bullet just as easily as into the
+# Relevance section itself; the heading is not a reliable fence for that.
+# When the evidence for a mapping is real but weaker than title-level (e.g.
+# the language is one of many the paper empirically evaluates, without being
+# its subject), the `note` field must say so plainly — it is the curator's
+# hedge and it travels into the bundle.
+#
+# Ambiguity means OMIT the paper, never guess.
 #
 # Candidates were found with the shell command in the task brief (11 papers
 # naming Mohawk/Kanien'kéha, Māori, or Amharic anywhere before the Relevance
-# heading). Of those 11, only 5 survive: the other 6 name the language only as
-# a passing typological/comparative example (an entry in a list of example
-# languages, a speaker-count bracket illustration, a family-relatedness aside)
-# rather than as something the paper itself studies. See task-3-report.md for
-# the full accept/reject table and reasoning.
+# heading). Of those 11, only 3 survive both rules. See task-3-report.md for
+# the full accept/reject table and reasoning, including a fix round that
+# caught two accepts held to a looser standard than the rejects.
 #
 # Every entry is `status: draft` until the maintainer reviews it.
 
@@ -47,27 +63,10 @@
     quote: >-
       Low-resource language regions (Sundanese in West Java, Amharic in Ethiopia) show
       the largest gains, validating the approach for truly under-represented cultures.
-  status: draft
-
-- paper: meighan-2021-decolonizing
-  languages: [te-reo-maori]
-  source:
-    kind: paper
-    ref: /summaries/meighan-2021-decolonizing/
-    quote: >-
-      From the earliest Web 1.0 era, Indigenous communities pioneered ILR technology
-      use: Te Wahapu (Māori, 1990) and Leoki ("Powerful Voice," Hawaiian, 1993) predate
-      most mainstream digital language tools.
-  status: draft
-
-- paper: pinhanez-and-wornyo-2025-co-development
-  languages: [te-reo-maori]
-  source:
-    kind: paper
-    ref: /summaries/pinhanez-and-wornyo-2025-co-development/
-    quote: >-
-      The Māori license "Kaitiakitanga" (Guardianship License, New Zealand) is
-      presented as a case study — a software license that restricts usage to
-      beneficial purposes as defined by the community, representing a decolonial
-      approach to IP.
+  note: >-
+    Weaker than title-level evidence: Amharic is one of 23 evaluation languages in the
+    paper's GlobalCultureQA benchmark, not the paper's subject. Kept because the paper
+    reports a specific measured result for it (largest gains among low-resource
+    regions), which is more than a passing mention — but a reader should not read this
+    as an Amharic-focused paper.
   status: draft
