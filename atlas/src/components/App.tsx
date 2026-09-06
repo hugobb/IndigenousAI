@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { loadBundle } from '../lib/load.js'
 import { applyFilters, emptyState, facetSummaries, yearRange } from '../lib/filters.js'
+import { papersForLanguage } from '../lib/paper-map.js'
 import { snapshotDate } from '../lib/snapshot.js'
 import { useFilters } from '../state/useFilters.js'
 import { initiativeSites, languageFields } from '../map/layers.js'
@@ -158,6 +159,10 @@ export default function App(): React.JSX.Element {
             language={language}
             initiatives={selection.initiatives.filter((i) => i.languages.includes(language.id))}
             filtered={languagePanelFiltered}
+            papers={papersForLanguage(
+              { papers: bundle.papers, languages: bundle.languages, paperLanguages: bundle.paperLanguages },
+              language.id,
+            )}
           />
         )}
         {initiative !== null && (

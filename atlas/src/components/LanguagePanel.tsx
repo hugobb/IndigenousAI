@@ -1,10 +1,10 @@
-import type { Initiative, Language } from '../schema/index.js'
+import type { Initiative, Language, Paper } from '../schema/index.js'
 import Field from './Field.js'
 import PanelSection from './PanelSection.js'
 import SourcedField from './SourcedField.js'
 
 export default function LanguagePanel({
-  language, initiatives, filtered,
+  language, initiatives, filtered, papers,
 }: {
   language: Language
   initiatives: Initiative[]
@@ -21,6 +21,11 @@ export default function LanguagePanel({
    *  the `!languageInSelection` term only ever adds true for a language a
    *  facet has already excluded. */
   filtered: boolean
+  /** Papers that STUDY this language, per data/paper-languages.yml. Scoped to
+   *  the record, not to the current filters: unlike `initiatives` above, no
+   *  facet narrows papers today, so an empty list here is a fact about the
+   *  atlas rather than a filter result — and the copy says exactly that. */
+  papers: Paper[]
 }): React.JSX.Element {
   const s = language.speakers
   return (
@@ -111,6 +116,24 @@ export default function LanguagePanel({
             </span>
           ) : (
             <ul>{initiatives.map((i) => <li key={i.id}>{i.name}</li>)}</ul>
+          )}
+        </Field>
+      </PanelSection>
+      <PanelSection title="Literature">
+        <Field label="Papers studying this language" testId="field-papers">
+          {papers.length === 0 ? (
+            <span className="hint">
+              No paper in this atlas studies this language — not a result of the current filters.
+            </span>
+          ) : (
+            <ul>
+              {papers.map((p) => (
+                <li key={p.id}>
+                  <a href={p.summary_url}>{p.title}</a>{' '}
+                  <span>({p.year})</span>
+                </li>
+              ))}
+            </ul>
           )}
         </Field>
       </PanelSection>

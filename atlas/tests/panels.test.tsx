@@ -41,7 +41,7 @@ afterEach(() => cleanup())
 
 describe('LanguagePanel', () => {
   it('renders an empty typology as "not recorded", not as a blank', () => {
-    render(<LanguagePanel language={lang('fixture-approximate')} initiatives={[]} filtered={true} />)
+    render(<LanguagePanel language={lang('fixture-approximate')} initiatives={[]} filtered={true} papers={[]} />)
     const row = screen.getByTestId('field-typology')
     expect(within(row).getByText(/not recorded/i)).toBeDefined()
   })
@@ -55,7 +55,7 @@ describe('LanguagePanel', () => {
   // false claim. Both halves asserted: the words must be gone AND the scope
   // must be stated, so deleting the sentence entirely cannot pass.
   it('does not call a filtered-away initiative list "not recorded"', () => {
-    render(<LanguagePanel language={lang('fixture-sourced')} initiatives={[]} filtered={true} />)
+    render(<LanguagePanel language={lang('fixture-sourced')} initiatives={[]} filtered={true} papers={[]} />)
     const row = screen.getByTestId('field-initiatives')
     expect(within(row).queryByText(/not recorded/i)).toBeNull()
     expect(row.textContent).toMatch(/current filters/i)
@@ -64,7 +64,7 @@ describe('LanguagePanel', () => {
 
   it('lists the matching initiatives when there are any', () => {
     render(
-      <LanguagePanel language={lang('fixture-sourced')} initiatives={[init('fixture-ongoing')]} filtered={true} />,
+      <LanguagePanel language={lang('fixture-sourced')} initiatives={[init('fixture-ongoing')]} filtered={true} papers={[]} />,
     )
     const row = screen.getByTestId('field-initiatives')
     expect(row.textContent).toContain('Ongoing Initiative')
@@ -72,7 +72,7 @@ describe('LanguagePanel', () => {
   })
 
   it('shows a speaker-count disagreement as a disagreement', () => {
-    render(<LanguagePanel language={lang('fixture-conflict')} initiatives={[]} filtered={true} />)
+    render(<LanguagePanel language={lang('fixture-conflict')} initiatives={[]} filtered={true} papers={[]} />)
     expect(screen.getByText(/9,?600/)).toBeDefined()
     expect(screen.getByText(/300/)).toBeDefined()
   })
@@ -83,7 +83,7 @@ describe('LanguagePanel', () => {
   // the schema keeps both figures instead of picking one.
   it('attributes each disagreeing speaker count to its own source', () => {
     const l: Language = languages.find((x: Language) => (x.speakers?.conflicts.length ?? 0) > 0)!
-    render(<LanguagePanel language={l} initiatives={[]} filtered={true} />)
+    render(<LanguagePanel language={l} initiatives={[]} filtered={true} papers={[]} />)
     fireEvent.click(screen.getByTestId('source-field-speakers'))
     const body = screen.getByTestId('source-body-field-speakers')
     expect(body.textContent).toContain(l.speakers!.source.ref)
@@ -97,7 +97,7 @@ describe('LanguagePanel', () => {
   })
 
   it('surfaces the caveat when a centre is approximate', () => {
-    render(<LanguagePanel language={lang('fixture-approximate')} initiatives={[]} filtered={true} />)
+    render(<LanguagePanel language={lang('fixture-approximate')} initiatives={[]} filtered={true} papers={[]} />)
     expect(screen.getByText(/placeholder-looking centroid/i)).toBeDefined()
   })
 
@@ -107,7 +107,7 @@ describe('LanguagePanel', () => {
   // know, which is a stronger and false claim; this guard fails on that
   // regression the same way it fails on the field going blank.
   it('says "not mapped", not "not recorded", when a language has no centre at all', () => {
-    render(<LanguagePanel language={lang('fixture-unmapped')} initiatives={[]} filtered={true} />)
+    render(<LanguagePanel language={lang('fixture-unmapped')} initiatives={[]} filtered={true} papers={[]} />)
     const field = screen.getByTestId('field-centre')
     expect(field.textContent).toMatch(/not mapped/i)
     expect(field.textContent).not.toMatch(/not recorded/i)
@@ -121,7 +121,7 @@ describe('LanguagePanel', () => {
   describe('the empty matching-initiatives message follows the filter state', () => {
     it('names it a filter result when a work filter is active', () => {
       render(
-        <LanguagePanel language={lang('fixture-sourced')} initiatives={[]} filtered={true} />,
+        <LanguagePanel language={lang('fixture-sourced')} initiatives={[]} filtered={true} papers={[]} />,
       )
       const row = screen.getByTestId('field-initiatives')
       expect(row.textContent).toMatch(/no work exists/i)
@@ -130,7 +130,7 @@ describe('LanguagePanel', () => {
 
     it('names it a dataset finding when no work filter is active', () => {
       render(
-        <LanguagePanel language={lang('fixture-sourced')} initiatives={[]} filtered={false} />,
+        <LanguagePanel language={lang('fixture-sourced')} initiatives={[]} filtered={false} papers={[]} />,
       )
       const row = screen.getByTestId('field-initiatives')
       expect(row.textContent).toMatch(/atlas records/i)
@@ -140,14 +140,14 @@ describe('LanguagePanel', () => {
 
   // Spec §7 named these identifiers; the panel never displayed them.
   it('shows the identity fields a reader would use to look the language up', () => {
-    render(<LanguagePanel language={lang('fixture-sourced')} initiatives={[]} filtered={true} />)
+    render(<LanguagePanel language={lang('fixture-sourced')} initiatives={[]} filtered={true} papers={[]} />)
     for (const id of ['field-glottocode', 'field-iso639-3', 'field-tier', 'field-subfamily']) {
       expect(screen.getByTestId(id)).toBeDefined()
     }
   })
 
   it('shows region and countries', () => {
-    render(<LanguagePanel language={lang('fixture-sourced')} initiatives={[]} filtered={true} />)
+    render(<LanguagePanel language={lang('fixture-sourced')} initiatives={[]} filtered={true} papers={[]} />)
     expect(screen.getByTestId('field-region')).toBeDefined()
     expect(screen.getByTestId('field-countries')).toBeDefined()
   })
@@ -156,7 +156,7 @@ describe('LanguagePanel', () => {
   // single-element case only. `fixture-unmapped` now carries two.
   it('joins multiple countries with ", "', () => {
     const l = languages.find((x: Language) => x.countries.length > 1)!
-    render(<LanguagePanel language={l} initiatives={[]} filtered={true} />)
+    render(<LanguagePanel language={l} initiatives={[]} filtered={true} papers={[]} />)
     const dd = screen.getByTestId('field-countries').querySelector('dd')
     expect(dd?.textContent).toBe(l.countries.join(', '))
   })
@@ -166,14 +166,14 @@ describe('LanguagePanel', () => {
   // now does.
   it('renders an empty countries array as "not recorded", not as a blank', () => {
     const l = languages.find((x: Language) => x.countries.length === 0)!
-    render(<LanguagePanel language={l} initiatives={[]} filtered={true} />)
+    render(<LanguagePanel language={l} initiatives={[]} filtered={true} papers={[]} />)
     expect(within(screen.getByTestId('field-countries')).getByText(/not recorded/i)).toBeDefined()
   })
 
   // Every one of these is nullable and several are null across the fixture.
   it('renders an absent identifier as the words, never as a blank', () => {
     const l = languages.find((x: Language) => x.glottocode === null)!
-    render(<LanguagePanel language={l} initiatives={[]} filtered={true} />)
+    render(<LanguagePanel language={l} initiatives={[]} filtered={true} papers={[]} />)
     expect(screen.getByTestId('field-glottocode').textContent).toMatch(/not recorded/i)
   })
 
@@ -183,12 +183,12 @@ describe('LanguagePanel', () => {
   // from a coverage gap.
   it('names the tier, so an adjacent-tier language is legible as one', () => {
     const l = languages.find((x: Language) => x.tier === 'adjacent')!
-    render(<LanguagePanel language={l} initiatives={[]} filtered={true} />)
+    render(<LanguagePanel language={l} initiatives={[]} filtered={true} papers={[]} />)
     expect(screen.getByTestId('field-tier').textContent).toContain('adjacent')
   })
 
   it('carries no source disclosure on a field the schema gives no source', () => {
-    render(<LanguagePanel language={lang('fixture-sourced')} initiatives={[]} filtered={true} />)
+    render(<LanguagePanel language={lang('fixture-sourced')} initiatives={[]} filtered={true} papers={[]} />)
     expect(screen.queryByTestId('source-field-family')).toBeNull()
     expect(screen.queryByTestId('source-field-region')).toBeNull()
   })
@@ -505,7 +505,7 @@ describe('source disclosures', () => {
 
   it('gives the language panel exactly the disclosures the schema sources', () => {
     const { container } = render(
-      <LanguagePanel language={withEndangerment} initiatives={[]} filtered={true} />,
+      <LanguagePanel language={withEndangerment} initiatives={[]} filtered={true} papers={[]} />,
     )
     assertDisclosures(container, {
       'field-endangerment': 'Source for Endangerment',
@@ -584,7 +584,7 @@ describe('what an absent value says, as a class', () => {
 
   it('says "not recorded" for every absent language field but the two with a better answer', () => {
     const { container } = render(
-      <LanguagePanel language={emptyLanguage} initiatives={[]} filtered={false} />,
+      <LanguagePanel language={emptyLanguage} initiatives={[]} filtered={false} papers={[]} />,
     )
     assertAbsenceWording(container, {
       // A required enum: never absent, so never an absence to word.
@@ -596,6 +596,10 @@ describe('what an absent value says, as a class', () => {
       // Not a property of the record at all: the list is scoped to I1, so an
       // empty one is a filter result and the field says which.
       'field-initiatives': /records no initiative/i,
+      // Unlike `initiatives` above, this IS a fact about the record — nothing
+      // filters papers today — but it is still a known absence, not an
+      // unknown one, so it earns the same exception `centre` does.
+      'field-papers': /no paper in this atlas/i,
     })
   })
 

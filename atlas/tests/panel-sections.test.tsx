@@ -14,7 +14,7 @@ describe('panel sections', () => {
   // twice in a row over one value. A field label may not simply repeat its own
   // section heading; both panels are checked, since both have that section.
   it.each([
-    ['language', () => <LanguagePanel language={bundle.languages[0]!} initiatives={[]} filtered={true} />],
+    ['language', () => <LanguagePanel language={bundle.languages[0]!} initiatives={[]} filtered={true} papers={[]} />],
     ['initiative', () => <InitiativePanel initiative={bundle.initiatives[0]!} methods={bundle.methods} bundle={bundle} />],
   ])('never labels a %s-panel field with its own section heading', (_name, panel) => {
     const { container } = render(panel())
@@ -27,9 +27,9 @@ describe('panel sections', () => {
   })
 
   it('groups the language panel under headings', () => {
-    render(<LanguagePanel language={bundle.languages[0]!} initiatives={[]} filtered={true} />)
+    render(<LanguagePanel language={bundle.languages[0]!} initiatives={[]} filtered={true} papers={[]} />)
     const headings = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)
-    expect(headings).toEqual(['Identity', 'Situation', 'Place', 'Work', 'Note'])
+    expect(headings).toEqual(['Identity', 'Situation', 'Place', 'Work', 'Literature', 'Note'])
   })
 
   // Task 6 adds `Identity` and `Evidence` along with the fields that fill
@@ -51,7 +51,7 @@ describe('panel sections', () => {
   // as the reason for deferring them never rendered it. Both now run over
   // each panel.
   const panels: [string, () => React.JSX.Element][] = [
-    ['language', () => <LanguagePanel language={bundle.languages[0]!} initiatives={[]} filtered={true} />],
+    ['language', () => <LanguagePanel language={bundle.languages[0]!} initiatives={[]} filtered={true} papers={[]} />],
     ['initiative', () => <InitiativePanel initiative={bundle.initiatives[0]!} methods={bundle.methods} bundle={bundle} />],
   ]
 
@@ -105,6 +105,7 @@ const LANGUAGE_FIELD_SECTIONS: Record<string, string> = {
   'field-countries': 'Situation',
   'field-centre': 'Place',
   'field-initiatives': 'Work',
+  'field-papers': 'Literature',
   'field-caveat': 'Note',
 }
 
@@ -147,7 +148,7 @@ function assertFieldSections(container: HTMLElement, expected: Record<string, st
 
 describe('panel field-to-section mapping', () => {
   it('pins every language-panel field to its intended section', () => {
-    const { container } = render(<LanguagePanel language={bundle.languages[0]!} initiatives={[]} filtered={true} />)
+    const { container } = render(<LanguagePanel language={bundle.languages[0]!} initiatives={[]} filtered={true} papers={[]} />)
     assertFieldSections(container, LANGUAGE_FIELD_SECTIONS)
   })
 
