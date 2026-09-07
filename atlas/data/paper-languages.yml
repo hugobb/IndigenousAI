@@ -481,3 +481,232 @@
     the paper contributes tools and a gold-standard evaluation set for Inuinnaqtun only,
     and reports no Inuktitut data or results of its own. Rejected.
   status: rejected
+
+# ---------------------------------------------------------------------------
+# Task 8: the Latin American papers (D7's multi-entry design).
+#
+# gibert-et-al-2025-americas-nlp and ebrahimi-et-al-2023-americas-nlp are
+# AmericasNLP shared tasks reporting measured per-language results; no single
+# sentence names all their languages, so each gets several entries, one per
+# quote, per D7/the task brief.
+#
+# tonja-et-al-2024-latin-american and mager-et-al-2023-americas are surveys
+# excluded by D7 entirely (they name most of these languages but map to
+# none); they do not appear below at all, by design.
+# ---------------------------------------------------------------------------
+
+- paper: gibert-et-al-2025-americas-nlp
+  languages: [bribri, guarani, maya, nahuatl]
+  source:
+    kind: paper
+    ref: /summaries/gibert-et-al-2025-americas-nlp/
+    quote: >-
+      four languages (Bribri, Guarani, Maya, Nahuatl); metric is exact-match accuracy
+  note: >-
+    ST2 (morphological adaptation for educational materials) reports exact-match accuracy
+    for these four languages as a shared task; none is this paper's sole subject.
+  status: draft
+
+- paper: gibert-et-al-2025-americas-nlp
+  languages: [quechua, raramuri]
+  source:
+    kind: paper
+    ref: /summaries/gibert-et-al-2025-americas-nlp/
+    quote: >-
+      GMU (the only team to surpass it) does so only for Quechua (+0.82 ChrF++) going
+      into Indigenous languages, and Rarámuri (+0.97) going into Spanish
+  note: >-
+    ST1 (machine translation) reports a measured per-language result for each; both are
+    two of the shared task's many evaluated languages, not this paper's sole subject.
+  status: draft
+
+- paper: ebrahimi-et-al-2023-americas-nlp
+  languages: [aymara, quechua]
+  source:
+    kind: paper
+    ref: /summaries/ebrahimi-et-al-2023-americas-nlp/
+    quote: >-
+      which supports some task languages (Aymara, Quechua) natively and was fine-tuned
+      by top-performing teams for others
+  note: >-
+    Named as two of the shared task's languages that NLLB-200 supports natively; both
+    are among many languages this shared task evaluates, not this paper's sole subject.
+  status: draft
+
+- paper: ebrahimi-et-al-2023-americas-nlp
+  languages: [bribri, chatino, otomi]
+  source:
+    kind: paper
+    ref: /summaries/ebrahimi-et-al-2023-americas-nlp/
+    quote: >-
+      human evaluation of Bribri, Chatino, and Otomí outputs shows that near-perfect
+      translations (rating 5/5) remain extremely rare across all systems and all years
+  note: >-
+    Measured human-evaluation results reported for all three; each is one of the
+    shared task's many evaluated languages, not this paper's sole subject.
+  status: draft
+
+- paper: ebrahimi-et-al-2023-americas-nlp
+  languages: [nahuatl, wixarika]
+  source:
+    kind: paper
+    ref: /summaries/ebrahimi-et-al-2023-americas-nlp/
+    quote: >-
+      Languages like Nahuatl and Wixarika with rich morphophonemic inflection systems,
+      posing particular challenges for token-level MT approaches
+  note: >-
+    Nahuatl and Wixarika appear only once, as a typological example illustrating what
+    "polysynthetic languages" means in general — not as languages this shared task
+    evaluates. Neither is named anywhere else in the summary (unlike Aymara, Quechua,
+    Bribri, Chatino, and Otomí, which appear in the paper's own results). Rejected.
+  status: rejected
+
+- paper: kann-et-al-2018-polysynthetic
+  languages: [nahuatl, wixarika]
+  source:
+    kind: paper
+    ref: /summaries/kann-et-al-2018-polysynthetic/
+    quote: >-
+      The four languages studied (Mexicanero, Nahuatl, Wixarika, Yorem Nokki) are
+      morphologically complex with high morpheme-per-word ratios
+  note: null
+  status: draft
+
+- paper: krasner-et-al-2025-semantic-embeddings
+  languages: [guarani, bribri, nahuatl]
+  source:
+    kind: paper
+    ref: /summaries/krasner-et-al-2025-semantic-embeddings/
+    quote: >-
+      A community benchmark explicitly targeting MT evaluation for Indigenous languages
+      of the Americas — Guarani, Bribri, Nahuatl
+  note: null
+  status: draft
+
+- paper: liu-et-al-2021-morphological-segmentation
+  languages: [nahuatl, wixarika]
+  source:
+    kind: paper
+    ref: /summaries/liu-et-al-2021-morphological-segmentation/
+    quote: >-
+      Training on related (Yuto-Aztecan) polysynthetic languages (Mexicanero, Nahuatl,
+      Wixarika, Yorem Nokki from Kann et al. 2018) provides gains for Seneca, even
+      across language families
+  note: >-
+    Nahuatl and Wixarika are named only as source languages borrowed from Kann et al.
+    2018 for a cross-linguistic transfer experiment whose target and subject is Seneca;
+    this paper builds for, and reports results on, Seneca, not either of these two.
+    Rejected.
+  status: rejected
+
+- paper: mager-et-al-2022-bpe-polysynthetic
+  languages: [nahuatl, raramuri, shipibo-konibo, wixarika]
+  source:
+    kind: paper
+    ref: /summaries/mager-et-al-2022-bpe-polysynthetic/
+    quote: >-
+      The study tests four polysynthetic languages (Nahuatl, Raramuri, Shipibo-Konibo,
+      Wixarika) against Spanish
+  note: null
+  status: draft
+
+- paper: yahan-and-islam-2025-fine-tuning
+  languages: [bribri, guarani, maya]
+  source:
+    kind: paper
+    ref: /summaries/yahan-and-islam-2025-fine-tuning/
+    quote: >-
+      Llama 3.2 (3B-Instruct) achieves competitive results on sentence transformation
+      for three Indigenous languages: BLEU of 19.51 (Bribri), 13.67 (Guarani), 55.86
+      (Maya); ChrF++ of 50.29 (Bribri), 58.55 (Guarani), 80.12 (Maya)
+  note: null
+  status: draft
+
+- paper: yahan-and-islam-2025-fine-tuning
+  languages: [nahuatl]
+  source:
+    kind: paper
+    ref: /summaries/yahan-and-islam-2025-fine-tuning/
+    quote: >-
+      A shared task focused on creating educational tools for Indigenous languages
+      (Bribri, Guarani, Maya, Nahuatl Omitlan) by generating grammatically transformed
+      sentences
+  note: >-
+    Nahuatl is named only while describing the AmericasNLP 2025 Shared Task 2's overall
+    language set; this paper's own reported results (BLEU/ChrF++) cover exactly three
+    languages — Bribri, Guarani, and Maya — with no Nahuatl scores anywhere in the
+    summary. Rejected.
+  status: rejected
+
+- paper: court-and-elsner-et-al-2024-llm-low-ressource
+  languages: [quechua]
+  source:
+    kind: paper
+    ref: /summaries/court-and-elsner-et-al-2024-llm-low-ressource/
+    quote: >-
+      Translation quality improvements with model size (GPT-3.5 → GPT-4o) primarily
+      reflect prior Quechua exposure during pretraining, not better in-context learning
+      ability
+  note: >-
+    The paper's own subject is the specific variety Southern Quechua; mapped to the
+    cover-term `quechua` record per its own caveat, which names this exact paper as the
+    intended case for that mapping.
+  status: draft
+
+- paper: song-et-al-2026-slm
+  languages: [quechua, guarani]
+  source:
+    kind: paper
+    ref: /summaries/song-et-al-2026-slm/
+    quote: >-
+      Languages like Quechua, Yoruba, Dzongkha, and Guarani show measurable but limited
+      translation quality even after distillation, reflecting the difficulty of the XLR
+      regime
+  note: >-
+    Reported as two of the ~200 languages this paper's distillation experiments
+    evaluate, not its sole subject; the sentence reports an actual measured outcome for
+    each (not a typological illustration).
+  status: draft
+
+- paper: aycock-et-al-2025-grammar-book
+  languages: [guarani]
+  source:
+    kind: paper
+    ref: /summaries/aycock-et-al-2025-grammar-book/
+    quote: >-
+      Languages with essentially no available parallel corpora; the paper focuses on
+      Kalamang, Nepali, and Guarani
+  note: >-
+    One of the three languages (with Kalamang and Nepali) this paper's grammar-book
+    prompting experiments cover, with its own reported results ("Guarani (seen
+    low-resource languages)"); not the paper's sole subject.
+  status: draft
+
+- paper: pinhanez-et-al-2024-vitalize
+  languages: [guarani]
+  source:
+    kind: paper
+    ref: /summaries/pinhanez-et-al-2024-vitalize/
+    quote: >-
+      primarily Nheengatu and Guarani Mbya
+  note: >-
+    The paper's field work and fine-tuning results are for Guarani Mbya (Mbyá Guaraní),
+    which the `guarani` record's own caveat names as a separate Glottolog language
+    (mbya1239) from the Paraguayan Guaraní (para1311) this record covers. No record for
+    Mbyá Guaraní exists yet; mapping to `guarani` would misattribute the paper to the
+    wrong language. Rejected.
+  status: rejected
+
+- paper: zhang-et-al-2024-hire-a-linguist
+  languages: [bribri]
+  source:
+    kind: paper
+    ref: /summaries/zhang-et-al-2024-hire-a-linguist/
+    quote: >-
+      LINGOLLM raises GPT-4's average translation BLEU from 0.5 to 10.5 across 10
+      translation directions covering 8 endangered/low-resource languages (Manchu,
+      Gitksan, Arapaho, Natugu, Tsez, Wolof, Uspanteko, Bribri)
+  note: >-
+    One of 8 endangered/low-resource languages this paper evaluates translation on; not
+    the paper's sole subject.
+  status: draft
