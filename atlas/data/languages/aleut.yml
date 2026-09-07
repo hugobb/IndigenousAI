@@ -11,7 +11,15 @@ subfamily: Aleutic
 typology: []
 endangerment: null
 speakers: null
-region: north-america
+# Curator judgment, not a Glottolog fact: Aleut and Inuit are both
+# Eskimo-Aleut circumpolar peoples, and the Aleut are formal Permanent
+# Participants at the Arctic Council. The Aleutian Islands centre
+# (52.1228N) sits south of the Arctic Circle, same as Eastern Canadian
+# Inuktitut's centre (62.1735N per data/languages/inuktitut.yml), which
+# this atlas already classes as arctic — so latitude alone does not
+# separate the two circumpolar languages, and classing them apart on it
+# would mislead a reader filtering by this facet.
+region: arctic
 countries: [US]
 centre:
   lat: 52.1228
