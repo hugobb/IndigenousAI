@@ -257,12 +257,52 @@ results for the community's own spelling in each case.
 
 `data/paper-languages.yml` carries 56 entries: 31 `status: draft` and 25
 `status: rejected`. Each rejected entry keeps its verbatim quote and the
-reason it failed — most often, the quote sits in the paper's own
-`## Relevance to Indigenous AI` section (reviewer commentary, not the
-paper's subject matter, and disallowed by spec D2) or the language is named
-only as a typological illustration rather than something the paper actually
-studies. These are shipped in `data/paper-languages.yml` itself, not in a
-task report, because task reports are gitignored and will not ship with the
+reason it failed. None of the 25 failed because its quote sat in the paper's
+own `## Relevance to Indigenous AI` section: the location rule (spec D2) is
+machine-enforced by `validate.ts` and `tests/paper-mappings.test.ts`, so a
+quote from that section is refused before a curator ever gets to judge it —
+zero of the 25 rejected quotes come from there. Every one of the 25 instead
+passed the location rule and failed the STUDIES rule: the quote sits in the
+paper's own subject-matter text, but names the language as something other
+than a language the paper builds for, runs experiments on, or takes as its
+subject. The recurring shapes, each with an example:
+
+- **A family-classification label**, naming what family the paper's actual
+  subject belongs to, not a language the paper studies: "Aleut" appears only
+  inside "Eskimo-Aleut" in `le-and-sadat-2021-canada → aleut`; "Yupik"
+  appears only inside "Inuit-Yupik-Unangan family" in
+  `khandagale-et-al-2022-polysynthetic → yupik`.
+- **A comparative aside**, benchmarking the paper's actual subject against
+  another language: `le-and-sadat-2021-canada → kanienkeha` contrasts
+  Inuktitut's NLP-resource level with Mohawk's ("a level Mohawk has not
+  reached") without Mohawk being anything the paper works with.
+- **An illustrative or typological example**, one of several languages
+  named to illustrate a general category rather than studied individually:
+  Mohawk is one of three languages illustrating "agglutinative" in
+  `arnett-and-bergen-2025-morphologically-complex → kanienkeha`; Nahuatl and
+  Wixarika are named the same way, in a Key Concepts bullet defining
+  "polysynthetic", in `ebrahimi-et-al-2023-americas-nlp → nahuatl,wixarika`.
+- **An institutional affiliation, in one case**, not a studied language at
+  all: the only occurrence of "Basque" in `sanchez-et-al-2025-linguini`'s
+  summary is inside a venue credit, "University of the Basque Country" — a
+  coincidental substring match, not evidence the paper's 75-language
+  benchmark includes Basque (`sanchez-et-al-2025-linguini → basque`).
+
+Two rejections fail on different grounds worth naming separately, since
+neither is quite the shape above: `song-et-al-2026-slm →
+quechua,guarani,yoruba` is withheld under the ambiguity rule — its quote is
+an open, illustrative list ("Languages like Quechua, Yoruba, Dzongkha, and
+Guarani") with no per-language figure tied to any of them, and the summary
+alone cannot settle whether the paper's own 200-language evaluation reports
+individual results for these three. And `pinhanez-et-al-2024-vitalize →
+guarani` is withheld because the paper's actual fieldwork is Guarani Mbya, a
+distinct Glottolog language (`mbya1239`) from the Paraguayan Guaraní
+(`para1311`) the atlas's `guarani` record covers — mapping it would
+misattribute the paper to the wrong specific language, which is a resolution
+problem, not a STUDIES-rule failure.
+
+These are shipped in `data/paper-languages.yml` itself, not in a task
+report, because task reports are gitignored and will not ship with the
 repository — this file is the only durable record of why a plausible-looking
 candidate mapping was refused. Without it, the next person to run the same
 search re-derives the same 25 candidates and has nothing to read about why

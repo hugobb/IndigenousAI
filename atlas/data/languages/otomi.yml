@@ -22,7 +22,10 @@ caveat: >-
   child_language_count fetched 2026-09-06 from
   https://glottolog.org/resource/languoid/id/otom1300.json — Eastern
   Highland, Tenango, Texcatepec, Mezquital, Querétaro, Ixtenco and Tilapa
-  Otomi. Every summary in this corpus that mentions Otomí names it at that
-  level, never a specific variety. Glottolog publishes no coordinates for a
-  family, so this record carries no centre and does not draw.
+  Otomi. Every summary in this corpus found to mention Otomí names it at that
+  level; no summary was found narrowing it to a specific variety, but that
+  search was not exhaustive (grep-derived counts of this corpus have run low
+  before — spec D8), so this does not claim no such summary exists.
+  Glottolog publishes no coordinates for a family, so this record carries no
+  centre and does not draw.
 status: draft

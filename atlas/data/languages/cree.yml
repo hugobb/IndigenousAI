@@ -22,10 +22,13 @@ caveat: >-
   A cover term, not a single language: Glottolog places 7 languages under
   Cree (cree1272) — child_language_count fetched 2026-09-06 from
   https://glottolog.org/resource/languoid/id/cree1272.json — including
-  Moose, Plains, Swampy and Woods Cree. Every summary in this corpus that
-  mentions Cree names it at that level, never a specific variety. Glottolog
-  publishes no coordinates for a family, so mapping 7 languages onto one
-  point would assert something no source supports; this record carries no
+  Moose, Plains, Swampy and Woods Cree. Every summary in this corpus found to
+  mention Cree names it at that level; no summary was found narrowing it to a
+  specific variety, but that search was not exhaustive (grep-derived counts
+  of this corpus have run low before — spec D8), so this does not claim no
+  such summary exists. Glottolog publishes no coordinates for a family, so
+  mapping 7 languages onto one point would assert something no source
+  supports; this record carries no
   centre and does not draw. (Unusually for a family, Glottolog's own
   response for cree1272 does carry an ISO 639-3 value, "cre" — the
   macrolanguage code — even though it publishes no coordinate; that value is

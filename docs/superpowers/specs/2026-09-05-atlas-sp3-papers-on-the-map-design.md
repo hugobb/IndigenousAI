@@ -224,7 +224,7 @@ never licenses a mapping without its own evidence.
 Measured against Glottolog: "Quechua" spans 43 languages, "Nahuatl" 31, "Maya"
 34, "Otomanguean" 181. Glottolog's family-level entries carry **no coordinates
 and no ISO 639-3 code** — verified by fetching `quec1387`, `azte1234`,
-`maya1287`, `chat1268`, `otom1299` and `tupi1275`, all of which return
+`maya1287`, `chat1268`, `otom1300` and `tupi1275`, all of which return
 `latitude: null`. The corpus names these at cover-term level nearly everywhere, but "never" was
 too strong — corrected 2026-09-06 while writing the records, then corrected AGAIN
 the same day when a reviewer found one more. **Do not treat any count below as
@@ -246,9 +246,13 @@ them. They say instead that the corpus names the cover term in most papers and
 narrows it in one, which is what a reader needs in order to judge the record.
 
 **Decided:** each cover term gets an `indigenous`-tier record with `centre: null`
-and a `caveat` naming how many varieties it spans and stating that the corpus
-never narrows it. The papers attach and are listed; the language is visibly in
-the atlas; the "language has no centre" card explains why it does not draw.
+and a `caveat` naming how many varieties it spans and stating what was found: that
+every summary found mentioning it names it at the cover-term level, and that no
+summary was found narrowing it to a specific variety — without asserting that no
+such summary exists, per the correction above. Where a narrowing IS known (Nahuatl,
+Quechua), the caveat says so instead, plainly, with the count that is actually
+known. The papers attach and are listed; the language is visibly in the atlas; the
+"language has no centre" card explains why it does not draw.
 
 This keeps the Latin American literature reachable while asserting nothing false.
 The alternative of an approximate centroid was rejected: placing a 43-language

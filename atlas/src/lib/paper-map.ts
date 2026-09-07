@@ -29,7 +29,7 @@ export function papersForLanguage(
 
 /** The two reasons a paper is not on the map, kept apart (spec D4).
  *
- *  `noLanguage` — no mapping names it. 59 of 92 papers in this corpus study no
+ *  `noLanguage` — no mapping names it. 66 of 92 papers in this corpus study no
  *  specific language at all: surveys, tokenizer methods, process papers. That
  *  is a property of the literature, not a sourcing gap.
  *

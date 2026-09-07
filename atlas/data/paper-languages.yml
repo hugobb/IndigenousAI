@@ -30,16 +30,21 @@
 #
 # Ambiguity means OMIT the paper, never guess.
 #
-# Candidates were found with the shell command in the task brief (11 papers
-# naming Mohawk/Kanien'kéha, Māori, or Amharic anywhere before the Relevance
-# heading). Of those 11, only 3 survive both rules; the other 8 are recorded
-# below at `status: rejected`, each with its own verbatim quote and the reason
-# it was refused. This file is now the only record of that reasoning — the
-# task report it used to live in is gitignored and will not ship with the
+# The first task's candidates were found with the shell command in the task
+# brief (11 papers naming Mohawk/Kanien'kéha, Māori, or Amharic anywhere
+# before the Relevance heading). Of those 11, only 3 survived both rules; the
+# other 8 were recorded at `status: rejected`, each with its own verbatim
+# quote and the reason it was refused. Later tasks extended the same file
+# with their own candidate searches over other language sets (North
+# American/Pacific, Latin American, and others), judged by the same two
+# rules. This file is now the only record of all of that reasoning — the
+# task reports it used to live in are gitignored and will not ship with the
 # repository.
 #
-# Every entry below is `status: draft` until the maintainer reviews it, except
-# the 8 already reviewed to `status: rejected`.
+# The file now holds 56 entries: 31 at `status: draft` (awaiting maintainer
+# review) and 25 at `status: rejected` (kept, not deleted, so re-sourcing
+# never re-proposes a candidate without a curator seeing why it was turned
+# down the first time).
 
 - paper: kuhn-et-al-2020-nrc-canada
   languages: [kanienkeha]
@@ -50,10 +55,12 @@
       A software framework for building verb conjugators for polysynthetic languages,
       instantiated for Kanyen'kéha (Mohawk).
   note: >-
-    The NRC project this paper describes also built for Inuktut (the Nunavut Hansard
-    corpus) and SENĆOŦEN (decentralized predictive text) — this mapping names only
-    kanienkeha because the atlas has no language record for either of those two yet,
-    not because the paper's own work is limited to Mohawk.
+    The paper's NRC portfolio covers three languages — Kanien'kéha (this entry),
+    Inuktut (the Nunavut Hansard corpus and shared MT task), and SENĆOŦEN
+    (decentralized predictive text). Each is mapped by its own entry below with its
+    own verbatim quote (see this paper's sencoten and inuktut entries), because no
+    single sentence in the summary names all three together and the location rule
+    forbids stitching one together from separate sentences.
   status: draft
 
 - paper: rai-and-pal-2025-amharic
@@ -529,14 +536,18 @@
       which supports some task languages (Aymara, Quechua) natively and was fine-tuned
       by top-performing teams for others
   note: >-
-    The evidence here is SCOPE, not a RESULT: the quote states as fact that Aymara and
-    Quechua are named task languages of this shared task, which is a claim about the
-    paper's own subject matter, not an illustration drawn from outside it (contrast the
-    rejected Nahuatl/Wixarika entry two bullets below, which is a typological example,
-    not a scope claim). The summary does not report a per-language score for either
-    language here — no ChrF or human-eval figure specific to Aymara or Quechua appears
-    in this quote. A reader should treat this mapping as scope-level evidence (these are
-    languages the task evaluates) rather than as a reported measurement.
+    The evidence here is SCOPE, not a RESULT: the quote names Aymara and Quechua as
+    "task languages" of the shared task this paper itself reports on — a membership
+    claim about the paper's own subject matter, not an illustration drawn from outside
+    it. That is categorically different from the rejected song-et-al-2026-slm entry's
+    "Languages like Quechua, Yoruba, Dzongkha, and Guarani", which names them only as
+    illustrations drawn from a 200-language evaluation this paper is not itself
+    constituted by. The summary reports no per-language ChrF or human-eval figure for
+    either Aymara or Quechua, and each is named this once in the summary — but a single
+    mention is not itself disqualifying when the mention is a membership claim about the
+    paper's own scope, rather than a passing illustrative aside. Treat this mapping as
+    scope-level evidence (these are languages the task evaluates), not as a reported
+    measurement.
   status: draft
 
 - paper: ebrahimi-et-al-2023-americas-nlp
@@ -561,11 +572,13 @@
       Languages like Nahuatl and Wixarika with rich morphophonemic inflection systems,
       posing particular challenges for token-level MT approaches
   note: >-
-    Nahuatl and Wixarika appear only once, as a typological example illustrating what
-    "polysynthetic languages" means in general — not as languages this shared task
-    evaluates. Neither is named anywhere else in the summary (unlike Aymara, Quechua,
-    Bribri, Chatino, and Otomí, which are each named elsewhere in the summary as task
-    languages this shared task studies). Rejected.
+    Nahuatl and Wixarika appear only once, in the Key Concepts bullet defining
+    "Polysynthetic languages" ("Languages like Nahuatl and Wixarika with rich
+    morphophonemic inflection systems...") — a definitional illustration of a general
+    typological category, not a claim that this shared task evaluates them. Contrast
+    this paper's accepted Aymara/Quechua entry, whose quote instead names them as "task
+    languages" of this shared task itself: a membership claim about the paper's own
+    scope, not a typological example borrowed from outside it. Rejected.
   status: rejected
 
 - paper: kann-et-al-2018-polysynthetic
