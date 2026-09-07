@@ -424,6 +424,11 @@ Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>"
 
 Two failure modes this closes. First, the language schema's `glottocode` pattern `/^[a-z0-9]{4}\d{4}$/` matches family codes as happily as language codes — `azte1234` passes — so a cover-term record could silently acquire a family code in a field that means "this language". Second, a coordinate transcribed by hand from a fetched response has nothing checking it against what was actually fetched.
 
+**Scope note:** `data/glottolog-resolution.yml` covers every glottocode in the atlas, not only the 30
+candidates — Task 2 was extended to add rows for `amharic`, `choctaw`, `myaamia` and `te-reo-maori`,
+which were sourced in an earlier sub-project and are already `status: verified`. Without those rows this
+guard would refuse four records the maintainer has already signed.
+
 **Files:**
 - Create: `src/lib/record-guards.ts`
 - Create: `tests/record-guards.test.ts`
@@ -519,6 +524,21 @@ describe('resolutionProblems', () => {
     expect(problems.some((p) => p.includes('cherokee'))).toBe(true)
   })
 
+  it('accepts a dialect-level glottocode on a record', () => {
+    // Glottolog gives a dialect no coordinate, so such a record carries
+    // centre: null — but the code itself identifies the lect precisely and is
+    // not the category error a family code would be.
+    const dialect = res({ searched: 'SENĆOŦEN', glottocode: 'saan1246', level: 'dialect', latitude: null, longitude: null })
+    expect(resolutionProblems([lang({ id: 'sencoten', glottocode: 'saan1246', centre: null, caveat: 'c' })], [dialect])).toEqual([])
+  })
+
+  it('exempts an approximate centre from the coordinate check', () => {
+    expect(resolutionProblems(
+      [lang({ id: 'myaamia', glottocode: 'cher1273', centre: { ...centre({ lat: 40, lon: -90 }), confidence: 'approximate' } })],
+      [cherokee],
+    )).toEqual([])
+  })
+
   it('ignores a record with no glottocode', () => {
     // D8 cover terms carry glottocode: null deliberately.
     expect(resolutionProblems([lang({ id: 'quechua', glottocode: null, centre: null })], [cherokee])).toEqual([])
@@ -574,13 +594,25 @@ export function resolutionProblems(
       )
       continue
     }
-    if (r.level !== 'language') {
+    // FAMILY specifically, not "anything but language". Glottolog also returns
+    // level: dialect — Inuinnaqtun (copp1244) and SENĆOŦEN (saan1246) both do —
+    // and a dialect is the opposite problem from a family: it is MORE specific
+    // than a language, not less, so its code identifies the lect precisely and
+    // belongs in the record. Only a family code is the category error this
+    // catches, because only a family stands in for languages it is not.
+    if (r.level === 'family') {
       problems.push(
-        `language ${l.id}: glottocode "${l.glottocode}" is Glottolog level "${r.level}", not a language — ` +
+        `language ${l.id}: glottocode "${l.glottocode}" is Glottolog level "family", not a language — ` +
           'a cover term takes glottocode: null and a caveat instead (spec D8)',
       )
     }
-    if (l.centre !== null && (l.centre.lat !== r.latitude || l.centre.lon !== r.longitude)) {
+    // Only a `sourced` centre claims to BE the fetched coordinate. An
+    // `approximate` one says in the record that it is not — myaamia carries
+    // 40, -90, a placeholder the maintainer knowingly kept — so demanding
+    // equality there would refuse a record on the strength of a hedge it
+    // already declares.
+    if (l.centre !== null && l.centre.confidence === 'sourced'
+        && (l.centre.lat !== r.latitude || l.centre.lon !== r.longitude)) {
       problems.push(
         `language ${l.id}: centre ${l.centre.lat}, ${l.centre.lon} disagrees with the fetched ` +
           `Glottolog coordinates ${r.latitude}, ${r.longitude} for "${l.glottocode}"`,
