@@ -226,14 +226,20 @@ Measured against Glottolog: "Quechua" spans 43 languages, "Nahuatl" 31, "Maya"
 and no ISO 639-3 code** — verified by fetching `quec1387`, `azte1234`,
 `maya1287`, `chat1268`, `otom1299` and `tupi1275`, all of which return
 `latitude: null`. The corpus names these at cover-term level nearly everywhere, but "never" was
-too strong — corrected 2026-09-06 while writing the records. Across all 92 heads
-there are **two** variety-level narrowings, both in papers that genuinely study
-the variety they name:
+too strong — corrected 2026-09-06 while writing the records, then corrected AGAIN
+the same day when a reviewer found one more. **Do not treat any count below as
+exhaustive.** Three narrowings are known, each found by a different person using a
+different search, which is the strongest available evidence that grep-derived
+counts of this corpus run low. The pattern has now repeated three times on this
+project — "33 of 92 mappable", "exactly one narrowing", "two narrowings" — so a
+caveat should say what is known without claiming completeness:
 
 - `gibert-et-al-2025-americas-nlp`: "Nahuatl (Western Sierra Puebla variety)
   proved by far the hardest language".
 - `court-and-elsner-et-al-2024-llm-low-ressource`: "**Southern Quechua:** A
   Peruvian endangered Indigenous language used as the source language".
+- `yahan-and-islam-2025-fine-tuning`: "(Bribri, Guarani, Maya, **Nahuatl
+  Omitlan**)".
 
 So the `nahuatl` and `quechua` caveats must NOT claim the corpus never narrows
 them. They say instead that the corpus names the cover term in most papers and
