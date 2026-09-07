@@ -701,6 +701,14 @@ Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>"
 
 ## The record templates
 
+> **These templates are SHAPE, not DATA.** Every value below that is not a literal schema keyword is a
+> placeholder. An earlier version of this plan wrote `also_known_as: [Tsalagi]` into the Shape A example as an
+> illustration; an implementer read it as the answer and shipped an alias with no source. Tsalagi is a real
+> Cherokee endonym, which is why it survived review until someone grepped for it. Take every field's VALUE
+> from the language's row in `data/glottolog-resolution.yml`, never from this template and never from your
+> own knowledge.
+
+
 All three record tasks use these shapes. Every field not sourced is `null` or `[]` — never a plausible guess. Three fields are `null` on **every** record this plan creates, for the reasons SP0 recorded in `data/REVIEW-QUEUE.md` and which have not changed:
 
 - `typology: []` — the schema has no `source` slot for typology, so an unsourced typological claim would enter the artifact uncited. A reviewer fills these from WALS/Grambank, both linked from every Glottolog entry.
@@ -714,7 +722,7 @@ All three record tasks use these shapes. Every field not sourced is `null` or `[
 # fetched response this record was written from.
 id: cherokee
 name: Cherokee
-also_known_as: [Tsalagi]
+also_known_as: [<same rule: only from the resolution row or the corpus. `[]` if none.>]
 glottocode: cher1273
 iso639_3: chr
 tier: indigenous
@@ -746,7 +754,7 @@ status: draft
 # A COVER TERM, not a language. See data/glottolog-resolution.yml.
 id: quechua
 name: Quechua
-also_known_as: [Quechuan, Runasimi]
+also_known_as: [<ONLY names from this row in glottolog-resolution.yml — its `name` or its `note` — or names the corpus itself uses. Never one you know. `[]` if none.>]
 glottocode: null
 iso639_3: null
 tier: indigenous
@@ -776,7 +784,7 @@ status: draft
 # soft fields are an Indigenous-tier feature and the schema enforces it.
 id: persian
 name: Persian
-also_known_as: [Farsi, فارسی]
+also_known_as: [<same rule: only from the resolution row or the corpus. `[]` if none.>]
 glottocode: west2369
 iso639_3: pes
 tier: adjacent
