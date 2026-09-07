@@ -67,7 +67,7 @@
   status: draft
 
 - paper: feng-et-al-2025-culfit
-  languages: [amharic]
+  languages: [amharic, sundanese]
   source:
     kind: paper
     ref: /summaries/feng-et-al-2025-culfit/
@@ -75,11 +75,11 @@
       Low-resource language regions (Sundanese in West Java, Amharic in Ethiopia) show
       the largest gains, validating the approach for truly under-represented cultures.
   note: >-
-    Weaker than title-level evidence: Amharic is one of 23 evaluation languages in the
-    paper's GlobalCultureQA benchmark, not the paper's subject. Kept because the paper
-    reports a specific measured result for it (largest gains among low-resource
-    regions), which is more than a passing mention — but a reader should not read this
-    as an Amharic-focused paper.
+    Weaker than title-level evidence: Amharic and Sundanese are two of 23 evaluation
+    languages in the paper's GlobalCultureQA benchmark, not the paper's subject. Kept
+    because the paper reports a specific measured result naming both regions (largest
+    gains among low-resource regions), which is more than a passing mention — but a
+    reader should not read this as an Amharic- or Sundanese-focused paper.
   status: draft
 
 # The 8 candidates below were considered and refused. Kept at
@@ -661,7 +661,7 @@
   status: draft
 
 - paper: song-et-al-2026-slm
-  languages: [quechua, guarani]
+  languages: [quechua, guarani, yoruba]
   source:
     kind: paper
     ref: /summaries/song-et-al-2026-slm/
@@ -670,20 +670,23 @@
       translation quality even after distillation, reflecting the difficulty of the XLR
       regime
   note: >-
-    This is the only mention of either language anywhere in the summary, and it names
-    them in a list-of-examples frame ("Languages like ...") illustrating the XLR regime
-    in general, not a per-language reported result — no Quechua- or Guarani-specific
-    figure appears anywhere in the summary. Whether this paper's own 200-language
-    evaluation in fact reports individual numbers for these two is genuinely ambiguous
-    from the summary alone, and the rule for that case is to omit, not to argue it
-    through. Rejected under the ambiguity rule, not because the paper necessarily lacks
-    the evidence — a curator who reads the full paper and finds per-language results for
-    Quechua or Guarani should feel free to promote this to draft or accepted; that is
-    exactly what this record is for.
+    This is the only mention of any of these three languages anywhere in the summary,
+    and it names them in a list-of-examples frame ("Languages like ...") illustrating
+    the XLR regime in general, not a per-language reported result — no Quechua-,
+    Yoruba-, or Guarani-specific figure appears anywhere in the summary. Whether this
+    paper's own 200-language evaluation in fact reports individual numbers for these is
+    genuinely ambiguous from the summary alone, and the rule for that case is to omit,
+    not to argue it through. Rejected under the ambiguity rule, not because the paper
+    necessarily lacks the evidence — a curator who reads the full paper and finds
+    per-language results for Quechua, Yoruba, or Guarani should feel free to promote
+    this to draft or accepted; that is exactly what this record is for. (Yoruba added
+    under the same reasoning as Quechua/Guarani above: applying a different standard to
+    the identical sentence for a third language would be worse than being consistently
+    strict.)
   status: rejected
 
 - paper: aycock-et-al-2025-grammar-book
-  languages: [guarani]
+  languages: [guarani, nepali]
   source:
     kind: paper
     ref: /summaries/aycock-et-al-2025-grammar-book/
@@ -691,9 +694,10 @@
       Languages with essentially no available parallel corpora; the paper focuses on
       Kalamang, Nepali, and Guarani
   note: >-
-    One of the three languages (with Kalamang and Nepali) this paper's grammar-book
-    prompting experiments cover, with its own reported results ("Guarani (seen
-    low-resource languages)"); not the paper's sole subject.
+    One of the three languages (with Kalamang) this paper's grammar-book prompting
+    experiments cover, each with its own reported result: "Results hold across Kalamang
+    (XLR, unseen by LLMs), Nepali, and Guarani (seen low-resource languages)". Neither
+    Nepali nor Guarani is the paper's sole subject.
   status: draft
 
 - paper: pinhanez-et-al-2024-vitalize
@@ -712,7 +716,7 @@
   status: rejected
 
 - paper: zhang-et-al-2024-hire-a-linguist
-  languages: [bribri]
+  languages: [bribri, wolof]
   source:
     kind: paper
     ref: /summaries/zhang-et-al-2024-hire-a-linguist/
@@ -721,6 +725,144 @@
       translation directions covering 8 endangered/low-resource languages (Manchu,
       Gitksan, Arapaho, Natugu, Tsez, Wolof, Uspanteko, Bribri)
   note: >-
-    One of 8 endangered/low-resource languages this paper evaluates translation on; not
-    the paper's sole subject.
+    Bribri and Wolof are two of 8 endangered/low-resource languages this paper evaluates
+    translation on, each only via this aggregate figure — no per-language BLEU is
+    reported for either in the summary; not the paper's sole subject.
   status: draft
+
+- paper: zhang-et-al-2024-hire-a-linguist
+  languages: [manchu]
+  source:
+    kind: paper
+    ref: /summaries/zhang-et-al-2024-hire-a-linguist/
+    quote: >-
+      Mathematical reasoning accuracy improves from 18% (zero-shot) to 75% (LINGOLLM) on
+      Manchu, and response selection accuracy from 43% to 63%.
+  note: >-
+    Manchu is one of the paper's 8 evaluated endangered/low-resource languages (see the
+    Bribri/Wolof entry above for the shared aggregate BLEU figure), but unlike the
+    other seven it also gets dedicated per-language experiments and results — this
+    mathematical-reasoning and response-selection figure, plus a separate human-baseline
+    BLEU comparison (20.32 vs. 9.12) elsewhere in the summary. Stronger evidence than
+    the aggregate-only mapping, but still not the paper's sole subject, hence the note.
+  status: draft
+
+- paper: pei-et-al-2025-in-context-learning
+  languages: [manchu]
+  source:
+    kind: paper
+    ref: /summaries/pei-et-al-2025-in-context-learning/
+    quote: >-
+      Understanding In-Context Machine Translation for Low-Resource Languages: A Case
+      Study on Manchu
+  note: null
+  status: draft
+
+- paper: ansari-et-al-2026-persian-poetry
+  languages: [persian]
+  source:
+    kind: paper
+    ref: /summaries/ansari-et-al-2026-persian-poetry/
+    quote: >-
+      Multi-modal Neural Machine Translation for Low-Resource Classical Persian Poetry:
+      A Culture-Aware Evaluation
+  note: null
+  status: draft
+
+- paper: monazzah-et-al-2025-percurl
+  languages: [persian]
+  source:
+    kind: paper
+    ref: /summaries/monazzah-et-al-2025-percurl/
+    quote: >-
+      PERCUL: A Story-Driven Cultural Evaluation of LLMs in Persian
+  note: null
+  status: draft
+
+- paper: sadr-et-al-2025-taarof
+  languages: [persian]
+  source:
+    kind: paper
+    ref: /summaries/sadr-et-al-2025-taarof/
+    quote: >-
+      We Politely Insist: Your LLM Must Learn the Persian Art of Taarof
+  note: null
+  status: draft
+
+- paper: sakhaeirad-et-al-2026-persian-llm
+  languages: [persian]
+  source:
+    kind: paper
+    ref: /summaries/sakhaeirad-et-al-2026-persian-llm/
+    quote: >-
+      Unmasking the Factual-Conceptual Gap in Persian Language Models
+  note: null
+  status: draft
+
+- paper: zebaze-et-al-2025-in-context-learning
+  languages: [swahili, wolof]
+  source:
+    kind: paper
+    ref: /summaries/zebaze-et-al-2025-in-context-learning/
+    quote: >-
+      Similarity-based retrieval consistently improves MT quality for low-resource
+      language directions (Wolof, Swahili); the benefit is absent or weaker for
+      high-resource pairs, resolving conflicting prior results.
+  note: >-
+    Weaker than title-level evidence: Wolof and Swahili are the paper's two low-resource
+    translation directions, studied alongside high-resource pairs (French, German); the
+    paper reports a measured retrieval-quality result specific to this pair of
+    directions, not a passing mention, but neither language is the paper's sole subject.
+  status: draft
+
+- paper: ajani-et-al-2024-revitalizing
+  languages: [yoruba]
+  source:
+    kind: paper
+    ref: /summaries/ajani-et-al-2024-revitalizing/
+    quote: >-
+      Case studies from Africa (South Africa's Indigenous Digital Archive, Ghana's
+      Sankofa Digital Archive, Tanzania's "Ntongato" app, Nigeria's "Learn Yoruba" app)
+      illustrate concrete implementations.
+  note: >-
+    This survey names Nigeria's "Learn Yoruba" app as one of four illustrative
+    case-study examples spanning four different countries, in a paper whose actual
+    subject is digital media technology for Indigenous language revitalization in
+    general. No experiment, dataset, or result specific to Yoruba is reported anywhere
+    in the summary — this is a passing artifact mention, not evidence the paper studies
+    Yoruba. Rejected under the studies rule.
+  status: rejected
+
+- paper: mager-et-al-2022-bpe-polysynthetic
+  languages: [nepali]
+  source:
+    kind: paper
+    ref: /summaries/mager-et-al-2022-bpe-polysynthetic/
+    quote: >-
+      BPE's advantage in moderate-resource settings (Nepali, Kazakh) disappears or
+      reverses in ELR polysynthetic settings because BPE cannot learn morpheme-aligned
+      subword units from such small corpora.
+  note: >-
+    The paper's own four studied languages are Nahuatl, Raramuri, Shipibo-Konibo, and
+    Wixarika (per its Core Argument and Main Findings); Nepali appears only as a
+    prior-work comparison point illustrating moderate-resource BPE behaviour, not as a
+    language this paper runs experiments on. Passing comparison mention; rejected under
+    the studies rule.
+  status: rejected
+
+- paper: sanchez-et-al-2025-linguini
+  languages: [basque]
+  source:
+    kind: paper
+    ref: /summaries/sanchez-et-al-2025-linguini/
+    quote: >-
+      NeurIPS 2025 (Meta AI, University College London, University of the Basque
+      Country)
+  note: >-
+    The only occurrence of "Basque" anywhere in the summary is inside the venue line's
+    author-affiliation credit ("University of the Basque Country"); nothing in the
+    summary states that Basque is one of the benchmark's 75 languages, and the visible
+    text names no specific languages from that set at all. This names an institution,
+    not a studied language. Rejected under the studies rule — a coincidental substring
+    match is not evidence.
+  status: rejected
