@@ -1,6 +1,8 @@
 *.h5
 .worktrees/
 .superpowers/
+.DS_STORE
+
 
 # A root `pnpm install` is now possible (package.json declares the toolchain for
 # Vercel/CI). It has no dependencies, so it installs nothing — but pnpm still
