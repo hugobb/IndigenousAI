@@ -1,11 +1,16 @@
-# What Glottolog returned for every candidate language name the corpus uses.
-# This is the audit trail for spec D9's resolution step, which D9 itself calls
-# "the one step in this whole sub-project that can fail silently": "Maya"
-# matches ~86 languoids on Glottolog's search, "Nahuatl" ~144, "Quechua" ~185,
-# and picking the wrong one produces a record that looks entirely correct to
-# every automated check and to a casual reader. Task 3 turns this file into a
-# guard that checks every language record against it; Tasks 4-6 write the
-# records themselves from these rows.
+# What Glottolog returned for every glottocode used ANYWHERE in the atlas —
+# not only the 31 candidate names surveyed for this sub-project (SP3b), but
+# also the glottocodes carried by language records sourced before it (Amharic,
+# Choctaw, Myaamia, Te Reo Māori). This is the audit trail for spec D9's
+# resolution step, which D9 itself calls "the one step in this whole
+# sub-project that can fail silently": "Maya" matches ~86 languoids on
+# Glottolog's search, "Nahuatl" ~144, "Quechua" ~185, and picking the wrong
+# one produces a record that looks entirely correct to every automated check
+# and to a casual reader. Task 3 turns this file into a guard that refuses any
+# language record whose `glottocode` appears in no row here — a file scoped
+# only to SP3b's candidates would force that guard to skip codes it cannot
+# find, which is exactly the silent hole this file exists to close. Tasks 4-6
+# write SP3b's own new records from these rows.
 #
 # `latitude`/`longitude` are Glottolog's own published values, fetched from
 # `https://glottolog.org/resource/languoid/id/<glottocode>.json` and quoted
@@ -18,14 +23,19 @@
 # carry no coordinates and no ISO 639-3 code, confirmed here and in D8/D9's
 # own pre-verification against quec1387, azte1234, maya1287, chat1268,
 # otom1299 and tupi1275. `level: dialect` covers two names (SENĆOŦEN,
-# Inuinnaqtun) that Glottolog files one step below `language`; those also
-# carry no coordinates or ISO code of their own, for the same reason — it is
-# what Glottolog's own data says, not a fetch failure.
+# Inuinnaqtun) that Glottolog files one step below `language`; Glottolog
+# publishes NO coordinate and no ISO code for any dialect-level languoid,
+# confirmed for both codes here — it is what Glottolog's own data says, not a
+# fetch failure.
 #
-# `searched` is the name as the CORPUS writes it, never Glottolog's own name.
-# The two differing is expected and is the entire point of the row (SENĆOŦEN
-# -> Saanich, Rarámuri -> Tarahumaran) — `note` explains it whenever the
-# reasoning is not obvious from the two names alone.
+# `searched` is the name as the CORPUS (or, for the four pre-existing records,
+# the record itself) writes it, never Glottolog's own name. The two differing
+# is expected and is the entire point of the row (SENĆOŦEN -> Saanich,
+# Rarámuri -> Tarahumaran) — `note` explains it whenever the reasoning is not
+# obvious from the two names alone. The four rows for records sourced before
+# this sub-project say so explicitly in their own note, since there was no
+# resolution judgment call to make for them — they exist only so Task 3's
+# guard has a row to find.
 
 - searched: Cherokee
   glottocode: cher1273
@@ -95,8 +105,10 @@
   note: >-
     Direct, unambiguous match on the exact name, but Glottolog files
     Inuinnaqtun as a dialect of Western Canadian Inuktitut (west2618), not as
-    its own language-level entry — the null coordinates and null ISO code are
-    Glottolog's own dialect-level convention, not a failed fetch.
+    its own language-level entry. Glottolog publishes NO coordinate and no
+    ISO code for any dialect-level languoid — confirmed by fetching copp1244
+    directly, which returns latitude: null — so the nulls here are Glottolog's
+    own dialect-level convention, not a failed fetch.
 
 - searched: Inuktut
   glottocode: inui1246
@@ -144,9 +156,10 @@
     Glottolog's search returns zero results for "SENĆOŦEN", the W̱SÁNEĆ
     community's own name; Glottolog's entry is titled "Saanich" (the common
     English exonym) and files it as a dialect of Northern Straits Salish
-    (stra1244, which does carry coordinates), so this row's own coordinates
-    and ISO code are null — Glottolog's dialect-level convention, not a
-    failed fetch.
+    (stra1244, which does carry coordinates). Glottolog publishes NO
+    coordinate and no ISO code for any dialect-level languoid — confirmed by
+    fetching saan1246 directly, which returns latitude: null — so this row's
+    own nulls are Glottolog's dialect-level convention, not a failed fetch.
 
 - searched: Cree
   glottocode: cree1272
@@ -474,3 +487,77 @@
   classification: [Austronesian, Malayo-Polynesian]
   retrieved: "2026-09-06"
   note: null
+
+# The four rows below are not among SP3b's 31 candidates. They document
+# glottocodes already carried by language records the maintainer sourced and
+# verified in an earlier sub-project (data/languages/{amharic,choctaw,
+# myaamia,te-reo-maori}.yml). Task 3's guard reads this file as the audit
+# trail for every glottocode in the atlas, not only SP3b's candidates, so
+# each pre-existing record needs a row here too or the guard would have to
+# silently skip codes it cannot find — exactly the hole this file exists to
+# close. `searched` is the name each existing record itself uses.
+
+- searched: Amharic
+  glottocode: amha1245
+  name: Amharic
+  level: language
+  iso639_3: amh
+  latitude: 11.708182
+  longitude: 39.543456
+  classification: [Afro-Asiatic, Semitic, West Semitic, Ethiosemitic, South Ethiopic, Amharic-Argobba]
+  retrieved: "2026-09-06"
+  note: >-
+    Not one of SP3b's 31 candidates: documents data/languages/amharic.yml,
+    already status: verified, sourced before this sub-project, so Task 3's
+    guard has a row to find it under.
+
+- searched: Choctaw
+  glottocode: choc1276
+  name: Choctaw
+  level: language
+  iso639_3: cho
+  latitude: 32.25
+  longitude: -88.5
+  classification: [Muskogean, Western Muskogean]
+  retrieved: "2026-09-06"
+  note: >-
+    Not one of SP3b's 31 candidates: documents data/languages/choctaw.yml,
+    already status: verified, sourced before this sub-project, so Task 3's
+    guard has a row to find it under.
+
+- searched: Myaamia
+  glottocode: miam1252
+  name: Miami
+  level: language
+  iso639_3: mia
+  latitude: 40.0
+  longitude: -90.0
+  classification: [Algic, Algonquian-Blackfoot, Algonquian, "Eastern Great Lakes Algonquian"]
+  retrieved: "2026-09-06"
+  note: >-
+    Not one of SP3b's 31 candidates: documents data/languages/myaamia.yml,
+    already status: verified, sourced before this sub-project, so Task 3's
+    guard has a row to find it under. Recorded verbatim, NOT adjusted to
+    match the record: the existing record carries a deliberate placeholder
+    centre (lat: 40, lon: -90, confidence: approximate) that the maintainer
+    knowingly kept rather than a sourced Glottolog coordinate. Glottolog's own
+    centroid for miam1252 happens to equal that placeholder numerically, but
+    this row does not confirm, endorse, or explain that coincidence — it only
+    records what the fetch returned. This file does not touch the record, and
+    Task 3 scopes its coordinate check to confidence: sourced rows only.
+
+- searched: "Te Reo Māori"
+  glottocode: maor1246
+  name: Maori
+  level: language
+  iso639_3: mri
+  latitude: -38.2881
+  longitude: 176.541
+  classification: [Austronesian, Malayo-Polynesian, "Eastern Malayo-Polynesian", Oceanic, "Central Pacific linkage", "Tokalau Fijian", Polynesian, "Nuclear Polynesian", "Northern Outlier Polynesian-East Polynesian", "Solomons Northern Outlier Polynesian-East Polynesian", "Central Northern Outlier Polynesian-East Polynesian", "East Polynesian", "East Polynesian Proximal", "Southern East Polynesian Proximal", Maoric]
+  retrieved: "2026-09-06"
+  note: >-
+    Not one of SP3b's 31 candidates: documents data/languages/te-reo-maori.yml,
+    already status: verified, sourced before this sub-project, so Task 3's
+    guard has a row to find it under. Glottolog's own name is "Maori" (no
+    macron, no "Te Reo"); the record and the corpus use the fuller
+    Māori-language name for the same language.
