@@ -1,11 +1,13 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Initiative, Language, PaperLanguage } from '../src/schema/index.js'
+import type { GlottologResolution, Initiative, Language, PaperLanguage } from '../src/schema/index.js'
 import type { QuoteProvenance } from '../src/lib/quote-provenance.js'
 import { quoteProvenance } from '../src/lib/quote-provenance.js'
+import { coverTermProblems, resolutionProblems } from '../src/lib/record-guards.js'
 import { findStrayFiles, loadInitiatives, loadLanguages, recordDirStatus } from './lib/load-records.js'
 import { loadPaperLanguages, paperLanguagesFileStatus } from './lib/load-paper-languages.js'
+import { glottologResolutionFileStatus, loadGlottologResolution } from './lib/load-glottolog-resolution.js'
 
 export interface ValidateInput {
   languages: Language[]
@@ -38,6 +40,14 @@ export interface ValidateInput {
    *  missing record directory: zero mappings loaded reads exactly like a file
    *  nobody has written. */
   missingMappingFile: boolean
+  /** What Glottolog actually returned for every glottocode in the atlas
+   *  (`data/glottolog-resolution.yml`), checked against the language records
+   *  by `resolutionProblems`. Unlike the mapping file above, an absent or
+   *  unreadable resolution file needs no dedicated "missing" flag here: with
+   *  zero rows, every record with a non-null glottocode already fails
+   *  "appears in no row" on its own, which is the correct diagnosis for a
+   *  missing file too. */
+  glottologResolution: GlottologResolution[]
 }
 
 function findDuplicates(ids: string[], kind: string): string[] {
@@ -76,6 +86,12 @@ export function validate(input: ValidateInput): string[] {
       problems.push(`language ${l.id}: status is draft — review it and set status: verified, or status: rejected`)
     }
   }
+
+  // Spec D8/D9. `languages` above is already rejected-filtered — a withdrawn
+  // record is withdrawn from every gate, exactly like a rejected mapping is
+  // below.
+  problems.push(...coverTermProblems(languages))
+  problems.push(...resolutionProblems(languages, input.glottologResolution))
 
   const languageIds = new Set(languages.map((l) => l.id))
 
@@ -179,11 +195,18 @@ const RECORD_DIRS = ['data/languages', 'data/initiatives'] as const
 
 const MAPPINGS = url('../data/paper-languages.yml')
 const SUMMARY_DIR = url('../../litterature_review/summaries')
+const GLOTTOLOG_RESOLUTION = url('../data/glottolog-resolution.yml')
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const dirs = RECORD_DIRS.map((label) => ({ label, path: url(`../${label}`) }))
   const mappingStatus = paperLanguagesFileStatus(MAPPINGS)
   const paperLanguages = mappingStatus === 'ok' ? loadPaperLanguages(MAPPINGS) : []
+  // A missing/unreadable resolution file needs no separate "missing" problem:
+  // with zero rows, `resolutionProblems` already refuses every record with a
+  // non-null glottocode as "appears in no row", which is the right diagnosis
+  // for that case too.
+  const glottologResolution =
+    glottologResolutionFileStatus(GLOTTOLOG_RESOLUTION) === 'ok' ? loadGlottologResolution(GLOTTOLOG_RESOLUTION) : []
   const problems = validate({
     languages: loadLanguages(url('../data/languages')),
     initiatives: loadInitiatives(url('../data/initiatives')),
@@ -192,6 +215,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     missingDirs: dirs.filter((d) => recordDirStatus(d.path) !== 'ok').map((d) => d.label),
     strayFiles: dirs.flatMap((d) => findStrayFiles(d.path)),
     paperLanguages,
+    glottologResolution,
     // Rejected mappings are skipped here too: nobody is going to publish one,
     // so its summary is never read and it can never trip the unreadable-file
     // path below on a mapping the maintainer already withdrew.

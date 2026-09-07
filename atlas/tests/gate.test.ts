@@ -38,6 +38,13 @@ function inputFrom(d: string) {
     paperLanguages: [],
     paperLanguageQuotes: [],
     missingMappingFile: false,
+    // Likewise: this harness stages no resolution file, so every record it
+    // loads must carry a null glottocode or the resolution guard would refuse
+    // it as unfetched — true of every fixture under tests/fixtures/records
+    // today. The guard itself is exercised on real data by
+    // record-guards.test.ts and against the real resolution file by validate
+    // being run for real in scripts/validate.ts's CLI section.
+    glottologResolution: [],
   }
 }
 

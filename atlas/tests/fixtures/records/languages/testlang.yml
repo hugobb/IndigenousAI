@@ -12,4 +12,5 @@ speakers: null
 region: north-america
 countries: [CA]
 centre: null
+caveat: Fixture record; not mapped by design.
 status: verified

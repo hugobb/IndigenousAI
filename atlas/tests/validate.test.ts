@@ -8,11 +8,17 @@ import type { Initiative, Language, PaperLanguage } from '../src/schema/index.js
 
 const src = { kind: 'url' as const, ref: 'https://example.test', retrieved: '2026-09-03', quote: null }
 
+// `caveat` defaults to a placeholder, not null: this fixture is `tier:
+// indigenous` with `centre: null`, which is exactly the shape
+// `coverTermProblems` refuses without a caveat (spec D8). The real
+// kanienkeha record this fixture is modelled on carries one for the same
+// reason. Tests that specifically exercise the cover-term guard override
+// `caveat: null` explicitly.
 const lang = (over: Partial<Language> = {}): Language => ({
   id: 'kanienkeha', name: "Kanien'kéha", also_known_as: [], glottocode: null, iso639_3: null,
   tier: 'indigenous', family: 'Iroquoian', subfamily: null, typology: ['polysynthetic'],
   endangerment: null, speakers: null, region: 'north-america', countries: ['CA'],
-  centre: null, caveat: null, status: 'verified', ...over,
+  centre: null, caveat: 'Not mapped: fixture record.', status: 'verified', ...over,
 })
 
 const init = (over: Partial<Initiative> = {}): Initiative => ({
@@ -31,6 +37,7 @@ const base = {
   paperLanguages: [],
   paperLanguageQuotes: [],
   missingMappingFile: false,
+  glottologResolution: [],
 }
 
 describe('validate', () => {
@@ -146,6 +153,22 @@ describe('validate', () => {
 
     expect(recordDirStatus(join(parent, 'renamed-by-accident'))).toBe('missing')
     rmSync(parent, { recursive: true, force: true })
+  })
+
+  it('reports a cover-term record with no caveat', () => {
+    const problems = validate({
+      languages: [lang({ id: 'quechua', tier: 'indigenous', centre: null, caveat: null, status: 'draft' })],
+      initiatives: [init()], ...base,
+    })
+    expect(problems.some((p) => p.includes('quechua') && p.includes('caveat'))).toBe(true)
+  })
+
+  it('excludes a rejected record from the cover-term check', () => {
+    const problems = validate({
+      languages: [lang({ id: 'quechua', tier: 'indigenous', centre: null, caveat: null, status: 'rejected' })],
+      initiatives: [init()], ...base,
+    })
+    expect(problems.some((p) => p.includes('quechua') && p.includes('caveat'))).toBe(false)
   })
 })
 
