@@ -211,3 +211,258 @@
     Brazil (FOIRN, Nheengatu) and New Zealand (Māori), confirming its actual
     fieldwork is elsewhere, not that it studies Māori. Rejected.
   status: rejected
+
+# Task 7 (SP3b): North American and Pacific papers. Candidates were the
+# table in the task brief (cherokee, seneca, kanienkeha, inuktitut,
+# inuinnaqtun, innu-aimun, sencoten, cree, yupik, aleut, hawaiian), plus
+# inuktut per a brief correction (the brief's table omitted the inuktut
+# record even though kuhn-et-al-2020-nrc-canada and le-and-sadat-2021-canada
+# both name it). The kanienkeha candidates in this table
+# (arnett-and-bergen-2025-morphologically-complex, le-and-sadat-2021-canada,
+# liu-et-al-2021-morphological-segmentation, pinhanez-et-al-2024-vitalize)
+# were already recorded above as rejected pairs by the prior task; they are
+# not duplicated here.
+- paper: zhang-et-al-2022-cherokee-nlp
+  languages: [cherokee]
+  source:
+    kind: paper
+    ref: /summaries/zhang-et-al-2022-cherokee-nlp/
+    quote: >-
+      How can NLP Help Revitalize Endangered Languages? A Case Study and Roadmap for the
+      Cherokee Language
+  note: null
+  status: draft
+
+- paper: liu-et-al-2021-morphological-segmentation
+  languages: [seneca]
+  source:
+    kind: paper
+    ref: /summaries/liu-et-al-2021-morphological-segmentation/
+    quote: >-
+      Morphological Segmentation for Seneca
+  note: null
+  status: draft
+
+- paper: khandagale-et-al-2022-polysynthetic
+  languages: [inuktitut]
+  source:
+    kind: paper
+    ref: /summaries/khandagale-et-al-2022-polysynthetic/
+    quote: >-
+      Testing on two typologically distinct polysynthetic languages — Adyghe (Northwest
+      Caucasian) and Eastern Canadian Inuktitut — the authors show that incorporating
+      linguist-provided morphological knowledge into the MorphAGram framework improves
+      segmentation quality, and that using stems (rather than words) as the unit of
+      abstraction improves POS tagging through cross-lingual projection.
+  note: >-
+    Inuktitut is one of exactly two test languages (with Adyghe), but each gets its own
+    contributed gold-standard dataset and its own reported results in this paper — full
+    experimental subject matter, not a passing mention, even though Inuktitut is not the
+    paper's sole focus.
+  status: draft
+
+- paper: le-and-sadat-2021-canada
+  languages: [inuktitut, inuinnaqtun]
+  source:
+    kind: paper
+    ref: /summaries/le-and-sadat-2021-canada/
+    quote: >-
+      Inuktitut and Inuinnaqtun — two closely related polysynthetic languages of the
+      Canadian Arctic — present extreme challenges for NMT due to polysynthesis, dialectal
+      variation, noisy data, and scarce resources.
+  note: null
+  status: draft
+
+- paper: ngoc-et-al-2021-inuinnaqtun
+  languages: [inuinnaqtun]
+  source:
+    kind: paper
+    ref: /summaries/ngoc-et-al-2021-inuinnaqtun/
+    quote: >-
+      Towards the First Automatic Unsupervised Morphological Segmentation for Inuinnaqtun
+  note: null
+  status: draft
+
+- paper: stenlund-et-al-2025-inuktitut
+  languages: [inuktitut]
+  source:
+    kind: paper
+    ref: /summaries/stenlund-et-al-2025-inuktitut/
+    quote: >-
+      LLM-Based Morphological Segmentation for Inuktitut Syllabics
+  note: null
+  status: draft
+
+- paper: cadotte-et-al-2022-innu-aimmun
+  languages: [innu-aimun]
+  source:
+    kind: paper
+    ref: /summaries/cadotte-et-al-2022-innu-aimmun/
+    quote: >-
+      Innu-Aimun, a polysynthetic Algonquian language spoken by ~12,000 people in Quebec and
+      Labrador, presents extreme out-of-vocabulary (OOV) challenges for standard NLP
+      approaches
+  note: null
+  status: draft
+
+- paper: le-et-al-2022-innu-aimun
+  languages: [innu-aimun]
+  source:
+    kind: paper
+    ref: /summaries/le-et-al-2022-innu-aimun/
+    quote: >-
+      Innu-Aimun (Algonquian, polysynthetic, ~11,360 speakers in Quebec and Labrador) has
+      not previously been studied for computational morphological segmentation.
+  note: null
+  status: draft
+
+- paper: kuhn-et-al-2020-nrc-canada
+  languages: [sencoten]
+  source:
+    kind: paper
+    ref: /summaries/kuhn-et-al-2020-nrc-canada/
+    quote: >-
+      allows communities to build predictive text models from a spreadsheet of words,
+      without sharing data with a central entity. Implemented for SENĆOŦEN.
+  note: >-
+    One of several language-specific tools in this multi-language NRC portfolio (see also
+    this paper's kanienkeha and inuktut entries): the decentralized predictive-text tool
+    was built and implemented specifically for SENĆOŦEN.
+  status: draft
+
+- paper: kuhn-et-al-2020-nrc-canada
+  languages: [inuktut]
+  source:
+    kind: paper
+    ref: /summaries/kuhn-et-al-2020-nrc-canada/
+    quote: >-
+      1.3 million sentence-aligned Inuktut–English pairs from Nunavut Legislative Assembly
+      proceedings.
+  note: >-
+    The paper's own vocabulary names the Nunavut Hansard corpus and shared MT task
+    "Inuktut" (the Government of Nunavut's cover term for Inuktitut+Inuinnaqtun jointly);
+    this is the paper's own subject-matter naming, not a curator substitution.
+  status: draft
+
+- paper: zhao-et-al-2026-ai-auditing-tools
+  languages: [hawaiian]
+  source:
+    kind: paper
+    ref: /summaries/zhao-et-al-2026-ai-auditing-tools/
+    quote: >-
+      Through four co-design workshops with 22 public school educators in O'ahu, Hawai'i —
+      where schools operate under a mandate to integrate Hawaiian language and culture — the
+      authors surface five dimensions of cultural misrepresentation in LLM outputs and
+      propose auditing practices grounded in Hawaiian values
+  note: >-
+    Unlike the rejected godwin-jones/meighan entries (a one-sentence paired example),
+    this paper's fieldwork and community are genuinely and sustainedly Hawaiian — but its
+    own stated subject is "cultural misrepresentation" in AI outputs generally (five
+    dimensions: hallucinated content, stereotypical depictions, Western narrative
+    dominance, missing ethnic diversity, and historicizing framing), not the Hawaiian
+    language specifically. The one clearly language-specific finding (missing 'okina
+    punctuation in 'Olelo Hawai'i) appears as a single item inside a list of narrative and
+    historical harms, not as its own investigated topic. This is HCI/co-design research
+    about auditing practice grounded in a Hawaiian community's values and knowledge
+    system, not NLP work that builds for, or runs experiments on, the Hawaiian language.
+    Rejected.
+  status: rejected
+
+- paper: le-and-sadat-2021-canada
+  languages: [aleut]
+  source:
+    kind: paper
+    ref: /summaries/le-and-sadat-2021-canada/
+    quote: >-
+      Eskimo-Aleut polysynthetic language
+  note: >-
+    "Aleut" appears only inside the family-classification label "Eskimo-Aleut," describing
+    what family Inuktitut belongs to. The paper contains no other mention of Aleut and
+    does not study the Aleut language itself. Rejected.
+  status: rejected
+
+- paper: le-and-sadat-2021-canada
+  languages: [inuktut]
+  source:
+    kind: paper
+    ref: /summaries/le-and-sadat-2021-canada/
+    quote: >-
+      part of the Inuktut dialect continuum
+  note: >-
+    "Inuktut" appears once, only inside a definitional aside explaining what Inuktitut is
+    (part of a wider dialect continuum called Inuktut). The paper's actual objects of
+    study are the two specific languages it names throughout and builds NMT for, Inuktitut
+    and Inuinnaqtun (see this paper's accepted entry for both) — not the cover term
+    itself. Rejected.
+  status: rejected
+
+- paper: khandagale-et-al-2022-polysynthetic
+  languages: [yupik]
+  source:
+    kind: paper
+    ref: /summaries/khandagale-et-al-2022-polysynthetic/
+    quote: >-
+      Inuit-Yupik-Unangan family
+  note: >-
+    "Yupik" appears only inside the family-classification label "Inuit-Yupik-Unangan
+    family," describing what family Inuktitut belongs to. The paper's two studied
+    languages are Adyghe and Eastern Canadian Inuktitut; it contains no Yupik data or
+    results. Rejected.
+  status: rejected
+
+- paper: ngoc-et-al-2021-inuinnaqtun
+  languages: [yupik]
+  source:
+    kind: paper
+    ref: /summaries/ngoc-et-al-2021-inuinnaqtun/
+    quote: >-
+      Inuit-Yupik-Unangan family
+  note: >-
+    Same shape as the rejected khandagale-et-al-2022-polysynthetic pairing: "Yupik"
+    appears only inside the family-classification label for Inuinnaqtun, not as a language
+    the paper studies. Rejected.
+  status: rejected
+
+- paper: le-et-al-2022-innu-aimun
+  languages: [cree]
+  source:
+    kind: paper
+    ref: /summaries/le-et-al-2022-innu-aimun/
+    quote: >-
+      Algonquian polysynthetic language related to Cree and Naskapi
+  note: >-
+    Cree is named only to place Innu-Aimun within its language family ("related to Cree
+    and Naskapi"); the paper's data, experiments, and benchmark are Innu-Aimun only.
+    Rejected.
+  status: rejected
+
+- paper: godwin-jones-2025-ai-pedagogical-tools
+  languages: [hawaiian]
+  source:
+    kind: paper
+    ref: /summaries/godwin-jones-2025-ai-pedagogical-tools/
+    quote: >-
+      The most effective Indigenous language programs (Hawaiian, Māori) use total immersion
+      — no English, no code-switching.
+  note: >-
+    Same shape as this paper's already-rejected te-reo-maori pairing: Hawaiian is named,
+    paired with Māori, only as an example of languages with successful immersion programs
+    inside a generic definition of "immersion tension"; the paper's subject is a
+    pedagogical framework for less-commonly-taught languages in general, not Hawaiian
+    specifically. Rejected.
+  status: rejected
+
+- paper: meighan-2021-decolonizing
+  languages: [hawaiian]
+  source:
+    kind: paper
+    ref: /summaries/meighan-2021-decolonizing/
+    quote: >-
+      Te Wahapu (Māori, 1990) and Leoki ("Powerful Voice," Hawaiian, 1993) predate most
+      mainstream digital language tools.
+  note: >-
+    Same shape as this paper's already-rejected te-reo-maori pairing: Leoki (Hawaiian) is
+    named alongside Te Wahapu (Māori) as a paired example inside a general historical
+    taxonomy of ILR technology stages, not as something the paper investigates on its own
+    terms. Rejected.
+  status: rejected
