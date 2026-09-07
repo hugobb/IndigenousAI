@@ -74,4 +74,28 @@ describe('unmappedPapers', () => {
     const b = { ...BUNDLE, paperLanguages: [map('undrawn', ['no-centre', 'has-centre'])] }
     expect(unmappedPapers(b).languageNotMapped).toEqual([])
   })
+
+  it('aggregates a paper’s languages across several entries rather than overwriting', () => {
+    // D7: a shared task needs one entry per quote. `drawn` has a centre and
+    // `undrawn` does not, so if the second entry overwrites the first the paper
+    // is wrongly reported as languageNotMapped.
+    const result = unmappedPapers({
+      papers: [paper('shared-task')],
+      languages: [lang('drawn', true), lang('undrawn', false)],
+      paperLanguages: [map('shared-task', ['undrawn']), map('shared-task', ['drawn'])],
+    })
+    expect(result.languageNotMapped).toEqual([])
+    expect(result.noLanguage).toEqual([])
+  })
+
+  it('reports a paper as languageNotMapped only when NO entry names a drawn language', () => {
+    const result = unmappedPapers({
+      papers: [paper('shared-task')],
+      languages: [lang('undrawn', false), lang('also-undrawn', false)],
+      paperLanguages: [map('shared-task', ['undrawn']), map('shared-task', ['also-undrawn'])],
+    })
+    expect(result.languageNotMapped.map((x) => x.paper.id)).toEqual(['shared-task'])
+    // Both languages travel to the UI, not just the last entry’s.
+    expect(result.languageNotMapped[0]?.languages.map((l) => l.id).sort()).toEqual(['also-undrawn', 'undrawn'])
+  })
 })

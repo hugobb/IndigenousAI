@@ -161,9 +161,24 @@ describe('paper-language mappings', () => {
   const run = (over: Record<string, unknown>) =>
     validate({ languages: [lang()], initiatives: [init()], ...base, ...over })
 
+  it('accepts one paper carrying two entries with different languages', () => {
+    const problems = run({
+      languages: [lang(), lang({ id: 'second' })],
+      paperLanguages: [mapping({ languages: ['kanienkeha'] }), mapping({ languages: ['second'] })],
+    })
+    expect(problems.filter((p) => p.includes('duplicate'))).toEqual([])
+  })
+
+  it('refuses the same paper-language pair twice', () => {
+    const problems = run({
+      paperLanguages: [mapping({ languages: ['kanienkeha'] }), mapping({ languages: ['kanienkeha'] })],
+    })
+    expect(problems.some((p) => p.includes('x-2025 -> kanienkeha'))).toBe(true)
+  })
+
   it('blocks the build while a mapping is draft', () => {
     expect(run({ paperLanguages: [mapping({ status: 'draft' })] }).join('\n'))
-      .toMatch(/mapping x-2025: status is draft/)
+      .toMatch(/mapping x-2025 -> \[kanienkeha\]: status is draft/)
   })
 
   it('refuses a mapping naming an unknown paper', () => {
@@ -183,14 +198,14 @@ describe('paper-language mappings', () => {
     // state the real build can produce.
     expect(run({
       paperLanguages: [mapping()],
-      paperLanguageQuotes: [{ paper: 'x-2025', where: 'relevance-only', summaryPath: 'unused' }],
+      paperLanguageQuotes: [{ paper: 'x-2025', languages: ['kanienkeha'], where: 'relevance-only', summaryPath: 'unused' }],
     }).join('\n')).toMatch(/relevance/i)
   })
 
   it('refuses a quote that is not in the summary at all', () => {
     expect(run({
       paperLanguages: [mapping()],
-      paperLanguageQuotes: [{ paper: 'x-2025', where: 'absent', summaryPath: 'unused' }],
+      paperLanguageQuotes: [{ paper: 'x-2025', languages: ['kanienkeha'], where: 'absent', summaryPath: 'unused' }],
     }).join('\n')).toMatch(/does not appear/i)
   })
 
@@ -200,7 +215,7 @@ describe('paper-language mappings', () => {
     // 'summary-unreadable' instead of throwing and killing the build silently.
     expect(run({
       paperLanguages: [mapping()],
-      paperLanguageQuotes: [{ paper: 'x-2025', where: 'summary-unreadable', summaryPath: '/no/such/file.md' }],
+      paperLanguageQuotes: [{ paper: 'x-2025', languages: ['kanienkeha'], where: 'summary-unreadable', summaryPath: '/no/such/file.md' }],
     }).join('\n')).toMatch(/x-2025/)
   })
 
@@ -212,7 +227,7 @@ describe('paper-language mappings', () => {
     // blocked by that same quote.
     expect(run({
       paperLanguages: [mapping({ status: 'rejected' })],
-      paperLanguageQuotes: [{ paper: 'x-2025', where: 'relevance-only', summaryPath: 'unused' }],
+      paperLanguageQuotes: [{ paper: 'x-2025', languages: ['kanienkeha'], where: 'relevance-only', summaryPath: 'unused' }],
     })).toEqual([])
   })
 
@@ -230,7 +245,7 @@ describe('paper-language mappings', () => {
     // what actually prove the gate fires.
     expect(run({
       paperLanguages: [mapping()],
-      paperLanguageQuotes: [{ paper: 'x-2025', where: 'subject-matter', summaryPath: 'unused' }],
+      paperLanguageQuotes: [{ paper: 'x-2025', languages: ['kanienkeha'], where: 'subject-matter', summaryPath: 'unused' }],
     })).toEqual([])
   })
 })
