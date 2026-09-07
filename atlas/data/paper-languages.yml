@@ -529,8 +529,14 @@
       which supports some task languages (Aymara, Quechua) natively and was fine-tuned
       by top-performing teams for others
   note: >-
-    Named as two of the shared task's languages that NLLB-200 supports natively; both
-    are among many languages this shared task evaluates, not this paper's sole subject.
+    The evidence here is SCOPE, not a RESULT: the quote states as fact that Aymara and
+    Quechua are named task languages of this shared task, which is a claim about the
+    paper's own subject matter, not an illustration drawn from outside it (contrast the
+    rejected Nahuatl/Wixarika entry two bullets below, which is a typological example,
+    not a scope claim). The summary does not report a per-language score for either
+    language here — no ChrF or human-eval figure specific to Aymara or Quechua appears
+    in this quote. A reader should treat this mapping as scope-level evidence (these are
+    languages the task evaluates) rather than as a reported measurement.
   status: draft
 
 - paper: ebrahimi-et-al-2023-americas-nlp
@@ -558,7 +564,8 @@
     Nahuatl and Wixarika appear only once, as a typological example illustrating what
     "polysynthetic languages" means in general — not as languages this shared task
     evaluates. Neither is named anywhere else in the summary (unlike Aymara, Quechua,
-    Bribri, Chatino, and Otomí, which appear in the paper's own results). Rejected.
+    Bribri, Chatino, and Otomí, which are each named elsewhere in the summary as task
+    languages this shared task studies). Rejected.
   status: rejected
 
 - paper: kann-et-al-2018-polysynthetic
@@ -663,10 +670,17 @@
       translation quality even after distillation, reflecting the difficulty of the XLR
       regime
   note: >-
-    Reported as two of the ~200 languages this paper's distillation experiments
-    evaluate, not its sole subject; the sentence reports an actual measured outcome for
-    each (not a typological illustration).
-  status: draft
+    This is the only mention of either language anywhere in the summary, and it names
+    them in a list-of-examples frame ("Languages like ...") illustrating the XLR regime
+    in general, not a per-language reported result — no Quechua- or Guarani-specific
+    figure appears anywhere in the summary. Whether this paper's own 200-language
+    evaluation in fact reports individual numbers for these two is genuinely ambiguous
+    from the summary alone, and the rule for that case is to omit, not to argue it
+    through. Rejected under the ambiguity rule, not because the paper necessarily lacks
+    the evidence — a curator who reads the full paper and finds per-language results for
+    Quechua or Guarani should feel free to promote this to draft or accepted; that is
+    exactly what this record is for.
+  status: rejected
 
 - paper: aycock-et-al-2025-grammar-book
   languages: [guarani]
