@@ -2,6 +2,16 @@
 # soft fields are an Indigenous-tier feature and the schema enforces it. See
 # data/glottolog-resolution.yml for the fetched response this record was
 # written from.
+#
+# subfamily is NOT classification[1]: Glottolog's second entry for
+# Indo-European is "Classical Indo-European", a clade so broad it also
+# covers Balto-Slavic, Germanic, Italic, Celtic, Hellenic, Armenian and
+# Albanian, so it carries almost no information beyond "Indo-European" — and
+# reads, to a page visitor, as though modern Nepali were an archaic
+# language. This record instead names the first branch in that row's
+# classification array that actually discriminates ("Indo-Aryan", index 3),
+# matching how the already-signed te-reo-maori and myaamia records were
+# sourced.
 id: nepali
 name: Nepali
 also_known_as: []
@@ -9,7 +19,7 @@ glottocode: nepa1254
 iso639_3: npi
 tier: adjacent
 family: Indo-European
-subfamily: Classical Indo-European
+subfamily: Indo-Aryan
 typology: []
 endangerment: null
 speakers: null

@@ -4,6 +4,16 @@
 # written from. Glottolog has no node literally named "Persian"; the
 # language-level entry for the standard modern variety is named "Western
 # Farsi" in Glottolog's own data.
+#
+# subfamily is NOT classification[1]: Glottolog's second entry for
+# Indo-European is "Classical Indo-European", a clade so broad it also
+# covers Balto-Slavic, Germanic, Italic, Celtic, Hellenic, Armenian and
+# Albanian, so it carries almost no information beyond "Indo-European" — and
+# reads, to a page visitor, as though modern Persian were an archaic
+# language. This record instead names the first branch in that row's
+# classification array that actually discriminates ("Iranian", index 4),
+# matching how the already-signed te-reo-maori and myaamia records were
+# sourced.
 id: persian
 name: Persian
 also_known_as: [Western Farsi]
@@ -11,7 +21,7 @@ glottocode: west2369
 iso639_3: pes
 tier: adjacent
 family: Indo-European
-subfamily: Classical Indo-European
+subfamily: Iranian
 typology: []
 endangerment: null
 speakers: null
