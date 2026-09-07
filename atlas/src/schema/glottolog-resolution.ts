@@ -14,7 +14,7 @@ import { ISO_DATE } from './source.js'
  *
  *  `level: family` means the searched name is a COVER TERM (spec D8): a
  *  family-level Glottolog response carries no coordinates and no ISO 639-3
- *  code (verified against quec1387, azte1234, maya1287, chat1268, otom1299
+ *  code (verified against quec1387, azte1234, maya1287, chat1268, otom1300
  *  and tupi1275, which all return `latitude: null`). `level: dialect` covers
  *  the same absence one step further down the tree (e.g. Saanich,
  *  Inuinnaqtun) — also no coordinates or ISO code, and also not a fetch

@@ -24,7 +24,7 @@ describe('the Glottolog resolution record', () => {
 
   it('never records coordinates for a family-level row', () => {
     // Glottolog returns latitude: null for families — verified against
-    // quec1387, azte1234, maya1287, chat1268, otom1299, tupi1275. A family row
+    // quec1387, azte1234, maya1287, chat1268, otom1300, tupi1275. A family row
     // carrying coordinates means they came from somewhere else.
     expect(rows.filter((r) => r.level === 'family' && (r.latitude !== null || r.longitude !== null))
       .map((r) => r.searched)).toEqual([])

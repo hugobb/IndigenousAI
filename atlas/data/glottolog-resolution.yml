@@ -22,7 +22,7 @@
 # language (spec D8 applies downstream): Glottolog's family-level entries
 # carry no coordinates and no ISO 639-3 code, confirmed here and in D8/D9's
 # own pre-verification against quec1387, azte1234, maya1287, chat1268,
-# otom1299 and tupi1275. `level: dialect` covers two names (SENĆOŦEN,
+# otom1300 and tupi1275. `level: dialect` covers two names (SENĆOŦEN,
 # Inuinnaqtun) that Glottolog files one step below `language`; Glottolog
 # publishes NO coordinate and no ISO code for any dialect-level languoid,
 # confirmed for both codes here — it is what Glottolog's own data says, not a
@@ -537,14 +537,16 @@
   note: >-
     Not one of SP3b's 31 candidates: documents data/languages/myaamia.yml,
     already status: verified, sourced before this sub-project, so Task 3's
-    guard has a row to find it under. Recorded verbatim, NOT adjusted to
-    match the record: the existing record carries a deliberate placeholder
-    centre (lat: 40, lon: -90, confidence: approximate) that the maintainer
-    knowingly kept rather than a sourced Glottolog coordinate. Glottolog's own
-    centroid for miam1252 happens to equal that placeholder numerically, but
-    this row does not confirm, endorse, or explain that coincidence — it only
-    records what the fetch returned. This file does not touch the record, and
-    Task 3 scopes its coordinate check to confidence: sourced rows only.
+    guard has a row to find it under. This row records Glottolog's published
+    centroid for miam1252 — the SAME static datum data/languages/myaamia.yml
+    already cites from the same
+    https://glottolog.org/resource/languoid/id/miam1252.json URL, read twice
+    rather than two independent values. That record deliberately keeps it at
+    confidence: approximate because Glottolog's own point is a coarse
+    whole-degree pair (40, -90): vague rather than wrong, since it falls
+    inside the historical Miami-Illinois range. Recorded here verbatim; this
+    file does not touch the record, and Task 3 scopes its coordinate check to
+    confidence: sourced rows only.
 
 - searched: "Te Reo Māori"
   glottocode: maor1246
