@@ -466,3 +466,18 @@
     taxonomy of ILR technology stages, not as something the paper investigates on its own
     terms. Rejected.
   status: rejected
+
+- paper: ngoc-et-al-2021-inuinnaqtun
+  languages: [inuktitut]
+  source:
+    kind: paper
+    ref: /summaries/ngoc-et-al-2021-inuinnaqtun/
+    quote: >-
+      Even more critically under-resourced than Inuktitut, with only Bible parallel data
+      publicly available.
+  note: >-
+    Inuktitut is named once, only as a resource-level comparison against the paper's
+    actual subject, Inuinnaqtun (separately and correctly mapped above as its own entry):
+    the paper contributes tools and a gold-standard evaluation set for Inuinnaqtun only,
+    and reports no Inuktitut data or results of its own. Rejected.
+  status: rejected
