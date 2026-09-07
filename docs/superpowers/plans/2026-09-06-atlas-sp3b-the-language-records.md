@@ -163,6 +163,13 @@ Every message in `validate.ts` reading `mapping ${m.paper}:` now identifies a pa
 const where = (m: PaperLanguage): string => `mapping ${m.paper} -> [${m.languages.join(', ')}]`
 ```
 
+**This change breaks an existing assertion — update it in the same commit.**
+`tests/validate.test.ts` asserts `/mapping x-2025: status is draft/`, which no longer matches once the
+message reads `mapping x-2025 -> [kanienkeha]: status is draft`. Change that regex to
+`/mapping x-2025 -> \[kanienkeha\]: status is draft/`. The two neighbouring assertions
+(`/unknown paper "nope"/` and `/unknown language "nope"/`) still match as substrings and need no edit —
+confirm that by running the file rather than assuming it.
+
 For the quote checks driven by `input.paperLanguageQuotes`, add the mapped languages to the `paperLanguageQuotes` rows so the same phrasing is available there. Extend the row type to `{ paper: string; languages: string[]; where: QuoteProvenance | 'summary-unreadable'; summaryPath: string }` and populate `languages` where the rows are built (`validate.ts:181`).
 
 - [ ] **Step 7: Update the mapping test's uniqueness case**
@@ -183,29 +190,31 @@ In `tests/paper-mappings.test.ts`, replace the `names each paper at most once` c
 
 - [ ] **Step 8: Add a validate-level test for the pair rule**
 
-In `tests/validate.test.ts`, following the file's existing `ValidateInput` builder convention (there are two builders in the repo — this file's and `tests/gate.test.ts`'s; update only this one):
+`tests/validate.test.ts` already has what these need. At module scope: `lang(over)`, `init(over)`, `src`,
+and the `base` object holding every non-record `ValidateInput` field. Inside the mappings `describe` block:
+`mapping(over)` and `run(over)`, where `run` calls
+`validate({ languages: [lang()], initiatives: [init()], ...base, ...over })`. **Add these two cases inside
+that same describe block**, or `mapping` and `run` are out of scope:
 
 ```ts
 it('accepts one paper carrying two entries with different languages', () => {
-  const problems = validate(input({
-    paperLanguages: [
-      pl({ paper: 'p1', languages: ['a'], status: 'draft' }),
-      pl({ paper: 'p1', languages: ['b'], status: 'draft' }),
-    ],
-  }))
+  const problems = run({
+    languages: [lang(), lang({ id: 'second' })],
+    paperLanguages: [mapping({ languages: ['kanienkeha'] }), mapping({ languages: ['second'] })],
+  })
   expect(problems.filter((p) => p.includes('duplicate'))).toEqual([])
 })
 
 it('refuses the same paper-language pair twice', () => {
-  const problems = validate(input({
-    paperLanguages: [
-      pl({ paper: 'p1', languages: ['a'], status: 'draft' }),
-      pl({ paper: 'p1', languages: ['a'], status: 'draft' }),
-    ],
-  }))
-  expect(problems.some((p) => p.includes('p1 -> a'))).toBe(true)
+  const problems = run({
+    paperLanguages: [mapping({ languages: ['kanienkeha'] }), mapping({ languages: ['kanienkeha'] })],
+  })
+  expect(problems.some((p) => p.includes('x-2025 -> kanienkeha'))).toBe(true)
 })
 ```
+
+Note `mapping()` defaults to `status: 'verified'`, which the draft check ignores — that is what makes these
+two cases test the duplicate rule and nothing else.
 
 - [ ] **Step 9: Run the full suite and typecheck**
 
@@ -601,19 +610,33 @@ Add `glottologResolution: GlottologResolution[]` to `ValidateInput`, populate it
 
 - [ ] **Step 6: Add validate-level tests**
 
-In `tests/validate.test.ts`, using this file's `input()` builder — and note `tests/gate.test.ts` builds `ValidateInput` too, so add the new field's default there as well or it will not compile:
+In `tests/validate.test.ts`. Use the module-scope `lang(over)` builder; call `validate` directly with
+`...base` rather than `run`, since `run` lives inside the mappings describe block and always injects a
+default language. **`base` gains the new `glottologResolution: []` field** — add it there, and add the same
+default to `tests/gate.test.ts`'s equivalent object, or neither file compiles:
 
 ```ts
 it('reports a cover-term record with no caveat', () => {
-  const problems = validate(input({ languages: [langRecord({ id: 'quechua', tier: 'indigenous', centre: null, caveat: null, status: 'draft' })] }))
+  const problems = validate({
+    languages: [lang({ id: 'quechua', tier: 'indigenous', centre: null, caveat: null, status: 'draft' })],
+    initiatives: [init()], ...base,
+  })
   expect(problems.some((p) => p.includes('quechua') && p.includes('caveat'))).toBe(true)
 })
 
 it('excludes a rejected record from the cover-term check', () => {
-  const problems = validate(input({ languages: [langRecord({ id: 'quechua', tier: 'indigenous', centre: null, caveat: null, status: 'rejected' })] }))
+  const problems = validate({
+    languages: [lang({ id: 'quechua', tier: 'indigenous', centre: null, caveat: null, status: 'rejected' })],
+    initiatives: [init()], ...base,
+  })
   expect(problems.some((p) => p.includes('quechua') && p.includes('caveat'))).toBe(false)
 })
 ```
+
+Careful with the first case: the module-scope `lang()` default is `centre: null, caveat: null,
+tier: 'indigenous'` already, so a naive `lang()` in any OTHER existing test would now trip
+`coverTermProblems` too. Run the whole file and fix any existing case this newly breaks — that breakage is
+real signal about the guard's reach, not noise to silence.
 
 - [ ] **Step 7: Full suite, typecheck, and confirm the gate still refuses**
 
