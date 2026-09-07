@@ -1,0 +1,20 @@
+# tier: adjacent. Per spec D5/D6 an adjacent-tier language carries NO centre:
+# soft fields are an Indigenous-tier feature and the schema enforces it. See
+# data/glottolog-resolution.yml for the fetched response this record was
+# written from.
+id: nepali
+name: Nepali
+also_known_as: []
+glottocode: nepa1254
+iso639_3: npi
+tier: adjacent
+family: Indo-European
+subfamily: Classical Indo-European
+typology: []
+endangerment: null
+speakers: null
+region: eurasia
+countries: []
+centre: null
+caveat: null
+status: draft

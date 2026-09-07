@@ -1,0 +1,22 @@
+# tier: adjacent. Per spec D5/D6 an adjacent-tier language carries NO centre:
+# soft fields are an Indigenous-tier feature and the schema enforces it. See
+# data/glottolog-resolution.yml for the fetched response this record was
+# written from. Glottolog has no node literally named "Persian"; the
+# language-level entry for the standard modern variety is named "Western
+# Farsi" in Glottolog's own data.
+id: persian
+name: Persian
+also_known_as: [Western Farsi]
+glottocode: west2369
+iso639_3: pes
+tier: adjacent
+family: Indo-European
+subfamily: Classical Indo-European
+typology: []
+endangerment: null
+speakers: null
+region: eurasia
+countries: []
+centre: null
+caveat: null
+status: draft
