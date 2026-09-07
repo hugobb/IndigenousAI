@@ -102,3 +102,221 @@ Every `site` lat/lon is a **geocode of a street address or place the initiative 
 ## What SP0 still owes
 
 The maintainer reviews these ten records and sets each to `verified` or `rejected`. `pnpm build:data` then exits 0 and writes `src/data/atlas.json`. Until that happens the gate holds the line, which is the whole point.
+
+---
+
+## SP3b — 30 new language records, 56 mapping entries
+
+> Added 2026-09-06/07. SP3b took the atlas from 5 languages to 35 and gave the
+> literature 56 paper→language mapping entries (up from none). All 30 new
+> language records are `status: draft`; none of SP0's rules above were
+> relaxed for them — nothing was invented, every claim carries a `source`,
+> every hole is named rather than filled plausibly. This section extends the
+> queue; it does not replace anything above it.
+>
+> Every number below was measured against this checkout, not estimated:
+> `data/languages/*.yml` (35 files, 30 `status: draft` / 5 `status: verified`,
+> 26 `tier: indigenous` / 9 `tier: adjacent`), `data/paper-languages.yml` (56
+> entries, 31 `status: draft` / 25 `status: rejected`), and
+> `data/glottolog-resolution.yml` (35 rows: 23 `level: language`, 10
+> `level: family`, 2 `level: dialect`).
+
+### What was sourced, and from where
+
+For every new record: `glottocode`, `iso639_3`, `family`/`subfamily`, and —
+for the 10 of the 30 new records whose tier and Glottolog data allow it —
+`centre` coordinates. All of it came from Glottolog's JSON endpoint,
+`https://glottolog.org/resource/languoid/id/<code>.json`, fetched under
+CC-BY-4.0. Every fetch is a row in `data/glottolog-resolution.yml`, dated
+`retrieved: "2026-09-06"`, quoting `latitude`/`longitude` and
+`classification` verbatim — never computed, never approximated. A guard,
+`resolutionProblems` (`src/lib/record-guards.ts`, wired into
+`pnpm validate`), checks every record's `glottocode` against that file on
+every build: a code that appears in no row, or a family code sitting where a
+language code belongs, fails the build. It found nothing wrong in this
+checkout — `pnpm validate`'s only complaints below are `status is draft`.
+
+Of the 35 languages, 12 draw a pin on the map (up from 2 before this
+sub-project: `te-reo-maori` and `myaamia`, plus 10 of the new records —
+`aleut`, `bribri`, `cherokee`, `guarani`, `hawaiian`, `innu-aimun`,
+`inuktitut`, `seneca`, `shipibo-konibo`, `wixarika`). The other 23 carry
+`centre: null`: 9 are adjacent-tier, where D5 forbids a centre outright
+(8 new plus the pre-existing `amharic`); 14 are indigenous-tier with no
+usable point from Glottolog — 12 of those are new (the ten cover terms below
+and the two dialects below), and 2 are pre-existing records already
+documented in the Languages section above (`choctaw` and `kanienkeha`, each
+a deliberate "Glottolog's point would misplace the community" judgement, not
+a new gap).
+
+### The three systematic gaps, again
+
+The same three gaps SP0 named for the first five records apply, unchanged,
+to all ~30 new ones:
+
+- **`typology: []` on every new record.** The schema has no `source` slot
+  for `typology`. Asserting an unsourced typological claim in an artifact
+  that accompanies a paper is not something I would do even for an
+  uncontroversial one.
+- **`endangerment: null` on every new record.** The schema accepts only
+  `scale: unesco-2010`. Glottolog publishes its own AES scale, not UNESCO
+  2010 — mapping one onto the other would fabricate a citation.
+- **`speakers: null` on every new record.** No figure was found in a source
+  I could cite with the same confidence as the `glottocode`/`family` fields.
+
+A reviewer with access to WALS, Grambank or the UNESCO Atlas can fill these
+in and cite them properly; nothing here should be read as "these languages
+have no typology, no endangerment status and no speakers" — only that this
+sub-project sourced none of it.
+
+### The ten cover terms — sign these as a group
+
+Ten records carry `glottocode: null` and `centre: null` because the name the
+corpus and the literature use names an entire family, not one language, and
+Glottolog publishes no coordinate for a family. Each record's own `caveat`
+field states the child-language count as fetched from Glottolog on
+2026-09-06 (`child_language_count`), quoted here rather than recomputed:
+
+| record      | Glottolog family name | children | note |
+| ----------- | ---------------------- | -------: | ---- |
+| `inuktut`   | Inuit (inui1246)       | 6        | not even Glottolog's own name for the term — see resolution decisions below |
+| `cree`      | Cree (cree1272)        | 7        | family node unusually carries ISO `cre` (the macrolanguage code) despite no coordinate |
+| `yupik`     | Yupik (yupi1267)       | 4        | |
+| `nahuatl`   | Aztec (azte1234)       | 31       | two summaries name a specific variety (Western Sierra Puebla/Omitlán); record does not follow them down |
+| `quechua`   | Quechuan (quec1387)    | 43       | one summary names Southern Quechua specifically; record does not follow it down |
+| `aymara`    | Aymaran (ayma1253)     | 4        | |
+| `raramuri`  | Tarahumaran (tara1321) | 5        | resolved via the Spanish exonym "Tarahumara" — see below |
+| `otomi`     | Otomi (otom1300)       | 7        | resolved via the unaccented spelling — see below |
+| `chatino`   | Chatino (chat1268)     | 7        | |
+| `maya`      | Mayan (maya1287)       | 34       | Glottolog has no languoid named plainly "Maya" at all |
+
+These ten are the records a reviewer is being asked to sign off on that
+**deliberately never draw** — not a gap to be filled later, a property of
+what the name means. Treat them as one decision, not ten.
+
+### The two dialects — not cover terms, do not conflate with the above
+
+`inuinnaqtun` (glottocode `copp1244`) and `sencoten` (glottocode `saan1246`)
+also carry `centre: null`, but for the opposite reason from the cover terms.
+Each names one specific lect — Glottolog files both one level below
+`language`, as dialects (of Western Canadian Inuktitut and of Northern
+Straits Salish respectively) — and Glottolog publishes no coordinate for any
+dialect-level languoid, confirmed by fetching each code directly (both
+return `latitude`/`longitude: null`). Because the code identifies the lect
+precisely rather than standing in for languages it doesn't specifically
+mean, **both records keep their glottocode** (unlike the ten cover terms
+above, which carry `glottocode: null`). This is the distinction most likely
+to get collapsed on a skim: no centre does not mean no glottocode, and here
+it doesn't.
+
+### Resolution decisions to check, not trust
+
+Every case where Glottolog's own `name` differs from the name the corpus
+uses is a candidate for a wrong match, even where I believe it's right.
+Every one below is recorded, with its reasoning, in
+`data/glottolog-resolution.yml`:
+
+Kanien'kéha → Mohawk, Inuktitut → Eastern Canadian Inuktitut, Inuktut →
+Inuit, Innu-Aimun → Montagnais, SENĆOŦEN → Saanich, Nahuatl → Aztec, Quechua
+→ Quechuan, Aymara → Aymaran, Guarani → Paraguayan Guaraní, Wixarika →
+Huichol, Rarámuri → Tarahumaran, Shipibo-Konibo → Shipibo-Conibo, Otomí →
+Otomi, Maya → Mayan, Persian → Western Farsi, Myaamia → Miami, Te Reo Māori
+→ Maori.
+
+Two of these are **judgement, not fact**, and each is one field-edit to
+overrule:
+
+- **Inuktitut → Eastern Canadian Inuktitut (`east2534`).** Glottolog has no
+  node named plainly "Inuktitut" — it splits into Eastern Canadian Inuktitut
+  (`east2534`, iso `ike`) and Western Canadian Inuktitut (`west2618`, iso
+  `ikt`) as siblings. Eastern was picked because it is the written standard
+  in Nunavut government publishing and in the corpora (e.g. the Nunavut
+  Hansard) that use the unqualified name. A reviewer who can check a
+  specific paper's actual dialect should confirm or override this.
+- **Guarani → Paraguayan Guaraní (`para1311`).** Glottolog has no family
+  node named plainly "Guarani" — only "Tupi-Guarani", far broader, covering
+  many languages nobody would call Guarani. Paraguayan Guaraní was picked as
+  the variety NLP resources catalogue simply as "Guarani" (iso `gug`) and the
+  official language of Paraguay. Eastern Bolivian Guaraní, Western Bolivian
+  Guaraní and Mbyá Guaraní are separate Glottolog languages this does not
+  cover; a reviewer should confirm which variety each of the candidate
+  papers actually means.
+
+Three further resolutions are worth a reviewer's eye even though I'm
+confident in them, because each involved catching a plausible wrong answer
+rather than taking Glottolog's search at face value: **Shipibo-Konibo**
+resolves to the language `ship1254` ("Shipibo-Conibo", spelled with a C),
+not to the family node `ship1253` that a substring search surfaces first;
+**Otomí** resolves to the family `otom1300` ("Otomi", no accent), not to the
+single unrelated dialect that searching the corpus's own accented spelling
+turns up (`sanf1263`, "San Felipe Santiago Otomí" — a coincidental string
+match); and **Wixarika** and **Innu-Aimun** both required Glottolog's
+alternate-names table rather than its primary search, which returns zero
+results for the community's own spelling in each case.
+
+### The 25 rejected mappings
+
+`data/paper-languages.yml` carries 56 entries: 31 `status: draft` and 25
+`status: rejected`. Each rejected entry keeps its verbatim quote and the
+reason it failed — most often, the quote sits in the paper's own
+`## Relevance to Indigenous AI` section (reviewer commentary, not the
+paper's subject matter, and disallowed by spec D2) or the language is named
+only as a typological illustration rather than something the paper actually
+studies. These are shipped in `data/paper-languages.yml` itself, not in a
+task report, because task reports are gitignored and will not ship with the
+repository — this file is the only durable record of why a plausible-looking
+candidate mapping was refused. Without it, the next person to run the same
+search re-derives the same 25 candidates and has nothing to read about why
+they didn't make it in.
+
+The 31 live (non-rejected) entries resolve to 51 distinct (paper, language)
+pairs and reach 26 of the atlas's 35 languages from the literature.
+
+### Open questions for the maintainer
+
+- **The `subfamily` convention is stated two ways.** All 30 new records take
+  the first classification branch that actually discriminates. For 28 of
+  them that is Glottolog's `classification[1]`. For `persian` and `nepali`
+  it is not: Glottolog's second entry for both is "Classical Indo-European",
+  a clade so broad it also covers Balto-Slavic, Germanic, Italic, Celtic,
+  Hellenic, Armenian and Albanian — it says almost nothing beyond
+  "Indo-European" and reads, to a page visitor, as though the language were
+  archaic. `persian` instead names `classification[4]` ("Iranian") and
+  `nepali` names `classification[3]` ("Indo-Aryan") — the first branch in
+  each one's own array that actually discriminates, per each record's own
+  comment. The five pre-existing records follow the same instinct but were
+  hand-curated before the convention existed as a rule: `te-reo-maori` uses
+  "Polynesian" (`classification[6]`) and `myaamia` uses "Algonquian"
+  (`classification[2]`). The rule itself has never been written down
+  anywhere but individual record comments. Should it be?
+- **Region assignments that are curator judgement, not fact.** `aleut`,
+  `yupik` and `inuktut` are classed `region: arctic` on circumpolar grounds
+  rather than strict latitude. `nahuatl` and `maya` are given `region: null`
+  because those families span two of the atlas's REGIONS members and no
+  single value would be truthful. `sundanese` is given `region: null`
+  because REGIONS has no member covering insular Southeast Asia at all.
+- **The transferability gap.** The adjacent tier exists to answer "does
+  this transfer?", but the `transferability` field lives only on the
+  *initiative* schema (spec D2 requires it there for every adjacent-tier
+  initiative), and every one of the atlas's 5 initiative records is
+  currently `status: rejected`. So the 8 new adjacent-tier *language*
+  records added in this sub-project (9 adjacent-tier in total, counting the
+  pre-existing `amharic`) mark scope only — they carry no transposability
+  judgement at all, because there is nowhere on a language record to put
+  one. Closing this means adding the field to adjacent-tier language records
+  or to mappings; both were out of scope here.
+
+### What SP3b did NOT cover
+
+No speaker counts, no endangerment statuses, and no typology were sourced
+for any of the 30 new records — that is the three systematic gaps above,
+restated as a boundary. A maintainer who wants those must consult UNESCO's
+Atlas of the World's Languages in Danger, WALS or Grambank directly; nothing
+in this sub-project's sources supports filling them in.
+
+### What SP3b still owes
+
+The maintainer reviews all 30 new language records and 31 draft mapping
+entries and sets each to `verified` or `rejected`. Until that happens
+`pnpm build:data` and `pnpm build:app` both exit 1 by design — the gate from
+D9 holds the line across 86 unreviewed records now, not just SP0's original
+ten.
