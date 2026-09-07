@@ -225,9 +225,19 @@ Measured against Glottolog: "Quechua" spans 43 languages, "Nahuatl" 31, "Maya"
 34, "Otomanguean" 181. Glottolog's family-level entries carry **no coordinates
 and no ISO 639-3 code** — verified by fetching `quec1387`, `azte1234`,
 `maya1287`, `chat1268`, `otom1299` and `tupi1275`, all of which return
-`latitude: null`. The corpus names these at cover-term level nearly everywhere;
-across all 92 heads there is exactly one variety-level narrowing ("Nahuatl,
-Western Sierra Puebla variety").
+`latitude: null`. The corpus names these at cover-term level nearly everywhere, but "never" was
+too strong — corrected 2026-09-06 while writing the records. Across all 92 heads
+there are **two** variety-level narrowings, both in papers that genuinely study
+the variety they name:
+
+- `gibert-et-al-2025-americas-nlp`: "Nahuatl (Western Sierra Puebla variety)
+  proved by far the hardest language".
+- `court-and-elsner-et-al-2024-llm-low-ressource`: "**Southern Quechua:** A
+  Peruvian endangered Indigenous language used as the source language".
+
+So the `nahuatl` and `quechua` caveats must NOT claim the corpus never narrows
+them. They say instead that the corpus names the cover term in most papers and
+narrows it in one, which is what a reader needs in order to judge the record.
 
 **Decided:** each cover term gets an `indigenous`-tier record with `centre: null`
 and a `caveat` naming how many varieties it spans and stating that the corpus
