@@ -1,0 +1,34 @@
+# A COVER TERM, not a language. See data/glottolog-resolution.yml for the
+# fetched response this record was written from.
+id: cree
+name: Cree
+also_known_as: []
+glottocode: null
+iso639_3: cre
+tier: indigenous
+family: Algic
+subfamily: Algonquian-Blackfoot
+typology: []
+endangerment: null
+speakers: null
+# Curator judgment, not a Glottolog fact: Cree varieties are spoken across
+# central and eastern Canada (with some speakers in Montana, US); no member
+# of REGIONS captures "Canada plus a US border community" more precisely
+# than the continent it sits in.
+region: north-america
+countries: []
+centre: null
+caveat: >-
+  A cover term, not a single language: Glottolog places 7 languages under
+  Cree (cree1272) — child_language_count fetched 2026-09-06 from
+  https://glottolog.org/resource/languoid/id/cree1272.json — including
+  Moose, Plains, Swampy and Woods Cree. Every summary in this corpus that
+  mentions Cree names it at that level, never a specific variety. Glottolog
+  publishes no coordinates for a family, so mapping 7 languages onto one
+  point would assert something no source supports; this record carries no
+  centre and does not draw. (Unusually for a family, Glottolog's own
+  response for cree1272 does carry an ISO 639-3 value, "cre" — the
+  macrolanguage code — even though it publishes no coordinate; that value is
+  recorded above because it was actually fetched, not withheld to force a
+  pattern.)
+status: draft

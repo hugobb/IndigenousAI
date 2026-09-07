@@ -1,0 +1,35 @@
+# A DIALECT, not a cover term. Glottolog files Inuinnaqtun (copp1244) as a
+# dialect of Western Canadian Inuktitut (west2618); it does not publish a
+# coordinate for any dialect-level languoid, confirmed by fetching copp1244
+# directly. See data/glottolog-resolution.yml for the fetched response this
+# record was written from.
+id: inuinnaqtun
+name: Inuinnaqtun
+also_known_as: []
+glottocode: copp1244
+iso639_3: null
+tier: indigenous
+family: Eskimo-Aleut
+subfamily: Eskimo
+typology: []
+endangerment: null
+speakers: null
+# Curator judgment, not a Glottolog fact: consistent with inuktitut.yml and
+# aleut.yml, both classed arctic as circumpolar Inuit/Eskimo-Aleut languages
+# of the Canadian Arctic. Inuinnaqtun is spoken in Nunavut and the Northwest
+# Territories, entirely within the Arctic.
+region: arctic
+countries: []
+centre: null
+caveat: >-
+  Not a cover term: Inuinnaqtun is one specific lect, and its glottocode
+  (copp1244) is kept in this record because it identifies that lect
+  precisely — the opposite situation from a family code, which stands in
+  for languages it is not. Glottolog files Inuinnaqtun as a dialect of
+  Western Canadian Inuktitut (west2618) rather than as a language-level
+  entry of its own, and Glottolog publishes no coordinate for any
+  dialect-level languoid — confirmed by fetching copp1244 directly, which
+  returns latitude/longitude: null. That is Glottolog's own dialect-level
+  convention, not a failed lookup, so this record carries no centre and
+  does not draw.
+status: draft

@@ -1,0 +1,30 @@
+# A COVER TERM, not a language. See data/glottolog-resolution.yml for the
+# fetched response this record was written from.
+id: raramuri
+name: Rarámuri
+also_known_as: [Raramuri, Tarahumara, Tarahumaran]
+glottocode: null
+iso639_3: null
+tier: indigenous
+family: Uto-Aztecan
+subfamily: Southern Uto-Aztecan
+typology: []
+endangerment: null
+speakers: null
+# Curator judgment, not a Glottolog fact: all 5 languages under Tarahumaran
+# are spoken in Chihuahua, Mexico.
+region: north-america
+countries: []
+centre: null
+caveat: >-
+  A cover term, not a single language: Glottolog's search for the accented
+  corpus spelling "Rarámuri" returns zero results; "Tarahumara" (the Spanish
+  exonym for the same people and language) surfaces the family, named
+  Tarahumaran (tara1321) in Glottolog's own data. Glottolog places 5
+  languages under it — child_language_count fetched 2026-09-06 from
+  https://glottolog.org/resource/languoid/id/tara1321.json — Central,
+  Northern, Southeastern, Southwestern and Western Tarahumara. Every summary
+  in this corpus that mentions Rarámuri/Raramuri names it at that level,
+  never a specific variety. Glottolog publishes no coordinates for a
+  family, so this record carries no centre and does not draw.
+status: draft
