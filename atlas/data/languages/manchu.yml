@@ -1,0 +1,20 @@
+# tier: adjacent. Per spec D5/D6 an adjacent-tier language carries NO centre:
+# soft fields are an Indigenous-tier feature and the schema enforces it. See
+# data/glottolog-resolution.yml for the fetched response this record was
+# written from.
+id: manchu
+name: Manchu
+also_known_as: []
+glottocode: manc1252
+iso639_3: mnc
+tier: adjacent
+family: Tungusic
+subfamily: Manchu-Jurchen
+typology: []
+endangerment: null
+speakers: null
+region: eurasia
+countries: []
+centre: null
+caveat: null
+status: draft

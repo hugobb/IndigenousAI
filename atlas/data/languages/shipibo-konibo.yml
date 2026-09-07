@@ -1,0 +1,27 @@
+# Sourced 2026-09-06 from Glottolog; see data/glottolog-resolution.yml for the
+# fetched response this record was written from. Glottolog spells the
+# language "Shipibo-Conibo" with a C, not "Shipibo-Konibo".
+id: shipibo-konibo
+name: Shipibo-Konibo
+also_known_as: [Shipibo-Conibo]
+glottocode: ship1254
+iso639_3: shp
+tier: indigenous
+family: Pano-Tacanan
+subfamily: Panoan
+typology: []
+endangerment: null
+speakers: null
+region: south-america
+countries: [PE]
+centre:
+  lat: -7.17105
+  lon: -74.8219
+  source:
+    kind: url
+    ref: https://glottolog.org/resource/languoid/id/ship1254
+    retrieved: "2026-09-06"
+    quote: "Shipibo-Conibo ship1254 shp latitude -7.17105 longitude -74.8219 (Glottolog, CC-BY-4.0)"
+  confidence: sourced
+caveat: null
+status: draft

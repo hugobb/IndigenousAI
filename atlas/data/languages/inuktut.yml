@@ -1,0 +1,46 @@
+# A COVER TERM, not a language. "Inuktut" returns zero results on
+# Glottolog's search — it is the Government of Nunavut's administrative
+# umbrella term for Inuktitut and Inuinnaqtun jointly, not a name
+# Glottolog's classification recognizes. The nearest enclosing Glottolog
+# node, recorded as the fallback per D8, is the Inuit family (inui1246) —
+# but note it is BROADER than "Inuktut": Inuit also contains Greenlandic and
+# Alaskan Inupiaq. See data/glottolog-resolution.yml for the fetched
+# response this record was written from.
+id: inuktut
+name: Inuktut
+# "Inuit" (Glottolog's own name for inui1246) is deliberately NOT listed
+# here: the resolution row itself flags that the Inuit family is BROADER
+# than "Inuktut" (it also contains Greenlandic and Alaskan Inupiaq), so the
+# two names are not equivalent and listing one as an alias of the other
+# would license a mapping this record does not support.
+also_known_as: []
+glottocode: null
+iso639_3: null
+tier: indigenous
+family: Eskimo-Aleut
+subfamily: Eskimo
+typology: []
+endangerment: null
+speakers: null
+# Curator judgment, not a Glottolog fact: "Inuktut" as used by the Nunavut
+# Hansard corpus and the Government of Nunavut names Inuktitut and
+# Inuinnaqtun jointly, both spoken entirely within the Canadian Arctic.
+region: arctic
+countries: []
+centre: null
+caveat: >-
+  A cover term, and not even the corpus's own name for it: "Inuktut" is the
+  Government of Nunavut's administrative umbrella term for Inuktitut and
+  Inuinnaqtun jointly (used e.g. by the Nunavut Hansard Inuktut-English
+  corpus this atlas's literature cites), and it returns zero results on
+  Glottolog's own search. The nearest enclosing Glottolog node is the Inuit
+  family (inui1246), under which Glottolog places 6 languages —
+  child_language_count fetched 2026-09-06 from
+  https://glottolog.org/resource/languoid/id/inui1246.json — but that family
+  is BROADER than "Inuktut": it also contains Greenlandic and Alaskan
+  Inupiaq, which the Nunavut term does not cover. This record does not use
+  inui1246's glottocode for that reason — a family code that is broader than
+  the term it would represent is exactly the kind of mismatch a glottocode
+  is supposed to rule out — and Glottolog publishes no coordinates for a
+  family regardless. The record carries no centre and does not draw.
+status: draft

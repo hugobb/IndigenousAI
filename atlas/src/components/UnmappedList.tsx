@@ -150,7 +150,7 @@ export default function UnmappedList({
               <h3>Study no specific language ({noLanguagePapers.length})</h3>
               {/* A property of the literature, not a sourcing gap: surveys,
                   tokenizer methods and process papers study no one language.
-                  Measured on this corpus: 59 of 92. */}
+                  Measured on this corpus: 66 of 92. */}
               <p className="hint">
                 These study the field rather than a language — surveys, methods, process work. They are
                 not missing a mapping.

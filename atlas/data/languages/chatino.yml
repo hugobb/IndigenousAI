@@ -1,0 +1,30 @@
+# A COVER TERM, not a language. See data/glottolog-resolution.yml for the
+# fetched response this record was written from.
+id: chatino
+name: Chatino
+also_known_as: []
+glottocode: null
+iso639_3: null
+tier: indigenous
+family: Otomanguean
+subfamily: Eastern Otomanguean
+typology: []
+endangerment: null
+speakers: null
+# Curator judgment, not a Glottolog fact: all languages under Chatino are
+# spoken in Oaxaca, Mexico.
+region: north-america
+countries: []
+centre: null
+caveat: >-
+  A cover term, not a single language: Glottolog places 7 languages under
+  Chatino (chat1268) — child_language_count fetched 2026-09-06 from
+  https://glottolog.org/resource/languoid/id/chat1268.json — Zenzontepec,
+  Tataltepec, Eastern and Western Highland, Nopala and Teojomulco Chatino,
+  and others. Every summary in this corpus found to mention Chatino names it
+  at that level; no summary was found narrowing it to a specific variety, but
+  that search was not exhaustive (grep-derived counts of this corpus have run
+  low before — spec D8), so this does not claim no such summary exists.
+  Glottolog publishes no coordinates for a family, so this record carries no
+  centre and does not draw.
+status: draft

@@ -1,0 +1,20 @@
+# tier: adjacent. Per spec D5/D6 an adjacent-tier language carries NO centre:
+# soft fields are an Indigenous-tier feature and the schema enforces it. See
+# data/glottolog-resolution.yml for the fetched response this record was
+# written from.
+id: yoruba
+name: Yoruba
+also_known_as: []
+glottocode: yoru1245
+iso639_3: yor
+tier: adjacent
+family: Atlantic-Congo
+subfamily: Volta-Congo
+typology: []
+endangerment: null
+speakers: null
+region: africa
+countries: []
+centre: null
+caveat: null
+status: draft

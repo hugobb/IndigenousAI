@@ -1,0 +1,30 @@
+# A COVER TERM, not a language. See data/glottolog-resolution.yml for the
+# fetched response this record was written from.
+id: aymara
+name: Aymara
+also_known_as: [Aymaran]
+glottocode: null
+iso639_3: null
+tier: indigenous
+family: Aymaran
+subfamily: null
+typology: []
+endangerment: null
+speakers: null
+# Curator judgment, not a Glottolog fact: all 4 languages under Aymaran
+# (Central Aymara, Southern Aymara, Jaqaru, Cauqui) are spoken in the Andean
+# region of South America (Peru, Bolivia, Chile).
+region: south-america
+countries: []
+centre: null
+caveat: >-
+  A cover term, not a single language: Glottolog places 4 languages under
+  Aymaran (ayma1253) — child_language_count fetched 2026-09-06 from
+  https://glottolog.org/resource/languoid/id/ayma1253.json — Central Aymara,
+  Southern Aymara, Jaqaru and Cauqui. Every summary in this corpus found to
+  mention Aymara names it at that level; no summary was found narrowing it to
+  a specific variety, but that search was not exhaustive (grep-derived counts
+  of this corpus have run low before — spec D8), so this does not claim no
+  such summary exists. Glottolog publishes no coordinates for a family, so
+  this record carries no centre and does not draw.
+status: draft

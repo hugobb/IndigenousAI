@@ -1,0 +1,26 @@
+# Sourced 2026-09-06 from Glottolog; see data/glottolog-resolution.yml for the
+# fetched response this record was written from.
+id: hawaiian
+name: Hawaiian
+also_known_as: []
+glottocode: hawa1245
+iso639_3: haw
+tier: indigenous
+family: Austronesian
+subfamily: Malayo-Polynesian
+typology: []
+endangerment: null
+speakers: null
+region: oceania
+countries: [US]
+centre:
+  lat: 19.6297
+  lon: -155.43
+  source:
+    kind: url
+    ref: https://glottolog.org/resource/languoid/id/hawa1245
+    retrieved: "2026-09-06"
+    quote: "Hawaiian hawa1245 haw latitude 19.6297 longitude -155.43 (Glottolog, CC-BY-4.0)"
+  confidence: sourced
+caveat: null
+status: draft

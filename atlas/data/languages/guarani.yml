@@ -1,0 +1,37 @@
+# Sourced 2026-09-06 from Glottolog; see data/glottolog-resolution.yml for the
+# fetched response this record was written from. Glottolog has no family node
+# named plainly "Guarani" — see the caveat below.
+id: guarani
+name: Guarani
+also_known_as: ["Paraguayan Guaraní"]
+glottocode: para1311
+iso639_3: gug
+tier: indigenous
+family: Tupian
+subfamily: Eastern Tupian
+typology: []
+endangerment: null
+speakers: null
+region: south-america
+countries: [PY]
+centre:
+  lat: -25.60551
+  lon: -57.08816
+  source:
+    kind: url
+    ref: https://glottolog.org/resource/languoid/id/para1311
+    retrieved: "2026-09-06"
+    quote: "Paraguayan Guaraní para1311 gug latitude -25.60551 longitude -57.08816 (Glottolog, CC-BY-4.0)"
+  confidence: sourced
+# js-yaml drops comments, so the hedge is repeated as a field. This is the copy
+# that reaches the bundle and the reader.
+caveat: >-
+  Glottolog has no family node named plainly "Guarani" — only the much
+  broader "Tupi-Guarani". The unqualified name is recorded here as
+  Paraguayan Guaraní (para1311): the variety many NLP resources catalogue
+  simply as "Guarani" (ISO gug) and the official language of Paraguay.
+  Eastern Bolivian Guaraní (east2555), Western Bolivian Guaraní (west2640)
+  and Mbyá Guaraní (mbya1239) are separate Glottolog languages this record
+  does not cover; a curator should confirm which variety each candidate
+  paper actually means before promoting this record.
+status: draft

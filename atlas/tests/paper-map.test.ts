@@ -74,4 +74,34 @@ describe('unmappedPapers', () => {
     const b = { ...BUNDLE, paperLanguages: [map('undrawn', ['no-centre', 'has-centre'])] }
     expect(unmappedPapers(b).languageNotMapped).toEqual([])
   })
+
+  it('aggregates a paper’s languages across several entries rather than overwriting', () => {
+    // D7: a shared task needs one entry per quote. `drawn` has a centre and
+    // `undrawn` does not. ORDER MATTERS HERE: `drawn` must come FIRST and
+    // `undrawn` LAST — the old keyed-Map assignment (`new Map(rows.map((m) =>
+    // [m.paper, m.languages]))`) keeps only the LAST entry for a repeated key,
+    // so with `undrawn` last the broken code retains only `['undrawn']` (no
+    // centre) and wrongly reports the paper as languageNotMapped. Do not
+    // reorder these back — with `drawn` last, the broken code's last-write-wins
+    // behaviour happens to keep the correct answer by coincidence, and this
+    // test would pass against the very bug it exists to catch.
+    const result = unmappedPapers({
+      papers: [paper('shared-task')],
+      languages: [lang('drawn', true), lang('undrawn', false)],
+      paperLanguages: [map('shared-task', ['drawn']), map('shared-task', ['undrawn'])],
+    })
+    expect(result.languageNotMapped).toEqual([])
+    expect(result.noLanguage).toEqual([])
+  })
+
+  it('reports a paper as languageNotMapped only when NO entry names a drawn language', () => {
+    const result = unmappedPapers({
+      papers: [paper('shared-task')],
+      languages: [lang('undrawn', false), lang('also-undrawn', false)],
+      paperLanguages: [map('shared-task', ['undrawn']), map('shared-task', ['also-undrawn'])],
+    })
+    expect(result.languageNotMapped.map((x) => x.paper.id)).toEqual(['shared-task'])
+    // Both languages travel to the UI, not just the last entry’s.
+    expect(result.languageNotMapped[0]?.languages.map((l) => l.id).sort()).toEqual(['also-undrawn', 'undrawn'])
+  })
 })

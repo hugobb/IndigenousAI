@@ -1,0 +1,26 @@
+# Sourced 2026-09-06 from Glottolog; see data/glottolog-resolution.yml for the
+# fetched response this record was written from.
+id: bribri
+name: Bribri
+also_known_as: []
+glottocode: brib1243
+iso639_3: bzd
+tier: indigenous
+family: Chibchan
+subfamily: Core Chibchan
+typology: []
+endangerment: null
+speakers: null
+region: central-america
+countries: [CR]
+centre:
+  lat: 9.39794
+  lon: -83.0539
+  source:
+    kind: url
+    ref: https://glottolog.org/resource/languoid/id/brib1243
+    retrieved: "2026-09-06"
+    quote: "Bribri brib1243 bzd latitude 9.39794 longitude -83.0539 (Glottolog, CC-BY-4.0)"
+  confidence: sourced
+caveat: null
+status: draft

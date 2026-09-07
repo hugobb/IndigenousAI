@@ -38,10 +38,14 @@ describe('the curated paper-language mappings', () => {
     expect(bad).toEqual([])
   })
 
-  it('names each paper at most once', () => {
+  /** D7 lets a paper carry several entries, one per evidential quote. What may
+   *  never repeat is the (paper, language) pair. */
+  it('names each paper-language pair at most once', () => {
     const seen = new Set<string>()
-    const dupes = rows.filter((r) => (seen.has(r.paper) ? true : (seen.add(r.paper), false)))
-    expect(dupes.map((r) => r.paper)).toEqual([])
+    const dupes = rows
+      .flatMap((r) => r.languages.map((l) => `${r.paper} -> ${l}`))
+      .filter((k) => (seen.has(k) ? true : (seen.add(k), false)))
+    expect(dupes).toEqual([])
   })
 
   /** Spec D2, applied to the real corpus. This is the test that stops the atlas

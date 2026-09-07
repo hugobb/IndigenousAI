@@ -1,0 +1,565 @@
+# What Glottolog returned for every glottocode used ANYWHERE in the atlas —
+# not only the 31 candidate names surveyed for this sub-project (SP3b), but
+# also the glottocodes carried by language records sourced before it (Amharic,
+# Choctaw, Myaamia, Te Reo Māori). This is the audit trail for spec D9's
+# resolution step, which D9 itself calls "the one step in this whole
+# sub-project that can fail silently": "Maya" matches ~86 languoids on
+# Glottolog's search, "Nahuatl" ~144, "Quechua" ~185, and picking the wrong
+# one produces a record that looks entirely correct to every automated check
+# and to a casual reader. Task 3 turns this file into a guard that refuses any
+# language record whose `glottocode` appears in no row here — a file scoped
+# only to SP3b's candidates would force that guard to skip codes it cannot
+# find, which is exactly the silent hole this file exists to close. Tasks 4-6
+# write SP3b's own new records from these rows.
+#
+# `latitude`/`longitude` are Glottolog's own published values, fetched from
+# `https://glottolog.org/resource/languoid/id/<glottocode>.json` and quoted
+# VERBATIM — never computed, never approximated, never filled from memory.
+# `classification` is that same response's `classification` array, `name`
+# values only, outermost family first.
+#
+# `level: family` means the searched name is a COVER TERM, not a single
+# language (spec D8 applies downstream): Glottolog's family-level entries
+# carry no coordinates and no ISO 639-3 code, confirmed here and in D8/D9's
+# own pre-verification against quec1387, azte1234, maya1287, chat1268,
+# otom1300 and tupi1275. `level: dialect` covers two names (SENĆOŦEN,
+# Inuinnaqtun) that Glottolog files one step below `language`; Glottolog
+# publishes NO coordinate and no ISO code for any dialect-level languoid,
+# confirmed for both codes here — it is what Glottolog's own data says, not a
+# fetch failure.
+#
+# `searched` is the name as the CORPUS (or, for the four pre-existing records,
+# the record itself) writes it, never Glottolog's own name. The two differing
+# is expected and is the entire point of the row (SENĆOŦEN -> Saanich,
+# Rarámuri -> Tarahumaran) — `note` explains it whenever the reasoning is not
+# obvious from the two names alone. The four rows for records sourced before
+# this sub-project say so explicitly in their own note, since there was no
+# resolution judgment call to make for them — they exist only so Task 3's
+# guard has a row to find.
+
+- searched: Cherokee
+  glottocode: cher1273
+  name: Cherokee
+  level: language
+  iso639_3: chr
+  latitude: 35.4664
+  longitude: -83.163
+  classification: [Iroquoian]
+  retrieved: "2026-09-06"
+  note: null
+
+- searched: Seneca
+  glottocode: sene1264
+  name: Seneca
+  level: language
+  iso639_3: see
+  latitude: 42.56
+  longitude: -77.53
+  classification: [Iroquoian, Northern Iroquoian, Lake Iroquoian, Greater Iroquois, Iroquois]
+  retrieved: "2026-09-06"
+  note: null
+
+- searched: "Kanien'kéha"
+  glottocode: moha1258
+  name: Mohawk
+  level: language
+  iso639_3: moh
+  latitude: 43.72
+  longitude: -74.66836
+  classification: [Iroquoian, Northern Iroquoian, Lake Iroquoian, Greater Iroquois, Iroquois, Mohawk-Oneida]
+  retrieved: "2026-09-06"
+  note: >-
+    Glottolog's search returns zero results for the corpus's exact spelling
+    (apostrophe and accent); resolved via Glottolog's own alternate-names
+    table for moha1258, which lists "Kanienʼkéha" and "Kanien'kehaka". Matches
+    the glottocode the existing data/languages/kanienkeha.yml record already
+    carries (reviewed 2026-09-05), confirming this independently.
+
+- searched: Inuktitut
+  glottocode: east2534
+  name: Eastern Canadian Inuktitut
+  level: language
+  iso639_3: ike
+  latitude: 62.1735
+  longitude: -75.6139
+  classification: [Eskimo-Aleut, Eskimo, Inuit]
+  retrieved: "2026-09-06"
+  note: >-
+    Glottolog has no single node named plainly "Inuktitut": the name splits
+    into two sibling languages, Eastern Canadian Inuktitut (this row, iso
+    ike) and Western Canadian Inuktitut (west2618, iso ikt). Eastern is
+    recorded because it is the written standard used in Nunavut government
+    publishing and in the NLP corpora (e.g. the Nunavut Hansard) that use the
+    unqualified name "Inuktitut". A curator who can check a specific paper's
+    actual dialect should confirm or override this before promoting a record.
+
+- searched: Inuinnaqtun
+  glottocode: copp1244
+  name: Inuinnaqtun
+  level: dialect
+  iso639_3: null
+  latitude: null
+  longitude: null
+  classification: [Eskimo-Aleut, Eskimo, Inuit, Western Canadian Inuktitut]
+  retrieved: "2026-09-06"
+  note: >-
+    Direct, unambiguous match on the exact name, but Glottolog files
+    Inuinnaqtun as a dialect of Western Canadian Inuktitut (west2618), not as
+    its own language-level entry. Glottolog publishes NO coordinate and no
+    ISO code for any dialect-level languoid — confirmed by fetching copp1244
+    directly, which returns latitude: null — so the nulls here are Glottolog's
+    own dialect-level convention, not a failed fetch.
+
+- searched: Inuktut
+  glottocode: inui1246
+  name: Inuit
+  level: family
+  iso639_3: null
+  latitude: null
+  longitude: null
+  classification: [Eskimo-Aleut, Eskimo]
+  retrieved: "2026-09-06"
+  note: >-
+    "Inuktut" returns zero results on Glottolog's search. It is the
+    Government of Nunavut's administrative umbrella term for Inuktitut and
+    Inuinnaqtun jointly (used e.g. by the Nunavut Hansard Inuktut-English
+    corpus), not a name Glottolog's linguistic classification recognizes. The
+    nearest enclosing Glottolog node is the Inuit family, recorded here as the
+    fallback per D8 — but it is BROADER than the term: Inuit also contains
+    Greenlandic and Alaskan Inupiaq, which "Inuktut" does not cover. Flagged
+    for a curator's judgment before this is used to write a record.
+
+- searched: Innu-Aimun
+  glottocode: mont1268
+  name: Montagnais
+  level: language
+  iso639_3: moe
+  latitude: 49.0533
+  longitude: -68.7376
+  classification: [Algic, Algonquian-Blackfoot, Algonquian, Cree-Montagnais-Naskapi]
+  retrieved: "2026-09-06"
+  note: >-
+    Glottolog's search returns zero results for "Innu-Aimun"; resolved via
+    Glottolog's own alternate-names table for mont1268, which lists "Innu",
+    "Innu Aimun" and "Innu-Aimun" verbatim — not a guess.
+
+- searched: SENĆOŦEN
+  glottocode: saan1246
+  name: Saanich
+  level: dialect
+  iso639_3: null
+  latitude: null
+  longitude: null
+  classification: [Salishan, Coast Salish, Central Salish, Straits Salish, Northern Straits Salish]
+  retrieved: "2026-09-06"
+  note: >-
+    Glottolog's search returns zero results for "SENĆOŦEN", the W̱SÁNEĆ
+    community's own name; Glottolog's entry is titled "Saanich" (the common
+    English exonym) and files it as a dialect of Northern Straits Salish
+    (stra1244, which does carry coordinates). Glottolog publishes NO
+    coordinate and no ISO code for any dialect-level languoid — confirmed by
+    fetching saan1246 directly, which returns latitude: null — so this row's
+    own nulls are Glottolog's dialect-level convention, not a failed fetch.
+
+- searched: Cree
+  glottocode: cree1272
+  name: Cree
+  level: family
+  iso639_3: cre
+  latitude: null
+  longitude: null
+  classification: [Algic, Algonquian-Blackfoot, Algonquian, Cree-Montagnais-Naskapi]
+  retrieved: "2026-09-06"
+  note: >-
+    A cover term: Glottolog groups Moose Cree, Plains Cree, Swampy Cree, Woods
+    Cree and others under this family, and the corpus never narrows to a
+    variety. D8 applies — the record carries no centre. Unusually for a
+    family, Glottolog's own response does carry an ISO 639-3 value ("cre",
+    the macrolanguage code) even though `latitude`/`longitude` are still
+    null; that value is quoted here because it was actually fetched, not
+    withheld to force a pattern.
+
+- searched: Yupik
+  glottocode: yupi1267
+  name: Yupik
+  level: family
+  iso639_3: null
+  latitude: null
+  longitude: null
+  classification: [Eskimo-Aleut, Eskimo]
+  retrieved: "2026-09-06"
+  note: >-
+    A cover term: Glottolog groups Central Alaskan, Central Siberian, Naukan
+    and Pacific Gulf Yupik under this family, and the corpus never narrows to
+    a variety. D8 applies — the record carries no centre.
+
+- searched: Aleut
+  glottocode: aleu1260
+  name: Aleut
+  level: language
+  iso639_3: ale
+  latitude: 52.1228
+  longitude: -174.29
+  classification: [Eskimo-Aleut, Aleutic]
+  retrieved: "2026-09-06"
+  note: null
+
+- searched: Hawaiian
+  glottocode: hawa1245
+  name: Hawaiian
+  level: language
+  iso639_3: haw
+  latitude: 19.6297
+  longitude: -155.43
+  classification: [Austronesian, Malayo-Polynesian, Eastern Malayo-Polynesian, Oceanic, Central Pacific linkage, Tokalau Fijian, Polynesian, Nuclear Polynesian, Northern Outlier Polynesian-East Polynesian, Solomons Northern Outlier Polynesian-East Polynesian, Central Northern Outlier Polynesian-East Polynesian, East Polynesian, East Polynesian Proximal]
+  retrieved: "2026-09-06"
+  note: null
+
+- searched: Nahuatl
+  glottocode: azte1234
+  name: Aztec
+  level: family
+  iso639_3: null
+  latitude: null
+  longitude: null
+  classification: [Uto-Aztecan, Southern Uto-Aztecan, Corachol-Aztecan]
+  retrieved: "2026-09-06"
+  note: >-
+    A cover term: the corpus writes "Nahuatl" but Glottolog's own name for the
+    family spanning all 31 Nahuatl languages (Classical Nahuatl, the Huasteca
+    varieties, Pipil, and others) is "Aztec". The corpus never narrows to a
+    variety among these 30 names. D8 applies — the record carries no centre.
+
+- searched: Quechua
+  glottocode: quec1387
+  name: Quechuan
+  level: family
+  iso639_3: null
+  latitude: null
+  longitude: null
+  classification: []
+  retrieved: "2026-09-06"
+  note: >-
+    A cover term, not a language: Glottolog puts 43 languages under Quechuan
+    and the corpus never narrows it to a variety. D8 applies — the record
+    carries no centre and no glottocode.
+
+- searched: Aymara
+  glottocode: ayma1253
+  name: Aymaran
+  level: family
+  iso639_3: null
+  latitude: null
+  longitude: null
+  classification: []
+  retrieved: "2026-09-06"
+  note: >-
+    A cover term: Glottolog splits Aymara into Central Aymara, Southern
+    Aymara, Jaqaru and Cauqui under this family, and the corpus never narrows
+    to a variety. D8 applies — the record carries no centre.
+
+- searched: Guarani
+  glottocode: para1311
+  name: "Paraguayan Guaraní"
+  level: language
+  iso639_3: gug
+  latitude: -25.60551
+  longitude: -57.08816
+  classification: [Tupian, Eastern Tupian, Maweti-Guarani, Aweti-Guarani, Tupi-Guarani, Southern Tupi-Guarani, "Tupi-Guarani Subgroup I", "Tupi-Guarani Subgroup I.A", Paraguay-Brazil Guarani]
+  retrieved: "2026-09-06"
+  note: >-
+    Unlike the atlas's other cover terms, Glottolog has no family node named
+    plainly "Guarani" — only "Tupi-Guarani", which is far broader and
+    includes many languages nobody would call Guarani. The unqualified name
+    resolves in practice to Paraguayan Guaraní: the only variety with a
+    two-letter-adjacent ISO code many NLP resources catalogue simply as
+    "Guarani" (gug), and the official language of Paraguay. Eastern Bolivian
+    Guaraní (east2555), Western Bolivian Guaraní (west2640) and Mbyá Guaraní
+    (mbya1239) are separate Glottolog languages this row does not cover; a
+    curator should confirm which variety each of the 6 candidate papers
+    actually means before promoting a record built on this row.
+
+- searched: Bribri
+  glottocode: brib1243
+  name: Bribri
+  level: language
+  iso639_3: bzd
+  latitude: 9.39794
+  longitude: -83.0539
+  classification: [Chibchan, Core Chibchan, Isthmic Chibchan, Western Isthmic Chibchan, Viceitic]
+  retrieved: "2026-09-06"
+  note: null
+
+- searched: Wixarika
+  glottocode: huic1243
+  name: Huichol
+  level: language
+  iso639_3: hch
+  latitude: 21.954
+  longitude: -104.062
+  classification: [Uto-Aztecan, Southern Uto-Aztecan, Corachol-Aztecan, Corachol]
+  retrieved: "2026-09-06"
+  note: >-
+    Glottolog's search returns zero results for "Wixarika", the community's
+    own name; Glottolog's entry is titled "Huichol" (the Spanish exonym).
+    Glottolog's own alternate-names table for huic1243 lists "Vixaritari
+    Vaniuqui" / "Vizaritari Vaniuki" — the same self-designation, close
+    enough in spelling to confirm this is the same language, not a guess.
+
+- searched: "Rarámuri"
+  glottocode: tara1321
+  name: Tarahumaran
+  level: family
+  iso639_3: null
+  latitude: null
+  longitude: null
+  classification: [Uto-Aztecan, Southern Uto-Aztecan, Tarahumara-Guarijio]
+  retrieved: "2026-09-06"
+  note: >-
+    A cover term: Glottolog's search for the accented corpus spelling returns
+    zero results; "Tarahumara" (the Spanish exonym for the same people and
+    language, well established in the literature) surfaces the family, which
+    splits into Central, Northern, Southeastern, Southwestern and Western
+    Tarahumara. The corpus never narrows to a variety. D8 applies — the
+    record carries no centre.
+
+- searched: Shipibo-Konibo
+  glottocode: ship1254
+  name: Shipibo-Conibo
+  level: language
+  iso639_3: shp
+  latitude: -7.17105
+  longitude: -74.8219
+  classification: [Pano-Tacanan, Panoan, Mainline Pano, Pano Nawa, Chama subgroup, Shipibo-Konibo-Kapanawa]
+  retrieved: "2026-09-06"
+  note: >-
+    A resolution trap, caught rather than taken at face value: Glottolog's
+    search for the corpus's spelling "Shipibo-Konibo" matches BY SUBSTRING to
+    the FAMILY node ship1253 ("Shipibo-Konibo-Kapanawa", which also contains
+    the separate Capanahua language) — not to this language, because
+    Glottolog spells the language itself "Shipibo-Conibo" with a C. WALS
+    lists "Shipibo-Konibo" as this language's own alternate name (confirmed
+    in ship1254's own linked-resources data), which is what confirms ship1254
+    — the language, with real coordinates — is the correct resolution and
+    ship1253 is not.
+
+- searched: "Otomí"
+  glottocode: otom1300
+  name: Otomi
+  level: family
+  iso639_3: null
+  latitude: null
+  longitude: null
+  classification: [Otomanguean, Western Otomanguean, Otopame-Chinantecan, Otopamean, Otomian]
+  retrieved: "2026-09-06"
+  note: >-
+    A cover term, and a second resolution trap: Glottolog spells the family
+    "Otomi" without the accent the corpus uses, and it spans 7 languages
+    (Eastern Highland, Tenango, Texcatepec, Mezquital, Querétaro, Ixtenco and
+    Tilapa Otomi). The corpus never narrows to a variety; D8 applies — no
+    centre. Logged for the next curator: searching Glottolog for the corpus's
+    OWN accented spelling, "Otomí", resolves instead to a single unrelated
+    dialect, "San Felipe Santiago Otomí" (sanf1263, which is not even listed
+    as a child of this family in the tree above) — that is a coincidental
+    string match, not this row's source, and must not be confused with it.
+
+- searched: Chatino
+  glottocode: chat1268
+  name: Chatino
+  level: family
+  iso639_3: null
+  latitude: null
+  longitude: null
+  classification: [Otomanguean, Eastern Otomanguean, Popoloca-Zapotecan, Zapotecan]
+  retrieved: "2026-09-06"
+  note: >-
+    A cover term: Glottolog groups Zenzontepec, Tataltepec, Eastern and
+    Western Highland, Nopala and Teojomulco Chatino under this family, and
+    the corpus never narrows to a variety. D8 applies — the record carries no
+    centre.
+
+- searched: Maya
+  glottocode: maya1287
+  name: Mayan
+  level: family
+  iso639_3: null
+  latitude: null
+  longitude: null
+  classification: []
+  retrieved: "2026-09-06"
+  note: >-
+    A cover term: Glottolog has no languoid named plainly "Maya" at all (its
+    search matches ~86 languoids containing the string, none of them named
+    exactly that); the family covering all 34 Mayan languages is named
+    "Mayan", and the corpus never narrows to a variety. D8 applies — the
+    record carries no centre.
+
+- searched: Persian
+  glottocode: west2369
+  name: Western Farsi
+  level: language
+  iso639_3: pes
+  latitude: 32.9
+  longitude: 53.3
+  classification: [Indo-European, Classical Indo-European, Indo-Iranian, Iranian-Nuristani, Iranian, Southwestern Iranian, Middle-Modern Persian, Modern Southwestern Iranian, Farsic-Caucasian Tat, Farsic]
+  retrieved: "2026-09-06"
+  note: >-
+    Glottolog has no node literally named "Persian": its search for that
+    string surfaces only dialects and historical stages, never a
+    language-level entry with that exact name. The standard modern variety
+    (ISO 639-3 pes) — the one meant by NLP resources cataloguing "Persian" or
+    "Farsi" as a single language, and by Universal Dependencies' "Persian"
+    treebanks — is named "Western Farsi" in Glottolog's own data.
+
+- searched: Swahili
+  glottocode: swah1253
+  name: Swahili
+  level: language
+  iso639_3: swh
+  latitude: -8.25605
+  longitude: 37.624
+  classification: [Atlantic-Congo, Volta-Congo, Benue-Congo, Bantoid, Southern Bantoid, Narrow Bantu, East Bantu, Northeast Savanna Bantu, Northeast Coastal Bantu, Coastal NEC Bantu, Sabaki-Swahili, "Swahili (G.40)", Mombasa-Lamu-Inland Swahili]
+  retrieved: "2026-09-06"
+  note: null
+
+- searched: Yoruba
+  glottocode: yoru1245
+  name: Yoruba
+  level: language
+  iso639_3: yor
+  latitude: 7.15345
+  longitude: 3.67225
+  classification: [Atlantic-Congo, Volta-Congo, Benue-Congo, Defoid, Yoruboid, Edekiri, Ede, Eastern Ede, Southeastern Ede, Nuclear Yoruba, Lucumi-Yoruba]
+  retrieved: "2026-09-06"
+  note: null
+
+- searched: Wolof
+  glottocode: nucl1347
+  name: Wolof
+  level: language
+  iso639_3: wol
+  latitude: 15.2534
+  longitude: -15.383
+  classification: [Atlantic-Congo, North-Central Atlantic, Wolof-BKK, Wolofic]
+  retrieved: "2026-09-06"
+  note: null
+
+- searched: Basque
+  glottocode: basq1248
+  name: Basque
+  level: language
+  iso639_3: eus
+  latitude: 43.2787
+  longitude: -1.31622
+  classification: []
+  retrieved: "2026-09-06"
+  note: null
+
+- searched: Nepali
+  glottocode: nepa1254
+  name: Nepali
+  level: language
+  iso639_3: npi
+  latitude: 28.0
+  longitude: 85.0
+  classification: [Indo-European, Classical Indo-European, Indo-Iranian, Indo-Aryan, Middle-Modern Indo-Aryan, Continental Indo-Aryan, Midlands Indo-Aryan, "Indo-Aryan Northern zone", Eastern Pahari]
+  retrieved: "2026-09-06"
+  note: null
+
+- searched: Manchu
+  glottocode: manc1252
+  name: Manchu
+  level: language
+  iso639_3: mnc
+  latitude: 47.31225
+  longitude: 126.55713
+  classification: [Tungusic, Manchu-Jurchen, Manchu-Xibe]
+  retrieved: "2026-09-06"
+  note: null
+
+- searched: Sundanese
+  glottocode: sund1252
+  name: Sundanese
+  level: language
+  iso639_3: sun
+  latitude: -6.89708
+  longitude: 107.106
+  classification: [Austronesian, Malayo-Polynesian]
+  retrieved: "2026-09-06"
+  note: null
+
+# The four rows below are not among SP3b's 31 candidates. They document
+# glottocodes already carried by language records the maintainer sourced and
+# verified in an earlier sub-project (data/languages/{amharic,choctaw,
+# myaamia,te-reo-maori}.yml). Task 3's guard reads this file as the audit
+# trail for every glottocode in the atlas, not only SP3b's candidates, so
+# each pre-existing record needs a row here too or the guard would have to
+# silently skip codes it cannot find — exactly the hole this file exists to
+# close. `searched` is the name each existing record itself uses.
+
+- searched: Amharic
+  glottocode: amha1245
+  name: Amharic
+  level: language
+  iso639_3: amh
+  latitude: 11.708182
+  longitude: 39.543456
+  classification: [Afro-Asiatic, Semitic, West Semitic, Ethiosemitic, South Ethiopic, Amharic-Argobba]
+  retrieved: "2026-09-06"
+  note: >-
+    Not one of SP3b's 31 candidates: documents data/languages/amharic.yml,
+    already status: verified, sourced before this sub-project, so Task 3's
+    guard has a row to find it under.
+
+- searched: Choctaw
+  glottocode: choc1276
+  name: Choctaw
+  level: language
+  iso639_3: cho
+  latitude: 32.25
+  longitude: -88.5
+  classification: [Muskogean, Western Muskogean]
+  retrieved: "2026-09-06"
+  note: >-
+    Not one of SP3b's 31 candidates: documents data/languages/choctaw.yml,
+    already status: verified, sourced before this sub-project, so Task 3's
+    guard has a row to find it under.
+
+- searched: Myaamia
+  glottocode: miam1252
+  name: Miami
+  level: language
+  iso639_3: mia
+  latitude: 40.0
+  longitude: -90.0
+  classification: [Algic, Algonquian-Blackfoot, Algonquian, "Eastern Great Lakes Algonquian"]
+  retrieved: "2026-09-06"
+  note: >-
+    Not one of SP3b's 31 candidates: documents data/languages/myaamia.yml,
+    already status: verified, sourced before this sub-project, so Task 3's
+    guard has a row to find it under. This row records Glottolog's published
+    centroid for miam1252 — the SAME static datum data/languages/myaamia.yml
+    already cites from the same
+    https://glottolog.org/resource/languoid/id/miam1252.json URL, read twice
+    rather than two independent values. That record deliberately keeps it at
+    confidence: approximate because Glottolog's own point is a coarse
+    whole-degree pair (40, -90): vague rather than wrong, since it falls
+    inside the historical Miami-Illinois range. Recorded here verbatim; this
+    file does not touch the record, and Task 3 scopes its coordinate check to
+    confidence: sourced rows only.
+
+- searched: "Te Reo Māori"
+  glottocode: maor1246
+  name: Maori
+  level: language
+  iso639_3: mri
+  latitude: -38.2881
+  longitude: 176.541
+  classification: [Austronesian, Malayo-Polynesian, "Eastern Malayo-Polynesian", Oceanic, "Central Pacific linkage", "Tokalau Fijian", Polynesian, "Nuclear Polynesian", "Northern Outlier Polynesian-East Polynesian", "Solomons Northern Outlier Polynesian-East Polynesian", "Central Northern Outlier Polynesian-East Polynesian", "East Polynesian", "East Polynesian Proximal", "Southern East Polynesian Proximal", Maoric]
+  retrieved: "2026-09-06"
+  note: >-
+    Not one of SP3b's 31 candidates: documents data/languages/te-reo-maori.yml,
+    already status: verified, sourced before this sub-project, so Task 3's
+    guard has a row to find it under. Glottolog's own name is "Maori" (no
+    macron, no "Te Reo"); the record and the corpus use the fuller
+    Māori-language name for the same language.

@@ -29,7 +29,7 @@ export function papersForLanguage(
 
 /** The two reasons a paper is not on the map, kept apart (spec D4).
  *
- *  `noLanguage` — no mapping names it. 59 of 92 papers in this corpus study no
+ *  `noLanguage` — no mapping names it. 66 of 92 papers in this corpus study no
  *  specific language at all: surveys, tokenizer methods, process papers. That
  *  is a property of the literature, not a sourcing gap.
  *
@@ -42,7 +42,16 @@ export function unmappedPapers(input: PaperMapInput): {
   noLanguage: Paper[]
   languageNotMapped: { paper: Paper; languages: Language[] }[]
 } {
-  const byPaper = new Map(input.paperLanguages.map((m) => [m.paper, m.languages]))
+  // A paper may carry SEVERAL entries — one per evidential quote (spec D7): a
+  // shared task reports results for languages that no single sentence names
+  // together, and the location rule forbids stitching one. Keyed assignment
+  // (`new Map(rows.map((m) => [m.paper, m.languages]))`) silently kept only the
+  // last entry, so a paper mapped to a drawn language by one quote and an
+  // undrawn one by another was reported by whichever happened to come last.
+  const byPaper = new Map<string, string[]>()
+  for (const m of input.paperLanguages) {
+    byPaper.set(m.paper, [...(byPaper.get(m.paper) ?? []), ...m.languages])
+  }
   const byId = new Map(input.languages.map((l) => [l.id, l]))
   const noLanguage: Paper[] = []
   const languageNotMapped: { paper: Paper; languages: Language[] }[] = []
@@ -53,7 +62,10 @@ export function unmappedPapers(input: PaperMapInput): {
       noLanguage.push(p)
       continue
     }
-    const langs = ids.map((id) => byId.get(id)).filter((l): l is Language => l !== undefined)
+    // De-duplicated so a language named by two of a paper's quotes is listed once.
+    const langs = [...new Set(ids)]
+      .map((id) => byId.get(id))
+      .filter((l): l is Language => l !== undefined)
     // Drawn if ANY of its languages can be drawn — the paper is visible on the
     // map, so reporting it as unmapped would contradict the map beside it.
     if (!langs.some((l) => l.centre !== null)) languageNotMapped.push({ paper: p, languages: langs })

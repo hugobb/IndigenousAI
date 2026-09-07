@@ -30,16 +30,21 @@
 #
 # Ambiguity means OMIT the paper, never guess.
 #
-# Candidates were found with the shell command in the task brief (11 papers
-# naming Mohawk/Kanien'kéha, Māori, or Amharic anywhere before the Relevance
-# heading). Of those 11, only 3 survive both rules; the other 8 are recorded
-# below at `status: rejected`, each with its own verbatim quote and the reason
-# it was refused. This file is now the only record of that reasoning — the
-# task report it used to live in is gitignored and will not ship with the
+# The first task's candidates were found with the shell command in the task
+# brief (11 papers naming Mohawk/Kanien'kéha, Māori, or Amharic anywhere
+# before the Relevance heading). Of those 11, only 3 survived both rules; the
+# other 8 were recorded at `status: rejected`, each with its own verbatim
+# quote and the reason it was refused. Later tasks extended the same file
+# with their own candidate searches over other language sets (North
+# American/Pacific, Latin American, and others), judged by the same two
+# rules. This file is now the only record of all of that reasoning — the
+# task reports it used to live in are gitignored and will not ship with the
 # repository.
 #
-# Every entry below is `status: draft` until the maintainer reviews it, except
-# the 8 already reviewed to `status: rejected`.
+# The file now holds 56 entries: 31 at `status: draft` (awaiting maintainer
+# review) and 25 at `status: rejected` (kept, not deleted, so re-sourcing
+# never re-proposes a candidate without a curator seeing why it was turned
+# down the first time).
 
 - paper: kuhn-et-al-2020-nrc-canada
   languages: [kanienkeha]
@@ -50,10 +55,12 @@
       A software framework for building verb conjugators for polysynthetic languages,
       instantiated for Kanyen'kéha (Mohawk).
   note: >-
-    The NRC project this paper describes also built for Inuktut (the Nunavut Hansard
-    corpus) and SENĆOŦEN (decentralized predictive text) — this mapping names only
-    kanienkeha because the atlas has no language record for either of those two yet,
-    not because the paper's own work is limited to Mohawk.
+    The paper's NRC portfolio covers three languages — Kanien'kéha (this entry),
+    Inuktut (the Nunavut Hansard corpus and shared MT task), and SENĆOŦEN
+    (decentralized predictive text). Each is mapped by its own entry below with its
+    own verbatim quote (see this paper's sencoten and inuktut entries), because no
+    single sentence in the summary names all three together and the location rule
+    forbids stitching one together from separate sentences.
   status: draft
 
 - paper: rai-and-pal-2025-amharic
@@ -67,7 +74,7 @@
   status: draft
 
 - paper: feng-et-al-2025-culfit
-  languages: [amharic]
+  languages: [amharic, sundanese]
   source:
     kind: paper
     ref: /summaries/feng-et-al-2025-culfit/
@@ -75,11 +82,11 @@
       Low-resource language regions (Sundanese in West Java, Amharic in Ethiopia) show
       the largest gains, validating the approach for truly under-represented cultures.
   note: >-
-    Weaker than title-level evidence: Amharic is one of 23 evaluation languages in the
-    paper's GlobalCultureQA benchmark, not the paper's subject. Kept because the paper
-    reports a specific measured result for it (largest gains among low-resource
-    regions), which is more than a passing mention — but a reader should not read this
-    as an Amharic-focused paper.
+    Weaker than title-level evidence: Amharic and Sundanese are two of 23 evaluation
+    languages in the paper's GlobalCultureQA benchmark, not the paper's subject. Kept
+    because the paper reports a specific measured result naming both regions (largest
+    gains among low-resource regions), which is more than a passing mention — but a
+    reader should not read this as an Amharic- or Sundanese-focused paper.
   status: draft
 
 # The 8 candidates below were considered and refused. Kept at
@@ -210,4 +217,678 @@
     Brazil-grounded course; the paper's own Limitations section states its cases are
     Brazil (FOIRN, Nheengatu) and New Zealand (Māori), confirming its actual
     fieldwork is elsewhere, not that it studies Māori. Rejected.
+  status: rejected
+
+# Task 7 (SP3b): North American and Pacific papers. Candidates were the
+# table in the task brief (cherokee, seneca, kanienkeha, inuktitut,
+# inuinnaqtun, innu-aimun, sencoten, cree, yupik, aleut, hawaiian), plus
+# inuktut per a brief correction (the brief's table omitted the inuktut
+# record even though kuhn-et-al-2020-nrc-canada and le-and-sadat-2021-canada
+# both name it). The kanienkeha candidates in this table
+# (arnett-and-bergen-2025-morphologically-complex, le-and-sadat-2021-canada,
+# liu-et-al-2021-morphological-segmentation, pinhanez-et-al-2024-vitalize)
+# were already recorded above as rejected pairs by the prior task; they are
+# not duplicated here.
+- paper: zhang-et-al-2022-cherokee-nlp
+  languages: [cherokee]
+  source:
+    kind: paper
+    ref: /summaries/zhang-et-al-2022-cherokee-nlp/
+    quote: >-
+      How can NLP Help Revitalize Endangered Languages? A Case Study and Roadmap for the
+      Cherokee Language
+  note: null
+  status: draft
+
+- paper: liu-et-al-2021-morphological-segmentation
+  languages: [seneca]
+  source:
+    kind: paper
+    ref: /summaries/liu-et-al-2021-morphological-segmentation/
+    quote: >-
+      Morphological Segmentation for Seneca
+  note: null
+  status: draft
+
+- paper: khandagale-et-al-2022-polysynthetic
+  languages: [inuktitut]
+  source:
+    kind: paper
+    ref: /summaries/khandagale-et-al-2022-polysynthetic/
+    quote: >-
+      Testing on two typologically distinct polysynthetic languages — Adyghe (Northwest
+      Caucasian) and Eastern Canadian Inuktitut — the authors show that incorporating
+      linguist-provided morphological knowledge into the MorphAGram framework improves
+      segmentation quality, and that using stems (rather than words) as the unit of
+      abstraction improves POS tagging through cross-lingual projection.
+  note: >-
+    Inuktitut is one of exactly two test languages (with Adyghe), but each gets its own
+    contributed gold-standard dataset and its own reported results in this paper — full
+    experimental subject matter, not a passing mention, even though Inuktitut is not the
+    paper's sole focus.
+  status: draft
+
+- paper: le-and-sadat-2021-canada
+  languages: [inuktitut, inuinnaqtun]
+  source:
+    kind: paper
+    ref: /summaries/le-and-sadat-2021-canada/
+    quote: >-
+      Inuktitut and Inuinnaqtun — two closely related polysynthetic languages of the
+      Canadian Arctic — present extreme challenges for NMT due to polysynthesis, dialectal
+      variation, noisy data, and scarce resources.
+  note: null
+  status: draft
+
+- paper: ngoc-et-al-2021-inuinnaqtun
+  languages: [inuinnaqtun]
+  source:
+    kind: paper
+    ref: /summaries/ngoc-et-al-2021-inuinnaqtun/
+    quote: >-
+      Towards the First Automatic Unsupervised Morphological Segmentation for Inuinnaqtun
+  note: null
+  status: draft
+
+- paper: stenlund-et-al-2025-inuktitut
+  languages: [inuktitut]
+  source:
+    kind: paper
+    ref: /summaries/stenlund-et-al-2025-inuktitut/
+    quote: >-
+      LLM-Based Morphological Segmentation for Inuktitut Syllabics
+  note: null
+  status: draft
+
+- paper: cadotte-et-al-2022-innu-aimmun
+  languages: [innu-aimun]
+  source:
+    kind: paper
+    ref: /summaries/cadotte-et-al-2022-innu-aimmun/
+    quote: >-
+      Innu-Aimun, a polysynthetic Algonquian language spoken by ~12,000 people in Quebec and
+      Labrador, presents extreme out-of-vocabulary (OOV) challenges for standard NLP
+      approaches
+  note: null
+  status: draft
+
+- paper: le-et-al-2022-innu-aimun
+  languages: [innu-aimun]
+  source:
+    kind: paper
+    ref: /summaries/le-et-al-2022-innu-aimun/
+    quote: >-
+      Innu-Aimun (Algonquian, polysynthetic, ~11,360 speakers in Quebec and Labrador) has
+      not previously been studied for computational morphological segmentation.
+  note: null
+  status: draft
+
+- paper: kuhn-et-al-2020-nrc-canada
+  languages: [sencoten]
+  source:
+    kind: paper
+    ref: /summaries/kuhn-et-al-2020-nrc-canada/
+    quote: >-
+      allows communities to build predictive text models from a spreadsheet of words,
+      without sharing data with a central entity. Implemented for SENĆOŦEN.
+  note: >-
+    One of several language-specific tools in this multi-language NRC portfolio (see also
+    this paper's kanienkeha and inuktut entries): the decentralized predictive-text tool
+    was built and implemented specifically for SENĆOŦEN.
+  status: draft
+
+- paper: kuhn-et-al-2020-nrc-canada
+  languages: [inuktut]
+  source:
+    kind: paper
+    ref: /summaries/kuhn-et-al-2020-nrc-canada/
+    quote: >-
+      1.3 million sentence-aligned Inuktut–English pairs from Nunavut Legislative Assembly
+      proceedings.
+  note: >-
+    The paper's own vocabulary names the Nunavut Hansard corpus and shared MT task
+    "Inuktut" (the Government of Nunavut's cover term for Inuktitut+Inuinnaqtun jointly);
+    this is the paper's own subject-matter naming, not a curator substitution.
+  status: draft
+
+- paper: zhao-et-al-2026-ai-auditing-tools
+  languages: [hawaiian]
+  source:
+    kind: paper
+    ref: /summaries/zhao-et-al-2026-ai-auditing-tools/
+    quote: >-
+      Through four co-design workshops with 22 public school educators in O'ahu, Hawai'i —
+      where schools operate under a mandate to integrate Hawaiian language and culture — the
+      authors surface five dimensions of cultural misrepresentation in LLM outputs and
+      propose auditing practices grounded in Hawaiian values
+  note: >-
+    Unlike the rejected godwin-jones/meighan entries (a one-sentence paired example),
+    this paper's fieldwork and community are genuinely and sustainedly Hawaiian — but its
+    own stated subject is "cultural misrepresentation" in AI outputs generally (five
+    dimensions: hallucinated content, stereotypical depictions, Western narrative
+    dominance, missing ethnic diversity, and historicizing framing), not the Hawaiian
+    language specifically. The one clearly language-specific finding (missing 'okina
+    punctuation in 'Olelo Hawai'i) appears as a single item inside a list of narrative and
+    historical harms, not as its own investigated topic. This is HCI/co-design research
+    about auditing practice grounded in a Hawaiian community's values and knowledge
+    system, not NLP work that builds for, or runs experiments on, the Hawaiian language.
+    Rejected.
+  status: rejected
+
+- paper: le-and-sadat-2021-canada
+  languages: [aleut]
+  source:
+    kind: paper
+    ref: /summaries/le-and-sadat-2021-canada/
+    quote: >-
+      Eskimo-Aleut polysynthetic language
+  note: >-
+    "Aleut" appears only inside the family-classification label "Eskimo-Aleut," describing
+    what family Inuktitut belongs to. The paper contains no other mention of Aleut and
+    does not study the Aleut language itself. Rejected.
+  status: rejected
+
+- paper: le-and-sadat-2021-canada
+  languages: [inuktut]
+  source:
+    kind: paper
+    ref: /summaries/le-and-sadat-2021-canada/
+    quote: >-
+      part of the Inuktut dialect continuum
+  note: >-
+    "Inuktut" appears once, only inside a definitional aside explaining what Inuktitut is
+    (part of a wider dialect continuum called Inuktut). The paper's actual objects of
+    study are the two specific languages it names throughout and builds NMT for, Inuktitut
+    and Inuinnaqtun (see this paper's accepted entry for both) — not the cover term
+    itself. Rejected.
+  status: rejected
+
+- paper: khandagale-et-al-2022-polysynthetic
+  languages: [yupik]
+  source:
+    kind: paper
+    ref: /summaries/khandagale-et-al-2022-polysynthetic/
+    quote: >-
+      Inuit-Yupik-Unangan family
+  note: >-
+    "Yupik" appears only inside the family-classification label "Inuit-Yupik-Unangan
+    family," describing what family Inuktitut belongs to. The paper's two studied
+    languages are Adyghe and Eastern Canadian Inuktitut; it contains no Yupik data or
+    results. Rejected.
+  status: rejected
+
+- paper: ngoc-et-al-2021-inuinnaqtun
+  languages: [yupik]
+  source:
+    kind: paper
+    ref: /summaries/ngoc-et-al-2021-inuinnaqtun/
+    quote: >-
+      Inuit-Yupik-Unangan family
+  note: >-
+    Same shape as the rejected khandagale-et-al-2022-polysynthetic pairing: "Yupik"
+    appears only inside the family-classification label for Inuinnaqtun, not as a language
+    the paper studies. Rejected.
+  status: rejected
+
+- paper: le-et-al-2022-innu-aimun
+  languages: [cree]
+  source:
+    kind: paper
+    ref: /summaries/le-et-al-2022-innu-aimun/
+    quote: >-
+      Algonquian polysynthetic language related to Cree and Naskapi
+  note: >-
+    Cree is named only to place Innu-Aimun within its language family ("related to Cree
+    and Naskapi"); the paper's data, experiments, and benchmark are Innu-Aimun only.
+    Rejected.
+  status: rejected
+
+- paper: godwin-jones-2025-ai-pedagogical-tools
+  languages: [hawaiian]
+  source:
+    kind: paper
+    ref: /summaries/godwin-jones-2025-ai-pedagogical-tools/
+    quote: >-
+      The most effective Indigenous language programs (Hawaiian, Māori) use total immersion
+      — no English, no code-switching.
+  note: >-
+    Same shape as this paper's already-rejected te-reo-maori pairing: Hawaiian is named,
+    paired with Māori, only as an example of languages with successful immersion programs
+    inside a generic definition of "immersion tension"; the paper's subject is a
+    pedagogical framework for less-commonly-taught languages in general, not Hawaiian
+    specifically. Rejected.
+  status: rejected
+
+- paper: meighan-2021-decolonizing
+  languages: [hawaiian]
+  source:
+    kind: paper
+    ref: /summaries/meighan-2021-decolonizing/
+    quote: >-
+      Te Wahapu (Māori, 1990) and Leoki ("Powerful Voice," Hawaiian, 1993) predate most
+      mainstream digital language tools.
+  note: >-
+    Same shape as this paper's already-rejected te-reo-maori pairing: Leoki (Hawaiian) is
+    named alongside Te Wahapu (Māori) as a paired example inside a general historical
+    taxonomy of ILR technology stages, not as something the paper investigates on its own
+    terms. Rejected.
+  status: rejected
+
+- paper: ngoc-et-al-2021-inuinnaqtun
+  languages: [inuktitut]
+  source:
+    kind: paper
+    ref: /summaries/ngoc-et-al-2021-inuinnaqtun/
+    quote: >-
+      Even more critically under-resourced than Inuktitut, with only Bible parallel data
+      publicly available.
+  note: >-
+    Inuktitut is named once, only as a resource-level comparison against the paper's
+    actual subject, Inuinnaqtun (separately and correctly mapped above as its own entry):
+    the paper contributes tools and a gold-standard evaluation set for Inuinnaqtun only,
+    and reports no Inuktitut data or results of its own. Rejected.
+  status: rejected
+
+# ---------------------------------------------------------------------------
+# Task 8: the Latin American papers (D7's multi-entry design).
+#
+# gibert-et-al-2025-americas-nlp and ebrahimi-et-al-2023-americas-nlp are
+# AmericasNLP shared tasks reporting measured per-language results; no single
+# sentence names all their languages, so each gets several entries, one per
+# quote, per D7/the task brief.
+#
+# tonja-et-al-2024-latin-american and mager-et-al-2023-americas are surveys
+# excluded by D7 entirely (they name most of these languages but map to
+# none); they do not appear below at all, by design.
+# ---------------------------------------------------------------------------
+
+- paper: gibert-et-al-2025-americas-nlp
+  languages: [bribri, guarani, maya, nahuatl]
+  source:
+    kind: paper
+    ref: /summaries/gibert-et-al-2025-americas-nlp/
+    quote: >-
+      four languages (Bribri, Guarani, Maya, Nahuatl); metric is exact-match accuracy
+  note: >-
+    ST2 (morphological adaptation for educational materials) reports exact-match accuracy
+    for these four languages as a shared task; none is this paper's sole subject.
+  status: draft
+
+- paper: gibert-et-al-2025-americas-nlp
+  languages: [quechua, raramuri]
+  source:
+    kind: paper
+    ref: /summaries/gibert-et-al-2025-americas-nlp/
+    quote: >-
+      GMU (the only team to surpass it) does so only for Quechua (+0.82 ChrF++) going
+      into Indigenous languages, and Rarámuri (+0.97) going into Spanish
+  note: >-
+    ST1 (machine translation) reports a measured per-language result for each; both are
+    two of the shared task's many evaluated languages, not this paper's sole subject.
+  status: draft
+
+- paper: ebrahimi-et-al-2023-americas-nlp
+  languages: [aymara, quechua]
+  source:
+    kind: paper
+    ref: /summaries/ebrahimi-et-al-2023-americas-nlp/
+    quote: >-
+      which supports some task languages (Aymara, Quechua) natively and was fine-tuned
+      by top-performing teams for others
+  note: >-
+    The evidence here is SCOPE, not a RESULT: the quote names Aymara and Quechua as
+    "task languages" of the shared task this paper itself reports on — a membership
+    claim about the paper's own subject matter, not an illustration drawn from outside
+    it. That is categorically different from the rejected song-et-al-2026-slm entry's
+    "Languages like Quechua, Yoruba, Dzongkha, and Guarani", which names them only as
+    illustrations drawn from a 200-language evaluation this paper is not itself
+    constituted by. The summary reports no per-language ChrF or human-eval figure for
+    either Aymara or Quechua, and each is named this once in the summary — but a single
+    mention is not itself disqualifying when the mention is a membership claim about the
+    paper's own scope, rather than a passing illustrative aside. Treat this mapping as
+    scope-level evidence (these are languages the task evaluates), not as a reported
+    measurement.
+  status: draft
+
+- paper: ebrahimi-et-al-2023-americas-nlp
+  languages: [bribri, chatino, otomi]
+  source:
+    kind: paper
+    ref: /summaries/ebrahimi-et-al-2023-americas-nlp/
+    quote: >-
+      human evaluation of Bribri, Chatino, and Otomí outputs shows that near-perfect
+      translations (rating 5/5) remain extremely rare across all systems and all years
+  note: >-
+    Measured human-evaluation results reported for all three; each is one of the
+    shared task's many evaluated languages, not this paper's sole subject.
+  status: draft
+
+- paper: ebrahimi-et-al-2023-americas-nlp
+  languages: [nahuatl, wixarika]
+  source:
+    kind: paper
+    ref: /summaries/ebrahimi-et-al-2023-americas-nlp/
+    quote: >-
+      Languages like Nahuatl and Wixarika with rich morphophonemic inflection systems,
+      posing particular challenges for token-level MT approaches
+  note: >-
+    Nahuatl and Wixarika appear only once, in the Key Concepts bullet defining
+    "Polysynthetic languages" ("Languages like Nahuatl and Wixarika with rich
+    morphophonemic inflection systems...") — a definitional illustration of a general
+    typological category, not a claim that this shared task evaluates them. Contrast
+    this paper's accepted Aymara/Quechua entry, whose quote instead names them as "task
+    languages" of this shared task itself: a membership claim about the paper's own
+    scope, not a typological example borrowed from outside it. Rejected.
+  status: rejected
+
+- paper: kann-et-al-2018-polysynthetic
+  languages: [nahuatl, wixarika]
+  source:
+    kind: paper
+    ref: /summaries/kann-et-al-2018-polysynthetic/
+    quote: >-
+      The four languages studied (Mexicanero, Nahuatl, Wixarika, Yorem Nokki) are
+      morphologically complex with high morpheme-per-word ratios
+  note: null
+  status: draft
+
+- paper: krasner-et-al-2025-semantic-embeddings
+  languages: [guarani, bribri, nahuatl]
+  source:
+    kind: paper
+    ref: /summaries/krasner-et-al-2025-semantic-embeddings/
+    quote: >-
+      A community benchmark explicitly targeting MT evaluation for Indigenous languages
+      of the Americas — Guarani, Bribri, Nahuatl
+  note: null
+  status: draft
+
+- paper: liu-et-al-2021-morphological-segmentation
+  languages: [nahuatl, wixarika]
+  source:
+    kind: paper
+    ref: /summaries/liu-et-al-2021-morphological-segmentation/
+    quote: >-
+      Training on related (Yuto-Aztecan) polysynthetic languages (Mexicanero, Nahuatl,
+      Wixarika, Yorem Nokki from Kann et al. 2018) provides gains for Seneca, even
+      across language families
+  note: >-
+    Nahuatl and Wixarika are named only as source languages borrowed from Kann et al.
+    2018 for a cross-linguistic transfer experiment whose target and subject is Seneca;
+    this paper builds for, and reports results on, Seneca, not either of these two.
+    Rejected.
+  status: rejected
+
+- paper: mager-et-al-2022-bpe-polysynthetic
+  languages: [nahuatl, raramuri, shipibo-konibo, wixarika]
+  source:
+    kind: paper
+    ref: /summaries/mager-et-al-2022-bpe-polysynthetic/
+    quote: >-
+      The study tests four polysynthetic languages (Nahuatl, Raramuri, Shipibo-Konibo,
+      Wixarika) against Spanish
+  note: null
+  status: draft
+
+- paper: yahan-and-islam-2025-fine-tuning
+  languages: [bribri, guarani, maya]
+  source:
+    kind: paper
+    ref: /summaries/yahan-and-islam-2025-fine-tuning/
+    quote: >-
+      Llama 3.2 (3B-Instruct) achieves competitive results on sentence transformation
+      for three Indigenous languages: BLEU of 19.51 (Bribri), 13.67 (Guarani), 55.86
+      (Maya); ChrF++ of 50.29 (Bribri), 58.55 (Guarani), 80.12 (Maya)
+  note: null
+  status: draft
+
+- paper: yahan-and-islam-2025-fine-tuning
+  languages: [nahuatl]
+  source:
+    kind: paper
+    ref: /summaries/yahan-and-islam-2025-fine-tuning/
+    quote: >-
+      A shared task focused on creating educational tools for Indigenous languages
+      (Bribri, Guarani, Maya, Nahuatl Omitlan) by generating grammatically transformed
+      sentences
+  note: >-
+    Nahuatl is named only while describing the AmericasNLP 2025 Shared Task 2's overall
+    language set; this paper's own reported results (BLEU/ChrF++) cover exactly three
+    languages — Bribri, Guarani, and Maya — with no Nahuatl scores anywhere in the
+    summary. Rejected.
+  status: rejected
+
+- paper: court-and-elsner-et-al-2024-llm-low-ressource
+  languages: [quechua]
+  source:
+    kind: paper
+    ref: /summaries/court-and-elsner-et-al-2024-llm-low-ressource/
+    quote: >-
+      Translation quality improvements with model size (GPT-3.5 → GPT-4o) primarily
+      reflect prior Quechua exposure during pretraining, not better in-context learning
+      ability
+  note: >-
+    The paper's own subject is the specific variety Southern Quechua; mapped to the
+    cover-term `quechua` record per its own caveat, which names this exact paper as the
+    intended case for that mapping.
+  status: draft
+
+- paper: song-et-al-2026-slm
+  languages: [quechua, guarani, yoruba]
+  source:
+    kind: paper
+    ref: /summaries/song-et-al-2026-slm/
+    quote: >-
+      Languages like Quechua, Yoruba, Dzongkha, and Guarani show measurable but limited
+      translation quality even after distillation, reflecting the difficulty of the XLR
+      regime
+  note: >-
+    Fails the test the zhang-et-al-2024-hire-a-linguist entries below pass: that paper
+    names a closed, counted set with a figure tied to it, while this sentence says
+    "Languages LIKE Quechua, Yoruba, Dzongkha, and Guarani" — an open, illustrative
+    subset drawn from the paper's own 200-language evaluation, with no figure attached
+    to any of the four. This is the only mention of any of these three languages
+    anywhere in the summary, and no Quechua-, Yoruba-, or Guarani-specific figure
+    appears anywhere in the summary. Whether this paper's own 200-language evaluation in
+    fact reports individual numbers for these is genuinely ambiguous from the summary
+    alone, and the rule for that case is to omit, not to argue it through. Rejected
+    under the ambiguity rule, not because the paper necessarily lacks the evidence — a
+    curator who reads the full paper and finds per-language results for Quechua,
+    Yoruba, or Guarani should feel free to promote this to draft or accepted; that is
+    exactly what this record is for. (Yoruba added under the same reasoning as
+    Quechua/Guarani above: applying a different standard to the identical sentence for a
+    third language would be worse than being consistently strict.)
+  status: rejected
+
+- paper: aycock-et-al-2025-grammar-book
+  languages: [guarani, nepali]
+  source:
+    kind: paper
+    ref: /summaries/aycock-et-al-2025-grammar-book/
+    quote: >-
+      Languages with essentially no available parallel corpora; the paper focuses on
+      Kalamang, Nepali, and Guarani
+  note: >-
+    One of the three languages (with Kalamang) this paper's grammar-book prompting
+    experiments cover, each with its own reported result: "Results hold across Kalamang
+    (XLR, unseen by LLMs), Nepali, and Guarani (seen low-resource languages)". Neither
+    Nepali nor Guarani is the paper's sole subject.
+  status: draft
+
+- paper: pinhanez-et-al-2024-vitalize
+  languages: [guarani]
+  source:
+    kind: paper
+    ref: /summaries/pinhanez-et-al-2024-vitalize/
+    quote: >-
+      primarily Nheengatu and Guarani Mbya
+  note: >-
+    The paper's field work and fine-tuning results are for Guarani Mbya (Mbyá Guaraní),
+    which the `guarani` record's own caveat names as a separate Glottolog language
+    (mbya1239) from the Paraguayan Guaraní (para1311) this record covers. No record for
+    Mbyá Guaraní exists yet; mapping to `guarani` would misattribute the paper to the
+    wrong language. Rejected.
+  status: rejected
+
+- paper: zhang-et-al-2024-hire-a-linguist
+  languages: [bribri, wolof]
+  source:
+    kind: paper
+    ref: /summaries/zhang-et-al-2024-hire-a-linguist/
+    quote: >-
+      LINGOLLM raises GPT-4's average translation BLEU from 0.5 to 10.5 across 10
+      translation directions covering 8 endangered/low-resource languages (Manchu,
+      Gitksan, Arapaho, Natugu, Tsez, Wolof, Uspanteko, Bribri)
+  note: >-
+    Accepted on membership, not on mention: the paper names a closed, counted
+    evaluation set — "8 endangered/low-resource languages" followed by the full
+    enumeration (Manchu, Gitksan, Arapaho, Natugu, Tsez, Wolof, Uspanteko, Bribri) — and
+    ties a specific figure to exactly that set (BLEU 0.5 to 10.5 across 10 translation
+    directions). Bribri and Wolof are confirmed members of an evaluated set whose result
+    is quantified, which is the bar this record uses for a benchmark-style mapping.
+    Contrast the rejected song-et-al-2026-slm entry above, whose "Languages like ..."
+    sentence names an open, illustrative subset with no figure tied to any of the
+    languages it lists — that is what fails this test and this passes it. Still, no
+    per-language BLEU is reported for Bribri or Wolof individually here, only the
+    aggregate across all 8; not the paper's sole subject.
+  status: draft
+
+- paper: zhang-et-al-2024-hire-a-linguist
+  languages: [manchu]
+  source:
+    kind: paper
+    ref: /summaries/zhang-et-al-2024-hire-a-linguist/
+    quote: >-
+      Mathematical reasoning accuracy improves from 18% (zero-shot) to 75% (LINGOLLM) on
+      Manchu, and response selection accuracy from 43% to 63%.
+  note: >-
+    Manchu is one of the paper's 8 evaluated endangered/low-resource languages (see the
+    Bribri/Wolof entry above for the shared aggregate BLEU figure), but unlike the
+    other seven it also gets dedicated per-language experiments and results — this
+    mathematical-reasoning and response-selection figure, plus a separate human-baseline
+    BLEU comparison (20.32 vs. 9.12) elsewhere in the summary. Stronger evidence than
+    the aggregate-only mapping, but still not the paper's sole subject, hence the note.
+  status: draft
+
+- paper: pei-et-al-2025-in-context-learning
+  languages: [manchu]
+  source:
+    kind: paper
+    ref: /summaries/pei-et-al-2025-in-context-learning/
+    quote: >-
+      Understanding In-Context Machine Translation for Low-Resource Languages: A Case
+      Study on Manchu
+  note: null
+  status: draft
+
+- paper: ansari-et-al-2026-persian-poetry
+  languages: [persian]
+  source:
+    kind: paper
+    ref: /summaries/ansari-et-al-2026-persian-poetry/
+    quote: >-
+      Multi-modal Neural Machine Translation for Low-Resource Classical Persian Poetry:
+      A Culture-Aware Evaluation
+  note: null
+  status: draft
+
+- paper: monazzah-et-al-2025-percurl
+  languages: [persian]
+  source:
+    kind: paper
+    ref: /summaries/monazzah-et-al-2025-percurl/
+    quote: >-
+      PERCUL: A Story-Driven Cultural Evaluation of LLMs in Persian
+  note: null
+  status: draft
+
+- paper: sadr-et-al-2025-taarof
+  languages: [persian]
+  source:
+    kind: paper
+    ref: /summaries/sadr-et-al-2025-taarof/
+    quote: >-
+      We Politely Insist: Your LLM Must Learn the Persian Art of Taarof
+  note: null
+  status: draft
+
+- paper: sakhaeirad-et-al-2026-persian-llm
+  languages: [persian]
+  source:
+    kind: paper
+    ref: /summaries/sakhaeirad-et-al-2026-persian-llm/
+    quote: >-
+      Unmasking the Factual-Conceptual Gap in Persian Language Models
+  note: null
+  status: draft
+
+- paper: zebaze-et-al-2025-in-context-learning
+  languages: [swahili, wolof]
+  source:
+    kind: paper
+    ref: /summaries/zebaze-et-al-2025-in-context-learning/
+    quote: >-
+      Similarity-based retrieval consistently improves MT quality for low-resource
+      language directions (Wolof, Swahili); the benefit is absent or weaker for
+      high-resource pairs, resolving conflicting prior results.
+  note: >-
+    Weaker than title-level evidence: Wolof and Swahili are the paper's two low-resource
+    translation directions, studied alongside high-resource pairs (French, German); the
+    paper reports a measured retrieval-quality result specific to this pair of
+    directions, not a passing mention, but neither language is the paper's sole subject.
+    (The summary calls Swahili "medium-resource" in Key Concepts but groups it under
+    "low-resource language directions" in Main Findings — the paper's own wording is
+    inconsistent on this point, not this record's.)
+  status: draft
+
+- paper: ajani-et-al-2024-revitalizing
+  languages: [yoruba]
+  source:
+    kind: paper
+    ref: /summaries/ajani-et-al-2024-revitalizing/
+    quote: >-
+      Case studies from Africa (South Africa's Indigenous Digital Archive, Ghana's
+      Sankofa Digital Archive, Tanzania's "Ntongato" app, Nigeria's "Learn Yoruba" app)
+      illustrate concrete implementations.
+  note: >-
+    This survey names Nigeria's "Learn Yoruba" app as one of four illustrative
+    case-study examples spanning four different countries, in a paper whose actual
+    subject is digital media technology for Indigenous language revitalization in
+    general. No experiment, dataset, or result specific to Yoruba is reported anywhere
+    in the summary — this is a passing artifact mention, not evidence the paper studies
+    Yoruba. Rejected under the studies rule.
+  status: rejected
+
+- paper: mager-et-al-2022-bpe-polysynthetic
+  languages: [nepali]
+  source:
+    kind: paper
+    ref: /summaries/mager-et-al-2022-bpe-polysynthetic/
+    quote: >-
+      BPE's advantage in moderate-resource settings (Nepali, Kazakh) disappears or
+      reverses in ELR polysynthetic settings because BPE cannot learn morpheme-aligned
+      subword units from such small corpora.
+  note: >-
+    The paper's own four studied languages are Nahuatl, Raramuri, Shipibo-Konibo, and
+    Wixarika (per its Core Argument and Main Findings); Nepali appears only as a
+    prior-work comparison point illustrating moderate-resource BPE behaviour, not as a
+    language this paper runs experiments on. Passing comparison mention; rejected under
+    the studies rule.
+  status: rejected
+
+- paper: sanchez-et-al-2025-linguini
+  languages: [basque]
+  source:
+    kind: paper
+    ref: /summaries/sanchez-et-al-2025-linguini/
+    quote: >-
+      NeurIPS 2025 (Meta AI, University College London, University of the Basque
+      Country)
+  note: >-
+    The only occurrence of "Basque" anywhere in the summary is inside the venue line's
+    author-affiliation credit ("University of the Basque Country"); nothing in the
+    summary states that Basque is one of the benchmark's 75 languages, and the visible
+    text names no specific languages from that set at all. This names an institution,
+    not a studied language. Rejected under the studies rule — a coincidental substring
+    match is not evidence.
   status: rejected

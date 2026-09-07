@@ -1,0 +1,35 @@
+# A COVER TERM, not a language. See data/glottolog-resolution.yml for the
+# fetched response this record was written from.
+id: maya
+name: Maya
+also_known_as: [Mayan]
+glottocode: null
+iso639_3: null
+tier: indigenous
+family: Mayan
+subfamily: null
+typology: []
+endangerment: null
+speakers: null
+# Curator judgment, not a Glottolog fact: the 34 Mayan languages span
+# Mexico (north-america per this atlas's convention), Guatemala, Belize and
+# Honduras (central-america). A single REGIONS value would misplace
+# whichever part of the family it does not name, so this is left null
+# rather than asserted.
+region: null
+countries: []
+centre: null
+caveat: >-
+  A cover term, not a single language: Glottolog has no languoid named
+  plainly "Maya" (its search matches roughly 86 languoids containing that
+  string, none of them named exactly that); the family covering the 34
+  languages the corpus's "Maya" refers to is named Mayan (maya1287) —
+  child_language_count fetched 2026-09-06 from
+  https://glottolog.org/resource/languoid/id/maya1287.json. Every summary in
+  this corpus found to mention Maya names it at that level; no summary was
+  found narrowing it to a specific variety, but that search was not
+  exhaustive (grep-derived counts of this corpus have run low before — spec
+  D8), so this does not claim no such summary exists. Glottolog publishes no
+  coordinates for a family, so this record carries no centre and does not
+  draw.
+status: draft

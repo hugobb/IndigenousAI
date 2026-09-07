@@ -1,0 +1,43 @@
+# A COVER TERM, not a language. See data/glottolog-resolution.yml for the
+# fetched response this record was written from.
+id: nahuatl
+name: Nahuatl
+# "Aztec" (Glottolog's own name for azte1234) is deliberately NOT listed
+# here even though it is directly sourced from the resolution row: it is a
+# substring of "Uto-Aztecan", the broader family name this corpus's own
+# summaries use four times (e.g. kann-et-al-2018-polysynthetic.md,
+# mager-et-al-2022-bpe-polysynthetic.md) to describe something wider than
+# Nahuatl alone. Listing "Aztec" as an alias would risk a future
+# quote-matching pass reading any "Uto-Aztecan" mention as a Nahuatl mention.
+also_known_as: []
+glottocode: null
+iso639_3: null
+tier: indigenous
+family: Uto-Aztecan
+subfamily: Southern Uto-Aztecan
+typology: []
+endangerment: null
+speakers: null
+# Curator judgment, not a Glottolog fact: the 31-language family includes
+# Pipil, spoken in El Salvador (Central America), alongside the Mexican
+# Nahuatl varieties the corpus actually discusses (Mexico is north-america
+# per this atlas's convention). A single REGIONS value would misplace
+# whichever part of the family it does not name, so this is left null
+# rather than asserted.
+region: null
+countries: []
+centre: null
+caveat: >-
+  A cover term, not a single language: the corpus writes "Nahuatl", but
+  Glottolog's own name for the family spanning it is "Aztec" (azte1234), and
+  Glottolog places 31 languages under it — child_language_count fetched
+  2026-09-06 from https://glottolog.org/resource/languoid/id/azte1234.json —
+  including Classical Nahuatl, the Huasteca varieties and Pipil. Most
+  summaries in this corpus name Nahuatl at that level, but two (both
+  describing the same AmericasNLP 2025 Shared Task 2 dataset) go further and
+  name the Western Sierra Puebla / Omitlán variety specifically. This record
+  does not follow them down to that variety: Glottolog publishes no
+  coordinates for a family, and narrowing only this record to one variety
+  while the other 30 languages remain unmapped would overstate what is
+  actually sourced. The record carries no centre and does not draw.
+status: draft

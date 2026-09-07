@@ -1,11 +1,13 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Initiative, Language, PaperLanguage } from '../src/schema/index.js'
+import type { GlottologResolution, Initiative, Language, PaperLanguage } from '../src/schema/index.js'
 import type { QuoteProvenance } from '../src/lib/quote-provenance.js'
 import { quoteProvenance } from '../src/lib/quote-provenance.js'
+import { coverTermProblems, resolutionProblems } from '../src/lib/record-guards.js'
 import { findStrayFiles, loadInitiatives, loadLanguages, recordDirStatus } from './lib/load-records.js'
 import { loadPaperLanguages, paperLanguagesFileStatus } from './lib/load-paper-languages.js'
+import { glottologResolutionFileStatus, loadGlottologResolution } from './lib/load-glottolog-resolution.js'
 
 export interface ValidateInput {
   languages: Language[]
@@ -33,11 +35,19 @@ export interface ValidateInput {
    *  at all. `summaryPath` is carried alongside so that branch's message can
    *  name the exact path the CLI looked for — otherwise a curator cannot tell
    *  a wrong paper id from a summary that was simply never added. */
-  paperLanguageQuotes: { paper: string; where: QuoteProvenance | 'summary-unreadable'; summaryPath: string }[]
+  paperLanguageQuotes: { paper: string; languages: string[]; where: QuoteProvenance | 'summary-unreadable'; summaryPath: string }[]
   /** The mapping file is absent or unreadable — the same failure class as a
    *  missing record directory: zero mappings loaded reads exactly like a file
    *  nobody has written. */
   missingMappingFile: boolean
+  /** What Glottolog actually returned for every glottocode in the atlas
+   *  (`data/glottolog-resolution.yml`), checked against the language records
+   *  by `resolutionProblems`. Unlike the mapping file above, an absent or
+   *  unreadable resolution file needs no dedicated "missing" flag here: with
+   *  zero rows, every record with a non-null glottocode already fails
+   *  "appears in no row" on its own, which is the correct diagnosis for a
+   *  missing file too. */
+  glottologResolution: GlottologResolution[]
 }
 
 function findDuplicates(ids: string[], kind: string): string[] {
@@ -77,6 +87,12 @@ export function validate(input: ValidateInput): string[] {
     }
   }
 
+  // Spec D8/D9. `languages` above is already rejected-filtered — a withdrawn
+  // record is withdrawn from every gate, exactly like a rejected mapping is
+  // below.
+  problems.push(...coverTermProblems(languages))
+  problems.push(...resolutionProblems(languages, input.glottologResolution))
+
   const languageIds = new Set(languages.map((l) => l.id))
 
   for (const i of initiatives) {
@@ -99,17 +115,34 @@ export function validate(input: ValidateInput): string[] {
   }
 
   const mappings = input.paperLanguages.filter((m) => m.status !== 'rejected')
-  problems.push(...findDuplicates(mappings.map((m) => m.paper), 'paper mapping'))
+  // A paper may appear several times — once per evidential quote (D7). What
+  // must never repeat is a (paper, language) PAIR: two entries claiming the
+  // same link would list the paper twice on one language panel and make the
+  // second quote's evidence unfalsifiable, since either could satisfy the
+  // check on its own.
+  problems.push(
+    ...findDuplicates(
+      mappings.flatMap((m) => m.languages.map((l) => `${m.paper} -> ${l}`)),
+      'paper mapping',
+    ),
+  )
+
+  // Every message below names the languages alongside the paper, not just the
+  // paper id: a paper may now carry several entries (D7), so `mapping x-2025:`
+  // alone would not tell a maintainer WHICH entry is at fault. Typed on the
+  // shape both `PaperLanguage` and a `paperLanguageQuotes` row share, so the
+  // quote-provenance messages below can use the same phrasing.
+  const where = (m: { paper: string; languages: string[] }): string => `mapping ${m.paper} -> [${m.languages.join(', ')}]`
 
   for (const m of mappings) {
     if (m.status === 'draft') {
-      problems.push(`mapping ${m.paper}: status is draft — review it and set status: verified, or status: rejected`)
+      problems.push(`${where(m)}: status is draft — review it and set status: verified, or status: rejected`)
     }
     if (!input.paperIds.has(m.paper)) {
-      problems.push(`mapping ${m.paper}: unknown paper "${m.paper}" (not in data/derived/papers.json)`)
+      problems.push(`${where(m)}: unknown paper "${m.paper}" (not in data/derived/papers.json)`)
     }
     for (const ref of m.languages) {
-      if (!languageIds.has(ref)) problems.push(`mapping ${m.paper}: unknown language "${ref}"`)
+      if (!languageIds.has(ref)) problems.push(`${where(m)}: unknown language "${ref}"`)
     }
   }
 
@@ -127,24 +160,24 @@ export function validate(input: ValidateInput): string[] {
   for (const q of input.paperLanguageQuotes.filter((q) => mappingPaperIds.has(q.paper))) {
     if (q.where === 'relevance-only') {
       problems.push(
-        `mapping ${q.paper}: the quote appears in the summary only at or after ` +
+        `${where(q)}: the quote appears in the summary only at or after ` +
           '"## Relevance to Indigenous AI". ' +
           'That section is the reviewer writing about applicability to this project, not the paper ' +
           'describing itself — 86 of 92 summaries name Mohawk there. Quote the paper, or drop the mapping.',
       )
     }
     if (q.where === 'absent') {
-      problems.push(`mapping ${q.paper}: the quote does not appear in its summary at all`)
+      problems.push(`${where(q)}: the quote does not appear in its summary at all`)
     }
     if (q.where === 'unrecognised-relevance-heading') {
       problems.push(
-        `mapping ${q.paper}: its summary's relevance heading was not recognised (expected "## Relevance..."), ` +
+        `${where(q)}: its summary's relevance heading was not recognised (expected "## Relevance..."), ` +
           'so the mapping cannot be checked — fix the heading or drop the mapping',
       )
     }
     if (q.where === 'summary-unreadable') {
       problems.push(
-        `mapping ${q.paper}: could not read its summary at "${q.summaryPath}" — ` +
+        `${where(q)}: could not read its summary at "${q.summaryPath}" — ` +
           'check the mapping\'s paper id, or that the summary file actually exists',
       )
     }
@@ -162,11 +195,18 @@ const RECORD_DIRS = ['data/languages', 'data/initiatives'] as const
 
 const MAPPINGS = url('../data/paper-languages.yml')
 const SUMMARY_DIR = url('../../litterature_review/summaries')
+const GLOTTOLOG_RESOLUTION = url('../data/glottolog-resolution.yml')
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const dirs = RECORD_DIRS.map((label) => ({ label, path: url(`../${label}`) }))
   const mappingStatus = paperLanguagesFileStatus(MAPPINGS)
   const paperLanguages = mappingStatus === 'ok' ? loadPaperLanguages(MAPPINGS) : []
+  // A missing/unreadable resolution file needs no separate "missing" problem:
+  // with zero rows, `resolutionProblems` already refuses every record with a
+  // non-null glottocode as "appears in no row", which is the right diagnosis
+  // for that case too.
+  const glottologResolution =
+    glottologResolutionFileStatus(GLOTTOLOG_RESOLUTION) === 'ok' ? loadGlottologResolution(GLOTTOLOG_RESOLUTION) : []
   const problems = validate({
     languages: loadLanguages(url('../data/languages')),
     initiatives: loadInitiatives(url('../data/initiatives')),
@@ -175,6 +215,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     missingDirs: dirs.filter((d) => recordDirStatus(d.path) !== 'ok').map((d) => d.label),
     strayFiles: dirs.flatMap((d) => findStrayFiles(d.path)),
     paperLanguages,
+    glottologResolution,
     // Rejected mappings are skipped here too: nobody is going to publish one,
     // so its summary is never read and it can never trip the unreadable-file
     // path below on a mapping the maintainer already withdrew.
@@ -183,11 +224,16 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       .map((m) => {
         const summaryPath = join(SUMMARY_DIR, `${m.paper}.md`)
         try {
-          return { paper: m.paper, where: quoteProvenance(readFileSync(summaryPath, 'utf8'), m.source.quote ?? ''), summaryPath }
+          return {
+            paper: m.paper,
+            languages: m.languages,
+            where: quoteProvenance(readFileSync(summaryPath, 'utf8'), m.source.quote ?? ''),
+            summaryPath,
+          }
         } catch {
           // A missing/unreadable summary must become a listed problem, not an
           // uncaught exception that kills the script before it can print one.
-          return { paper: m.paper, where: 'summary-unreadable' as const, summaryPath }
+          return { paper: m.paper, languages: m.languages, where: 'summary-unreadable' as const, summaryPath }
         }
       }),
     missingMappingFile: mappingStatus !== 'ok',

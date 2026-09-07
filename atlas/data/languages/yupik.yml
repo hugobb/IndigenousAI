@@ -1,0 +1,36 @@
+# A COVER TERM, not a language. See data/glottolog-resolution.yml for the
+# fetched response this record was written from.
+id: yupik
+name: Yupik
+also_known_as: []
+glottocode: null
+iso639_3: null
+tier: indigenous
+family: Eskimo-Aleut
+subfamily: Eskimo
+typology: []
+endangerment: null
+speakers: null
+# Curator judgment, not a Glottolog fact: Yupik languages are spoken by
+# circumpolar peoples on both sides of the Bering Strait — Central Alaskan
+# and Pacific Gulf Yupik in Alaska (US), Central Siberian and Naukan Yupik
+# in Chukotka (Russia). No single continent-based REGIONS member covers
+# both without asserting a location for half the family that is wrong for
+# the other half; `arctic` is the one member that already exists in this
+# atlas (aleut.yml) to name a circumpolar Indigenous identity rather than a
+# continent.
+region: arctic
+countries: []
+centre: null
+caveat: >-
+  A cover term, not a single language: Glottolog places 4 languages under
+  Yupik (yupi1267) — child_language_count fetched 2026-09-06 from
+  https://glottolog.org/resource/languoid/id/yupi1267.json — spanning
+  Central Alaskan, Central Siberian, Naukan and Pacific Gulf Yupik. Every
+  summary in this corpus found to mention Yupik names it at that level; no
+  summary was found narrowing it to a specific variety, but that search was
+  not exhaustive (grep-derived counts of this corpus have run low before —
+  spec D8), so this does not claim no such summary exists. Glottolog
+  publishes no coordinates for a family, so this record carries no centre and
+  does not draw.
+status: draft

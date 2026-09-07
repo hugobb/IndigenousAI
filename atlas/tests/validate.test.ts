@@ -8,11 +8,17 @@ import type { Initiative, Language, PaperLanguage } from '../src/schema/index.js
 
 const src = { kind: 'url' as const, ref: 'https://example.test', retrieved: '2026-09-03', quote: null }
 
+// `caveat` defaults to a placeholder, not null: this fixture is `tier:
+// indigenous` with `centre: null`, which is exactly the shape
+// `coverTermProblems` refuses without a caveat (spec D8). The real
+// kanienkeha record this fixture is modelled on carries one for the same
+// reason. Tests that specifically exercise the cover-term guard override
+// `caveat: null` explicitly.
 const lang = (over: Partial<Language> = {}): Language => ({
   id: 'kanienkeha', name: "Kanien'kéha", also_known_as: [], glottocode: null, iso639_3: null,
   tier: 'indigenous', family: 'Iroquoian', subfamily: null, typology: ['polysynthetic'],
   endangerment: null, speakers: null, region: 'north-america', countries: ['CA'],
-  centre: null, caveat: null, status: 'verified', ...over,
+  centre: null, caveat: 'Not mapped: fixture record.', status: 'verified', ...over,
 })
 
 const init = (over: Partial<Initiative> = {}): Initiative => ({
@@ -31,6 +37,7 @@ const base = {
   paperLanguages: [],
   paperLanguageQuotes: [],
   missingMappingFile: false,
+  glottologResolution: [],
 }
 
 describe('validate', () => {
@@ -147,6 +154,36 @@ describe('validate', () => {
     expect(recordDirStatus(join(parent, 'renamed-by-accident'))).toBe('missing')
     rmSync(parent, { recursive: true, force: true })
   })
+
+  it('reports a cover-term record with no caveat', () => {
+    const problems = validate({
+      languages: [lang({ id: 'quechua', tier: 'indigenous', centre: null, caveat: null, status: 'draft' })],
+      initiatives: [init()], ...base,
+    })
+    expect(problems.some((p) => p.includes('quechua') && p.includes('caveat'))).toBe(true)
+  })
+
+  it('excludes a rejected record from the cover-term check', () => {
+    const problems = validate({
+      languages: [lang({ id: 'quechua', tier: 'indigenous', centre: null, caveat: null, status: 'rejected' })],
+      initiatives: [init()], ...base,
+    })
+    expect(problems.some((p) => p.includes('quechua') && p.includes('caveat'))).toBe(false)
+  })
+
+  it('excludes a rejected record from the resolution check too', () => {
+    // Only `coverTermProblems`' rejected-exclusion was tested at this level;
+    // `resolutionProblems`' exclusion was only implied by the two guards
+    // sharing the same pre-filtered `languages` array inside `validate`.
+    // This is the same coverage, aimed at the other guard: a glottocode that
+    // appears in no resolution row would normally be refused (spec D9), but
+    // a withdrawn record is withdrawn from every gate.
+    const problems = validate({
+      languages: [lang({ id: 'ghost', glottocode: 'zzzz9999', status: 'rejected' })],
+      initiatives: [init()], ...base,
+    })
+    expect(problems.some((p) => p.includes('zzzz9999'))).toBe(false)
+  })
 })
 
 /** A mapping is a record like any other: draft blocks the build, unknown ids
@@ -161,9 +198,24 @@ describe('paper-language mappings', () => {
   const run = (over: Record<string, unknown>) =>
     validate({ languages: [lang()], initiatives: [init()], ...base, ...over })
 
+  it('accepts one paper carrying two entries with different languages', () => {
+    const problems = run({
+      languages: [lang(), lang({ id: 'second' })],
+      paperLanguages: [mapping({ languages: ['kanienkeha'] }), mapping({ languages: ['second'] })],
+    })
+    expect(problems.filter((p) => p.includes('duplicate'))).toEqual([])
+  })
+
+  it('refuses the same paper-language pair twice', () => {
+    const problems = run({
+      paperLanguages: [mapping({ languages: ['kanienkeha'] }), mapping({ languages: ['kanienkeha'] })],
+    })
+    expect(problems.some((p) => p.includes('x-2025 -> kanienkeha'))).toBe(true)
+  })
+
   it('blocks the build while a mapping is draft', () => {
     expect(run({ paperLanguages: [mapping({ status: 'draft' })] }).join('\n'))
-      .toMatch(/mapping x-2025: status is draft/)
+      .toMatch(/mapping x-2025 -> \[kanienkeha\]: status is draft/)
   })
 
   it('refuses a mapping naming an unknown paper', () => {
@@ -183,14 +235,14 @@ describe('paper-language mappings', () => {
     // state the real build can produce.
     expect(run({
       paperLanguages: [mapping()],
-      paperLanguageQuotes: [{ paper: 'x-2025', where: 'relevance-only', summaryPath: 'unused' }],
+      paperLanguageQuotes: [{ paper: 'x-2025', languages: ['kanienkeha'], where: 'relevance-only', summaryPath: 'unused' }],
     }).join('\n')).toMatch(/relevance/i)
   })
 
   it('refuses a quote that is not in the summary at all', () => {
     expect(run({
       paperLanguages: [mapping()],
-      paperLanguageQuotes: [{ paper: 'x-2025', where: 'absent', summaryPath: 'unused' }],
+      paperLanguageQuotes: [{ paper: 'x-2025', languages: ['kanienkeha'], where: 'absent', summaryPath: 'unused' }],
     }).join('\n')).toMatch(/does not appear/i)
   })
 
@@ -200,7 +252,7 @@ describe('paper-language mappings', () => {
     // 'summary-unreadable' instead of throwing and killing the build silently.
     expect(run({
       paperLanguages: [mapping()],
-      paperLanguageQuotes: [{ paper: 'x-2025', where: 'summary-unreadable', summaryPath: '/no/such/file.md' }],
+      paperLanguageQuotes: [{ paper: 'x-2025', languages: ['kanienkeha'], where: 'summary-unreadable', summaryPath: '/no/such/file.md' }],
     }).join('\n')).toMatch(/x-2025/)
   })
 
@@ -212,7 +264,7 @@ describe('paper-language mappings', () => {
     // blocked by that same quote.
     expect(run({
       paperLanguages: [mapping({ status: 'rejected' })],
-      paperLanguageQuotes: [{ paper: 'x-2025', where: 'relevance-only', summaryPath: 'unused' }],
+      paperLanguageQuotes: [{ paper: 'x-2025', languages: ['kanienkeha'], where: 'relevance-only', summaryPath: 'unused' }],
     })).toEqual([])
   })
 
@@ -230,7 +282,7 @@ describe('paper-language mappings', () => {
     // what actually prove the gate fires.
     expect(run({
       paperLanguages: [mapping()],
-      paperLanguageQuotes: [{ paper: 'x-2025', where: 'subject-matter', summaryPath: 'unused' }],
+      paperLanguageQuotes: [{ paper: 'x-2025', languages: ['kanienkeha'], where: 'subject-matter', summaryPath: 'unused' }],
     })).toEqual([])
   })
 })

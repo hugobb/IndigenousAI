@@ -1,0 +1,37 @@
+# A DIALECT, not a cover term. Glottolog's search for the corpus's own
+# W̱SÁNEĆ-language name "SENĆOŦEN" returns zero results; its entry is titled
+# "Saanich" (the common English exonym) and files it as a dialect of
+# Northern Straits Salish (stra1244); it does not publish a coordinate for
+# any dialect-level languoid, confirmed by fetching saan1246 directly. See
+# data/glottolog-resolution.yml for the fetched response this record was
+# written from.
+id: sencoten
+name: SENĆOŦEN
+also_known_as: [Saanich]
+glottocode: saan1246
+iso639_3: null
+tier: indigenous
+family: Salishan
+subfamily: Coast Salish
+typology: []
+endangerment: null
+speakers: null
+# Curator judgment, not a Glottolog fact: SENĆOŦEN is spoken by the W̱SÁNEĆ
+# people on the Saanich Peninsula and southern Vancouver Island, British
+# Columbia — Pacific Northwest Coast, not Arctic.
+region: north-america
+countries: []
+centre: null
+caveat: >-
+  Not a cover term: SENĆOŦEN is one specific lect, and its glottocode
+  (saan1246) is kept in this record because it identifies that lect
+  precisely — the opposite situation from a family code, which stands in
+  for languages it is not. Glottolog's own entry for it is titled "Saanich"
+  (the common English exonym, kept above as an alias) and files it as a
+  dialect of Northern Straits Salish (stra1244) rather than as a
+  language-level entry of its own. Glottolog publishes no coordinate for
+  any dialect-level languoid — confirmed by fetching saan1246 directly,
+  which returns latitude/longitude: null. That is Glottolog's own
+  dialect-level convention, not a failed lookup, so this record carries no
+  centre and does not draw.
+status: draft
