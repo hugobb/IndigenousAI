@@ -1,0 +1,26 @@
+# Sourced 2026-09-06 from Glottolog; see data/glottolog-resolution.yml for the
+# fetched response this record was written from.
+id: aleut
+name: Aleut
+also_known_as: []
+glottocode: aleu1260
+iso639_3: ale
+tier: indigenous
+family: Eskimo-Aleut
+subfamily: Aleutic
+typology: []
+endangerment: null
+speakers: null
+region: north-america
+countries: [US]
+centre:
+  lat: 52.1228
+  lon: -174.29
+  source:
+    kind: url
+    ref: https://glottolog.org/resource/languoid/id/aleu1260
+    retrieved: "2026-09-06"
+    quote: "Aleut aleu1260 ale latitude 52.1228 longitude -174.29 (Glottolog, CC-BY-4.0)"
+  confidence: sourced
+caveat: null
+status: draft

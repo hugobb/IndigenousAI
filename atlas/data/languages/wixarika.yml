@@ -1,0 +1,27 @@
+# Sourced 2026-09-06 from Glottolog; see data/glottolog-resolution.yml for the
+# fetched response this record was written from. Glottolog's entry is titled
+# "Huichol" (the Spanish exonym), not "Wixarika".
+id: wixarika
+name: Wixarika
+also_known_as: [Huichol, "Vixaritari Vaniuqui", "Vizaritari Vaniuki"]
+glottocode: huic1243
+iso639_3: hch
+tier: indigenous
+family: Uto-Aztecan
+subfamily: Southern Uto-Aztecan
+typology: []
+endangerment: null
+speakers: null
+region: north-america
+countries: [MX]
+centre:
+  lat: 21.954
+  lon: -104.062
+  source:
+    kind: url
+    ref: https://glottolog.org/resource/languoid/id/huic1243
+    retrieved: "2026-09-06"
+    quote: "Huichol huic1243 hch latitude 21.954 longitude -104.062 (Glottolog, CC-BY-4.0)"
+  confidence: sourced
+caveat: null
+status: draft

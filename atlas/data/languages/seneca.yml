@@ -1,0 +1,26 @@
+# Sourced 2026-09-06 from Glottolog; see data/glottolog-resolution.yml for the
+# fetched response this record was written from.
+id: seneca
+name: Seneca
+also_known_as: []
+glottocode: sene1264
+iso639_3: see
+tier: indigenous
+family: Iroquoian
+subfamily: Northern Iroquoian
+typology: []
+endangerment: null
+speakers: null
+region: north-america
+countries: [US]
+centre:
+  lat: 42.56
+  lon: -77.53
+  source:
+    kind: url
+    ref: https://glottolog.org/resource/languoid/id/sene1264
+    retrieved: "2026-09-06"
+    quote: "Seneca sene1264 see latitude 42.56 longitude -77.53 (Glottolog, CC-BY-4.0)"
+  confidence: sourced
+caveat: null
+status: draft

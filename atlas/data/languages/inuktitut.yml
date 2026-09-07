@@ -1,0 +1,36 @@
+# Sourced 2026-09-06 from Glottolog; see data/glottolog-resolution.yml for the
+# fetched response this record was written from. Glottolog has no single node
+# named plainly "Inuktitut" — see the caveat below.
+id: inuktitut
+name: Inuktitut
+also_known_as: [Eastern Canadian Inuktitut]
+glottocode: east2534
+iso639_3: ike
+tier: indigenous
+family: Eskimo-Aleut
+subfamily: Eskimo
+typology: []
+endangerment: null
+speakers: null
+region: arctic
+countries: [CA]
+centre:
+  lat: 62.1735
+  lon: -75.6139
+  source:
+    kind: url
+    ref: https://glottolog.org/resource/languoid/id/east2534
+    retrieved: "2026-09-06"
+    quote: "Eastern Canadian Inuktitut east2534 ike latitude 62.1735 longitude -75.6139 (Glottolog, CC-BY-4.0)"
+  confidence: sourced
+# js-yaml drops comments, so the hedge is repeated as a field. This is the copy
+# that reaches the bundle and the reader.
+caveat: >-
+  Glottolog has no single node named plainly "Inuktitut": it splits into two
+  sibling languages, Eastern Canadian Inuktitut (this record, iso ike) and
+  Western Canadian Inuktitut (west2618, iso ikt). Eastern is recorded here
+  because it is the written standard used in Nunavut government publishing
+  and in NLP corpora (e.g. the Nunavut Hansard) that use the unqualified name
+  "Inuktitut". A curator who can check a specific paper's actual dialect
+  should confirm or override this before promoting the record.
+status: draft

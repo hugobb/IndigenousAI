@@ -1,0 +1,26 @@
+# Sourced 2026-09-06 from Glottolog; see data/glottolog-resolution.yml for the
+# fetched response this record was written from.
+id: innu-aimun
+name: Innu-Aimun
+also_known_as: [Montagnais, Innu, "Innu Aimun"]
+glottocode: mont1268
+iso639_3: moe
+tier: indigenous
+family: Algic
+subfamily: Algonquian-Blackfoot
+typology: []
+endangerment: null
+speakers: null
+region: north-america
+countries: [CA]
+centre:
+  lat: 49.0533
+  lon: -68.7376
+  source:
+    kind: url
+    ref: https://glottolog.org/resource/languoid/id/mont1268
+    retrieved: "2026-09-06"
+    quote: "Montagnais mont1268 moe latitude 49.0533 longitude -68.7376 (Glottolog, CC-BY-4.0)"
+  confidence: sourced
+caveat: null
+status: draft

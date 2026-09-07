@@ -1,0 +1,26 @@
+# Sourced 2026-09-06 from Glottolog; see data/glottolog-resolution.yml for the
+# fetched response this record was written from.
+id: cherokee
+name: Cherokee
+also_known_as: [Tsalagi]
+glottocode: cher1273
+iso639_3: chr
+tier: indigenous
+family: Iroquoian
+subfamily: null
+typology: []
+endangerment: null
+speakers: null
+region: north-america
+countries: [US]
+centre:
+  lat: 35.4664
+  lon: -83.163
+  source:
+    kind: url
+    ref: https://glottolog.org/resource/languoid/id/cher1273
+    retrieved: "2026-09-06"
+    quote: "Cherokee cher1273 chr latitude 35.4664 longitude -83.163 (Glottolog, CC-BY-4.0)"
+  confidence: sourced
+caveat: null
+status: draft
