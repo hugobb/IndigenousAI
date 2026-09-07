@@ -670,19 +670,21 @@
       translation quality even after distillation, reflecting the difficulty of the XLR
       regime
   note: >-
-    This is the only mention of any of these three languages anywhere in the summary,
-    and it names them in a list-of-examples frame ("Languages like ...") illustrating
-    the XLR regime in general, not a per-language reported result — no Quechua-,
-    Yoruba-, or Guarani-specific figure appears anywhere in the summary. Whether this
-    paper's own 200-language evaluation in fact reports individual numbers for these is
-    genuinely ambiguous from the summary alone, and the rule for that case is to omit,
-    not to argue it through. Rejected under the ambiguity rule, not because the paper
-    necessarily lacks the evidence — a curator who reads the full paper and finds
-    per-language results for Quechua, Yoruba, or Guarani should feel free to promote
-    this to draft or accepted; that is exactly what this record is for. (Yoruba added
-    under the same reasoning as Quechua/Guarani above: applying a different standard to
-    the identical sentence for a third language would be worse than being consistently
-    strict.)
+    Fails the test the zhang-et-al-2024-hire-a-linguist entries below pass: that paper
+    names a closed, counted set with a figure tied to it, while this sentence says
+    "Languages LIKE Quechua, Yoruba, Dzongkha, and Guarani" — an open, illustrative
+    subset drawn from the paper's own 200-language evaluation, with no figure attached
+    to any of the four. This is the only mention of any of these three languages
+    anywhere in the summary, and no Quechua-, Yoruba-, or Guarani-specific figure
+    appears anywhere in the summary. Whether this paper's own 200-language evaluation in
+    fact reports individual numbers for these is genuinely ambiguous from the summary
+    alone, and the rule for that case is to omit, not to argue it through. Rejected
+    under the ambiguity rule, not because the paper necessarily lacks the evidence — a
+    curator who reads the full paper and finds per-language results for Quechua,
+    Yoruba, or Guarani should feel free to promote this to draft or accepted; that is
+    exactly what this record is for. (Yoruba added under the same reasoning as
+    Quechua/Guarani above: applying a different standard to the identical sentence for a
+    third language would be worse than being consistently strict.)
   status: rejected
 
 - paper: aycock-et-al-2025-grammar-book
@@ -725,9 +727,17 @@
       translation directions covering 8 endangered/low-resource languages (Manchu,
       Gitksan, Arapaho, Natugu, Tsez, Wolof, Uspanteko, Bribri)
   note: >-
-    Bribri and Wolof are two of 8 endangered/low-resource languages this paper evaluates
-    translation on, each only via this aggregate figure — no per-language BLEU is
-    reported for either in the summary; not the paper's sole subject.
+    Accepted on membership, not on mention: the paper names a closed, counted
+    evaluation set — "8 endangered/low-resource languages" followed by the full
+    enumeration (Manchu, Gitksan, Arapaho, Natugu, Tsez, Wolof, Uspanteko, Bribri) — and
+    ties a specific figure to exactly that set (BLEU 0.5 to 10.5 across 10 translation
+    directions). Bribri and Wolof are confirmed members of an evaluated set whose result
+    is quantified, which is the bar this record uses for a benchmark-style mapping.
+    Contrast the rejected song-et-al-2026-slm entry above, whose "Languages like ..."
+    sentence names an open, illustrative subset with no figure tied to any of the
+    languages it lists — that is what fails this test and this passes it. Still, no
+    per-language BLEU is reported for Bribri or Wolof individually here, only the
+    aggregate across all 8; not the paper's sole subject.
   status: draft
 
 - paper: zhang-et-al-2024-hire-a-linguist
@@ -813,6 +823,9 @@
     translation directions, studied alongside high-resource pairs (French, German); the
     paper reports a measured retrieval-quality result specific to this pair of
     directions, not a passing mention, but neither language is the paper's sole subject.
+    (The summary calls Swahili "medium-resource" in Key Concepts but groups it under
+    "low-resource language directions" in Main Findings — the paper's own wording is
+    inconsistent on this point, not this record's.)
   status: draft
 
 - paper: ajani-et-al-2024-revitalizing
