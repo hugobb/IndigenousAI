@@ -170,6 +170,20 @@ describe('validate', () => {
     })
     expect(problems.some((p) => p.includes('quechua') && p.includes('caveat'))).toBe(false)
   })
+
+  it('excludes a rejected record from the resolution check too', () => {
+    // Only `coverTermProblems`' rejected-exclusion was tested at this level;
+    // `resolutionProblems`' exclusion was only implied by the two guards
+    // sharing the same pre-filtered `languages` array inside `validate`.
+    // This is the same coverage, aimed at the other guard: a glottocode that
+    // appears in no resolution row would normally be refused (spec D9), but
+    // a withdrawn record is withdrawn from every gate.
+    const problems = validate({
+      languages: [lang({ id: 'ghost', glottocode: 'zzzz9999', status: 'rejected' })],
+      initiatives: [init()], ...base,
+    })
+    expect(problems.some((p) => p.includes('zzzz9999'))).toBe(false)
+  })
 })
 
 /** A mapping is a record like any other: draft blocks the build, unknown ids

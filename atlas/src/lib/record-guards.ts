@@ -47,6 +47,12 @@ export function resolutionProblems(
         `language ${l.id}: glottocode "${l.glottocode}" is Glottolog level "family", not a language — ` +
           'a cover term takes glottocode: null and a caveat instead (spec D8)',
       )
+      // A family row's own latitude/longitude are always null (Glottolog
+      // publishes no coordinate for a family). Falling through to the
+      // coordinate check below would then compare a sourced centre against
+      // `null, null` and emit a second, misleading "disagrees with null,
+      // null" message on top of the real problem already reported above.
+      continue
     }
     // Only a `sourced` centre claims to BE the fetched coordinate. An
     // `approximate` one says in the record that it is not — myaamia carries

@@ -69,6 +69,22 @@ describe('resolutionProblems', () => {
     expect(problems.some((p) => p.includes('quec1387') && p.includes('family'))).toBe(true)
   })
 
+  it('reports only the family problem for a family code carrying a sourced centre, not a spurious null-coordinate mismatch too', () => {
+    // Regression: a family row's own latitude/longitude are always null
+    // (Glottolog publishes no coordinate for a family). Without a `continue`
+    // after the family problem, a record combining a family-level glottocode
+    // with a (schema-illegal-in-practice, but not guard-checked) sourced
+    // centre would ALSO fail the coordinate check against `null, null`,
+    // producing two messages where only the first is the real problem.
+    const family = res({ searched: 'Quechua', glottocode: 'quec1387', level: 'family', latitude: null, longitude: null })
+    const problems = resolutionProblems(
+      [lang({ id: 'quechua', glottocode: 'quec1387', centre: centre({ lat: 1, lon: 2 }) })],
+      [family],
+    )
+    expect(problems).toHaveLength(1)
+    expect(problems[0]).toContain('family')
+  })
+
   it('refuses a centre that disagrees with the fetched coordinates', () => {
     const problems = resolutionProblems(
       [lang({ id: 'cherokee', glottocode: 'cher1273', centre: centre({ lat: 35.5, lon: -83.163 }) })],
