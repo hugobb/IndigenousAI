@@ -91,3 +91,11 @@ def test_search_example_hits_kaitiakitanga(emb):
     q = emb.embed([c.SEARCH_EXAMPLE])[0]
     (i, _), = rank(q, emb.embed(c.PASSAGES), k=1)
     assert "Kaitiakitanga" in c.PASSAGES[i]
+
+
+def test_problem_question_needs_top_k_3(emb):
+    chunks = make_chunks(c.REPORT, "fixed", c.DEMO_GOOD_SIZE, 0)
+    hits = rank(emb.embed([c.PROBLEM_QUESTION.question])[0], emb.embed(chunks), k=3)
+    found = [has_all(chunks[i], c.PROBLEM_QUESTION.keywords) for i, _ in hits]
+    assert not found[0]
+    assert any(found)

@@ -60,8 +60,13 @@ REPORT_QUESTIONS = [VAN_QUESTION, RECORDS_QUESTION, POLLUTION_QUESTION, MEETING_
 # The answer to this one is spread over two sentences: tiny chunks cut it in half.
 SPLIT_QUESTION = VAN_QUESTION
 
-# Used in section 1 (the model alone) and section 5 (the full system).
-PROBLEM_QUESTION = MEETING_QUESTION
+# Used in section 1 (the model alone) and section 5 (the full system). Naming the group makes the
+# bare model invent an answer, and it also pulls search toward the report's opening: with top-k = 1 the
+# model only sees the wrong chunk; with top-k = 3 it gets the right one (both verified by tests).
+PROBLEM_QUESTION = QuestionSpec(
+    "When and where is the Millbrook River Watch annual meeting?",
+    ["March 14, 2026", "Millbrook Public Library"],
+)
 
 # On topic, but the report does not say: a good test of "I don't know".
 OUT_OF_DOC_QUESTION = "How much does it cost to become a member of Millbrook River Watch?"

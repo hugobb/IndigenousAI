@@ -1,6 +1,10 @@
 """The workshop's machinery: chunking, similarity, search, prompts and the two AI models."""
 
+import os
 import re
+from collections.abc import Iterator
+from dataclasses import dataclass
+from threading import Thread
 from typing import Literal
 
 import numpy as np
@@ -114,3 +118,92 @@ def project_2d(vectors: np.ndarray) -> np.ndarray:
     proj = x @ vt[:2].T
     out[:, : proj.shape[1]] = proj
     return out
+
+
+# ---------------------------------------------------------------- the answer-writing model
+CHAT_MODEL_GPU = "Qwen/Qwen3-1.7B"
+CHAT_MODEL_CPU = "Qwen/Qwen3-0.6B"
+MAX_NEW_TOKENS = 200
+
+
+class QwenGenerator:
+    """Writes answers with a small Qwen model. Greedy decoding: the same question gives the same answer."""
+
+    def __init__(self, model_name: str, device: str):
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+
+        self.device = device
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        dtype = torch.float16 if device == "cuda" else torch.bfloat16
+        self.model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype).to(device)
+        self.model.eval()
+
+    def generate(self, prompt: str) -> Iterator[str]:
+        from transformers import TextIteratorStreamer
+
+        text = self.tokenizer.apply_chat_template(
+            [{"role": "user", "content": prompt}],
+            tokenize=False,
+            add_generation_prompt=True,
+            enable_thinking=False,
+        )
+        inputs = self.tokenizer(text, return_tensors="pt").to(self.device)
+        streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
+        settings = dict(
+            **inputs,
+            streamer=streamer,
+            max_new_tokens=MAX_NEW_TOKENS,
+            do_sample=False,
+            temperature=None,
+            top_p=None,
+            top_k=None,
+        )
+        worker = Thread(target=self.model.generate, kwargs=settings)
+        worker.start()
+        yield from streamer
+        worker.join()
+
+
+class FakeGenerator:
+    """A stand-in for tests: repeats the first passage instead of thinking."""
+
+    def generate(self, prompt: str) -> Iterator[str]:
+        yield "(test answer) "
+        first = next((line for line in prompt.splitlines() if line.startswith("[1] ")), prompt)
+        for word in first.removeprefix("[1] ").split():
+            yield word + " "
+
+
+@dataclass
+class Models:
+    embedder: MiniLMEmbedder
+    generator: QwenGenerator | FakeGenerator
+    device: str
+    llm_name: str
+
+
+def load_models() -> Models:
+    """Load both models, on the GPU when there is one."""
+    import torch
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    embedder = MiniLMEmbedder(device)
+    if os.environ.get("RAG_WORKSHOP_FAKE_LLM") == "1":
+        return Models(embedder, FakeGenerator(), device, "fake")
+    name = os.environ.get("RAG_WORKSHOP_LLM") or (CHAT_MODEL_GPU if device == "cuda" else CHAT_MODEL_CPU)
+    return Models(embedder, QwenGenerator(name, device), device, name)
+
+
+def status_line(device: str) -> str:
+    if device == "cuda":
+        return "✅ Ready — using the GPU. Answers take a few seconds."
+    return (
+        "⚠️ Ready, but without a GPU: answers will be slow and a bit less accurate. "
+        "To fix it: menu Runtime → Change runtime type → T4 GPU → Save, then run this cell again."
+    )
+
+
+def answer(models: Models, question: str, contexts: list[str], allow_unknown: bool) -> Iterator[str]:
+    """The whole RAG step: build the prompt from the retrieved passages and stream the model's answer."""
+    return models.generator.generate(build_prompt(question, contexts, allow_unknown))
