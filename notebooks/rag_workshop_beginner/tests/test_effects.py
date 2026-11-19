@@ -99,3 +99,17 @@ def test_problem_question_needs_top_k_3(emb):
     found = [has_all(chunks[i], c.PROBLEM_QUESTION.keywords) for i, _ in hits]
     assert not found[0]
     assert any(found)
+
+
+def test_small_size_cut_falls_inside_van_answer():
+    chunks = make_chunks(c.REPORT, "fixed", c.DEMO_SMALL_SIZE, 0)
+    cuts = [(a, b) for a, b in zip(chunks, chunks[1:]) if a.endswith(c.CUT_BEFORE) and b.startswith(c.CUT_AFTER)]
+    assert len(cuts) == 1
+
+
+def test_offline_question_misranks(emb):
+    q = emb.embed([c.SEARCH_MISS_EXAMPLE])[0]
+    hits = rank(q, emb.embed(c.PASSAGES), k=3)
+    offline = [i for i, p in enumerate(c.PASSAGES) if p.startswith("Ollama")][0]
+    assert hits[0][0] != offline
+    assert offline in [i for i, _ in hits]

@@ -48,7 +48,7 @@ def test_chunking_sentences_switches_slider_range(models):
     ctl["strategy"].value = "sentences"
     assert (ctl["size"].min, ctl["size"].max) == (1, 10)
     ctl["strategy"].value = "fixed"
-    assert (ctl["size"].min, ctl["size"].max) == (10, 200)
+    assert (ctl["size"].min, ctl["size"].max) == (5, 200)
 
 
 def test_chunking_top_chunk_shown(models):
@@ -176,3 +176,39 @@ def test_upload_rejects_bad_files():
     assert "empty.txt" in joined and "broken.txt" in joined and "report.pdf" in joined
     assert "notes.txt" not in joined
     assert len(chunks) >= 2
+
+
+class BrokenGenerator(FakeGenerator):
+    def generate(self, prompt):
+        yield "Half an "
+        raise RuntimeError("The model stopped with an error")
+
+
+def test_failed_generation_shows_message(emb):
+    ctl = ui.show_chunking(Models(emb, BrokenGenerator(), "cpu", "fake")).controls
+    ctl["ask"].click()
+    assert "Something went wrong" in ctl["answer"].value
+    assert ctl["ask"].disabled is False
+
+
+class CountingGenerator(FakeGenerator):
+    calls = 0
+
+    def generate(self, prompt):
+        CountingGenerator.calls += 1
+        yield from super().generate(prompt)
+
+
+def test_double_click_runs_once(emb):
+    CountingGenerator.calls = 0
+    ctl = ui.show_problem(Models(emb, CountingGenerator(), "cpu", "fake")).controls
+    ctl["ask"].click()
+    ctl["ask"].click()  # a second click queued while the first answer was being written
+    assert CountingGenerator.calls == 1
+
+
+def test_upload_widget_value_formats():
+    v8 = ({"name": "a.txt", "content": memoryview(b"hello")},)
+    v7 = {"a.txt": {"metadata": {"name": "a.txt"}, "content": b"hello"}}
+    assert ui.files_from_widget(v8) == {"a.txt": b"hello"}
+    assert ui.files_from_widget(v7) == {"a.txt": b"hello"}

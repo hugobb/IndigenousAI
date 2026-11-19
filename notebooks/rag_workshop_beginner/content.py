@@ -72,10 +72,13 @@ PROBLEM_QUESTION = QuestionSpec(
 OUT_OF_DOC_QUESTION = "How much does it cost to become a member of Millbrook River Watch?"
 
 # Chunk sizes (in words) that the "Try this" exercises refer to. All verified by tests/test_effects.py.
-DEMO_TINY_SIZE = 10   # chunks shorter than the answer itself: no overlap can save it
+DEMO_TINY_SIZE = 5    # chunks shorter than the answer itself: no overlap can save it
 DEMO_SMALL_SIZE = 35  # a chunk boundary falls between the two sentences of the van answer...
 DEMO_OVERLAP = 15     # ...and this much overlap puts them back together
 DEMO_GOOD_SIZE = 60
+# At DEMO_SMALL_SIZE words, one chunk ends with CUT_BEFORE and the next starts with CUT_AFTER (tested).
+CUT_BEFORE = "by the Harlow Valley"
+CUT_AFTER = "Community Fund."
 
 # ---------------------------------------------------------------- short real passages (search section)
 PASSAGES = [
@@ -90,6 +93,8 @@ PASSAGES = [
 ]
 
 SEARCH_EXAMPLE = "Who benefits when Maori speech data is shared?"
+# The passage about working offline (Ollama) is NOT ranked first for this one, but is in the top 3 (tested).
+SEARCH_MISS_EXAMPLE = "Can I use AI without the internet?"
 
 # ---------------------------------------------------------------- embedding exercises
 SIMILARITY_PAIRS = [

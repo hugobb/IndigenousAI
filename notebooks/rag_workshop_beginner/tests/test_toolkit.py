@@ -11,6 +11,7 @@ from toolkit import (
     project_2d,
     rank,
     similarity_label,
+    split_sentences,
 )
 
 WORDS25 = " ".join(f"w{i}" for i in range(25))
@@ -74,3 +75,36 @@ def test_project_2d_shapes():
         out = project_2d(rng.normal(size=(n, 384)))
         assert out.shape == (n, 2)
         assert not np.isnan(out).any()
+
+
+def test_split_sentences_keeps_abbreviations():
+    text = "Levels of E. coli rose at the bridge. We meet at 7 p.m. in the hall. Bring soup."
+    assert split_sentences(text) == [
+        "Levels of E. coli rose at the bridge.",
+        "We meet at 7 p.m. in the hall.",
+        "Bring soup.",
+    ]
+
+
+def test_model_dtype_full_precision_on_gpu():
+    import torch
+
+    from toolkit import model_dtype
+
+    assert model_dtype("cuda") is torch.float32
+    assert model_dtype("cpu") is torch.bfloat16
+
+
+def test_stream_worker_reports_failure():
+    import pytest
+    from transformers import TextIteratorStreamer
+
+    from toolkit import stream_worker
+
+    streamer = TextIteratorStreamer(None, timeout=5)
+
+    def broken():
+        raise ValueError("out of memory")
+
+    with pytest.raises(RuntimeError):
+        list(stream_worker(broken, streamer))

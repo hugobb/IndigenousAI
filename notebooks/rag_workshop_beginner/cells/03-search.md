@@ -12,9 +12,9 @@ Below is a small collection of 8 real passages about AI and data sovereignty. On
 >
 > **Try this**
 > 1. Click **Search** with the question already there. Which passage comes first? Does it contain the words of your question?
-> 2. Ask *"Can I use AI without the internet?"* Which passage wins, and why?
+> 2. Ask *"{SEARCH_MISS_EXAMPLE}"* The passage that really answers this is the one about **Ollama** (running AI on your own computer, without internet). Is it first? Why might search prefer another passage?
 > 3. Ask *"What's the best pizza topping?"* None of the passages is about pizza. Look at the scores.
 >
-> **What to notice:** search works with meaning, not exact words, but it **always returns something**, even when nothing is relevant. Remember this for section 5.
+> **What to notice:** search works with meaning, not exact words, but it is not perfect: it can put the wrong passage first, and it **always returns something**, even when nothing is relevant. Remember this for section 5.
 
 <!-- panel: show_search | Search the passages -->

@@ -2,7 +2,7 @@
 
 Computers can't compare meanings directly, but they are very good at comparing numbers. An **embedding model** reads a piece of text and turns it into a list of numbers (here, 384 of them). Think of these numbers as the **coordinates of the sentence on a giant map of meaning**. Sentences that mean similar things land close together, even when they use completely different words.
 
-To measure how close two sentences are, we use a **similarity score**. A score near **1** means the two sentences are about the same thing, and a score near **0** means they have nothing in common. With this model, a score around 0.5 already means "close".
+To measure how close two sentences are, we use a **similarity score**. A score near **1** means the two sentences are about the same thing, and a score near **0** means they have nothing in common. With this model, scores above 0.6 are rare, and a score around 0.5 already means the two sentences are related.
 
 ### 2a. Compare two sentences
 

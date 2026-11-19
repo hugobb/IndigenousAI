@@ -4,6 +4,7 @@ import os
 import re
 from collections.abc import Iterator
 from dataclasses import dataclass
+from queue import Empty
 from threading import Thread
 from typing import Literal
 
@@ -15,7 +16,9 @@ Strategy = Literal["fixed", "overlap", "sentences", "whole"]
 # ---------------------------------------------------------------- chunking
 def split_sentences(text: str) -> list[str]:
     """Cut text after each '.', '?' or '!'."""
-    return [s.strip() for s in re.split(r"(?<=[.?!])\s+", text) if s.strip()]
+    # Split after . ? ! followed by a capital letter or digit, but not after a lone capital ("E. coli").
+    pattern = r"(?<=[.?!])(?<!\b[A-Z]\.)\s+(?=[A-Z0-9\"“‘(])"
+    return [s.strip() for s in re.split(pattern, text) if s.strip()]
 
 
 def chunk_fixed(text: str, size: int) -> list[str]:
@@ -126,17 +129,45 @@ CHAT_MODEL_CPU = "Qwen/Qwen3-0.6B"
 MAX_NEW_TOKENS = 200
 
 
+def model_dtype(device: str):
+    """Full precision on the GPU: half precision (float16) can overflow with Qwen3 on a T4."""
+    import torch
+
+    return torch.float32 if device == "cuda" else torch.bfloat16
+
+
+def stream_worker(target, streamer) -> Iterator[str]:
+    """Run `target` (the model writing) in the background and pass on its text as it arrives.
+    If it fails, stop waiting and raise instead of hanging forever."""
+    failure: list[BaseException] = []
+
+    def work():
+        try:
+            target()
+        except BaseException as error:  # noqa: BLE001 - any failure must reach the participant
+            failure.append(error)
+            streamer.text_queue.put(streamer.stop_signal)
+
+    worker = Thread(target=work, daemon=True)
+    worker.start()
+    try:
+        yield from streamer
+    except Empty:
+        raise RuntimeError("The model took too long to answer.") from None
+    worker.join(timeout=1)
+    if failure:
+        raise RuntimeError(f"The model stopped with an error: {failure[0]}") from failure[0]
+
+
 class QwenGenerator:
     """Writes answers with a small Qwen model. Greedy decoding: the same question gives the same answer."""
 
     def __init__(self, model_name: str, device: str):
-        import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
         self.device = device
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        dtype = torch.float16 if device == "cuda" else torch.bfloat16
-        self.model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=dtype).to(device)
+        self.model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=model_dtype(device)).to(device)
         self.model.eval()
 
     def generate(self, prompt: str) -> Iterator[str]:
@@ -149,7 +180,7 @@ class QwenGenerator:
             enable_thinking=False,
         )
         inputs = self.tokenizer(text, return_tensors="pt").to(self.device)
-        streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
+        streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True, timeout=180)
         settings = dict(
             **inputs,
             streamer=streamer,
@@ -159,10 +190,7 @@ class QwenGenerator:
             top_p=None,
             top_k=None,
         )
-        worker = Thread(target=self.model.generate, kwargs=settings)
-        worker.start()
-        yield from streamer
-        worker.join()
+        yield from stream_worker(lambda: self.model.generate(**settings), streamer)
 
 
 class FakeGenerator:

@@ -15,8 +15,8 @@ In the panel below, the Millbrook River Watch report is coloured by chunk: **blu
 > **Try this**
 > 1. Keep *Fixed size, 60 words* and the question *"Who paid for the group's testing van?"*. Click **Ask the model with this chunk**. It finds the answer.
 > 2. Choose **Whole document — no chunking**. The score of the match drops: the whole report is "about" too many things at once.
-> 3. Back to **Fixed size**, set **{DEMO_TINY_SIZE} words**. The chunk found now holds only part of the answer. Ask the model.
-> 4. Set **{DEMO_SMALL_SIZE} words**. The size looks reasonable, but the cut falls right between *"…a second-hand testing van."* and *"It was paid for by the Harlow Valley Community Fund."* Ask the model.
+> 3. Back to **Fixed size**, set **{DEMO_TINY_SIZE} words**. Each chunk is now shorter than the answer itself, so no chunk can hold all of it. Ask the model.
+> 4. Set **{DEMO_SMALL_SIZE} words**. The size looks reasonable, but a cut falls in the middle of the answer: one chunk ends with *"…{CUT_BEFORE}"* and the next one starts with *"{CUT_AFTER}"*. Find that spot in the coloured text, then ask the model.
 > 5. Switch to **Fixed size with overlap**, keep {DEMO_SMALL_SIZE} words, and set the overlap to **{DEMO_OVERLAP}**. The answer is back in one piece. Look for the green words.
 > 6. Explore the other questions and the **By sentences** option.
 >

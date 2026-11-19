@@ -1,6 +1,7 @@
 """The interactive panels, one per workshop section. Each show_*() displays its panel and returns it."""
 
 import html
+import time
 
 import ipywidgets as widgets
 import plotly.graph_objects as go
@@ -61,6 +62,21 @@ def _box(inner: str, background: str = "#f4f4f5") -> str:
     return f'<div style="padding:10px 12px;border-radius:6px;background:{background};{TEXT};white-space:pre-wrap">{inner}</div>'
 
 
+def _once(button: widgets.Button, handler):
+    """Attach `handler` to the button, ignoring clicks that were queued while it was busy."""
+    state = {"finished": 0.0}
+
+    def on_click(_):
+        if time.monotonic() - state["finished"] < 0.5:
+            return
+        try:
+            handler(_)
+        finally:
+            state["finished"] = time.monotonic()
+
+    button.on_click(on_click)
+
+
 def _stream_into(target: widgets.HTML, pieces, button: widgets.Button | None = None, background: str = "#eef6ee") -> None:
     """Write the model's answer into `target` as it arrives. The button stays disabled meanwhile."""
     if button is not None:
@@ -71,6 +87,14 @@ def _stream_into(target: widgets.HTML, pieces, button: widgets.Button | None = N
         for piece in pieces:
             text += piece
             target.value = _box(html.escape(text), background)
+    except Exception as error:  # noqa: BLE001 - show a plain message instead of a stack trace
+        target.value = _box(
+            html.escape(text) + "<br><br>⚠️ Something went wrong while the model was writing. "
+            "Click the button to try again. If it keeps happening, ask an assistant."
+            f"<br><small>({html.escape(str(error))})</small>",
+            "#fdecec",
+        )
+        return
     finally:
         if button is not None:
             button.disabled = False
@@ -90,7 +114,7 @@ def show_problem(m: Models) -> widgets.VBox:
     question = widgets.HTML(_box(f"<b>Question:</b> {html.escape(PROBLEM_QUESTION.question)}"))
     ask = widgets.Button(description="Ask the model", button_style="primary", icon="comment")
     out = widgets.HTML()
-    ask.on_click(lambda _: _stream_into(out, m.generator.generate(PROBLEM_QUESTION.question), ask))
+    _once(ask, lambda _: _stream_into(out, m.generator.generate(PROBLEM_QUESTION.question), ask))
     return _panel([question, ask, out], {"ask": ask, "answer": out})
 
 
@@ -246,7 +270,7 @@ def show_chunking(m: Models) -> widgets.VBox:
                  ("By sentences", "sentences"), ("Whole document — no chunking", "whole")],
         value="fixed", description="How to cut",
     )
-    size = widgets.IntSlider(value=DEMO_GOOD_SIZE, min=10, max=200, step=5, description="Words/chunk",
+    size = widgets.IntSlider(value=DEMO_GOOD_SIZE, min=5, max=200, step=5, description="Words/chunk",
                              continuous_update=False)
     overlap = widgets.IntSlider(value=DEMO_OVERLAP, min=0, max=50, step=5, description="Overlap",
                                 disabled=True, continuous_update=False)
@@ -291,7 +315,7 @@ def show_chunking(m: Models) -> widgets.VBox:
             size.min, size.step, size.value, size.max = 1, 1, 3, 10
             size.description = "Sentences"
         elif change["old"] == "sentences":
-            size.max, size.value, size.min, size.step = 200, DEMO_GOOD_SIZE, 10, 5
+            size.max, size.value, size.min, size.step = 200, DEMO_GOOD_SIZE, 5, 5
             size.description = "Words/chunk"
         state["switching"] = False
         update()
@@ -303,7 +327,7 @@ def show_chunking(m: Models) -> widgets.VBox:
     strategy.observe(on_strategy, names="value")
     for w in (size, overlap, question):
         w.observe(update, names="value")
-    ask.on_click(on_ask)
+    _once(ask, on_ask)
     update()
     controls = {"strategy": strategy, "size": size, "overlap": overlap, "question": question,
                 "count": count, "text": text, "top": top, "ask": ask, "answer": out}
@@ -350,7 +374,7 @@ def show_generation(m: Models) -> widgets.VBox:
         finally:
             ask.disabled = False
 
-    ask.on_click(on_ask)
+    _once(ask, on_ask)
     return _panel([question, widgets.HBox([topk, unknown], layout=widgets.Layout(flex_flow="row wrap")),
                    ask, prompt, columns], controls)
 
@@ -375,12 +399,11 @@ def load_uploads(files: dict[str, bytes]) -> tuple[list[str], list[str]]:
     return chunks, messages
 
 
-def _in_colab() -> bool:
-    try:
-        import google.colab  # noqa: F401
-    except ImportError:
-        return False
-    return True
+def files_from_widget(value) -> dict[str, bytes]:
+    """FileUpload's value as {name: bytes}, for ipywidgets 8 (tuple of dicts) and 7 (dict, as in Colab)."""
+    if isinstance(value, dict):
+        return {name: bytes(item["content"]) for name, item in value.items()}
+    return {item["name"]: bytes(item["content"]) for item in value}
 
 
 def show_upload(m: Models) -> widgets.VBox:
@@ -398,18 +421,8 @@ def show_upload(m: Models) -> widgets.VBox:
         lines.append(f"✅ {len(chunks)} chunks ready." if chunks else "No usable text yet.")
         status.value = _box("<br>".join(lines))
 
-    if _in_colab():
-        picker = widgets.Button(description="Choose .txt files", icon="upload")
-
-        def on_pick(_):
-            from google.colab import files as colab_files
-
-            take(colab_files.upload())
-
-        picker.on_click(on_pick)
-    else:
-        picker = widgets.FileUpload(accept=".txt,.md", multiple=True, description="Choose .txt files")
-        picker.observe(lambda ch: take({f["name"]: f["content"] for f in ch["new"]}), names="value")
+    picker = widgets.FileUpload(accept=".txt,.md", multiple=True, description="Choose .txt files")
+    picker.observe(lambda change: take(files_from_widget(change["new"])), names="value")
 
     def on_ask(_):
         if not store["chunks"]:
@@ -422,6 +435,6 @@ def show_upload(m: Models) -> widgets.VBox:
         contexts = [store["chunks"][i] for i, _ in hits]
         _stream_into(out, answer(m, question.value, contexts, allow_unknown=True), ask)
 
-    ask.on_click(on_ask)
+    _once(ask, on_ask)
     return _panel([picker, status, question, ask, out],
                   {"picker": picker, "status": status, "question": question, "ask": ask, "answer": out})
