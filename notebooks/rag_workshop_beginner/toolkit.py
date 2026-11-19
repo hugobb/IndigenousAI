@@ -75,6 +75,21 @@ def rank(query_vec: np.ndarray, doc_vecs: np.ndarray, k: int) -> list[tuple[int,
     return [(i, scores[i]) for i in order[: min(k, len(scores))]]
 
 
+EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+
+
+class MiniLMEmbedder:
+    """Turns text into embeddings (384 numbers each) with a small, fast model."""
+
+    def __init__(self, device: str):
+        from sentence_transformers import SentenceTransformer
+
+        self.model = SentenceTransformer(EMBED_MODEL, device=device)
+
+    def embed(self, texts: list[str]) -> np.ndarray:
+        return self.model.encode(list(texts), normalize_embeddings=True, convert_to_numpy=True)
+
+
 # ---------------------------------------------------------------- prompt
 def build_prompt(question: str, contexts: list[str], allow_unknown: bool) -> str:
     """The exact text sent to the model: instructions, the retrieved passages, the question."""
