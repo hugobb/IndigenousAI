@@ -1,10 +1,11 @@
 """The interactive panels, one per workshop section. Each show_*() displays its panel and returns it."""
 
 import html
+import io
 import time
 
 import ipywidgets as widgets
-import plotly.graph_objects as go
+from matplotlib.figure import Figure
 from IPython.display import display
 
 from content import (
@@ -159,6 +160,14 @@ def show_similarity(m: Models) -> widgets.VBox:
 
 
 # ---------------------------------------------------------------- 2b. map of meaning
+MAP_COLOURS = ["#1f77b4", "#d62728", "#2ca02c", "#ff7f0e", "#9467bd", "#8c564b"]
+
+
+def _short(sentence: str, words: int = 4) -> str:
+    parts = sentence.split()
+    return " ".join(parts[:words]) + (" …" if len(parts) > words else "")
+
+
 def show_meaning_map(m: Models) -> widgets.VBox:
     base = list(MAP_SENTENCES)
     mine: list[str] = []
@@ -166,37 +175,48 @@ def show_meaning_map(m: Models) -> widgets.VBox:
     add = widgets.Button(description="Add to map", button_style="primary", icon="plus")
     reset = widgets.Button(description="Reset", icon="undo")
     message = widgets.HTML()
-    plot = widgets.Output()
-    box_ref = {}
+    plot = widgets.Image(format="png", layout=widgets.Layout(width="100%", max_width="900px"))
+    state: dict = {}
 
     def redraw():
+        # A plain PNG picture: it shows everywhere (Colab, Jupyter, VS Code), with no JavaScript.
         texts = [s for s, _ in base] + mine
         points = project_2d(m.embedder.embed(texts))
-        fig = go.Figure()
+        fig = Figure(figsize=(9, 6), dpi=100)
+        ax = fig.add_subplot()
         topics = list(dict.fromkeys(t for _, t in base))
-        for topic in topics:
+        span = points.max(axis=0) - points.min(axis=0) + 1e-9
+        placed: list[tuple[float, float]] = []  # label anchors already to the right of their dot
+
+        def label(i: int, text: str, **style) -> None:
+            x, y = (points[i] - points.min(axis=0)) / span
+            crowded = any(abs(x - px) < 0.25 and abs(y - py) < 0.05 for px, py in placed)
+            if not crowded:
+                placed.append((x, y))
+            ax.annotate(text, points[i], xytext=(-6 if crowded else 6, 4), textcoords="offset points",
+                        ha="right" if crowded else "left", **style)
+
+        for topic, colour in zip(topics, MAP_COLOURS):
             idx = [i for i, (_, t) in enumerate(base) if t == topic]
-            fig.add_scatter(
-                x=points[idx, 0], y=points[idx, 1], mode="markers", name=topic,
-                text=[base[i][0] for i in idx], hoverinfo="text", marker=dict(size=11),
-            )
+            ax.scatter(points[idx, 0], points[idx, 1], s=70, color=colour, label=topic)
+            for i in idx:
+                label(i, _short(base[i][0]), fontsize=8, color=colour)
         n = len(base)
-        fig.add_scatter(
-            x=points[n:, 0], y=points[n:, 1], mode="markers+text", name="your sentences",
-            text=[s[:30] + ("…" if len(s) > 30 else "") for s in mine], textposition="top center",
-            hovertext=mine, hoverinfo="text", marker=dict(size=15, symbol="star", color="#111"),
-        )
-        fig.update_layout(
-            height=480, margin=dict(l=10, r=10, t=30, b=10), legend=dict(orientation="h", y=-0.05),
-            xaxis=dict(showticklabels=False, title=""), yaxis=dict(showticklabels=False, title=""),
-            title="Each dot is a sentence. Dots close together have similar meanings.",
-        )
-        if "box" in box_ref:
-            box_ref["box"].figure = fig
-        plot.clear_output(wait=True)
-        with plot:
-            fig.show()
-        return fig
+        if mine:
+            ax.scatter(points[n:, 0], points[n:, 1], s=220, marker="*", color="#111", label="your sentences")
+            for i, s in enumerate(mine):
+                label(n + i, _short(s), fontsize=9, fontweight="bold", color="#111")
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.margins(0.25, 0.12)
+        ax.set_title("Each dot is a sentence. Dots close together have similar meanings.", fontsize=11)
+        ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.02), ncol=5, frameon=False, fontsize=9)
+        fig.tight_layout()
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png")
+        plot.value = buf.getvalue()
+        state["points"] = points
+        state["mine"] = list(mine)
 
     def on_add(_):
         if not sentence.value.strip():
@@ -214,11 +234,10 @@ def show_meaning_map(m: Models) -> widgets.VBox:
 
     add.on_click(on_add)
     reset.on_click(on_reset)
-    fig = redraw()
+    redraw()
     box = _panel([widgets.HBox([add, reset]), sentence, message, plot],
-                 {"sentence": sentence, "add": add, "reset": reset, "message": message})
-    box.figure = fig
-    box_ref["box"] = box
+                 {"sentence": sentence, "add": add, "reset": reset, "message": message, "plot": plot})
+    box.map_state = state
     return box
 
 

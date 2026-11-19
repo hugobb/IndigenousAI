@@ -21,7 +21,7 @@ MODULES = ["content.py", "toolkit.py", "ui.py"]
 LOCAL = {"content", "toolkit", "ui"}
 LOAD = re.compile(r'(?<!def )_load\("([^"]+)"\)')
 PANEL = re.compile(r"^<!-- panel: (\w+) \| (.+?) -->\s*$", re.MULTILINE)
-RUNTIME_PACKAGES = "sentence-transformers transformers accelerate ipywidgets plotly"
+RUNTIME_PACKAGES = "sentence-transformers transformers accelerate ipywidgets matplotlib"
 BEFORE_SETUP = "⚠️ Run the Setup box first (section 0, at the top). Then click ▶️ on this box again."
 
 
@@ -58,7 +58,7 @@ def setup_cell() -> nbformat.NotebookNode:
 # You don't need to read this cell. It installs what is missing, defines everything the
 # workshop does, and loads the two AI models. Curious? All the code is below.
 try:
-    import sentence_transformers, plotly, ipywidgets  # noqa: F401
+    import sentence_transformers, matplotlib, ipywidgets  # noqa: F401
 except ImportError:
     %pip install -q {RUNTIME_PACKAGES}
 

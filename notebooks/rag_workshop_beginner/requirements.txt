@@ -4,7 +4,7 @@ transformers>=4.51
 torch
 accelerate
 ipywidgets>=8
-plotly
+matplotlib
 pytest
 nbformat
 nbclient

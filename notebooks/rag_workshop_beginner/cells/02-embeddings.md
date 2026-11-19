@@ -24,7 +24,7 @@ The map shows 16 sentences. Each dot is a sentence. Dots close together have sim
 
 **Do this:**
 1. Click ▶️ on the box below.
-2. Move your mouse over the dots to read the sentences.
+2. Read the first words of each sentence next to its dot.
 3. Type "Nobody may record a ceremony without the family's permission." in the text box, then click **Add to map**. Your sentence appears as a black star. Which colour is it closest to?
 4. Add your own sentences. Click **Reset** to remove them.
 

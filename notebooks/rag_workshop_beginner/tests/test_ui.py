@@ -115,13 +115,19 @@ def test_search_ranks_all_passages(models):
     assert html.index("Section 8.") < html.index("Section 1.")
 
 
+def test_map_is_a_png_picture(models):
+    # Plotly needs JavaScript, which Colab does not run inside a widget, so the map is a PNG.
+    plot = ui.show_meaning_map(models).controls["plot"]
+    assert plot.value[:8] == b"\x89PNG\r\n\x1a\n"
+    assert len(plot.value) > 10_000
+
+
 def test_map_add_and_reset(models):
     box = ui.show_meaning_map(models)
     ctl = box.controls
 
     def mine():
-        (trace,) = [t for t in box.figure.data if t.name == "your sentences"]
-        return 0 if trace.x is None else len(trace.x)
+        return len(box.map_state["mine"])
 
     assert mine() == 0
     ctl["sentence"].value = "Salmon swim upstream in autumn."

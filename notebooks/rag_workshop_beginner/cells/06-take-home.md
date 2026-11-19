@@ -12,7 +12,7 @@ Each choice changes the answers: chunk size, overlap, the embedding model, the n
 In Colab, your text is processed on Google's computers. On your own computer, your documents stay with you. This matters for sensitive documents.
 
 Two options (they need some help from someone comfortable with computers):
-- **This notebook.** Install Python 3.11 or newer. In a terminal, run `pip install sentence-transformers transformers torch accelerate ipywidgets plotly jupyterlab`. Download this notebook (**File > Download > Download .ipynb**), then start `jupyter lab` and open it.
+- **This notebook.** Install Python 3.11 or newer. In a terminal, run `pip install sentence-transformers transformers torch accelerate ipywidgets matplotlib jupyterlab`. Download this notebook (**File > Download > Download .ipynb**), then start `jupyter lab` and open it.
 - **Ollama**, a free app that runs AI models on your computer. The notebook [`ollama_rag_workshop.ipynb`](https://github.com/hugobb/IndigenousAI/blob/main/notebooks/ollama_rag_workshop.ipynb) builds the same system with Ollama and shows all the code.
 
 ### What should go into such a system?
