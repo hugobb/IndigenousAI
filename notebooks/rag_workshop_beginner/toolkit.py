@@ -225,10 +225,10 @@ def load_models() -> Models:
 
 def status_line(device: str) -> str:
     if device == "cuda":
-        return "✅ Ready — using the GPU. Answers take a few seconds."
+        return "✅ Ready. You can go on to section 1."
     return (
-        "⚠️ Ready, but without a GPU: answers will be slow and a bit less accurate. "
-        "To fix it: menu Runtime → Change runtime type → T4 GPU → Save, then run this cell again."
+        "⚠️ Ready, but there is no GPU, so the AI is slower (up to a minute per answer) and makes more mistakes. "
+        "To fix it: click Runtime > Change runtime type > T4 GPU > Save, then click ▶️ on this box again."
     )
 
 

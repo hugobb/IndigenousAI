@@ -23,9 +23,9 @@ def test_chunking_count_updates_live(models):
     ctl = box.controls
     ctl["strategy"].value = "fixed"
     ctl["size"].value = 50
-    assert f"{len(make_chunks(c.REPORT, 'fixed', 50, 0))} chunks" in ctl["count"].value
+    assert f"{len(make_chunks(c.CHARTER, 'fixed', 50, 0))} chunks" in ctl["count"].value
     ctl["size"].value = 100
-    assert f"{len(make_chunks(c.REPORT, 'fixed', 100, 0))} chunks" in ctl["count"].value
+    assert f"{len(make_chunks(c.CHARTER, 'fixed', 100, 0))} chunks" in ctl["count"].value
 
 
 def test_chunking_overlap_slider_disabled_unless_overlap(models):
@@ -55,18 +55,18 @@ def test_chunking_top_chunk_shown(models):
     ctl = ui.show_chunking(models).controls
     ctl["strategy"].value = "fixed"
     ctl["size"].value = c.DEMO_GOOD_SIZE
-    ctl["question"].value = c.VAN_QUESTION.question
-    assert "Harlow Valley Community Fund" in ctl["top"].value
+    ctl["question"].value = c.DAYS_QUESTION.question
+    assert "within 45 days" in ctl["top"].value
 
 
 def test_chunking_ask_uses_top_chunk(models):
     ctl = ui.show_chunking(models).controls
     ctl["strategy"].value = "fixed"
     ctl["size"].value = c.DEMO_GOOD_SIZE
-    ctl["question"].value = c.VAN_QUESTION.question
+    ctl["question"].value = c.DAYS_QUESTION.question
     ctl["ask"].click()
     assert "(test answer)" in ctl["answer"].value
-    assert "Harlow" in ctl["answer"].value
+    assert "45" in ctl["answer"].value
 
 
 # ---------------------------------------------------------------- empty input (Review Focus 2)
@@ -111,8 +111,8 @@ def test_search_ranks_all_passages(models):
     ctl = ui.show_search(models).controls
     ctl["search"].click()
     html = ctl["results"].value
-    assert html.count('class="rag-row') == len(c.PASSAGES)
-    assert html.index("Kaitiakitanga") < html.index("Cosine similarity measures")
+    assert html.count('class="rag-row') == len(c.CHARTER_SECTIONS)
+    assert html.index("Section 8.") < html.index("Section 1.")
 
 
 def test_map_add_and_reset(models):
@@ -156,7 +156,7 @@ def test_generation_shows_exact_prompt(models):
     ctl["topk"].value = 2
     ctl["unknown"].value = False
     ctl["ask"].click()
-    expected = build_prompt(ctl["question"].value, ui.retrieve_report(models, ctl["question"].value, 2), False)
+    expected = build_prompt(ctl["question"].value, ui.retrieve(models, ctl["question"].value, 2), False)
     assert ctl["prompt_text"] == expected
     assert "(test answer)" in ctl["rag"].value
     assert "(test answer)" in ctl["norag"].value

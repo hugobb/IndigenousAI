@@ -1,39 +1,39 @@
-## 2. Embeddings: turning meaning into numbers ⏱ about 20 min
+## 2. Embeddings: how a computer compares meanings (20 min)
 
-Computers can't compare meanings directly, but they are very good at comparing numbers. An **embedding model** reads a piece of text and turns it into a list of numbers (here, 384 of them). Think of these numbers as the **coordinates of the sentence on a giant map of meaning**. Sentences that mean similar things land close together, even when they use completely different words.
+To search by meaning, the computer turns each sentence into a list of 384 numbers. This list is called an **embedding**. Two sentences with similar meanings get similar numbers, even if they use different words.
 
-To measure how close two sentences are, we use a **similarity score**. A score near **1** means the two sentences are about the same thing, and a score near **0** means they have nothing in common. With this model, scores above 0.6 are rare, and a score around 0.5 already means the two sentences are related.
+By comparing two embeddings, the computer gives a **similarity score**: 0 means unrelated, and the higher the score, the closer the meanings. With this model, scores above 0.6 are rare, and 0.4 is already close.
 
 ### 2a. Compare two sentences
 
-> **What you'll see:** two sentences and their similarity score.
->
-> **Try this**
-> 1. Look at the first example, *"Same meaning, different words"*. The two sentences share almost no words. What score do they get?
-> 2. Pick *"Same word, different meaning"* in the **Example** menu. Both sentences contain the word "bank". Is the score high?
-> 3. Write your own pair, then click **Compare**. Try a sentence and its opposite, like *"I love winter."* and *"I hate winter."*
->
-> **What to notice:** the score measures whether two sentences are **about the same thing**, not whether they agree. Opposites are often "close" because they talk about the same topic.
+**Do this:**
+1. Click ▶️ on the box below. You see two sentences and their score.
+2. In the **Example** menu, choose each example in turn:
+   - "Same meaning, different words": a high score, even though the sentences share almost no words.
+   - "Same word, different meaning": a low score, even though both sentences contain the word "record".
+   - "Unrelated": a low score.
+3. Write your own sentences in **Sentence A** and **Sentence B**, then click **Compare**. Try "I love winter." and "I hate winter."
 
-<!-- panel: show_similarity | Compare two sentences -->
+The score tells you if two sentences talk about the same thing, not if they agree. "I love winter." and "I hate winter." get a high score.
 
-### 2b. The map of meaning
+<!-- panel: show_similarity | compare two sentences -->
 
-384 numbers can't be drawn on a screen, so we squash them down to just 2. It's a bit like the shadow of a 3D object on a wall: you keep the general shape but lose some detail. On the map below, each dot is a sentence, and the colours show four topics we picked.
+### 2b. The map of meanings
 
-> **What you'll see:** 16 sentences on a map, grouped by meaning.
->
-> **Try this**
-> 1. Hover over the dots to read the sentences. Do the colours form groups?
-> 2. Type *"My grandmother bakes the best apple pie."* and click **Add to map**. Where does your ★ land?
-> 3. Add a sentence that mixes two topics, like *"We cooked the fish we caught in the river."* Then add one in another language, like *"La rivière déborde après la pluie."* (this model learned mostly from English text).
->
-> **What to notice:** nobody told the computer what the topics are. The groups appear on their own, from the meaning alone. The map moves a little each time you add a sentence, because squashing 384 numbers into 2 is only an approximation.
+The map shows 16 sentences. Each dot is a sentence. Dots close together have similar meanings. The colours show 4 topics.
 
-<!-- panel: show_meaning_map | The map of meaning -->
+**Do this:**
+1. Click ▶️ on the box below.
+2. Move your mouse over the dots to read the sentences.
+3. Type "Nobody may record a ceremony without the family's permission." in the text box, then click **Add to map**. Your sentence appears as a black star. Which colour is it closest to?
+4. Add your own sentences. Click **Reset** to remove them.
 
-<details><summary>💡 For the curious</summary>
+Nobody told the computer what the topics are. It places sentences with similar meanings close together on its own.
 
-The embedding model is `all-MiniLM-L6-v2`. It is small (about 90 MB) and fast, and it was trained on more than a billion pairs of related sentences. The similarity score is called **cosine similarity**: it measures the angle between two lists of numbers seen as arrows. The squashing to 2D is called **PCA** (principal component analysis).
+<!-- panel: show_meaning_map | the map of meanings -->
+
+<details><summary>More detail (optional)</summary>
+
+The embedding model is `all-MiniLM-L6-v2`. The similarity score is the cosine similarity between the two lists of numbers. To draw the map, the 384 numbers are reduced to 2 with a method called PCA, so the map is only an approximation.
 
 </details>

@@ -8,14 +8,15 @@ import plotly.graph_objects as go
 from IPython.display import display
 
 from content import (
+    CARE_PAPER,
+    CHARTER,
+    CHARTER_QUESTIONS,
+    CHARTER_SECTIONS,
+    CHARTER_TITLE,
     DEMO_GOOD_SIZE,
     DEMO_OVERLAP,
     MAP_SENTENCES,
-    PASSAGES,
     PROBLEM_QUESTION,
-    REPORT,
-    REPORT_QUESTIONS,
-    REPORT_TITLE,
     SEARCH_EXAMPLE,
     SIMILARITY_PAIRS,
 )
@@ -82,15 +83,15 @@ def _stream_into(target: widgets.HTML, pieces, button: widgets.Button | None = N
     if button is not None:
         button.disabled = True
     text = ""
-    target.value = _box("✍️ The model is writing…", background)
+    target.value = _box("The AI is writing...", background)
     try:
         for piece in pieces:
             text += piece
             target.value = _box(html.escape(text), background)
     except Exception as error:  # noqa: BLE001 - show a plain message instead of a stack trace
         target.value = _box(
-            html.escape(text) + "<br><br>⚠️ Something went wrong while the model was writing. "
-            "Click the button to try again. If it keeps happening, ask an assistant."
+            html.escape(text) + "<br><br>⚠️ Something went wrong. Click the button again. "
+            "If it happens again, raise your hand."
             f"<br><small>({html.escape(str(error))})</small>",
             "#fdecec",
         )
@@ -99,20 +100,32 @@ def _stream_into(target: widgets.HTML, pieces, button: widgets.Button | None = N
         if button is not None:
             button.disabled = False
     if not text.strip():
-        target.value = _box("(The model gave an empty answer. Try asking again.)", background)
+        target.value = _box("(The AI gave an empty answer. Click the button again.)", background)
 
 
-def retrieve_report(m: Models, question: str, k: int) -> list[str]:
-    """The k chunks of the report closest to the question (chunks of DEMO_GOOD_SIZE words)."""
-    chunks = make_chunks(REPORT, "fixed", DEMO_GOOD_SIZE, 0)
-    hits = rank(m.embedder.embed([question])[0], m.embedder.embed(chunks), k)
+def collection_chunks() -> list[str]:
+    """Both documents (the charter and the CARE paper) cut into chunks of DEMO_GOOD_SIZE words, with overlap."""
+    return [chunk for doc in (CHARTER, CARE_PAPER) for chunk in make_chunks(doc, "overlap", DEMO_GOOD_SIZE, DEMO_OVERLAP)]
+
+
+_COLLECTION: dict = {}
+
+
+def retrieve(m: Models, question: str, k: int) -> list[str]:
+    """The k chunks of the two documents closest to the question."""
+    key = id(m.embedder)
+    if key not in _COLLECTION:
+        chunks = collection_chunks()
+        _COLLECTION[key] = (chunks, m.embedder.embed(chunks))
+    chunks, vecs = _COLLECTION[key]
+    hits = rank(m.embedder.embed([question])[0], vecs, k)
     return [chunks[i] for i, _ in hits]
 
 
 # ---------------------------------------------------------------- 1. the problem
 def show_problem(m: Models) -> widgets.VBox:
     question = widgets.HTML(_box(f"<b>Question:</b> {html.escape(PROBLEM_QUESTION.question)}"))
-    ask = widgets.Button(description="Ask the model", button_style="primary", icon="comment")
+    ask = widgets.Button(description="Ask the AI", button_style="primary", icon="comment")
     out = widgets.HTML()
     _once(ask, lambda _: _stream_into(out, m.generator.generate(PROBLEM_QUESTION.question), ask))
     return _panel([question, ask, out], {"ask": ask, "answer": out})
@@ -121,7 +134,7 @@ def show_problem(m: Models) -> widgets.VBox:
 # ---------------------------------------------------------------- 2a. similarity
 def show_similarity(m: Models) -> widgets.VBox:
     labels = ["Same meaning, different words", "Same word, different meaning", "Unrelated"]
-    pair = widgets.Dropdown(options=[(lab, i) for i, lab in enumerate(labels)], value=0, description="Example:")
+    pair = widgets.Dropdown(options=[(lab, i) for i, lab in enumerate(labels)], value=0, description="Example")
     a = widgets.Textarea(value=SIMILARITY_PAIRS[0][0], description="Sentence A", layout=WIDE)
     b = widgets.Textarea(value=SIMILARITY_PAIRS[0][1], description="Sentence B", layout=WIDE)
     compare = widgets.Button(description="Compare", button_style="primary", icon="balance-scale")
@@ -176,7 +189,7 @@ def show_meaning_map(m: Models) -> widgets.VBox:
         fig.update_layout(
             height=480, margin=dict(l=10, r=10, t=30, b=10), legend=dict(orientation="h", y=-0.05),
             xaxis=dict(showticklabels=False, title=""), yaxis=dict(showticklabels=False, title=""),
-            title="Each dot is a sentence. Close dots = close meanings.",
+            title="Each dot is a sentence. Dots close together have similar meanings.",
         )
         if "box" in box_ref:
             box_ref["box"].figure = fig
@@ -214,22 +227,22 @@ def show_search(m: Models) -> widgets.VBox:
     question = widgets.Text(value=SEARCH_EXAMPLE, description="Question", layout=WIDE)
     search = widgets.Button(description="Search", button_style="primary", icon="search")
     results = widgets.HTML()
-    passage_vecs = m.embedder.embed(PASSAGES)
+    passage_vecs = m.embedder.embed(CHARTER_SECTIONS)
 
     def on_search(_):
         if not question.value.strip():
             results.value = _note("Type a question first.")
             return
-        hits = rank(m.embedder.embed([question.value])[0], passage_vecs, len(PASSAGES))
+        hits = rank(m.embedder.embed([question.value])[0], passage_vecs, len(CHARTER_SECTIONS))
         rows = []
         for place, (i, score) in enumerate(hits, start=1):
             bg = "#dbeafe" if place <= 3 else "#f4f4f5"
             rows.append(
                 f'<div class="rag-row" style="padding:8px 10px;margin:4px 0;border-radius:6px;background:{bg};{TEXT}">'
                 f"<b>#{place}</b> {_bar(score, '→ ' + similarity_label(score))}"
-                f'<div style="margin-top:4px">{html.escape(PASSAGES[i])}</div></div>'
+                f'<div style="margin-top:4px">{html.escape(CHARTER_SECTIONS[i])}</div></div>'
             )
-        results.value = "<div><i>Blue = the 3 passages a RAG system would hand to the model.</i></div>" + "".join(rows)
+        results.value = "<div>The 3 sections in blue are the ones RAG would give to the AI.</div>" + "".join(rows)
 
     search.on_click(on_search)
     on_search(None)
@@ -267,29 +280,29 @@ def _render_chunks(words: list[str], strategy: str, chunks: list[str], size: int
 def show_chunking(m: Models) -> widgets.VBox:
     strategy = widgets.Dropdown(
         options=[("Fixed size", "fixed"), ("Fixed size with overlap", "overlap"),
-                 ("By sentences", "sentences"), ("Whole document — no chunking", "whole")],
+                 ("By sentences", "sentences"), ("Whole document (no chunking)", "whole")],
         value="fixed", description="How to cut",
     )
     size = widgets.IntSlider(value=DEMO_GOOD_SIZE, min=5, max=200, step=5, description="Words/chunk",
                              continuous_update=False)
     overlap = widgets.IntSlider(value=DEMO_OVERLAP, min=0, max=50, step=5, description="Overlap",
                                 disabled=True, continuous_update=False)
-    question = widgets.Dropdown(options=[q.question for q in REPORT_QUESTIONS], description="Question",
+    question = widgets.Dropdown(options=[q.question for q in CHARTER_QUESTIONS], description="Question",
                                 layout=widgets.Layout(width="100%", max_width="560px"))
     count = widgets.HTML()
     text = widgets.HTML()
     top = widgets.HTML()
-    ask = widgets.Button(description="Ask the model with this chunk", button_style="primary", icon="comment",
+    ask = widgets.Button(description="Ask the AI with this chunk", button_style="primary", icon="comment",
                          layout=widgets.Layout(width="auto"))
     out = widgets.HTML()
-    words = REPORT.split()
+    words = CHARTER.split()
     cache: dict = {}
     state = {"switching": False, "top": ""}
 
     def current_chunks():
         key = (strategy.value, size.value, overlap.value if strategy.value == "overlap" else 0)
         if key not in cache:
-            chunks = make_chunks(REPORT, strategy.value, size.value, key[2])
+            chunks = make_chunks(CHARTER, strategy.value, size.value, key[2])
             cache[key] = (chunks, m.embedder.embed(chunks))
         return cache[key]
 
@@ -301,10 +314,10 @@ def show_chunking(m: Models) -> widgets.VBox:
         chunks, vecs = current_chunks()
         (i, score), = rank(m.embedder.embed([question.value])[0], vecs, 1)
         state["top"] = chunks[i]
-        count.value = f"<b>{len(chunks)} chunk{'s' if len(chunks) != 1 else ''}</b> — {REPORT_TITLE}"
+        count.value = f"{CHARTER_TITLE}: cut into <b>{len(chunks)} chunk{'s' if len(chunks) != 1 else ''}</b>"
         text.value = _render_chunks(words, strategy.value, chunks, size.value, overlap.value, i)
         top.value = (
-            f"<b>Chunk found for this question</b> (chunk #{i + 1}) {_bar(score)}"
+            f"<b>Chunk picked by search</b> (chunk {i + 1}), score {_bar(score)}"
             + _box(html.escape(chunks[i]), "#dbeafe")
         )
         out.value = ""
@@ -338,16 +351,16 @@ def show_chunking(m: Models) -> widgets.VBox:
 # ---------------------------------------------------------------- 5. generation
 def show_generation(m: Models) -> widgets.VBox:
     question = widgets.Text(value=PROBLEM_QUESTION.question, description="Question", layout=WIDE)
-    topk = widgets.IntSlider(value=3, min=1, max=5, description="Passages (k)")
-    unknown = widgets.Checkbox(value=True, description="Allow 'I don't know'", indent=False)
+    topk = widgets.IntSlider(value=3, min=1, max=5, description="Passages")
+    unknown = widgets.Checkbox(value=True, description="Let the AI say I don't know", indent=False)
     ask = widgets.Button(description="Ask", button_style="primary", icon="comment")
     prompt = widgets.HTML()
     rag = widgets.HTML()
     norag = widgets.HTML()
     column = widgets.Layout(flex="1 1 300px", min_width="260px", margin="4px")
     columns = widgets.Box(
-        [widgets.VBox([widgets.HTML("<b>With RAG</b> (reads the passages)"), rag], layout=column),
-         widgets.VBox([widgets.HTML("<b>Without RAG</b> (memory only)"), norag], layout=column)],
+        [widgets.VBox([widgets.HTML("<b>With RAG</b> (the AI read the passages)"), rag], layout=column),
+         widgets.VBox([widgets.HTML("<b>Without RAG</b> (the AI's memory only)"), norag], layout=column)],
         layout=widgets.Layout(display="flex", flex_flow="row wrap", width="100%"),
     )
     controls = {"question": question, "topk": topk, "unknown": unknown, "ask": ask,
@@ -360,14 +373,14 @@ def show_generation(m: Models) -> widgets.VBox:
             return
         ask.disabled = True
         try:
-            contexts = retrieve_report(m, q, topk.value)
+            contexts = retrieve(m, q, topk.value)
             text = build_prompt(q, contexts, unknown.value)
             controls["prompt_text"] = text
             shown = html.escape(text)
             for ctx in contexts:
                 esc = html.escape(ctx)
                 shown = shown.replace(esc, f'<mark style="background:#dbeafe;{TEXT}">{esc}</mark>', 1)
-            prompt.value = "<b>This is exactly what the model receives:</b>" + _box(shown)
+            prompt.value = "<b>The message sent to the AI:</b>" + _box(shown)
             rag.value = norag.value = ""
             _stream_into(rag, m.generator.generate(text))
             _stream_into(norag, m.generator.generate(q), background="#fdecec")
@@ -385,15 +398,15 @@ def load_uploads(files: dict[str, bytes]) -> tuple[list[str], list[str]]:
     chunks, messages = [], []
     for name, data in files.items():
         if not name.lower().endswith((".txt", ".md")):
-            messages.append(f"⚠️ {name} is not a .txt file — skipped. Save it as plain text (.txt) and try again.")
+            messages.append(f"⚠️ {name} is not a .txt file (skipped). Save it as plain text (.txt) and try again.")
             continue
         try:
             text = bytes(data).decode("utf-8")
         except UnicodeDecodeError:
-            messages.append(f"⚠️ {name} could not be read as text — skipped. Save it as UTF-8 plain text and try again.")
+            messages.append(f"⚠️ {name} could not be read as text (skipped). Save it as UTF-8 plain text and try again.")
             continue
         if not text.strip():
-            messages.append(f"⚠️ {name} is empty — skipped.")
+            messages.append(f"⚠️ {name} is empty (skipped).")
             continue
         chunks += make_chunks(text, "overlap", DEMO_GOOD_SIZE, DEMO_OVERLAP)
     return chunks, messages

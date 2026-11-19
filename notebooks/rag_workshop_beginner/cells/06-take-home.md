@@ -1,32 +1,32 @@
-## 6. Take it home ⏱ about 10 min
+## 6. Summary and discussion (10 min)
 
-### What you built, in one picture
+### RAG in short
 
-```
- PREPARE (once)   your documents ──► ✂️ chunking ──► 🔢 embeddings ──► stored
+1. Once, in advance: cut the documents into chunks and compute an embedding for each chunk.
+2. For each question: compute the question's embedding, find the closest chunks, send them to the AI with the question, and get the answer.
 
- ASK (each time)  question ──► 🔢 embedding ──► 🔎 search: closest chunks
-                            ──► 📝 prompt = instructions + chunks + question ──► 🤖 answer
-```
-
-Every choice changes the answers you get: how you cut, which embedding model, how many chunks you hand over (k), and what the instructions say.
+Each choice changes the answers: chunk size, overlap, the embedding model, the number of passages, and the instruction given to the AI.
 
 ### Running it on your own computer
 
-In Colab, your text is processed on Google's computers. On your own computer, your documents **never leave it**. For sensitive material, that difference matters. There are two ways to run it yourself:
+In Colab, your text is processed on Google's computers. On your own computer, your documents stay with you. This matters for sensitive documents.
 
-1. **This same notebook.** Install Python (version 3.11 or newer), then in a terminal run
-   `pip install sentence-transformers transformers torch accelerate ipywidgets plotly jupyterlab`.
-   Download this notebook (**File → Download → Download .ipynb**), start `jupyter lab`, open the notebook and run it the same way. The models download once (about 1–2 GB) and then work without internet. On a computer without a GPU it uses the smaller answer model automatically.
-2. **Ollama**, a free app that runs AI models on your computer. Our companion notebook, [`ollama_rag_workshop.ipynb`](https://github.com/hugobb/IndigenousAI/blob/main/notebooks/ollama_rag_workshop.ipynb), builds the same system with Ollama and shows all the code step by step.
+Two options (they need some help from someone comfortable with computers):
+- **This notebook.** Install Python 3.11 or newer. In a terminal, run `pip install sentence-transformers transformers torch accelerate ipywidgets plotly jupyterlab`. Download this notebook (**File > Download > Download .ipynb**), then start `jupyter lab` and open it.
+- **Ollama**, a free app that runs AI models on your computer. The notebook [`ollama_rag_workshop.ipynb`](https://github.com/hugobb/IndigenousAI/blob/main/notebooks/ollama_rag_workshop.ipynb) builds the same system with Ollama and shows all the code.
 
-### What should go in?
+### What should go into such a system?
 
-Keeping data on your own machine does not by itself answer the question of whether something *should* be digitised or put into an AI system at all. Those are community decisions about protocols and access, and they come before the technology, not after it.
+Running the AI on your own computer does not answer a more important question: should these documents go into an AI system at all? That is a decision for the community the documents come from, and it comes before the technology.
 
-The **OCAP® principles** (Ownership, Control, Access, Possession), developed by the First Nations Information Governance Centre, state that First Nations communities collectively own and control their data. Even our fictional river group had to decide who may see its raw records, and wrote a rule after someone's name was shared without permission.
+The **OCAP® principles** (Ownership, Control, Access, Possession), from the First Nations Information Governance Centre, say that First Nations communities own and control their data. The **CARE Principles** you used today (Collective Benefit, Authority to Control, Responsibility, Ethics) say the same for Indigenous data worldwide.
 
-**To discuss**
-1. Who should decide what goes into a RAG system about a community, and who may ask it questions?
-2. The model can still be wrong, even with RAG. Who is responsible when an answer is wrong?
-3. What, in your own work, would you put in such a system, and what would you never put in?
+**To discuss:**
+1. Who should decide which documents go into a RAG system about a community, and who may ask it questions?
+2. Even with RAG, the AI can be wrong. Who is responsible for a wrong answer?
+3. In your own work, what would you put into such a system, and what would you never put in?
+
+### Sources
+
+- {CARE_CREDIT}
+- Example Community Data Charter: fictional, written for the RAG trust tests kit, CC0 1.0. It describes no real community.

@@ -1,11 +1,12 @@
-## ★ Bonus: try your own documents
+## Bonus: your own documents
 
-Upload one or more **plain-text files** (`.txt`), then ask questions about them. Word or Google Docs files can be saved as plain text: **File → Download → Plain text (.txt)**. Your files are cut into chunks of {DEMO_GOOD_SIZE} words with an overlap of {DEMO_OVERLAP}, and the model reads the 3 closest chunks.
+You can ask questions about your own text files.
 
-⚠️ **In Colab, uploaded files go to Google's computers.** Only upload text you are comfortable sharing, and that is yours to share. For anything sensitive, run the notebook on your own computer (see section 6).
+⚠️ **In Colab, uploaded files are sent to Google's computers.** Only upload text you are allowed to share. Don't upload anything sensitive.
 
-> **Try this**
-> 1. Upload a document you know well, and ask a question you know the answer to. Is the answer right?
-> 2. Ask about something that is *not* in your document. Does the model say it doesn't know?
+**Do this:**
+1. Save your document as a plain text file. In Word or Google Docs: **File > Download > Plain text (.txt)**.
+2. Click ▶️ on the box below, then click **Choose .txt files** and pick your file.
+3. Type a question in **Question** and click **Ask**.
 
-<!-- panel: show_upload | Your own documents -->
+<!-- panel: show_upload | your own documents -->

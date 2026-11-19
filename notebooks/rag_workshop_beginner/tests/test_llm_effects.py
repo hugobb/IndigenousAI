@@ -5,6 +5,7 @@ import os
 import pytest
 
 import content as c
+from ui import collection_chunks
 from toolkit import (
     FakeGenerator,
     MiniLMEmbedder,
@@ -17,10 +18,11 @@ from toolkit import (
 
 # The words a correct answer must contain (the model may phrase the rest freely).
 ANSWERS = {
-    c.VAN_QUESTION.question: "Harlow Valley",
-    c.RECORDS_QUESTION.question: "data training",
-    c.POLLUTION_QUESTION.question: "Fenwick Bridge",
-    c.MEETING_QUESTION.question: "March 14",
+    c.DAYS_QUESTION.question: "45",
+    c.VOTE_QUESTION.question: "seven",
+    c.CARE_LETTERS_QUESTION.question: "Consent",
+    c.WITHDRAW_QUESTION.question: "30",
+    c.CARE_FULL_QUESTION.question: "two",
 }
 
 LLM = os.environ.get("RAG_WORKSHOP_LLM", "Qwen/Qwen3-1.7B")
@@ -34,10 +36,10 @@ def test_fake_generator_streams():
 
 
 def test_status_line_copy():
-    assert status_line("cuda") == "✅ Ready — using the GPU. Answers take a few seconds."
+    assert status_line("cuda") == "✅ Ready. You can go on to section 1."
     assert status_line("cpu") == (
-        "⚠️ Ready, but without a GPU: answers will be slow and a bit less accurate. "
-        "To fix it: menu Runtime → Change runtime type → T4 GPU → Save, then run this cell again."
+        "⚠️ Ready, but there is no GPU, so the AI is slower (up to a minute per answer) and makes more mistakes. "
+        "To fix it: click Runtime > Change runtime type > T4 GPU > Save, then click ▶️ on this box again."
     )
 
 
@@ -62,7 +64,7 @@ def has_all(text, keywords):
 
 
 def top_chunks(emb, question, k=3):
-    chunks = make_chunks(c.REPORT, "fixed", c.DEMO_GOOD_SIZE, 0)
+    chunks = collection_chunks()
     hits = rank(emb.embed([question])[0], emb.embed(chunks), k)
     return [chunks[i] for i, _ in hits]
 
@@ -70,21 +72,29 @@ def top_chunks(emb, question, k=3):
 @pytest.mark.llm
 def test_no_rag_does_not_know(gen):
     text = say(gen, c.PROBLEM_QUESTION.question)
-    assert not any(k.lower() in text.lower() for k in c.PROBLEM_QUESTION.keywords)
+    assert "45" not in text
 
 
 @pytest.mark.llm
 def test_rag_answers(gen, emb):
-    for q in c.REPORT_QUESTIONS:
+    for q in c.CHARTER_QUESTIONS:
         text = say(gen, build_prompt(q.question, top_chunks(emb, q.question), allow_unknown=True))
-        assert ANSWERS[q.question].lower() in text.lower(), q.question
+        first_line = text.strip().splitlines()[0].lower()  # what a participant reads first
+        assert ANSWERS[q.question].lower() in first_line, (q.question, text)
 
 
 @pytest.mark.llm
 def test_problem_question_with_rag(gen, emb):
     q = c.PROBLEM_QUESTION
     text = say(gen, build_prompt(q.question, top_chunks(emb, q.question, k=3), allow_unknown=True))
-    assert "march 14" in text.lower()
+    assert "45" in text
+
+
+@pytest.mark.llm
+def test_storage_question_with_three_passages(gen, emb):
+    q = c.STORAGE_QUESTION
+    text = say(gen, build_prompt(q.question, top_chunks(emb, q.question, k=3), allow_unknown=True))
+    assert "two computers" in text.lower()
 
 
 @pytest.mark.llm
@@ -96,5 +106,13 @@ def test_unknown_instruction(gen, emb):
 
 @pytest.mark.llm
 def test_greedy_repeatable(gen):
-    prompt = build_prompt(c.VAN_QUESTION.question, ["The van was paid for by the Harlow Valley Community Fund."], True)
+    prompt = build_prompt(c.DAYS_QUESTION.question, ["The Council answers every outside request within 45 days."], True)
     assert say(gen, prompt) == say(gen, prompt)
+
+
+@pytest.mark.llm
+def test_chunking_panel_answer_at_good_size(gen, emb):
+    chunks = make_chunks(c.CHARTER, "fixed", c.DEMO_GOOD_SIZE, 0)
+    (i, _), = rank(emb.embed([c.DAYS_QUESTION.question])[0], emb.embed(chunks), 1)
+    text = say(gen, build_prompt(c.DAYS_QUESTION.question, [chunks[i]], allow_unknown=True))
+    assert "45" in text

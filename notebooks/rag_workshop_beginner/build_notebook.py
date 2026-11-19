@@ -19,9 +19,10 @@ HERE = Path(__file__).resolve().parent
 OUTPUT = HERE.parent / "rag_workshop_beginner.ipynb"
 MODULES = ["content.py", "toolkit.py", "ui.py"]
 LOCAL = {"content", "toolkit", "ui"}
+LOAD = re.compile(r'(?<!def )_load\("([^"]+)"\)')
 PANEL = re.compile(r"^<!-- panel: (\w+) \| (.+?) -->\s*$", re.MULTILINE)
 RUNTIME_PACKAGES = "sentence-transformers transformers accelerate ipywidgets plotly"
-BEFORE_SETUP = "⚠️ Please run the Setup cell (section 0) first, then run this cell again."
+BEFORE_SETUP = "⚠️ Run the Setup box first (section 0, at the top). Then click ▶️ on this box again."
 
 
 def form(title: str, body: str) -> nbformat.NotebookNode:
@@ -47,6 +48,7 @@ def inline_modules() -> str:
                     if text not in imports:
                         imports.append(text)
         body = "\n".join(line for i, line in enumerate(lines) if i not in drop).strip()
+        body = LOAD.sub(lambda m: repr((HERE / "documents" / m.group(1)).read_text(encoding="utf-8")), body)
         bodies.append(f"# {'=' * 70}\n# {name}\n# {'=' * 70}\n{body}")
     return "\n".join(imports) + "\n\n\n" + "\n\n\n".join(bodies)
 
@@ -63,11 +65,11 @@ except ImportError:
 {inline_modules()}
 
 
-print("Loading the two AI models (the first time takes 1–2 minutes)…")
+print("Loading the two AI models. This takes 1 to 2 minutes...")
 MODELS = load_models()
 print(status_line(MODELS.device))
 '''
-    return form("▶️ Setup — run me first (takes 1–2 minutes)", body)
+    return form("Setup: click ▶️ and wait for ✅ Ready (1 to 2 minutes)", body)
 
 
 def panel_cell(function: str, title: str) -> nbformat.NotebookNode:
@@ -77,15 +79,18 @@ if "MODELS" not in globals():
 else:
     {function}(MODELS)
 '''
-    return form(f"▶️ {title}", body)
+    return form(f"Click ▶️: {title}", body)
 
 
 def fill(markdown: str) -> str:
+    """Replace {NAME} and {NAME.question} with values from content.py."""
     for name in dir(content):
         value = getattr(content, name)
         if name.isupper() and isinstance(value, (str, int)):
             markdown = markdown.replace("{" + name + "}", str(value))
-    leftover = re.findall(r"\{[A-Z_]{3,}\}", markdown)
+        if name.isupper() and isinstance(value, content.QuestionSpec):
+            markdown = markdown.replace("{" + name + ".question}", value.question)
+    leftover = re.findall(r"\{[A-Z_]{3,}[.a-z]*\}", markdown)
     if leftover:
         raise ValueError(f"Unknown placeholders: {leftover}")
     return markdown

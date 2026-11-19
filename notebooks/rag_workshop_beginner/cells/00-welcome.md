@@ -1,30 +1,41 @@
-# How does an AI read *your* documents? A hands-on tour of RAG
+# RAG workshop: how an AI answers questions from your documents
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/hugobb/IndigenousAI/blob/main/notebooks/rag_workshop_beginner.ipynb)
 
-Chatbots answer questions from **memory**: everything they learned while being trained. They have never seen *your* documents, like a community report, meeting notes or an archive. **RAG** (*Retrieval-Augmented Generation*) is the most common way to fix this. Before answering, the system **looks up** the most relevant passages in documents you choose, and then the AI **writes its answer from those passages**.
+An AI chatbot answers from what it learned during its training. It has never read your documents.
 
-In this workshop you will take a RAG system apart, piece by piece, and play with each piece to see what it does.
+RAG (Retrieval-Augmented Generation) fixes this in two steps:
+1. It searches your documents for the passages that match the question.
+2. It gives those passages to the AI, and the AI writes the answer from them.
 
-**No coding needed.** You never have to type or read code. Each grey box with a ▶️ button is something to run: click the ▶️ on its left (or click inside it and press **Shift + Enter**). Then use the sliders, buttons and text boxes that appear. If you are curious about the code behind a box, double-click its title to show it.
+In this notebook you try each part of RAG yourself. You don't need to read or write code.
 
-| Part | What it's about | Time |
+### How this notebook works
+
+- The grey boxes with a ▶️ button are the things you run. To run one, click its ▶️ button (on the left of the box).
+- After a few seconds, buttons, sliders or text boxes appear under it. Use them.
+- Go from top to bottom.
+- If you are stuck, raise your hand.
+
+### The plan
+
+| Part | Topic | Time |
 |---|---|---|
-| 0 | Setup | ⏱ 10 min |
-| 1 | The problem: an AI that guesses | ⏱ 5 min |
-| 2 | Embeddings: turning meaning into numbers | ⏱ 20 min |
-| 3 | Search: finding the right passage | ⏱ 10 min |
-| 4 | Chunking: cutting documents into pieces | ⏱ 20 min |
-| 5 | Generation: writing the answer | ⏱ 15 min |
-| 6 | Take it home | ⏱ 10 min |
-| ★ | Bonus: try your own documents | at home |
+| 0 | Setup | 10 min |
+| 1 | The problem | 5 min |
+| 2 | Embeddings: how a computer compares meanings | 20 min |
+| 3 | Search: finding the right passage | 10 min |
+| 4 | Chunking: cutting a document into pieces | 20 min |
+| 5 | The AI writes the answer | 15 min |
+| 6 | Summary and discussion | 10 min |
+| Bonus | Your own documents | at home |
 
-## 0. Setup ⏱ about 10 min
+## 0. Setup (10 min)
 
-1. **Check you have a GPU** (a fast chip for AI). This notebook asks Colab for one automatically. To check, open the menu **Runtime → Change runtime type**, make sure **T4 GPU** is selected, and click **Save**.
-2. **Run the Setup box below** by clicking its ▶️. If Colab warns *"This notebook was not authored by Google"*, click **Run anyway**.
-3. **Wait for ✅ Ready.** It takes 1–2 minutes. The box downloads two small AI models:
-   - one that turns text into numbers (section 2);
-   - one that writes answers (section 5).
+**Do this:**
+1. In the menu at the top of the page, click **Runtime**, then **Change runtime type**. Check that **T4 GPU** is selected and click **Save**. (A GPU is a chip that makes the AI fast.)
+2. Click ▶️ on the **Setup** box below.
+3. If a message says "This notebook was not authored by Google", click **Run anyway**.
+4. Wait until the box shows **✅ Ready**. This takes 1 to 2 minutes.
 
-If you see ⚠️ **without a GPU**, everything still works, just more slowly (answers take up to a minute). Raise your hand if you get stuck. An assistant will come and help.
+If the box shows ⚠️ instead, everything still works, but the AI is slower. Tell an assistant.

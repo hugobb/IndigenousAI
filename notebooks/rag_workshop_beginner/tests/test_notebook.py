@@ -10,7 +10,7 @@ from nbclient import NotebookClient
 import build_notebook
 
 NOTEBOOK = Path(build_notebook.OUTPUT)
-BEFORE_SETUP = "Please run the Setup cell"
+BEFORE_SETUP = "Run the Setup box first"
 
 
 @pytest.fixture(scope="module")
@@ -53,9 +53,9 @@ def test_every_code_cell_is_a_form(nb):
 
 def test_every_section_has_try_this(nb):
     markdown = "\n".join(c.source for c in nb.cells if c.cell_type == "markdown")
-    for heading in ("## 1.", "## 2.", "## 3.", "## 4.", "## 5."):
+    for heading in ("## 0.", "## 1.", "## 2.", "## 3.", "## 4.", "## 5."):
         section = markdown.split(heading, 1)[1].split("\n## ", 1)[0]
-        assert "**Try this**" in section, heading
+        assert "**Do this:**" in section, heading
 
 
 def test_no_unfilled_placeholders(nb):
@@ -66,9 +66,31 @@ def test_no_unfilled_placeholders(nb):
 
 def test_setup_inlines_all_code(nb):
     setup = code_cells(nb)[0].source
-    for name in ("def make_chunks", "class QwenGenerator", "def show_chunking", "REPORT = "):
+    for name in ("def make_chunks", "class QwenGenerator", "def show_chunking", "CHARTER = "):
         assert name in setup
     assert "from toolkit import" not in setup and "from content import" not in setup
+    assert '_load("' not in setup  # the documents are inlined, Colab has no documents/ folder
+    assert "Section 6. Outside requests." in setup
+
+
+def test_steps_name_real_labels(nb):
+    """Every **bold** word in a "Do this" step must be a label on screen, a menu name, or a known term."""
+    import re
+
+    import ui
+
+    screen = set(re.findall(r'description="([^"]+)"', Path(ui.__file__).read_text()))
+    screen |= {"Whole document (no chunking)", "Fixed size", "Fixed size with overlap", "By sentences"}
+    menus = {"Setup", "Runtime", "Change runtime type", "T4 GPU", "Save", "Run anyway", "✅ Ready", "File", "Download",
+             "Download .ipynb", "Plain text (.txt)"}
+    markdown = "\n".join(c.source for c in nb.cells if c.cell_type == "markdown")
+    steps = [line for line in markdown.splitlines() if re.match(r"\s*\d+\. ", line)]
+    for line in steps:
+        for bold in re.findall(r"\*\*([^*]+)\*\*", line):
+            if bold.rstrip(":").isdigit() or bold.startswith(("Section", "Do this")):
+                continue
+            for part in bold.rstrip(":").split(" > "):  # menu paths like File > Download
+                assert part in screen | menus, (bold, line)
 
 
 def test_committed_notebook_is_fresh(nb):

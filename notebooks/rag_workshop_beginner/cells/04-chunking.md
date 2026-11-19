@@ -1,25 +1,17 @@
-## 4. Chunking: cutting documents into pieces ⏱ about 20 min
+## 4. Chunking: cutting a document into pieces (20 min)
 
-Real documents are long. An embedding is always one list of 384 numbers, whether the text is one line or a whole report. Squeezing a 1,000-word report into a single embedding blurs it, like summarising a book in one sentence. So before searching, we cut documents into smaller pieces called **chunks**, and give each chunk its own embedding. Search can then return the precise piece that answers the question.
+Real documents are long. One embedding for a whole document is too vague, so the document is cut into small pieces called **chunks**. Each chunk gets its own embedding, and search returns the best chunk.
 
-**How you cut matters:**
-- **Chunks too big:** the embedding gets blurry, and the AI receives a lot of text that has nothing to do with the question.
-- **Chunks too small:** an answer can be cut in half.
-- **A cut in the wrong place:** a fact that spans two sentences ends up split between two chunks.
-- **Overlap** is a common fix: each chunk repeats the last few words of the one before, like roof tiles that overlap so no rain gets through.
+In the box below, the charter is cut into chunks. The chunks are coloured blue and orange in turn. Words in green belong to two chunks (this is called **overlap**). The chunk picked by search is in bold and underlined, and is shown again below the text.
 
-In the panel below, the Millbrook River Watch report is coloured by chunk: **blue and orange** take turns, **green** words belong to two chunks (overlap), and the chunk that search found is in **bold and underlined**.
+**Do this:**
+1. Click ▶️ on the box below. Leave **Question** on "{DAYS_QUESTION.question}" and click **Ask the AI with this chunk**. The AI answers: within 45 days. Correct.
+2. In **How to cut**, choose **Whole document (no chunking)**. The score goes down: one embedding for the whole charter is too vague.
+3. Choose **Fixed size** again and move **Words/chunk** to **{DEMO_TINY_SIZE}**. Click **Ask the AI with this chunk**. The chunks are now too short to hold the answer.
+4. Move **Words/chunk** back to **{DEMO_GOOD_SIZE}**. In **Question**, choose "{VOTE_QUESTION.question}". In the text, find "{CUT_BEFORE}": the chunk ends there, in the middle of the answer. Click **Ask the AI with this chunk**.
+5. In **How to cut**, choose **Fixed size with overlap**, and set **Overlap** to **{DEMO_OVERLAP}**. Each chunk now repeats the last {DEMO_OVERLAP} words of the chunk before it. The answer is in one chunk again. Click **Ask the AI with this chunk**.
+6. Try the other questions, and the **By sentences** option.
 
-> **What you'll see:** the report cut into chunks, the chunk found for your question, and the model's answer when it reads only that chunk.
->
-> **Try this**
-> 1. Keep *Fixed size, 60 words* and the question *"Who paid for the group's testing van?"*. Click **Ask the model with this chunk**. It finds the answer.
-> 2. Choose **Whole document — no chunking**. The score of the match drops: the whole report is "about" too many things at once.
-> 3. Back to **Fixed size**, set **{DEMO_TINY_SIZE} words**. Each chunk is now shorter than the answer itself, so no chunk can hold all of it. Ask the model.
-> 4. Set **{DEMO_SMALL_SIZE} words**. The size looks reasonable, but a cut falls in the middle of the answer: one chunk ends with *"…{CUT_BEFORE}"* and the next one starts with *"{CUT_AFTER}"*. Find that spot in the coloured text, then ask the model.
-> 5. Switch to **Fixed size with overlap**, keep {DEMO_SMALL_SIZE} words, and set the overlap to **{DEMO_OVERLAP}**. The answer is back in one piece. Look for the green words.
-> 6. Explore the other questions and the **By sentences** option.
->
-> **What to notice:** no chunk size is perfect for every question. Real systems try several, and often cut at natural boundaries like paragraphs, with some overlap.
+Chunks that are too big are vague. Chunks that are too small, or cut in the wrong place, lose the answer. Overlap helps.
 
-<!-- panel: show_chunking | Cut the report into chunks -->
+<!-- panel: show_chunking | cut the charter into chunks -->
