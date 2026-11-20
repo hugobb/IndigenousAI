@@ -252,7 +252,18 @@ def _project_2d(vectors: np.ndarray, extra: np.ndarray) -> tuple[np.ndarray, np.
 
 
 def draw_map(index: Index, question: str, best: list[tuple[float, str]]) -> None:
-    """Draw the chunks as dots, the question as a star, and lines to the closest chunks (shown as a PNG)."""
+    """Show the map of the chunks (see map_png) in the notebook."""
+    png = map_png(index, question, best)
+    try:
+        from IPython.display import Image, display
+
+        display(Image(data=png))
+    except ImportError:
+        print("(map drawn: run in a notebook to see it)")
+
+
+def map_png(index: Index, question: str, best: list[tuple[float, str]]) -> bytes:
+    """The chunks as dots, the question as a star, and lines to the closest chunks, as a PNG image."""
     import io
 
     from matplotlib.figure import Figure
@@ -277,12 +288,7 @@ def draw_map(index: Index, question: str, best: list[tuple[float, str]]) -> None
     fig.tight_layout()
     buffer = io.BytesIO()
     fig.savefig(buffer, format="png")
-    try:
-        from IPython.display import Image, display
-
-        display(Image(data=buffer.getvalue()))
-    except ImportError:
-        print("(map drawn: run in a notebook to see it)")
+    return buffer.getvalue()
 
 
 def _bare(text: str) -> list[str]:

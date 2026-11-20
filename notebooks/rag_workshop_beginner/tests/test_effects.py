@@ -70,3 +70,20 @@ def test_index_gives_the_same_ranking_as_plain_chunks():
 def test_names_quoted_in_the_text_are_in_the_programme():
     for name in QUOTED:
         assert name in c.PROGRAMME
+
+
+def test_demo_values_for_the_slides_are_fresh():
+    """demo_values.json (what the Part 3 slides show) matches the notebook today; rerun find_demo_values.py if not."""
+    import json
+    from pathlib import Path
+
+    import find_demo_values
+
+    saved = json.loads((Path(find_demo_values.__file__).parent / "demo_values.json").read_text(encoding="utf-8"))
+    answers = saved.pop("answers")
+    assert find_demo_values.minilm_values() == saved
+    assert set(answers) == {"Qwen/Qwen3-1.7B", "Qwen/Qwen3-0.6B"}
+    for model, a in answers.items():
+        assert a["question"] == c.QUESTION, model
+        assert c.NAME not in a["without_documents"] and c.NAME in a["with_documents"], model
+    assert (Path(find_demo_values.__file__).parent / saved["index"]["map"]).is_file()

@@ -1,32 +1,9 @@
 {
-  "article": {
+  "programme": {
     "title": "Future Imaginaries of Indigenous AI, workshop programme (Abundant Intelligences)",
     "url": "https://abundant-intelligences.net/ka-hawaii-pae-aina-pod/",
     "retrieved": "2026-11-20",
-    "license": "programme by the workshop organisers; lab, pod and speaker facts from abundant-intelligences.net (team, AIAI Lab and Ka Hawaiʻi Pae ʻĀina Pod pages), the speakers' own pages, and Wikipedia \"Solomon Enos\" (oldid 1379642239, CC BY-SA 4.0)",
-    "words": 1376,
-    "sections": [
-      "Introduction",
-      "About Abundant Intelligences",
-      "The Future Imaginaries workshops",
-      "Day 1: Thursday, November 19",
-      "Day 2: Friday, November 20",
-      "The Ka Hawaiʻi Pae ʻĀina Pod",
-      "The AIAI Lab",
-      "Speakers: Kari Noe",
-      "Speakers: Ceyda Yolgörmez",
-      "Speakers: Solomon Enos",
-      "Speakers: Kamuela Enos",
-      "Speakers: Suzanne Kite",
-      "Speakers: Manulani Aluli Meyer",
-      "Speakers: Melemaikalani Moniz",
-      "Speakers: Jason Edward Lewis",
-      "Speakers: Karim Jerbi",
-      "Speakers: Hugo Berard",
-      "Speakers: Hamza Abdelhedi",
-      "Speakers: Yorguin José Mantilla Ramos",
-      "Speakers: Purple Maiʻa"
-    ]
+    "words": 1376
   },
   "models": {
     "embeddings": "sentence-transformers/all-MiniLM-L6-v2",
@@ -59,115 +36,98 @@
       "score": 0.81
     }
   ],
-  "search_example": {
-    "question": "Who are the co-directors of the AIAI Lab?",
-    "passages": "the 20 sections",
+  "chunking": {
+    "size": 60,
+    "overlap": 10,
+    "chunks": 28,
+    "excerpt_words": 96,
+    "excerpt_chunks": 2
+  },
+  "index": {
+    "chunks": 28,
+    "dimensions": 384,
+    "map": "demo_map.png",
+    "sentence": "Who gives the introduction to machine learning?",
     "top3": [
       {
-        "passage": "The AIAI Lab",
-        "score": 0.68
+        "chunk": 9,
+        "score": 0.48,
+        "text": "am. Then Hugo Berard and Hamza Abdelhedi give the introduction to machine learning. Together the two sessions run 75 minutes, until noon. Lunch is from 12:00 to 1:00 pm. At 1:00 pm, participants start the 75-minute hands-on session, \"Running your own AI\". After a 15-minute break, Yorguin José Mantilla Ramos gives a 15-minute talk at 2:30 pm, \"Can we trust"
       },
       {
-        "passage": "Day 2: Friday, November 20",
-        "score": 0.45
+        "chunk": 2,
+        "score": 0.46,
+        "text": "the future that fit the needs and hopes of participants' communities, through a guided creation exercise, and to give a basic, hands-on introduction to machine learning. == About Abundant Intelligences == Abundant Intelligences develops AI methods grounded in Indigenous epistemologies, aimed at abundance rather than scarcity. The program works along three axes. The Integrations Axis brings Indigenous knowledge practices together"
       },
       {
-        "passage": "Speakers: Yorguin José Mantilla Ramos",
-        "score": 0.43
+        "chunk": 26,
+        "score": 0.42,
+        "text": "He holds an MSc in computer science (artificial intelligence) from the Université de Montréal and an engineering diploma in telecommunications from SUP'COM in Tunisia. He uses M/EEG recordings and computational models to study brain dynamics and to compare neural networks with human brain activity, and maintains open-source tools such as MNE-Denoise. === Yorguin José Mantilla Ramos === Yorguin José Mantilla"
       }
     ]
   },
-  "miss_example": {
+  "search": {
     "question": "Who gives the introduction to machine learning?",
     "answer": "Hugo Berard and Hamza Abdelhedi",
-    "answer_in": "Day 2: Friday, November 20",
     "top3": [
       {
-        "passage": "Introduction",
-        "score": 0.53
+        "chunk": 9,
+        "score": 0.48,
+        "text": "am. Then Hugo Berard and Hamza Abdelhedi give the introduction to machine learning. Together the two sessions run 75 minutes, until noon. Lunch is from 12:00 to 1:00 pm. At 1:00 pm, participants start the 75-minute hands-on session, \"Running your own AI\". After a 15-minute break, Yorguin José Mantilla Ramos gives a 15-minute talk at 2:30 pm, \"Can we trust"
       },
       {
-        "passage": "Speakers: Ceyda Yolgörmez",
-        "score": 0.41
+        "chunk": 2,
+        "score": 0.46,
+        "text": "the future that fit the needs and hopes of participants' communities, through a guided creation exercise, and to give a basic, hands-on introduction to machine learning. == About Abundant Intelligences == Abundant Intelligences develops AI methods grounded in Indigenous epistemologies, aimed at abundance rather than scarcity. The program works along three axes. The Integrations Axis brings Indigenous knowledge practices together"
       },
       {
-        "passage": "Day 2: Friday, November 20",
-        "score": 0.4
-      }
-    ]
-  },
-  "nonsense_example": {
-    "question": "What is the best pizza topping?",
-    "top3": [
-      {
-        "passage": "Speakers: Yorguin José Mantilla Ramos",
-        "score": 0.12
-      },
-      {
-        "passage": "Speakers: Purple Maiʻa",
-        "score": 0.07
-      },
-      {
-        "passage": "Speakers: Hamza Abdelhedi",
-        "score": 0.06
-      }
-    ]
-  },
-  "split_demo": {
-    "words_per_chunk": 50,
-    "overlap": 10,
-    "tiny_size": 5,
-    "chunks": 28,
-    "chunks_with_overlap": 35,
-    "referee_top1": {
-      "passage": "am. Then Hugo Berard and Hamza Abdelhedi give the introduction to machine learning. Together the two sessions run 75 minutes, until noon. Lunch is from 12:00 to 1:00 pm. At 1:00 pm, participants start the 75-minute hands-on session, \"Running your own AI\". After a 15-minute break, Yorguin José Mantilla Ramos",
-      "score": 0.53
-    },
-    "referee_top3_tiny": [
-      {
-        "passage": "to machine learning. Together the",
-        "score": 0.64
-      },
-      {
-        "passage": "computer science (artificial intelligence) from",
-        "score": 0.61
-      },
-      {
-        "passage": "machine learning models and social",
-        "score": 0.54
+        "chunk": 26,
+        "score": 0.42,
+        "text": "He holds an MSc in computer science (artificial intelligence) from the Université de Montréal and an engineering diploma in telecommunications from SUP'COM in Tunisia. He uses M/EEG recordings and computational models to study brain dynamics and to compare neural networks with human brain activity, and maintains open-source tools such as MNE-Denoise. === Yorguin José Mantilla Ramos === Yorguin José Mantilla"
       }
     ],
-    "referee_whole_article": 0.37,
-    "phrase": "Yorguin José Mantilla Ramos gives a 15-minute talk at 2:30 pm",
-    "cut": "\"Yorguin José Mantilla Ramos gives a 15-minute talk at 2:30 pm\" was cut in two, between chunk 9 and chunk 10.\nChunk 9 ends with: ...ion, \"Running your own AI\". After a 15-minute break, Yorguin José Mantilla Ramos\nChunk 10 starts with: gives a 15-minute talk at 2:30 pm, \"Can we trust AI?\". The hands-on workshop the...",
-    "with_overlap": "\"Yorguin José Mantilla Ramos gives a 15-minute talk at 2:30 pm\" is in chunk 12."
+    "try_size": 80,
+    "try_chunks": 20,
+    "try_top3": [
+      {
+        "chunk": 1,
+        "score": 0.47,
+        "text": "Future Imaginaries of Indigenous AI is a two-day workshop by Abundant Intelligences, held on November 19 and 20, 2026, at the Create(x) Labs of the University of Hawaiʻi – West Oʻahu. It is hosted by the Ka Hawaiʻi Pae ʻĀina Pod. The workshop has two goals: to imagine machines of the future that fit the needs and hopes of participants' ..."
+      },
+      {
+        "chunk": 2,
+        "score": 0.39,
+        "text": "basic, hands-on introduction to machine learning. == About Abundant Intelligences == Abundant Intelligences develops AI methods grounded in Indigenous epistemologies, aimed at abundance rather than scarcity. The program works along three axes. The Integrations Axis brings Indigenous knowledge practices together with the knowledge frameworks used by AI researchers. The Imaginaries Axis develops future imaginaries and speculative designs of Indigenous AI. ..."
+      },
+      {
+        "chunk": 19,
+        "score": 0.39,
+        "text": "the Université de Montréal and an engineering diploma in telecommunications from SUP'COM in Tunisia. He uses M/EEG recordings and computational models to study brain dynamics and to compare neural networks with human brain activity, and maintains open-source tools such as MNE-Denoise. === Yorguin José Mantilla Ramos === Yorguin José Mantilla Ramos is an electronics engineer and a member of the ..."
+      }
+    ]
   },
   "prompt_example": {
-    "question": "When does the hands-on session start?",
+    "question": "Who gives the introduction to machine learning?",
     "top": 3,
     "scores": [
       0.48,
-      0.47,
-      0.33
+      0.46,
+      0.42
     ],
-    "prompt": "Answer the question using the context below.\nIf the answer is not in the context, say \"I don't know based on these documents.\"\n\nContext:\n[1] am. Then Hugo Berard and Hamza Abdelhedi give the introduction to machine learning. Together the two sessions run 75 minutes, until noon. Lunch is from 12:00 to 1:00 pm. At 1:00 pm, participants start the 75-minute hands-on session, \"Running your own AI\". After a 15-minute break, Yorguin José Mantilla Ramos\n[2] Day 2: Friday, November 20 == The second day runs from 9:30 am to 4:00 pm in room D-141. It opens at 9:30 am with a 15-minute welcome. From 9:45 am to 10:30 am, the session \"Setting the parameters of future AIs\" covers existing philosophies, imaginaries and applications in the\n[3] existing ideas of how these technologies should develop. == Day 1: Thursday, November 19 == The first day runs from 1:00 pm to 4:45 pm in room G-129 of Create(x). It opens at 1:00 pm with a 15-minute welcome: Kari Noe, director of the Create(x) Lab, introduces the Hawaiʻi Pod,\n\nQuestion: When does the hands-on session start?\nAnswer:"
+    "prompt": "Answer the question using the context below.\nIf the answer is not in the context, say \"I don't know based on these documents.\"\n\nContext:\n[1] am. Then Hugo Berard and Hamza Abdelhedi give the introduction to machine learning. Together the two sessions run 75 minutes, until noon. Lunch is from 12:00 to 1:00 pm. At 1:00 pm, participants start the 75-minute hands-on session, \"Running your own AI\". After a 15-minute break, Yorguin José Mantilla Ramos gives a 15-minute talk at 2:30 pm, \"Can we trust\n[2] the future that fit the needs and hopes of participants' communities, through a guided creation exercise, and to give a basic, hands-on introduction to machine learning. == About Abundant Intelligences == Abundant Intelligences develops AI methods grounded in Indigenous epistemologies, aimed at abundance rather than scarcity. The program works along three axes. The Integrations Axis brings Indigenous knowledge practices together\n[3] He holds an MSc in computer science (artificial intelligence) from the Université de Montréal and an engineering diploma in telecommunications from SUP'COM in Tunisia. He uses M/EEG recordings and computational models to study brain dynamics and to compare neural networks with human brain activity, and maintains open-source tools such as MNE-Denoise. === Yorguin José Mantilla Ramos === Yorguin José Mantilla\n\nQuestion: Who gives the introduction to machine learning?\nAnswer:"
   },
   "answers": {
-    "Qwen/Qwen3-0.6B": {
-      "question_without_documents": "When does the hands-on session start at the Future Imaginaries of Indigenous AI workshop?",
-      "question_with_documents": "When does the hands-on session start?",
-      "device": "cpu, float32 (as on Colab without a GPU)",
-      "without_documents": "The hands-on session at the **Future Imaginaries of Indigenous AI workshop** typically starts **at 9:00 AM**. This is a standard time for such workshops to begin. Let me know if you'd like more details about the session!",
-      "with_documents": "The hands-on session starts at 1:00 pm.",
-      "teachers_without_documents": "The introduction to machine learning at the **Future Imaginaries of Indigenous AI workshop** is typically given by **Dr. Amina M. M. M.** (or her name, if different). She is a prominent figure in Indigenous AI research and has contributed significantly to the field."
-    },
     "Qwen/Qwen3-1.7B": {
-      "question_without_documents": "When does the hands-on session start at the Future Imaginaries of Indigenous AI workshop?",
-      "question_with_documents": "When does the hands-on session start?",
-      "device": "cpu, bfloat16 (Colab's GPU runs float32, so its wording can differ)",
-      "without_documents": "The **Future Imaginaries of Indigenous AI** workshop does not specify a particular start time in the provided information. However, based on typical workshop structures, the hands-on session is usually **scheduled for a specific time slot** during the event, often in the afternoon or evening, depending on the venue and the organizers' schedule.\n\nIf you are referring to a specific event or year, please provide more details (e.g., date, location, or organizer), and I can give you a more precise answer.",
-      "with_documents": "The hands-on session \"Running your own AI\" starts at 1:00 pm.",
-      "teachers_without_documents": "The **Future Imaginaries of Indigenous AI** workshop is a collaborative, interdisciplinary event that brings together researchers, practitioners, and Indigenous knowledge holders to explore the future of artificial intelligence, with a focus on Indigenous perspectives, practices, and technologies.\n\n### Who gives the introduction to machine learning at the workshop?\n\nThe **introduction to machine learning** at the **Future Imaginaries of Indigenous AI** workshop is typically given by **Dr. Anika M. S. S. (Anika) S.** or **Dr. Anika S.** (a name that may vary depending on the specific year or edition of the workshop). \n\nThis introduction is often part of a broader session on **Indigenous AI and Machine Learning**, and it is designed to introduce participants to the foundational concepts of machine learning while emphasizing the importance of **Indigenous knowledge, ethics, and methodologies**.\n\n### Key Points:\n- The introduction is usually part of a **session on Indigenous AI and Machine Learning**.\n-"
+      "question": "Who gives the introduction to machine learning?",
+      "device": "cpu, bfloat16",
+      "without_documents": "The introduction to **machine learning** is typically given by **data scientists**, **AI researchers**, or **educators** in academic or professional settings. Here's a general overview of what an introduction to machine learning covers:\n\n---\n\n### **What is Machine Learning?**\nMachine learning is a subset of artificial intelligence (AI) that focuses on building systems that can learn from data without being explicitly programmed. It involves algorithms that can improve their performance over time as they are exposed to more data.\n\n---\n\n### **Key Concepts in Machine Learning**\n1. **Supervised Learning**:\n   - Training models using labeled data (input-output pairs).\n   - Examples: Classification (e.g., spam detection), Regression (e.g., predicting house prices).\n\n2. **Unsupervised Learning**:\n   - Training models using unlabeled data.\n   - Examples: Clustering (e.g., customer segmentation), Dimensionality reduction (e.g., PCA).\n\n3. **Reinforcement Learning**:\n   - Training models",
+      "with_documents": "Hugo Berard and Hamza Abdelhedi give the introduction to machine learning."
+    },
+    "Qwen/Qwen3-0.6B": {
+      "question": "Who gives the introduction to machine learning?",
+      "device": "cpu, float32",
+      "without_documents": "The introduction to machine learning is typically given by a professor or a specialist in the field. It is often part of a course or lecture series that covers the fundamentals of machine learning. The specific person who gives the introduction can vary depending on the institution, course, or instructor.",
+      "with_documents": "Hugo Berard."
     }
   }
 }
