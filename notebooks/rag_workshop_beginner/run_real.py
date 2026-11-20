@@ -5,7 +5,6 @@
 
 After each cell whose step asks for a change ("Change 50 to 5", "Change top=1 to top=3", ...), the same
 cell with that change is run too, marked "# CHANGED", so every output a participant can see gets read.
-The bonus upload cell needs a browser, so it is replaced by `my_text = PROGRAMME`.
 Without a GPU, Qwen3-0.6B runs in float32, as on Colab without a GPU; Qwen3-1.7B runs in bfloat16 on
 the CPU (Colab's GPU runs it in float32).
 """
@@ -20,42 +19,15 @@ from nbclient import NotebookClient
 import build_notebook
 import content as c
 
-UPLOAD_STAND_IN = "my_text = PROGRAMME  # stand-in for the upload, which needs a browser"
-
 # After the cell whose source contains the key, run these changed copies (what the steps ask for).
-CHANGES = {
-    f'ask("{c.NO_DOC_QUESTION}")': [f'ask("{c.TEACHERS_QUESTION}")'],
-    f'search("{c.MISS_QUESTION}", chunks)': [
-        f'chunks = split(PROGRAMME, words_per_chunk={c.TINY_SIZE})\nsearch("{c.MISS_QUESTION}", chunks)',
-        f'chunks = split(PROGRAMME, words_per_chunk=0)\nsearch("{c.MISS_QUESTION}", chunks)',
-    ],
-    f"overlap={c.DEMO_OVERLAP})\nwhere_is(": [
-        f'chunks = split(PROGRAMME, words_per_chunk={c.DEMO_SIZE}, overlap=0)\nwhere_is(chunks, "{c.CUT_PHRASE}")'
-    ],
-    "top=1)": [
-        f'chunks = split(PROGRAMME, words_per_chunk={c.DEMO_SIZE}, overlap={c.DEMO_OVERLAP})\n'
-        f'ask_with_documents("{c.TOP1_VS_TOP3_QUESTION}", chunks, top=3)'
-    ],
-    "say_dont_know=True)": [
-        f'chunks = split(PROGRAMME, words_per_chunk={c.DEMO_SIZE}, overlap={c.DEMO_OVERLAP})\n'
-        f'ask_with_documents("{c.OUT_OF_DOC_QUESTION}", chunks, say_dont_know=False)'
-    ],
-    f'ask_with_documents("{c.SPLIT_QUESTION}", chunks)': [
-        f'chunks = split(PROGRAMME, words_per_chunk={c.DEMO_SIZE}, overlap=0)\nask_with_documents("{c.SPLIT_QUESTION}", chunks)'
-    ],
+CHANGES = {  # step 2 asks to re-chunk at TRY_SIZE and search again (kept apart, so step 3 uses the defaults)
+    "search(question": [f"other_chunks = split(PROGRAMME, {c.TRY_SIZE}, {c.OVERLAP})\nsearch(question, other_chunks, top=3)"],
 }
-
-
-def is_upload(cell) -> bool:
-    return cell.cell_type == "code" and cell.source.startswith("from google.colab import files")
 
 
 def with_changes(nb: nbformat.NotebookNode) -> nbformat.NotebookNode:
     cells = []
     for cell in nb.cells:
-        if is_upload(cell):
-            cells.append(nbformat.v4.new_code_cell(UPLOAD_STAND_IN))
-            continue
         cells.append(cell)
         if cell.cell_type == "code" and not cell.source.startswith("#@title"):
             for key, changed in CHANGES.items():

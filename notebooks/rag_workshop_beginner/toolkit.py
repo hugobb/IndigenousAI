@@ -1,5 +1,6 @@
 """The workshop's machinery: chunking, similarity, search, prompts and the two AI models."""
 
+import html
 import os
 import re
 from collections.abc import Iterator
@@ -182,6 +183,36 @@ def show_passages(passages: list[str]) -> None:
     print()
 
 
+COLOURS = ["#cfe2ff", "#ffe0b3", "#d4f0d4", "#f3d1f0"]  # light blue, orange, green, pink
+
+
+def show_chunking(text: str, size: int, overlap: int) -> None:
+    """Draw how `text` is cut: one colour per chunk; words also in the chunk before are underlined in its colour."""
+    chunks = chunk_overlap(text, size, overlap) if size > 0 else [text]
+    words = text.split()
+    overlap = max(0, min(overlap, size - 1)) if size > 0 else 0
+    step = size - overlap if size > 0 else len(words)
+    spans = []
+    for i, word in enumerate(words):
+        n = min(i // step, len(chunks) - 1)  # the last chunk that holds this word
+        style = f"background:{COLOURS[n % len(COLOURS)]};color:#000;padding:1px 0"
+        if n > 0 and i < (n - 1) * step + size:  # also in the chunk before: overlap
+            style += f";box-shadow:inset 0 -4px 0 {COLOURS[(n - 1) % len(COLOURS)]};font-weight:bold"
+        start = f'<sup style="color:#555">{n + 1}</sup>' if i == n * step else ""
+        spans.append(f'{start}<span style="{style}">{html.escape(word)}</span>')
+    head = f"Cut into {len(chunks)} {'chunk' if len(chunks) == 1 else 'chunks'} of {size} words, overlap {overlap}."
+    note = " Bold underlined words are in two chunks." if overlap else ""
+    body = f'<p>{head}{note}</p><p style="line-height:2">{" ".join(spans)}</p>'
+    try:
+        from IPython.display import HTML, display
+
+        display(HTML(body))
+    except ImportError:
+        print(head)
+        for n, chunk in enumerate(chunks, start=1):
+            print(f"{n}. {chunk}")
+
+
 def _bare(text: str) -> list[str]:
     """The words of a text, without the punctuation around them ("foot." and "foot" match)."""
     return [word.strip(".,;:!?\"'()“”‘’") for word in text.split()]
@@ -326,12 +357,12 @@ def chunk_overlap(text: str, size: int, overlap: int) -> list[str]:
     return chunks
 
 
-def split(document: str, words_per_chunk: int = 60, overlap: int = 0) -> list[str]:
-    """Cut a document into chunks of words. 0 words means one chunk for everything."""
-    if words_per_chunk <= 0:
+def split(document: str, size: int = 60, overlap: int = 0) -> list[str]:
+    """Cut a document into chunks of `size` words. 0 words means one chunk for everything."""
+    if size <= 0:
         chunks = [document.strip()] if document.strip() else []
     else:
-        chunks = chunk_overlap(document, words_per_chunk, max(0, overlap))
+        chunks = chunk_overlap(document, size, max(0, overlap))
     print(f"Cut into {len(chunks)} {'chunk' if len(chunks) == 1 else 'chunks'}.")
     return chunks
 

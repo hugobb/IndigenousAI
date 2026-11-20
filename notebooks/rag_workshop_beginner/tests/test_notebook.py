@@ -13,7 +13,7 @@ import content as c
 
 HERE = Path(build_notebook.__file__).parent
 NOTEBOOK = Path(build_notebook.OUTPUT)
-SECTIONS = ["0.", "1.", "2.", "3.", "4.", "5.", "6.", "Bonus"]
+SECTIONS = ["Setup", "1.", "2.", "3."]
 # Bold in a numbered step must be something the participant can find on screen.
 ON_SCREEN = {
     "Setup", "Run anyway", "✅ Ready", "Save a copy in Drive",
@@ -21,7 +21,6 @@ ON_SCREEN = {
     "Choose Files", "Browse",
 }
 BANNED = ["Think of it as", "What if", "What you'll see", "What to notice", "Imagine", "Let's dive", "delve"]
-UPLOAD_STAND_IN = "my_text = PROGRAMME  # stand-in for the upload, which needs a browser"
 
 
 @pytest.fixture(scope="module")
@@ -63,13 +62,7 @@ def markdown(cells) -> str:
     return "\n".join(cell.source for cell in cells if cell.cell_type == "markdown")
 
 
-def is_upload(cell) -> bool:
-    """The bonus cell that opens Colab's file picker (it needs a browser)."""
-    return cell.cell_type == "code" and cell.source.startswith("from google.colab import files")
-
-
 def run(nb, cells):
-    cells = [nbformat.v4.new_code_cell(UPLOAD_STAND_IN) if is_upload(cell) else cell for cell in cells]
     trimmed = nbformat.v4.new_notebook(metadata=nb.metadata, cells=cells)
     os.environ["RAG_WORKSHOP_FAKE_LLM"] = "1"
     NotebookClient(trimmed, timeout=600, kernel_name="python3", allow_errors=True,
@@ -82,7 +75,8 @@ def errors(cells):
 
 
 def text_of(cell) -> str:
-    return "".join(o.get("text", "") for o in cell.outputs)
+    """Printed text, plus the HTML of displayed output (the chunk drawing)."""
+    return "".join(o.get("text", "") or o.get("data", {}).get("text/html", "") for o in cell.outputs)
 
 
 def output_of(done, snippet: str) -> str:
@@ -110,13 +104,13 @@ def shown_code(cells):
     return [cell for cell in code_cells(cells) if cell.source.startswith("#@title 🔍 Code:")]
 
 
-def test_sections_1_to_5_each_show_their_code(nb):
+def test_sections_1_to_3_each_show_their_code(nb):
     import ast
 
     import toolkit
 
-    expected = {"1.": {"ask"}, "2.": {"embed", "cosine", "score", "similarity"}, "3.": {"top_passages", "search"},
-                "4.": {"chunk_overlap", "split"}, "5.": {"build_prompt", "ask_with_documents"}}
+    expected = {"1.": {"chunk_overlap", "split"}, "2.": {"embed", "cosine", "top_passages", "search"},
+                "3.": {"ask", "build_prompt", "ask_with_documents"}}
     for name, cells in by_section(nb).items():
         shown = shown_code(cells)
         assert len(shown) == (1 if name in expected else 0), name
@@ -203,9 +197,15 @@ def test_no_old_documents(nb):
 
 
 def test_says_the_document_is_the_workshop_programme(nb):
-    text = markdown(visible(nb))
-    assert "the programme of this workshop" in text
-    assert "The programme does not give the Wi-Fi password." in text
+    assert "the programme of this workshop" in markdown(visible(nb))
+
+
+def test_few_cells(nb):
+    """Straight to the point: one code cell per step, plus Setup and the collapsed Code cells."""
+    for name, cells in by_section(nb).items():
+        runnable = [cell for cell in code_cells(cells) if cell not in shown_code(cells)]
+        assert len(runnable) == 1, name
+    assert len(nb.cells) <= 13
 
 
 # ---------------------------------------------------------------- copy rules
@@ -259,31 +259,22 @@ def test_executes_headless(done):
     for notice in ("Warning", "NOTE:"):  # tqdm's "IProgress not found", torch's macOS "NOTE: Redirects..."
         assert notice not in text_of(setup_of(done)), notice
     for cell in code_cells(done.cells):
-        if cell.source != UPLOAD_STAND_IN and cell not in shown_code(done.cells):
+        if cell not in shown_code(done.cells):
             assert text_of(cell).strip(), cell.source  # every cell shows something
 
 
 def test_cells_show_the_promised_results(done):
-    hit = output_of(done, c.HIT_QUESTION).splitlines()
-    assert hit[0].startswith("1. ") and c.HIT_SECTION in hit[0]
-    missed = output_of(done, f'search("{c.MISS_QUESTION}", passages)').splitlines()
-    assert c.MISS_SECTION not in missed[0]  # "Which section comes first?" Not the one with the answer.
-    nonsense = output_of(done, c.NONSENSE_QUESTION)
-    assert all(float(line.split()[1]) < 0.3 for line in nonsense.splitlines())
-    found = output_of(done, f'search("{c.MISS_QUESTION}", chunks)').splitlines()
-    assert found[0].startswith("Cut into ")
-    assert c.MISS_ANSWER in found[1]  # the name is in the first result, on screen
-    cut = output_of(done, f"words_per_chunk={c.DEMO_SIZE})\nwhere_is(")
-    assert "was cut in two" in cut
-    restored = output_of(done, f"overlap={c.DEMO_OVERLAP})\nwhere_is(")
-    assert "is in chunk" in restored and "cut" not in restored
-    top1 = output_of(done, "top=1)")
-    assert top1.count("\n1. ") == 1 and "\n2. " not in top1
+    drawing = output_of(done, "show_chunking(")
+    assert f"of {c.SIZE} words, overlap {c.OVERLAP}." in drawing and "background:" in drawing
+    assert "Bold underlined words are in two chunks." in drawing
+    found = output_of(done, "search(question").splitlines()
+    assert found[0].startswith("1. ") and c.ANSWER in found[0]  # the answer is in the first chunk
+    answers = output_of(done, "ask_with_documents(question")
+    assert answers.startswith("Answer:") and "Passages sent to the AI:" in answers
 
 
-@pytest.mark.parametrize("section", SECTIONS)
-def test_section_alone_after_setup(nb, section):
-    setup = setup_of(nb)
-    cells = [setup] + [cell for cell in code_cells(by_section(nb)[section]) if cell is not setup]
-    done = run(nb, cells)  # section 0's only code cell is the Setup cell itself
-    assert errors(done.cells) == []
+def test_sections_run_in_order_after_setup(nb):
+    """Each step uses what the step before made (chunks, question): run them in order, nothing else."""
+    sections = by_section(nb)
+    cells = [cell for name in SECTIONS for cell in code_cells(sections[name]) if cell not in shown_code(sections[name])]
+    assert errors(run(nb, cells).cells) == []

@@ -21,7 +21,6 @@ import toolkit
 from toolkit import FakeGenerator, MiniLMEmbedder, Models, QwenGenerator, ask, ask_with_documents, build_prompt, split, status_line
 
 ANSWER_MODELS = {"1.7B": "Qwen/Qwen3-1.7B", "0.6B": "Qwen/Qwen3-0.6B"}
-DONT_KNOW = "don't know"
 
 
 def test_fake_generator_streams():
@@ -62,58 +61,23 @@ def answer(capsys, helper, *args, **kwargs) -> str:
     return out.split("Answer:\n", 1)[1].strip()
 
 
-def chunks(overlap: int = c.DEMO_OVERLAP) -> list[str]:
-    return split(c.PROGRAMME, c.DEMO_SIZE, overlap=overlap)
+def chunks(size: int = c.SIZE) -> list[str]:
+    return split(c.PROGRAMME, size, c.OVERLAP)
 
 
-# ---------------------------------------------------------------- 1. the AI alone
+# ---------------------------------------------------------------- 3. generation: alone, then with the chunks
 @pytest.mark.llm
-def test_bare_model_does_not_know_the_teachers(models, capsys):
-    assert plain(c.TEACHER) not in plain(answer(capsys, ask, c.TEACHERS_QUESTION))
-
-
-@pytest.mark.llm
-def test_bare_model_does_not_know_the_answer(models, capsys):
-    assert plain(c.NO_DOC_ANSWER) not in plain(answer(capsys, ask, c.NO_DOC_QUESTION))
-
-
-# ---------------------------------------------------------------- 5. answering
-@pytest.mark.llm
-def test_with_documents_answers(models, capsys):
-    assert plain(c.NO_DOC_ANSWER) in plain(answer(capsys, ask_with_documents, c.WITH_DOC_QUESTION, chunks()))
+def test_bare_model_does_not_know(models, capsys):
+    assert plain(c.NAME) not in plain(answer(capsys, ask, c.QUESTION))
 
 
 @pytest.mark.llm
-def test_top1_misses_top3_finds(models, capsys):
-    one = answer(capsys, ask_with_documents, c.TOP1_VS_TOP3_QUESTION, chunks(), top=1)
-    three = answer(capsys, ask_with_documents, c.TOP1_VS_TOP3_QUESTION, chunks(), top=3)
-    assert plain(c.TOP1_VS_TOP3_ANSWER) not in plain(one)
-    assert plain(c.TOP1_VS_TOP3_ANSWER) in plain(three)
-
-
-@pytest.mark.llm
-def test_out_of_doc_says_dont_know(models, capsys):
-    told = answer(capsys, ask_with_documents, c.OUT_OF_DOC_QUESTION, chunks(), say_dont_know=True)
-    untold = answer(capsys, ask_with_documents, c.OUT_OF_DOC_QUESTION, chunks(), say_dont_know=False)
-    assert DONT_KNOW in plain(told)
-    assert DONT_KNOW not in plain(untold)  # "Compare the two answers": they differ
-
-
-@pytest.mark.llm
-def test_overlap_restores_the_answer(models, capsys):
-    whole = answer(capsys, ask_with_documents, c.SPLIT_QUESTION, chunks())
-    cut = answer(capsys, ask_with_documents, c.SPLIT_QUESTION, chunks(overlap=0))
-    assert plain(c.SPLIT_ANSWER) in plain(whole)
-    assert plain(c.SPLIT_ANSWER) not in plain(cut)  # the chunks sent no longer hold the reason
-
-
-@pytest.mark.llm
-def test_wrap_up_question_answers(models, capsys):
-    assert plain(c.WRAP_UP_ANSWER) in plain(answer(capsys, ask_with_documents, c.WRAP_UP_QUESTION, chunks()))
+def test_with_documents_answers(models, capsys):
+    assert plain(c.NAME) in plain(answer(capsys, ask_with_documents, c.QUESTION, chunks()))
 
 
 @pytest.mark.llm
 def test_greedy_repeatable(models):
-    prompt = build_prompt(c.WITH_DOC_QUESTION, chunks()[:3], allow_unknown=True)
+    prompt = build_prompt(c.QUESTION, chunks()[:3], allow_unknown=True)
     first, second = ("".join(toolkit.MODELS.generator.generate(prompt)) for _ in range(2))
     assert first == second
