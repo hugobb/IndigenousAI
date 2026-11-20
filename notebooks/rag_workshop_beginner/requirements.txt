@@ -7,3 +7,4 @@ pytest
 nbformat
 nbclient
 ipykernel
+matplotlib

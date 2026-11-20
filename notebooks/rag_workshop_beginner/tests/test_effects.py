@@ -57,6 +57,16 @@ def test_answer_leaves_the_top_3_at_try_size():
     assert rank_of_answer(c.TRY_SIZE, c.OVERLAP) is None
 
 
+def test_index_gives_the_same_ranking_as_plain_chunks():
+    """Step 3 searches the index built in step 2: same scores as embedding the chunks on the spot."""
+    chunks = chunk_overlap(c.PROGRAMME, c.SIZE, c.OVERLAP)
+    index = toolkit.build_index(chunks)
+    plain = top_passages(c.QUESTION, chunks, 3)
+    indexed = top_passages(c.QUESTION, index, 3)
+    assert [p for _, p in plain] == [p for _, p in indexed]
+    assert [round(s, 4) for s, _ in plain] == [round(s, 4) for s, _ in indexed]
+
+
 def test_names_quoted_in_the_text_are_in_the_programme():
     for name in QUOTED:
         assert name in c.PROGRAMME

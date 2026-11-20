@@ -13,7 +13,7 @@ import content as c
 
 HERE = Path(build_notebook.__file__).parent
 NOTEBOOK = Path(build_notebook.OUTPUT)
-SECTIONS = ["Setup", "1.", "2.", "3."]
+SECTIONS = ["Setup", "1.", "2.", "3.", "4."]
 # Bold in a numbered step must be something the participant can find on screen.
 ON_SCREEN = {
     "Setup", "Run anyway", "✅ Ready", "Save a copy in Drive",
@@ -79,6 +79,11 @@ def text_of(cell) -> str:
     return "".join(o.get("text", "") or o.get("data", {}).get("text/html", "") for o in cell.outputs)
 
 
+def done_cell(done, snippet: str):
+    (cell,) = [cell for cell in code_cells(done.cells) if snippet in cell.source and not cell.source.startswith("#@title")]
+    return cell
+
+
 def output_of(done, snippet: str) -> str:
     (cell,) = [cell for cell in code_cells(done.cells) if snippet in cell.source and not cell.source.startswith("#@title")]
     return text_of(cell)
@@ -104,13 +109,13 @@ def shown_code(cells):
     return [cell for cell in code_cells(cells) if cell.source.startswith("#@title 🔍 Code:")]
 
 
-def test_sections_1_to_3_each_show_their_code(nb):
+def test_sections_1_to_4_each_show_their_code(nb):
     import ast
 
     import toolkit
 
-    expected = {"1.": {"chunk_overlap", "split"}, "2.": {"embed", "cosine", "top_passages", "search"},
-                "3.": {"ask", "build_prompt", "ask_with_documents"}}
+    expected = {"1.": {"chunk_overlap", "split"}, "2.": {"embed", "build_index", "show_map"},
+                "3.": {"cosine", "top_passages", "search"}, "4.": {"ask", "build_prompt", "ask_with_documents"}}
     for name, cells in by_section(nb).items():
         shown = shown_code(cells)
         assert len(shown) == (1 if name in expected else 0), name
@@ -205,7 +210,7 @@ def test_few_cells(nb):
     for name, cells in by_section(nb).items():
         runnable = [cell for cell in code_cells(cells) if cell not in shown_code(cells)]
         assert len(runnable) == 1, name
-    assert len(nb.cells) <= 13
+    assert len(nb.cells) <= 17
 
 
 # ---------------------------------------------------------------- copy rules
@@ -267,6 +272,10 @@ def test_cells_show_the_promised_results(done):
     drawing = output_of(done, "show_chunking(")
     assert f"of {c.SIZE} words, overlap {c.OVERLAP}." in drawing and "background:" in drawing
     assert "Striped words are in two chunks." in drawing and "repeating-linear-gradient" in drawing
+    mapped = done_cell(done, "show_map(index")
+    assert any("image/png" in o.get("data", {}) for o in mapped.outputs)  # the map
+    listed = text_of(mapped).splitlines()
+    assert listed[0].startswith("Indexed ") and listed[1].startswith("#1  chunk ") and c.ANSWER in listed[1]
     found = output_of(done, "search(question").splitlines()
     assert found[0].startswith("1. ") and c.ANSWER in found[0]  # the answer is in the first chunk
     answers = output_of(done, "ask_with_documents(question")

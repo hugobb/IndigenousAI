@@ -227,6 +227,64 @@ def show_chunking(text: str, size: int, overlap: int) -> None:
             print(f"{n}. {chunk}")
 
 
+@dataclass
+class Index:
+    """The chunks and their embeddings, computed once (step 2), so search does not recompute them."""
+
+    chunks: list[str]
+    vectors: np.ndarray
+
+
+MAP_COLOURS = ["#1f6fd1", "#e07b00", "#2a9d3a"]  # the 3 closest chunks: blue, orange, green
+
+
+def _project_2d(vectors: np.ndarray, extra: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Squash the chunk embeddings to 2 numbers each (PCA), and put `extra` (the question) on the same map."""
+    mean = vectors.mean(axis=0)
+    centred = vectors - mean
+    if len(vectors) < 2:
+        return np.zeros((len(vectors), 2)), np.zeros(2)
+    _, _, axes = np.linalg.svd(centred, full_matrices=False)
+    axes = axes[:2]
+    if len(axes) < 2:
+        axes = np.vstack([axes, np.zeros_like(axes[0])])
+    return centred @ axes.T, (extra - mean) @ axes.T
+
+
+def draw_map(index: Index, question: str, best: list[tuple[float, str]]) -> None:
+    """Draw the chunks as dots, the question as a star, and lines to the closest chunks (shown as a PNG)."""
+    import io
+
+    from matplotlib.figure import Figure
+
+    points, star = _project_2d(np.asarray(index.vectors, dtype=float), np.asarray(embed([question])[0], dtype=float))
+    fig = Figure(figsize=(7.5, 5.2), dpi=110)
+    ax = fig.subplots()
+    ax.scatter(points[:, 0], points[:, 1], s=60, color="#c8c8c8", edgecolor="#888", zorder=2)
+    for n, (x, y) in enumerate(points, start=1):
+        ax.annotate(str(n), (x, y), textcoords="offset points", xytext=(5, 4), fontsize=8, color="#666")
+    for rank, (score, chunk) in enumerate(best):
+        n = index.chunks.index(chunk)
+        x, y = points[n]
+        colour = MAP_COLOURS[rank % len(MAP_COLOURS)]
+        ax.plot([star[0], x], [star[1], y], color=colour, linewidth=1.5, zorder=1)
+        ax.scatter([x], [y], s=140, color=colour, edgecolor="black", zorder=3, label=f"#{rank + 1}: chunk {n + 1} ({score:.2f})")
+    ax.scatter([star[0]], [star[1]], s=380, marker="*", color="#d62728", edgecolor="black", zorder=4, label="your sentence")
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_title(f"The {len(index.chunks)} chunks on a map: close dots have close meanings", fontsize=11)
+    ax.legend(loc="best", fontsize=8, framealpha=0.9)
+    fig.tight_layout()
+    buffer = io.BytesIO()
+    fig.savefig(buffer, format="png")
+    try:
+        from IPython.display import Image, display
+
+        display(Image(data=buffer.getvalue()))
+    except ImportError:
+        print("(map drawn: run in a notebook to see it)")
+
+
 def _bare(text: str) -> list[str]:
     """The words of a text, without the punctuation around them ("foot." and "foot" match)."""
     return [word.strip(".,;:!?\"'()“”‘’") for word in text.split()]
@@ -298,7 +356,7 @@ def sections(document: str) -> list[str]:
 # ---------------------------------------------------------------- shown in the notebook, one section at a time
 # Each function below is also shown, as it is here, in a collapsed "Code" cell of its section.
 
-# Section 1
+# Step 4 (with build_prompt and ask_with_documents below)
 def ask(question: str) -> None:
     """Ask the AI model alone: no documents, only what it learned during its training."""
     if not ready():
@@ -307,7 +365,7 @@ def ask(question: str) -> None:
     write_answer(question)  # the question is sent as it is, with nothing added
 
 
-# Section 2
+# Step 2
 def embed(texts: list[str]) -> np.ndarray:
     """Turn each text into an embedding: a list of 384 numbers that captures its meaning."""
     return MODELS.embedder.embed(texts)
@@ -335,21 +393,42 @@ def similarity(a: str, b: str) -> None:
     print(f"Similarity: {score(a, b):.2f}")
 
 
-# Section 3
-def top_passages(question: str, passages: list[str], top: int = 3) -> list[tuple[float, str]]:
-    """The `top` passages closest in meaning to the question, best first, as (score, passage)."""
-    if not passages:
+def build_index(chunks: list[str]) -> Index | None:
+    """Indexing: compute the embedding of every chunk once, and keep it next to its chunk."""
+    if not ready():
+        return None
+    index = Index(list(chunks), embed(list(chunks)))
+    print(f"Indexed {len(index.chunks)} chunks: one list of {index.vectors.shape[1]} numbers per chunk.")
+    return index
+
+
+def show_map(index: Index, sentence: str, top: int = 3) -> None:
+    """Draw every chunk on a map, put the sentence on it, and list the `top` closest chunks."""
+    if not ready() or index is None:
+        return
+    best = top_passages(sentence, index, top)
+    draw_map(index, sentence, best)
+    for rank, (score, chunk) in enumerate(best, start=1):
+        print(f"#{rank}  chunk {index.chunks.index(chunk) + 1}  score {score:.2f}  {_short(chunk)}")
+
+
+# Step 3
+def top_passages(question: str, index: Index | list[str], top: int = 3) -> list[tuple[float, str]]:
+    """The `top` chunks closest in meaning to the question, best first, as (score, chunk)."""
+    if not isinstance(index, Index):  # plain chunks, not indexed yet: embed them now
+        index = Index(list(index), embed(list(index)) if index else np.zeros((0, 384)))
+    if not index.chunks:
         return []
-    # 1. Embed the question and every passage (one call, so it is fast).
-    question_numbers, *passage_numbers = embed([question] + list(passages))
-    # 2. Score every passage against the question.
-    scored = [(cosine(question_numbers, numbers), passage) for numbers, passage in zip(passage_numbers, passages)]
+    # 1. Embed the question (the chunks were embedded once, when the index was built).
+    question_numbers = embed([question])[0]
+    # 2. Score every chunk against the question.
+    scored = [(cosine(question_numbers, numbers), chunk) for numbers, chunk in zip(index.vectors, index.chunks)]
     # 3. Sort from the highest score to the lowest, and keep the first `top`.
     scored.sort(key=lambda pair: pair[0], reverse=True)
     return scored[:top]
 
 
-def search(question: str, passages: list[str], top: int = 3) -> None:
+def search(question: str, passages: Index | list[str], top: int = 3) -> None:
     """Print the passages closest to the question: rank, score, start of the text."""
     if not ready():
         return
@@ -357,7 +436,7 @@ def search(question: str, passages: list[str], top: int = 3) -> None:
         print(f"{n}. {s:.2f}  {_short(passage)}")
 
 
-# Section 4
+# Step 1
 def chunk_overlap(text: str, size: int, overlap: int) -> list[str]:
     """Cut text into pieces of `size` words; each piece repeats the last `overlap` words of the one before."""
     overlap = max(0, min(overlap, size - 1))  # an overlap as long as the chunk would never move forward
@@ -381,7 +460,7 @@ def split(document: str, size: int = 60, overlap: int = 0) -> list[str]:
     return chunks
 
 
-# Section 5
+# Step 4
 def build_prompt(question: str, contexts: list[str], allow_unknown: bool) -> str:
     """The exact text sent to the model: instructions, the retrieved passages, the question."""
     lines = ["Answer the question using the context below."]
@@ -393,7 +472,7 @@ def build_prompt(question: str, contexts: list[str], allow_unknown: bool) -> str
     return "\n".join(lines)
 
 
-def ask_with_documents(question: str, passages: list[str], top: int = 3, say_dont_know: bool = True) -> None:
+def ask_with_documents(question: str, passages: Index | list[str], top: int = 3, say_dont_know: bool = True) -> None:
     """RAG: find the passages closest to the question, then let the AI answer from them."""
     if not ready():
         return

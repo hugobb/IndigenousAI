@@ -1,14 +1,14 @@
-## 3. Generation
+## 4. Generation
 
 The AI writes the answer: first alone, then with the 3 chunks that search found pasted above the question.
 
 **Do this:**
 1. Run the cell and compare the two answers.
-2. Change the question in step 2, or the chunking in step 1, and run the cells again.
+2. Change the question in step 3, or the chunking in step 1, and run the cells again from there.
 
 ```python
 ask(question)
-ask_with_documents(question, chunks, top=3)
+ask_with_documents(question, index, top=3)
 ```
 
 ```show

@@ -1,8 +1,8 @@
-# RAG in 3 steps: chunking, retrieval, generation
+# RAG in 4 steps: chunking, indexing, retrieval, generation
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/hugobb/IndigenousAI/blob/main/notebooks/rag_workshop_beginner.ipynb)
 
-RAG (Retrieval-Augmented Generation) lets an AI look things up before it answers. It cuts a document into chunks, finds the chunks closest to your question, and writes its answer from them. Here the document is the programme of this workshop, which the AI has never read.
+RAG (Retrieval-Augmented Generation) lets an AI look things up before it answers. It cuts a document into chunks, indexes them, finds the chunks closest to your question, and writes its answer from them. Here the document is the programme of this workshop, which the AI has never read.
 
 ## Setup
 
