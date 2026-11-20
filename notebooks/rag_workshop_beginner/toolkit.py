@@ -183,26 +183,40 @@ def show_passages(passages: list[str]) -> None:
     print()
 
 
-COLOURS = ["#cfe2ff", "#ffe0b3", "#d4f0d4", "#f3d1f0"]  # light blue, orange, green, pink
+COLOURS = ["#a8cbff", "#ffc979", "#a9e3a9", "#eeb0e8"]  # blue, orange, green, pink: light enough for black text
 
 
 def show_chunking(text: str, size: int, overlap: int) -> None:
-    """Draw how `text` is cut: one colour per chunk; words also in the chunk before are underlined in its colour."""
+    """Draw how `text` is cut: each chunk is one coloured block; where two chunks overlap, the words get
+    both colours, in stripes."""
     chunks = chunk_overlap(text, size, overlap) if size > 0 else [text]
     words = text.split()
     overlap = max(0, min(overlap, size - 1)) if size > 0 else 0
     step = size - overlap if size > 0 else len(words)
-    spans = []
+    # Group the words into runs: a run is in one chunk only, or in two (an overlap).
+    runs: list[tuple[int, bool, list[str]]] = []  # (chunk, in the chunk before too?, words)
     for i, word in enumerate(words):
         n = min(i // step, len(chunks) - 1)  # the last chunk that holds this word
-        style = f"background:{COLOURS[n % len(COLOURS)]};color:#000;padding:1px 0"
-        if n > 0 and i < (n - 1) * step + size:  # also in the chunk before: overlap
-            style += f";box-shadow:inset 0 -4px 0 {COLOURS[(n - 1) % len(COLOURS)]};font-weight:bold"
-        start = f'<sup style="color:#555">{n + 1}</sup>' if i == n * step else ""
-        spans.append(f'{start}<span style="{style}">{html.escape(word)}</span>')
+        shared = n > 0 and i < (n - 1) * step + size
+        if runs and runs[-1][:2] == (n, shared):
+            runs[-1][2].append(word)
+        else:
+            runs.append((n, shared, [word]))
+    colour = lambda n: COLOURS[n % len(COLOURS)]  # noqa: E731
+    blocks = []
+    for k, (n, shared, run) in enumerate(runs):
+        if shared:
+            a, b = colour(n - 1), colour(n)
+            fill = f"repeating-linear-gradient(135deg, {a} 0 7px, {b} 7px 14px)"  # stripes of both colours
+        else:
+            fill = colour(n)
+        label = f'<b style="color:#555;font-size:75%">[{n + 1}] </b>' if k == 0 or runs[k - 1][0] != n else ""  # where chunk n starts
+        end = " " if k + 1 < len(runs) else ""  # the space inside the block, so the colour has no gaps
+        style = f"background:{fill};color:#000;padding:3px 0;box-decoration-break:clone;-webkit-box-decoration-break:clone"
+        blocks.append(f'<span style="{style}">{label}{html.escape(" ".join(run))}{end}</span>')
     head = f"Cut into {len(chunks)} {'chunk' if len(chunks) == 1 else 'chunks'} of {size} words, overlap {overlap}."
-    note = " Bold underlined words are in two chunks." if overlap else ""
-    body = f'<p>{head}{note}</p><p style="line-height:2">{" ".join(spans)}</p>'
+    note = " Striped words are in two chunks." if overlap else ""
+    body = f'<p>{head}{note}</p><p style="line-height:2.2">{"".join(blocks)}</p>'
     try:
         from IPython.display import HTML, display
 

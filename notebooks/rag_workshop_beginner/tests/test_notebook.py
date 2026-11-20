@@ -266,7 +266,7 @@ def test_executes_headless(done):
 def test_cells_show_the_promised_results(done):
     drawing = output_of(done, "show_chunking(")
     assert f"of {c.SIZE} words, overlap {c.OVERLAP}." in drawing and "background:" in drawing
-    assert "Bold underlined words are in two chunks." in drawing
+    assert "Striped words are in two chunks." in drawing and "repeating-linear-gradient" in drawing
     found = output_of(done, "search(question").splitlines()
     assert found[0].startswith("1. ") and c.ANSWER in found[0]  # the answer is in the first chunk
     answers = output_of(done, "ask_with_documents(question")

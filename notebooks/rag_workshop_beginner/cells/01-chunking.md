@@ -3,7 +3,7 @@
 The programme is cut into chunks of a few words, and each chunk is searched on its own. `size` is the number of words per chunk. `overlap` is how many words each chunk repeats from the chunk before, so a sentence cut at the edge is still whole in one chunk.
 
 **Do this:**
-1. Run the cell. The coloured text is the start of the Day 2 schedule, cut with these settings: one colour per chunk. Bold underlined words are in two chunks.
+1. Run the cell. The coloured text is the start of the Day 2 schedule, cut with these settings: one colour per chunk, numbered [1], [2], .... Striped words are in two chunks: they are repeated.
 2. Change `size` and `overlap`, and run the cell again.
 
 ```python
