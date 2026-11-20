@@ -9,11 +9,8 @@ In this notebook you try each step of RAG on one document: the programme of this
 ## 0. Setup (5 min)
 
 **Do this:**
-1. In the menu at the top, click **Runtime**, then **Change runtime type**. Choose **T4 GPU** and click **Save**.
-2. Click ▶️ on the **Setup** cell below.
-3. If a message says "This notebook was not authored by Google", click **Run anyway**.
-4. Wait until the cell shows **✅ Ready**. This takes 1 to 2 minutes.
-
-If the cell shows ⚠️ instead, everything still works, only slower. Tell an assistant.
+1. Click ▶️ on the **Setup** cell below.
+2. If a message says "This notebook was not authored by Google", click **Run anyway**.
+3. Wait until the cell shows **✅ Ready**. This takes 1 to 2 minutes.
 
 If a cell later shows an error that ends with "is not defined", run the Setup cell again, then that cell.

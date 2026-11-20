@@ -145,23 +145,10 @@ def _load_models() -> Models:
     return Models(embedder, QwenGenerator(name, device), device, name)
 
 
-def running_in_colab() -> bool:
-    try:
-        import google.colab  # noqa: F401
-    except ImportError:
-        return False
-    return True
-
-
-def status_line(device: str, in_colab: bool | None = None) -> str:
-    """The Setup cell's last line. Only Colab has a Runtime menu that can switch on a GPU."""
-    if device == "cuda":
-        return "✅ Ready. You can go on to section 1."
-    if in_colab is None:
-        in_colab = running_in_colab()
-    slow = "⚠️ Ready, but there is no GPU, so the AI is slower (up to a minute per answer) and makes more mistakes. You can carry on."
-    colab = " To get a GPU: click Runtime > Change runtime type > T4 GPU > Save, then click ▶️ on this cell again."
-    return slow + (colab if in_colab else "")
+def status_line(device: str) -> str:
+    """The Setup cell's last line. Without a GPU (the default in Colab), answers are slower."""
+    ready = "✅ Ready. You can go on to section 1."
+    return ready if device == "cuda" else ready + " Each answer takes up to a minute."
 
 
 # ---------------------------------------------------------------- plain helpers for the notebook cells

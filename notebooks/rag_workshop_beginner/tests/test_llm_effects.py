@@ -32,16 +32,9 @@ def test_fake_generator_streams():
 
 
 def test_status_line_copy():
+    """No GPU step any more: both cases say Ready, and none points to the Runtime menu."""
     assert status_line("cuda") == "✅ Ready. You can go on to section 1."
-    slow = "⚠️ Ready, but there is no GPU, so the AI is slower (up to a minute per answer) and makes more mistakes. You can carry on."
-    assert status_line("cpu", in_colab=False) == slow  # on a laptop there is no Runtime menu to point to
-    assert status_line("cpu", in_colab=True) == (
-        slow + " To get a GPU: click Runtime > Change runtime type > T4 GPU > Save, then click ▶️ on this cell again."
-    )
-
-
-def test_status_line_knows_it_is_not_in_colab():
-    assert status_line("cpu") == status_line("cpu", in_colab=False)  # the tests do not run in Colab
+    assert status_line("cpu") == "✅ Ready. You can go on to section 1. Each answer takes up to a minute."
 
 
 @pytest.fixture(scope="module", params=list(ANSWER_MODELS))
