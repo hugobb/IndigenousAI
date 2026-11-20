@@ -16,7 +16,7 @@ NOTEBOOK = Path(build_notebook.OUTPUT)
 SECTIONS = ["0.", "1.", "2.", "3.", "4.", "5.", "6.", "Bonus"]
 # Bold in a numbered step must be something the participant can find on screen.
 ON_SCREEN = {
-    "Setup", "Run anyway", "✅ Ready",
+    "Setup", "Run anyway", "✅ Ready", "Save a copy in Drive",
     "File", "Download", "Download .ipynb", "Plain text (.txt)", "Save As", "Plain Text",
     "Choose Files", "Browse",
 }

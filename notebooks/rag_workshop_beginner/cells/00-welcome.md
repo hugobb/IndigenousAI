@@ -9,8 +9,9 @@ In this notebook you try each step of RAG on one document: the programme of this
 ## 0. Setup (5 min)
 
 **Do this:**
-1. Click ▶️ on the **Setup** cell below.
-2. If a message says "This notebook was not authored by Google", click **Run anyway**.
-3. Wait until the cell shows **✅ Ready**. This takes 1 to 2 minutes.
+1. Before you run anything, make your own copy: click **File**, then **Save a copy in Drive**. Your copy opens in a new tab. Work in that tab, so your changes are saved.
+2. In your copy, click ▶️ on the **Setup** cell below.
+3. If a message says "This notebook was not authored by Google", click **Run anyway**.
+4. Wait until the cell shows **✅ Ready**. This takes 1 to 2 minutes.
 
 If a cell later shows an error that ends with "is not defined", run the Setup cell again, then that cell.
