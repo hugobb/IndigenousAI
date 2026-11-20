@@ -70,13 +70,13 @@ def answer(capsys, helper, *args, **kwargs) -> str:
 
 
 def chunks(overlap: int = c.DEMO_OVERLAP) -> list[str]:
-    return split(c.ARTICLE, c.DEMO_SIZE, overlap=overlap)
+    return split(c.PROGRAMME, c.DEMO_SIZE, overlap=overlap)
 
 
 # ---------------------------------------------------------------- 1. the AI alone
 @pytest.mark.llm
-def test_bare_model_does_not_know_winner(models, capsys):
-    assert plain(c.WINNER) not in plain(answer(capsys, ask, c.WINNER_QUESTION))
+def test_bare_model_does_not_know_the_teachers(models, capsys):
+    assert plain(c.TEACHER) not in plain(answer(capsys, ask, c.TEACHERS_QUESTION))
 
 
 @pytest.mark.llm

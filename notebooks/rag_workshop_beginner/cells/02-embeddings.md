@@ -4,7 +4,7 @@ To compare meanings, the computer turns each sentence into a list of 384 numbers
 
 **Do this:**
 1. The cell below compares "{SAME_MEANING[0]}" with three other sentences. Guess which one gets the highest score, then run the cell.
-2. Look at the score of the second sentence. It shares the word "final" with the first one, but its score is low.
+2. Look at the score of the second sentence. It shares the word "machine" with the first one, but its score is low.
 
 ```python
 similarity("{SAME_MEANING[0]}", "{SAME_MEANING[1]}")

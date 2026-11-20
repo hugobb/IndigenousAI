@@ -1,19 +1,31 @@
 {
   "article": {
-    "title": "2026 FIFA World Cup final (Wikipedia)",
-    "url": "https://en.wikipedia.org/w/index.php?title=2026_FIFA_World_Cup_final&oldid=1385698804",
+    "title": "Future Imaginaries of Indigenous AI, workshop programme (Abundant Intelligences)",
+    "url": "https://abundant-intelligences.net/ka-hawaii-pae-aina-pod/",
     "retrieved": "2026-11-20",
-    "license": "CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/",
-    "words": 2847,
+    "license": "programme by the workshop organisers; lab, pod and speaker facts from abundant-intelligences.net (team, AIAI Lab and Ka Hawaiʻi Pae ʻĀina Pod pages), the speakers' own pages, and Wikipedia \"Solomon Enos\" (oldid 1379642239, CC BY-SA 4.0)",
+    "words": 1376,
     "sections": [
       "Introduction",
-      "Background",
-      "Route to the final: Spain",
-      "Route to the final: Argentina",
-      "Match: First half",
-      "Match: Second half",
-      "Match: Extra time",
-      "Post-match"
+      "About Abundant Intelligences",
+      "The Future Imaginaries workshops",
+      "Day 1: Thursday, November 19",
+      "Day 2: Friday, November 20",
+      "The Ka Hawaiʻi Pae ʻĀina Pod",
+      "The AIAI Lab",
+      "Speakers: Kari Noe",
+      "Speakers: Ceyda Yolgörmez",
+      "Speakers: Solomon Enos",
+      "Speakers: Kamuela Enos",
+      "Speakers: Suzanne Kite",
+      "Speakers: Manulani Aluli Meyer",
+      "Speakers: Melemaikalani Moniz",
+      "Speakers: Jason Edward Lewis",
+      "Speakers: Karim Jerbi",
+      "Speakers: Hugo Berard",
+      "Speakers: Hamza Abdelhedi",
+      "Speakers: Yorguin José Mantilla Ramos",
+      "Speakers: Purple Maiʻa"
     ]
   },
   "models": {
@@ -24,21 +36,21 @@
   "similarity_pairs": [
     {
       "kind": "same meaning, different words",
-      "a": "Spain won the final.",
-      "b": "The Spanish team became world champions.",
-      "score": 0.75
+      "a": "We learn about machine learning.",
+      "b": "Students study how AI is trained.",
+      "score": 0.53
     },
     {
       "kind": "same word, different meaning",
-      "a": "Spain won the final.",
-      "b": "This is my final offer.",
-      "score": 0.04
+      "a": "We learn about machine learning.",
+      "b": "The washing machine is broken.",
+      "score": 0.15
     },
     {
       "kind": "unrelated",
-      "a": "Spain won the final.",
+      "a": "We learn about machine learning.",
       "b": "I had soup for lunch.",
-      "score": 0.08
+      "score": 0.12
     },
     {
       "kind": "opposite opinions, same topic",
@@ -48,39 +60,39 @@
     }
   ],
   "search_example": {
-    "question": "Which awards did Spain's players win?",
-    "passages": "the 8 sections",
+    "question": "Who are the co-directors of the AIAI Lab?",
+    "passages": "the 20 sections",
     "top3": [
       {
-        "passage": "Post-match",
-        "score": 0.62
+        "passage": "The AIAI Lab",
+        "score": 0.68
       },
       {
-        "passage": "Route to the final: Spain",
-        "score": 0.55
+        "passage": "Day 2: Friday, November 20",
+        "score": 0.45
       },
       {
-        "passage": "Match: Second half",
-        "score": 0.47
+        "passage": "Speakers: Yorguin José Mantilla Ramos",
+        "score": 0.43
       }
     ]
   },
   "miss_example": {
-    "question": "Who was the referee of the final?",
-    "answer": "Slavko Vinčić",
-    "answer_in": "Introduction",
+    "question": "Who gives the introduction to machine learning?",
+    "answer": "Hugo Berard and Hamza Abdelhedi",
+    "answer_in": "Day 2: Friday, November 20",
     "top3": [
       {
-        "passage": "Match: First half",
-        "score": 0.55
+        "passage": "Introduction",
+        "score": 0.53
       },
       {
-        "passage": "Match: Extra time",
-        "score": 0.47
+        "passage": "Speakers: Ceyda Yolgörmez",
+        "score": 0.41
       },
       {
-        "passage": "Match: Second half",
-        "score": 0.46
+        "passage": "Day 2: Friday, November 20",
+        "score": 0.4
       }
     ]
   },
@@ -88,74 +100,74 @@
     "question": "What is the best pizza topping?",
     "top3": [
       {
-        "passage": "Route to the final: Spain",
-        "score": 0.11
+        "passage": "Speakers: Yorguin José Mantilla Ramos",
+        "score": 0.12
       },
       {
-        "passage": "Post-match",
-        "score": 0.08
-      },
-      {
-        "passage": "Match: Second half",
+        "passage": "Speakers: Purple Maiʻa",
         "score": 0.07
+      },
+      {
+        "passage": "Speakers: Hamza Abdelhedi",
+        "score": 0.06
       }
     ]
   },
   "split_demo": {
     "words_per_chunk": 50,
-    "overlap": 15,
+    "overlap": 10,
     "tiny_size": 5,
-    "chunks": 57,
-    "chunks_with_overlap": 81,
+    "chunks": 28,
+    "chunks_with_overlap": 35,
     "referee_top1": {
-      "passage": "defeated Cape Verde in the round of 32, Egypt in the round of 16, Switzerland in the quarterfinal, and England in the semifinal. The final took place in front of 80,663 spectators, and was refereed by Slavko Vinčić of Slovenia. Spain dominated possession and created numerous goal-scoring opportunities throughout the",
-      "score": 0.61
+      "passage": "am. Then Hugo Berard and Hamza Abdelhedi give the introduction to machine learning. Together the two sessions run 75 minutes, until noon. Lunch is from 12:00 to 1:00 pm. At 1:00 pm, participants start the 75-minute hands-on session, \"Running your own AI\". After a 15-minute break, Yorguin José Mantilla Ramos",
+      "score": 0.53
     },
     "referee_top3_tiny": [
       {
-        "passage": "The final match of the",
-        "score": 0.69
-      },
-      {
-        "passage": "goal of the final, was",
+        "passage": "to machine learning. Together the",
         "score": 0.64
       },
       {
-        "passage": "match, with Argentina goalkeeper Emiliano",
+        "passage": "computer science (artificial intelligence) from",
         "score": 0.61
+      },
+      {
+        "passage": "machine learning models and social",
+        "score": 0.54
       }
     ],
-    "referee_whole_article": 0.46,
-    "phrase": "the goal was disallowed because Merino had stepped on Otamendi's foot",
-    "cut": "\"the goal was disallowed because Merino had stepped on Otamendi's foot\" was cut in two, between chunk 44 and chunk 45.\nChunk 44 ends with: ...make the save. Three minutes later, Williams appeared to score, but the goal was\nChunk 45 starts with: disallowed because Merino had stepped on Otamendi's foot. Commentators noted tha...",
-    "with_overlap": "\"the goal was disallowed because Merino had stepped on Otamendi's foot\" is in chunk 63."
+    "referee_whole_article": 0.37,
+    "phrase": "Yorguin José Mantilla Ramos gives a 15-minute talk at 2:30 pm",
+    "cut": "\"Yorguin José Mantilla Ramos gives a 15-minute talk at 2:30 pm\" was cut in two, between chunk 9 and chunk 10.\nChunk 9 ends with: ...ion, \"Running your own AI\". After a 15-minute break, Yorguin José Mantilla Ramos\nChunk 10 starts with: gives a 15-minute talk at 2:30 pm, \"Can we trust AI?\". The hands-on workshop the...",
+    "with_overlap": "\"Yorguin José Mantilla Ramos gives a 15-minute talk at 2:30 pm\" is in chunk 12."
   },
   "prompt_example": {
-    "question": "How long did the halftime break last?",
+    "question": "When does the hands-on session start?",
     "top": 3,
     "scores": [
-      0.56,
-      0.45,
-      0.39
+      0.48,
+      0.47,
+      0.33
     ],
-    "prompt": "Answer the question using the context below.\nIf the answer is not in the context, say \"I don't know based on these documents.\"\n\nContext:\n[1] full halftime break to last over 27 minutes, against International Football Association Board (IFAB) protocol. Spain became the first country to simultaneously hold the men's and women's World Cup titles, having won the FIFA Women's World Cup in 2023. == Background == The 2026 FIFA World Cup was the 23rd\n[2] Martínez's 11 saves set a record for the most saves by a goalkeeper in a World Cup final. The match was the first ever World Cup final to include a halftime show, which caused the full halftime break to last over 27 minutes, against International Football Association Board (IFAB) protocol.\n[3] 3rd minute of stoppage time, Argentina's Giuliano Simeone made a low cross from the right, but Unai Simón intercepted the ball. On the resulting counterattack, Williams dribbled the ball for 30 meters before taking a shot from the edge of the box, which was also saved by Martínez. A few\n\nQuestion: How long did the halftime break last?\nAnswer:"
+    "prompt": "Answer the question using the context below.\nIf the answer is not in the context, say \"I don't know based on these documents.\"\n\nContext:\n[1] am. Then Hugo Berard and Hamza Abdelhedi give the introduction to machine learning. Together the two sessions run 75 minutes, until noon. Lunch is from 12:00 to 1:00 pm. At 1:00 pm, participants start the 75-minute hands-on session, \"Running your own AI\". After a 15-minute break, Yorguin José Mantilla Ramos\n[2] Day 2: Friday, November 20 == The second day runs from 9:30 am to 4:00 pm in room D-141. It opens at 9:30 am with a 15-minute welcome. From 9:45 am to 10:30 am, the session \"Setting the parameters of future AIs\" covers existing philosophies, imaginaries and applications in the\n[3] existing ideas of how these technologies should develop. == Day 1: Thursday, November 19 == The first day runs from 1:00 pm to 4:45 pm in room G-129 of Create(x). It opens at 1:00 pm with a 15-minute welcome: Kari Noe, director of the Create(x) Lab, introduces the Hawaiʻi Pod,\n\nQuestion: When does the hands-on session start?\nAnswer:"
   },
   "answers": {
     "Qwen/Qwen3-0.6B": {
-      "question_without_documents": "How long did the halftime break last in the 2026 World Cup final?",
-      "question_with_documents": "How long did the halftime break last?",
+      "question_without_documents": "When does the hands-on session start at the Future Imaginaries of Indigenous AI workshop?",
+      "question_with_documents": "When does the hands-on session start?",
       "device": "cpu, float32 (as on Colab without a GPU)",
-      "without_documents": "The halftime break in the 2026 World Cup final (which is the 2026 FIFA World Cup) lasted **15 minutes**.",
-      "with_documents": "The halftime break lasted over 27 minutes.",
-      "winner_without_documents": "As of the 2026 FIFA World Cup final, the winner is **Brazil**. The tournament was held in **Brazil** from **July 26 to August 10, 2026**, and Brazil won the final."
+      "without_documents": "The hands-on session at the **Future Imaginaries of Indigenous AI workshop** typically starts **at 9:00 AM**. This is a standard time for such workshops to begin. Let me know if you'd like more details about the session!",
+      "with_documents": "The hands-on session starts at 1:00 pm.",
+      "teachers_without_documents": "The introduction to machine learning at the **Future Imaginaries of Indigenous AI workshop** is typically given by **Dr. Amina M. M. M.** (or her name, if different). She is a prominent figure in Indigenous AI research and has contributed significantly to the field."
     },
     "Qwen/Qwen3-1.7B": {
-      "question_without_documents": "How long did the halftime break last in the 2026 World Cup final?",
-      "question_with_documents": "How long did the halftime break last?",
+      "question_without_documents": "When does the hands-on session start at the Future Imaginaries of Indigenous AI workshop?",
+      "question_with_documents": "When does the hands-on session start?",
       "device": "cpu, bfloat16 (Colab's GPU runs float32, so its wording can differ)",
-      "without_documents": "The halftime break in the 2026 World Cup final, like in all other World Cup tournaments, is **45 minutes**. This is the standard duration for a halftime break in international football (soccer).\n\nHowever, it's important to note that the **length of the halftime break** can vary depending on the **tournament format** and the **rules of the competition**. For example:\n\n- In the **2026 World Cup**, the tournament will be held in **Argentina**, and the format will be **16 teams**, with a **group stage** followed by a **knockout stage** (quarterfinals, semifinals, and final).\n- The **halftime break** is a **standard 45-minute period** in the **final** and **semi-finals**, but in the **group stage** and **knockout rounds**, the halftime break is **shorter** (usually 15–20 minutes) to allow for",
-      "with_documents": "The halftime break lasted over 27 minutes. \n\nAnswer: over 27 minutes.",
-      "winner_without_documents": "As of my last update in 2023, I don't have information about the 2026 FIFA World Cup final winner. The 2026 FIFA World Cup is scheduled to be held in the United States, and the final is expected to be played between the USA and Mexico. However, this is a prediction based on current trends and historical patterns, as the actual outcome depends on the performance of the teams in the tournament. For the most accurate and up-to-date information, I recommend checking official FIFA sources or sports news platforms."
+      "without_documents": "The **Future Imaginaries of Indigenous AI** workshop does not specify a particular start time in the provided information. However, based on typical workshop structures, the hands-on session is usually **scheduled for a specific time slot** during the event, often in the afternoon or evening, depending on the venue and the organizers' schedule.\n\nIf you are referring to a specific event or year, please provide more details (e.g., date, location, or organizer), and I can give you a more precise answer.",
+      "with_documents": "The hands-on session \"Running your own AI\" starts at 1:00 pm.",
+      "teachers_without_documents": "The **Future Imaginaries of Indigenous AI** workshop is a collaborative, interdisciplinary event that brings together researchers, practitioners, and Indigenous knowledge holders to explore the future of artificial intelligence, with a focus on Indigenous perspectives, practices, and technologies.\n\n### Who gives the introduction to machine learning at the workshop?\n\nThe **introduction to machine learning** at the **Future Imaginaries of Indigenous AI** workshop is typically given by **Dr. Anika M. S. S. (Anika) S.** or **Dr. Anika S.** (a name that may vary depending on the specific year or edition of the workshop). \n\nThis introduction is often part of a broader session on **Indigenous AI and Machine Learning**, and it is designed to introduce participants to the foundational concepts of machine learning while emphasizing the importance of **Indigenous knowledge, ethics, and methodologies**.\n\n### Key Points:\n- The introduction is usually part of a **session on Indigenous AI and Machine Learning**.\n-"
     }
   }
 }

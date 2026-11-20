@@ -1,15 +1,15 @@
 ## 1. The problem (3 min)
 
-The notebook uses one document: a shortened copy of the Wikipedia article about the 2026 FIFA World Cup final, played on July 19, 2026. Spain beat Argentina 1–0 after extra time. The AI model in this notebook was trained before that day, so it has never read about this match.
+The notebook uses one document: the programme of this workshop, with its schedule, the AIAI Lab, the Ka Hawaiʻi Pae ʻĀina Pod and short bios of the speakers. The AI model in this notebook was trained long before the programme was written, so it has never read it.
 
 **Do this:**
-1. Run the cell below. It asks the AI how long the halftime break lasted in the final. The article says over 27 minutes, because of a halftime show.
+1. Run the cell below. It asks the AI when the hands-on session starts. The programme says 1:00 pm, on Friday.
 2. Read the answer. Is it right?
-3. Change the question to "{WINNER_QUESTION}" and run the cell again. Keep the quotes.
+3. Change the question to "{TEACHERS_QUESTION}" and run the cell again. Keep the quotes.
 
 ```python
 # Change the question and run the cell again.
 ask("{NO_DOC_QUESTION}")
 ```
 
-The AI has never read about this final. It may say so, or it may make up an answer that sounds right.
+The AI has never read this programme. It may say so, or it may make up an answer that sounds right.

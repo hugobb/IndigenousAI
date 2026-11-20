@@ -6,7 +6,7 @@
         (answers saved by an earlier --answers run are kept).
 
     uv run --with-requirements requirements.txt python find_demo_values.py --answers Qwen/Qwen3-1.7B
-        Also records that model's answers, without and with the article (about 4 GB of memory;
+        Also records that model's answers, without and with the programme (about 4 GB of memory;
         Qwen/Qwen3-0.6B, in float32, about 4 GB too).
 
 The effects that need the AI (it does not know alone, it says "I don't know") are checked by
@@ -44,41 +44,32 @@ NONSENSE_MAX = 0.3  # "every score is low"
 CLOSE_MIN = 0.5  # "I love winter." / "I hate winter." count as close above this
 
 # Candidates, in the order they are tried: the first that shows its effect with MiniLM is marked "pick".
-# The answer examples were also put to both Qwen models (CPU, bfloat16, 2026-11-20); the notes say why
-# a candidate that MiniLM accepts was dropped.
+# The answer examples are also put to both Qwen models by tests/test_llm_effects.py.
 CANDIDATES = {
     "hit": [  # (question, the section that should come first)
-        ("Which awards did Spain's players win?", "Post-match"),
-        ("Why was the goal by Williams disallowed?", "Match: Extra time"),
-        ("What was the weather like at kick-off?", "Match: First half"),
+        ("Who are the co-directors of the AIAI Lab?", "The AIAI Lab"),
+        ("Which book did Manulani Meyer write?", "Speakers: Manulani Aluli Meyer"),
+        ("Who is the pod coordinator?", "The Ka Hawaiʻi Pae ʻĀina Pod"),
     ],
-    "miss": [  # (question, the section that holds the answer, the answer): that section is not in the top 3
-        ("Who was the referee of the final?", "Introduction", "Slavko Vinčić"),
-        ("When did Argentina win the World Cup before?", "Background", "1978 and 1986"),
+    "miss": [  # (question, the section that holds the answer, the answer): that section is not first
+        ("Who gives the introduction to machine learning?", "Day 2: Friday, November 20", "Hugo Berard and Hamza Abdelhedi"),
+        ("Who hosts the workshop?", "Introduction", "hosted by the Ka Hawaiʻi Pae ʻĀina Pod"),
     ],
     "nonsense": ["What is the best pizza topping?", "How do I bake banana bread?"],
     "cut": [  # (question, phrase): at DEMO_SIZE words the phrase is cut in two; DEMO_OVERLAP puts it back
-        ("Why was the goal by Williams disallowed?", "the goal was disallowed because Merino had stepped on Otamendi's foot"),
-        ("When did Argentina win the World Cup before?", "Argentina had previously won the World Cup in 1978 and 1986"),
+        ("Who gives the talk Can we trust AI?", "Yorguin José Mantilla Ramos gives a 15-minute talk at 2:30 pm"),
     ],
     "with_documents": [  # (question, answer): the best chunk holds the answer (section 5, WITH_DOC_QUESTION)
-        ("How long did the halftime break last?", "over 27 minutes"),
-        ("What was the weather like at kick-off?", "80 °F"),
-        ("What did Messi and Yamal do after the match?", "embraced"),
-        ("Who won the 2026 FIFA World Cup final?", "victory for Spain"),  # MiniLM: the answer chunk ranks 21st
+        ("When does the hands-on session start?", "At 1:00 pm, participants start"),
+        ("Which room is used on Friday?", "room D-141"),
     ],
-    # Asked with "in the 2026 World Cup final" (as in section 1), the halftime question made Qwen3-0.6B say
-    # "I don't know" with the right chunk; "What did Messi and Lamine Yamal do after the 2026 World Cup
-    # final?" did the same to Qwen3-1.7B. So section 5 asks the short form.
     "top1_vs_top3": [  # (question, answer): not in the best chunk, but in the 2nd or 3rd
-        ("Where was the final played?", "played at MetLife Stadium"),
-        ("Who was sent off in the final?", "Fernández was sent off"),  # top=3: 1.7B said Martínez, 0.6B "don't know"
-        ("Who was the best goalkeeper of the tournament?", "Golden Glove"),  # top=3: 0.6B said "I don't know"
+        ("Which room is used on Thursday?", "in room G-129"),
+        ("Who is the pod coordinator?", "Anolani Saizon is the pod coordinator"),
+        ("When is lunch?", "Lunch is from 12:00 to 1:00 pm"),
     ],
-    "wrap_up": [  # (question, answer): the best chunk holds the answer
-        ("Who was the referee of the final?", "Slavko Vinčić"),
-        ("Who refereed the final?", "Slavko Vinčić"),
-        ("Who was named man of the match?", "man of the match"),  # 0.6B said "I don't know"
+    "wrap_up": [  # (question, answer): one of the 3 chunks sent to the AI holds the answer
+        ("Who gives the introduction to machine learning?", "Hugo Berard and Hamza Abdelhedi"),
     ],
 }
 
@@ -96,8 +87,8 @@ def heading(passage: str) -> str:
 
 
 def chunks_of(size: int, overlap: int = 0) -> list[str]:
-    """What split(ARTICLE, size, overlap) returns in the notebook, without its message."""
-    return chunk_overlap(c.ARTICLE, size, overlap) if size > 0 else [c.ARTICLE.strip()]
+    """What split(PROGRAMME, size, overlap) returns in the notebook, without its message."""
+    return chunk_overlap(c.PROGRAMME, size, overlap) if size > 0 else [c.PROGRAMME.strip()]
 
 
 def shown(passage: str) -> str:
@@ -113,7 +104,7 @@ def printed(function, *args, **kwargs) -> str:
 
 
 def top_sections(question: str, top: int = 3) -> list[tuple[str, float]]:
-    return [(heading(p), s) for s, p in top_passages(question, sections(c.ARTICLE), top)]
+    return [(heading(p), s) for s, p in top_passages(question, sections(c.PROGRAMME), top)]
 
 
 # ---------------------------------------------------------------- the effects
@@ -122,8 +113,14 @@ def is_hit(question, section):
 
 
 def is_miss(question, section, answer):
-    passage = next(p for p in sections(c.ARTICLE) if heading(p) == section)
-    return has(passage, answer) and section not in [h for h, _ in top_sections(question, 3)]
+    """The section holds the answer, but another section comes first."""
+    passage = next(p for p in sections(c.PROGRAMME) if heading(p) == section)
+    return has(passage, answer) and top_sections(question, 1)[0][0] != section
+
+
+def chunks_send(question, answer, size, overlap):
+    """One of the 3 chunks sent to the AI holds the answer."""
+    return any(has(p, answer) for _, p in top_passages(question, chunks_of(size, overlap), 3))
 
 
 def is_nonsense(question):
@@ -173,7 +170,7 @@ def report() -> list[str]:
         "cut": lambda q, p: is_cut(p, size, overlap),
         "with_documents": lambda q, a: chunks_find(q, a, size, overlap),
         "top1_vs_top3": lambda q, a: top1_misses_top3_finds(q, a, size, overlap),
-        "wrap_up": lambda q, a: chunks_find(q, a, size, overlap),
+        "wrap_up": lambda q, a: chunks_send(q, a, size, overlap),
     }
     for kind, candidates in CANDIDATES.items():
         print(f"\n{kind}")
@@ -188,15 +185,15 @@ def report() -> list[str]:
     problems = []
     expect = {
         "HIT_QUESTION comes first in HIT_SECTION": is_hit(c.HIT_QUESTION, c.HIT_SECTION),
-        "MISS_SECTION holds MISS_ANSWER and is not in the top 3": is_miss(c.MISS_QUESTION, c.MISS_SECTION, c.MISS_ANSWER),
+        "MISS_SECTION holds MISS_ANSWER and is not first": is_miss(c.MISS_QUESTION, c.MISS_SECTION, c.MISS_ANSWER),
         "NONSENSE_QUESTION scores low everywhere": is_nonsense(c.NONSENSE_QUESTION),
         "chunks of DEMO_SIZE find MISS_ANSWER, on screen": chunks_find(c.MISS_QUESTION, c.MISS_ANSWER, size),
         "TINY_SIZE chunks lose MISS_ANSWER": tiny_loses(c.MISS_QUESTION, c.MISS_ANSWER, c.TINY_SIZE),
-        "the whole article (0) scores lower than DEMO_SIZE": whole_scores_lower(c.MISS_QUESTION, size),
+        "the whole programme (0) scores lower than DEMO_SIZE": whole_scores_lower(c.MISS_QUESTION, size),
         "CUT_PHRASE cut at DEMO_SIZE, whole with DEMO_OVERLAP": is_cut(c.CUT_PHRASE, size, overlap),
-        "WITH_DOC_QUESTION finds its answer in the best chunk": chunks_find(c.WITH_DOC_QUESTION, c.NO_DOC_ANSWER_IN_ARTICLE, size, overlap),
-        "TOP1_VS_TOP3 answer in chunk 2 or 3, not 1": top1_misses_top3_finds(c.TOP1_VS_TOP3_QUESTION, c.TOP1_VS_TOP3_ANSWER_IN_ARTICLE, size, overlap),
-        "WRAP_UP_ANSWER in the best chunk": chunks_find(c.WRAP_UP_QUESTION, c.WRAP_UP_ANSWER, size, overlap),
+        "WITH_DOC_QUESTION finds its answer in the best chunk": chunks_find(c.WITH_DOC_QUESTION, c.NO_DOC_ANSWER_IN_PROGRAMME, size, overlap),
+        "TOP1_VS_TOP3 answer in chunk 2 or 3, not 1": top1_misses_top3_finds(c.TOP1_VS_TOP3_QUESTION, c.TOP1_VS_TOP3_ANSWER_IN_PROGRAMME, size, overlap),
+        "MISS_ANSWER in a chunk sent to the AI": chunks_send(c.WRAP_UP_QUESTION, c.MISS_ANSWER, size, overlap),
         "similarity pairs in order": pairs_in_order(),
     }
     print("\npicks in content.py")
@@ -214,13 +211,13 @@ def ranked(question: str, passages: list[str], top: int = 3) -> list[dict]:
 def minilm_values() -> dict:
     """Everything in demo_values.json except the AI's answers. Needs toolkit.MODELS with MiniLM."""
     size, overlap = c.DEMO_SIZE, c.DEMO_OVERLAP
-    passages = sections(c.ARTICLE)
+    passages = sections(c.PROGRAMME)
     chunks, with_overlap = chunks_of(size), chunks_of(size, overlap)
     best = top_passages(c.WITH_DOC_QUESTION, with_overlap, 3)
     return {
         "article": {
-            "title": c.SOURCE["Title"], "url": c.ARTICLE_URL, "retrieved": c.ARTICLE_RETRIEVED,
-            "license": c.SOURCE["License"], "words": len(c.ARTICLE.split()), "sections": [heading(p) for p in passages],
+            "title": c.SOURCE["Title"], "url": c.PROGRAMME_URL, "retrieved": c.PROGRAMME_RETRIEVED,
+            "license": c.SOURCE["License"], "words": len(c.PROGRAMME.split()), "sections": [heading(p) for p in passages],
         },
         "models": {"embeddings": EMBED_MODEL, "answers_gpu": CHAT_MODEL_GPU, "answers_cpu": CHAT_MODEL_CPU},
         "similarity_pairs": [
@@ -232,7 +229,7 @@ def minilm_values() -> dict:
                 ("opposite opinions, same topic", c.LOVE_HATE),
             ]
         ],
-        "search_example": {"question": c.HIT_QUESTION, "passages": "the 8 sections", "top3": ranked(c.HIT_QUESTION, passages)},
+        "search_example": {"question": c.HIT_QUESTION, "passages": f"the {len(passages)} sections", "top3": ranked(c.HIT_QUESTION, passages)},
         "miss_example": {"question": c.MISS_QUESTION, "answer": c.MISS_ANSWER, "answer_in": c.MISS_SECTION,
                          "top3": ranked(c.MISS_QUESTION, passages)},
         "nonsense_example": {"question": c.NONSENSE_QUESTION, "top3": ranked(c.NONSENSE_QUESTION, passages)},
@@ -262,7 +259,7 @@ def device_note(model_name: str) -> str:
 
 
 def record_answers(model_name: str) -> dict:
-    """The model's answers without the article (section 1) and with it (section 5), as the notebook prints them."""
+    """The model's answers without the programme (section 1) and with it (section 5), as the notebook prints them."""
     toolkit.MODELS = Models(toolkit.MODELS.embedder, QwenGenerator(model_name, "cpu"), "cpu", model_name)
 
     def answer_part(text: str) -> str:
@@ -275,7 +272,7 @@ def record_answers(model_name: str) -> dict:
         "device": device_note(model_name),
         "without_documents": answer_part(printed(toolkit.ask, c.NO_DOC_QUESTION)),
         "with_documents": answer_part(printed(toolkit.ask_with_documents, c.WITH_DOC_QUESTION, with_documents)),
-        "winner_without_documents": answer_part(printed(toolkit.ask, c.WINNER_QUESTION)),
+        "teachers_without_documents": answer_part(printed(toolkit.ask, c.TEACHERS_QUESTION)),
     }
 
 

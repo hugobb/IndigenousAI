@@ -4,7 +4,7 @@
 
 An AI chatbot answers from what it learned during its training. RAG (Retrieval-Augmented Generation) lets it look things up first. RAG finds the passages of a document that match your question, and the AI writes its answer from them.
 
-In this notebook you try each step of RAG on one Wikipedia article. You don't need to know how to code. The grey boxes are cells. To run a cell, click the ▶️ button on its left. Go from top to bottom.
+In this notebook you try each step of RAG on one document: the programme of this workshop. You don't need to know how to code. The grey boxes are cells. To run a cell, click the ▶️ button on its left. Go from top to bottom.
 
 ## 0. Setup (5 min)
 

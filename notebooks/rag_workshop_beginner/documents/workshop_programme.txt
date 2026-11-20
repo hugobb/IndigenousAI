@@ -1,0 +1,65 @@
+Title: Future Imaginaries of Indigenous AI, workshop programme (Abundant Intelligences)
+Source: https://abundant-intelligences.net/ka-hawaii-pae-aina-pod/
+Retrieved: 2026-11-20
+License: programme by the workshop organisers; lab, pod and speaker facts from abundant-intelligences.net (team, AIAI Lab and Ka Hawaiʻi Pae ʻĀina Pod pages), the speakers' own pages, and Wikipedia "Solomon Enos" (oldid 1379642239, CC BY-SA 4.0)
+Shortened: schedule rewritten as prose, speaker bios added.
+
+Future Imaginaries of Indigenous AI is a two-day workshop by Abundant Intelligences, held on November 19 and 20, 2026, at the Create(x) Labs of the University of Hawaiʻi – West Oʻahu. It is hosted by the Ka Hawaiʻi Pae ʻĀina Pod. The workshop has two goals: to imagine machines of the future that fit the needs and hopes of participants' communities, through a guided creation exercise, and to give a basic, hands-on introduction to machine learning.
+
+== About Abundant Intelligences ==
+Abundant Intelligences develops AI methods grounded in Indigenous epistemologies, aimed at abundance rather than scarcity. The program works along three axes. The Integrations Axis brings Indigenous knowledge practices together with the knowledge frameworks used by AI researchers. The Imaginaries Axis develops future imaginaries and speculative designs of Indigenous AI. The Intelligences Axis brings Indigenous perspectives to technical challenges in AI research. In short: we listen to each other, we dream our futures together, and we build those visions of the future.
+
+== The Future Imaginaries workshops ==
+The Future Imaginaries of Indigenous AI workshops belong to the Imaginaries Axis. They help communities, practitioners and critics form their own vocabularies and visions of the futures they want, without falling into existing ideas of how these technologies should develop.
+
+== Day 1: Thursday, November 19 ==
+The first day runs from 1:00 pm to 4:45 pm in room G-129 of Create(x). It opens at 1:00 pm with a 15-minute welcome: Kari Noe, director of the Create(x) Lab, introduces the Hawaiʻi Pod, and Ceyda Yolgörmez introduces the Future Imaginaries of Indigenous AI. At 1:15 pm, Solomon Enos and Kamuela Enos give a 30-minute talk, "Imagining abundant intelligences". After a 15-minute break, Suzanne Kite leads an hour-long imagining exercise at 2:00 pm, "Towards the future of sovereign intelligences". After a second 15-minute break, the imaginaries workshop continues at 3:15 pm for an hour and a half. The day closes at 4:45 pm.
+
+== Day 2: Friday, November 20 ==
+The second day runs from 9:30 am to 4:00 pm in room D-141. It opens at 9:30 am with a 15-minute welcome. From 9:45 am to 10:30 am, the session "Setting the parameters of future AIs" covers existing philosophies, imaginaries and applications in the Ka Hawaiʻi Pae ʻĀina Pod, with talks by Manulani Meyer, Mele Moniz and Purple Maiʻa. After a 15-minute break, Karim Jerbi and Jason Lewis introduce the AIAI Lab at 10:45 am. Then Hugo Berard and Hamza Abdelhedi give the introduction to machine learning. Together the two sessions run 75 minutes, until noon. Lunch is from 12:00 to 1:00 pm. At 1:00 pm, participants start the 75-minute hands-on session, "Running your own AI". After a 15-minute break, Yorguin José Mantilla Ramos gives a 15-minute talk at 2:30 pm, "Can we trust AI?". The hands-on workshop then continues for 45 minutes, from 2:45 pm to 3:30 pm. At 3:30 pm, Jason Lewis and Kari Noe lead 30 minutes of reflections and future directions, and the workshop closes at 4:00 pm.
+
+== The Ka Hawaiʻi Pae ʻĀina Pod ==
+The Ka Hawaiʻi Pae ʻĀina Pod is one of the research pods of Abundant Intelligences, based on Oʻahu. It is hosted by the Create(x) Immersive Media and Data Visualization Lab at the University of Hawaiʻi – West Oʻahu, and its community partner is Purple Maiʻa. Its work covers environmental stewardship, language revitalization, creative practice and community-based data stewardship. Kari Noe is the pod director and Anolani Saizon is the pod coordinator.
+
+== The AIAI Lab ==
+The AIAI Lab is the technical team of Abundant Intelligences. It builds technical capacity for Indigenous-led AI projects: it gives technical advice, helps build prototypes, connects technical and non-technical collaborators, and runs training and events, including curriculum for the Summer Institute for Indigenous AI. The lab follows Indigenous data sovereignty principles, including OCAP and CARE. Its co-directors are Karim Jerbi of the Université de Montréal and Jason Edward Lewis of Concordia University. Hugo Berard is a postdoctoral researcher in the lab, and its student tech team includes Hamza Abdelhedi, Yorguin Mantilla Ramos and Antoine Bellemare. The lab works with Concordia University, the Université de Montréal, Mila, IVADO and UNIQUE.
+
+== Speakers ==
+=== Kari Noe ===
+Kari Noe co-directs the Create(x) emerging media lab at the University of Hawaiʻi – West Oʻahu and is a PhD research assistant at the LAVA lab at the University of Hawaiʻi at Mānoa. She works on human-computer interaction, extended reality and game development, especially how emerging media supports learning.
+
+=== Ceyda Yolgörmez ===
+Ceyda Yolgörmez is a postdoctoral researcher at Concordia University, at the Indigenous Futures Research Cluster of Abundant Intelligences. Her PhD combined social theory with interactive technologies such as large machine learning models and social robots, and proposes a "sociology of machines".
+
+=== Solomon Enos ===
+Solomon Enos is a Native Hawaiian artist, illustrator and activist, born in Mākaha Valley on Oʻahu. Solomon Enos's work has been shown at the National Museum of the American Indian, the Bishop Museum and the Pitt Rivers Museum in Oxford, England. Solomon Enos illustrated the books Akua Hawaiʻi and The Epic Tale of Hiʻiakaikapoliopele, and received a grant from the Joan Mitchell Foundation in 2017.
+
+=== Kamuela Enos ===
+Kamuela Enos is a co-investigator of Abundant Intelligences at the University of Hawaiʻi at Mānoa and a member of the Ka Hawaiʻi Pae ʻĀina Pod. He founded the university's Office of Indigenous Innovation, which researches and scales traditional practices for Indigenous communities, and was director of social enterprise at MAʻO Organic Farms.
+
+=== Suzanne Kite ===
+Suzanne Kite is an Oglála Lakȟóta performance artist, composer and scholar. She directs the Wihanble S'a Center for Indigenous AI at Bard College.
+
+=== Manulani Aluli Meyer ===
+Manulani Aluli Meyer works on Indigenous epistemology. She holds a doctorate in philosophy of education from Harvard and is Konohiki for Kūlana o Kapolei at the University of Hawaiʻi – West Oʻahu. She wrote Hoʻoulu: Our Time of Becoming.
+
+=== Melemaikalani Moniz ===
+Melemaikalani (Mele) Moniz is a Kanaka ʻŌiwi legal scholar and a postdoctoral researcher at the University of Hawaiʻi at Mānoa. Her work covers Western legal systems, environmental justice and Indigenous rights. She holds an SJD in Indigenous Peoples Law and Policy from the University of Arizona.
+
+=== Jason Edward Lewis ===
+Jason Edward Lewis is a digital media theorist, poet and software designer. He is Professor of Computation Arts at Concordia University, holds the University Research Chair in Computational Media and the Indigenous Future Imaginary, and founded the Obx Laboratory for Experimental Media.
+
+=== Karim Jerbi ===
+Karim Jerbi is Professor of Psychology at the Université de Montréal and a member of Mila. He holds a Canada Research Chair in Computational Neuroscience and directs UNIQUE, the Quebec Neuro-AI research centre. He studies brain oscillations and networks, and the meeting points of neuroscience, AI and art.
+
+=== Hugo Berard ===
+Hugo Berard is a postdoctoral researcher with Abundant Intelligences, in the AIAI Lab. He holds a PhD in computer science from Mila, where he applied game theory to improve image-generation algorithms. He works on responsible AI built from local initiatives and community needs, and on how AI can support citizen participation in local decisions. He is active on Mila's sustainability committee, which works to reduce AI's environmental footprint, and facilitates Climate Fresk workshops.
+
+=== Hamza Abdelhedi ===
+Hamza Abdelhedi is a PhD student in biomedical engineering at the Université de Montréal, in the CoCo Lab and at Mila, supervised by Karim Jerbi, and a member of the AIAI Lab. He holds an MSc in computer science (artificial intelligence) from the Université de Montréal and an engineering diploma in telecommunications from SUP'COM in Tunisia. He uses M/EEG recordings and computational models to study brain dynamics and to compare neural networks with human brain activity, and maintains open-source tools such as MNE-Denoise.
+
+=== Yorguin José Mantilla Ramos ===
+Yorguin José Mantilla Ramos is an electronics engineer and a member of the AIAI Lab's student tech team. He is interested in the interpretability and explainability of models, how data and knowledge are represented, how cognition works, and the philosophy of science.
+
+=== Purple Maiʻa ===
+Purple Maiʻa is a nonprofit based in Honolulu. It teaches and supports culturally grounded technology makers, mainly Native Hawaiian and Pacific Islander learners.

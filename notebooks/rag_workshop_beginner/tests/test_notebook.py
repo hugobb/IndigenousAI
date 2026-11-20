@@ -21,7 +21,7 @@ ON_SCREEN = {
     "Choose Files", "Browse",
 }
 BANNED = ["Think of it as", "What if", "What you'll see", "What to notice", "Imagine", "Let's dive", "delve"]
-UPLOAD_STAND_IN = "my_text = ARTICLE  # stand-in for the upload, which needs a browser"
+UPLOAD_STAND_IN = "my_text = PROGRAMME  # stand-in for the upload, which needs a browser"
 
 
 @pytest.fixture(scope="module")
@@ -114,11 +114,11 @@ def test_code_cells_are_short_and_visible(nb):
 def test_setup_inlines_all_code(nb):
     setup = setup_of(nb)
     assert setup.metadata.get("cellView") == "form"
-    for name in ("def split", "def ask_with_documents", "class QwenGenerator", "ARTICLE = ", "MODELS = load_models()"):
+    for name in ("def split", "def ask_with_documents", "class QwenGenerator", "PROGRAMME = ", "MODELS = load_models()"):
         assert name in setup.source
     assert "from toolkit import" not in setup.source and "from content import" not in setup.source
     assert '_load("' not in setup.source  # the article is inlined: Colab has no documents/ folder
-    assert "== Background ==" in setup.source
+    assert "== Day 2: Friday, November 20 ==" in setup.source
 
 
 # Colab's huggingface_hub prints this on the first model download when no HF_TOKEN secret is set (it starts
@@ -165,18 +165,17 @@ def test_no_link_to_the_ollama_notebook(nb):
 
 
 def test_no_old_documents(nb):
-    """The CARE paper, the fictional charter and any Indigenous example left this notebook.
-    "IndigenousAI" is the repository's name, in the Colab link."""
+    """The fictional charter and the World Cup article left this notebook. (The programme of this
+    workshop is a real document; it names Indigenous AI and the CARE principles, so those stay.)"""
     text = nbformat.writes(nb)
-    for pattern in (r"\bCARE\b", r"(?i)charter", r"(?i)fictional", r"(?i)indigenous(?!AI)"):
+    for pattern in (r"(?i)charter", r"(?i)fictional", r"(?i)world cup", r"(?i)halftime"):
         assert not re.search(pattern, text), pattern
 
 
-def test_says_the_article_is_a_shortened_copy(nb):
-    """The full article names the halftime performers; only our shortened copy leaves them out."""
+def test_says_the_document_is_the_workshop_programme(nb):
     text = markdown(visible(nb))
-    assert "a shortened copy of the Wikipedia article" in text
-    assert "we removed the part that says who performed" in text
+    assert "the programme of this workshop" in text
+    assert "The programme does not give the Wi-Fi password." in text
 
 
 # ---------------------------------------------------------------- copy rules
@@ -237,7 +236,8 @@ def test_executes_headless(done):
 def test_cells_show_the_promised_results(done):
     hit = output_of(done, c.HIT_QUESTION).splitlines()
     assert hit[0].startswith("1. ") and c.HIT_SECTION in hit[0]
-    assert c.MISS_SECTION not in output_of(done, f'search("{c.MISS_QUESTION}", passages)')
+    missed = output_of(done, f'search("{c.MISS_QUESTION}", passages)').splitlines()
+    assert c.MISS_SECTION not in missed[0]  # "Which section comes first?" Not the one with the answer.
     nonsense = output_of(done, c.NONSENSE_QUESTION)
     assert all(float(line.split()[1]) < 0.3 for line in nonsense.splitlines())
     found = output_of(done, f'search("{c.MISS_QUESTION}", chunks)').splitlines()

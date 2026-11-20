@@ -7,12 +7,12 @@ RAG has four steps:
 4. Send those chunks and the question to the AI, which writes the answer.
 
 **Do this:**
-1. Run the cell below. It asks the referee question from section 3 again. Its two lines do all four steps.
-2. Change the question to one of your own about the final and run the cell again.
+1. Run the cell below. It asks the question from sections 1 and 3 again. Its two lines do all four steps.
+2. Change the question to one of your own about the workshop and run the cell again.
 
 ```python
 # Change the question and run the cell again.
-chunks = split(ARTICLE, words_per_chunk={DEMO_SIZE}, overlap={DEMO_OVERLAP})
+chunks = split(PROGRAMME, words_per_chunk={DEMO_SIZE}, overlap={DEMO_OVERLAP})
 ask_with_documents("{WRAP_UP_QUESTION}", chunks)
 ```
 
@@ -30,5 +30,5 @@ In Colab, your text goes to Google's computers. On your own computer, your docum
 
 ### Sources
 
-- The article: "2026 FIFA World Cup final", Wikipedia, [revision {ARTICLE_REVISION}]({ARTICLE_URL}), retrieved {ARTICLE_RETRIEVED}. License: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Shortened: some sections removed.
+- The document: the programme of Future Imaginaries of Indigenous AI, a workshop by Abundant Intelligences, with facts from [abundant-intelligences.net]({PROGRAMME_URL}) and the speakers' own pages, retrieved {PROGRAMME_RETRIEVED}. The bio of Solomon Enos is from the Wikipedia article "Solomon Enos" ([CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)).
 - The models: all-MiniLM-L6-v2 for the embeddings, and Qwen3-1.7B (with a GPU) or Qwen3-0.6B (without one) for the answers.

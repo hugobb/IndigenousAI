@@ -1,20 +1,20 @@
 ## 3. Search: finding the right passage (15 min)
 
-Search uses the same scores. It compares your question with every passage and lists the closest ones first, with their scores. Here a passage is one section of our shortened copy of the article. There are 8: Introduction, Background, Route to the final: Spain, Route to the final: Argentina, Match: First half, Match: Second half, Match: Extra time, and Post-match.
+Search uses the same scores. It compares your question with every passage and lists the closest ones first, with their scores. Here a passage is one section of the programme. There are {N_SECTIONS}: the Introduction, About Abundant Intelligences, The Future Imaginaries workshops, Day 1, Day 2, The Ka Hawaiʻi Pae ʻĀina Pod, The AIAI Lab, and one per speaker.
 
 **Do this:**
 1. Guess which section will come first for "{HIT_QUESTION}", then run the cell.
 
 ```python
-passages = sections(ARTICLE)
+passages = sections(PROGRAMME)
 search("{HIT_QUESTION}", passages)
 ```
 
 **Do this:**
-1. Run the cell below. The referee's name, {MISS_ANSWER}, is in the {MISS_SECTION}. Is the {MISS_SECTION} in the list?
+1. Run the cell below. This is the question from section 1. The answer, {MISS_ANSWER}, is in the section "{MISS_SECTION}". Which section comes first?
 
 ```python
-passages = sections(ARTICLE)
+passages = sections(PROGRAMME)
 search("{MISS_QUESTION}", passages)
 ```
 
@@ -24,7 +24,7 @@ search("{MISS_QUESTION}", passages)
 
 ```python
 # Change the question and run the cell again.
-passages = sections(ARTICLE)
+passages = sections(PROGRAMME)
 search("{NONSENSE_QUESTION}", passages)
 ```
 

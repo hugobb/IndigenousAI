@@ -34,7 +34,7 @@ def has(text: str, phrase: str) -> bool:
 
 
 def headings(question: str, top: int) -> list[str]:
-    return [p.splitlines()[0] for _, p in top_passages(question, sections(c.ARTICLE), top)]
+    return [p.splitlines()[0] for _, p in top_passages(question, sections(c.PROGRAMME), top)]
 
 
 def best(question: str, chunks: list[str], top: int = 1) -> list[str]:
@@ -52,37 +52,39 @@ def words_read(text: str) -> int:
 
 
 # ---------------------------------------------------------------- the article
-def test_article_is_the_text_without_the_attribution_block():
-    assert c.ARTICLE.startswith("The final match of the 2026 FIFA World Cup")
-    assert "Title:" not in c.ARTICLE and "License:" not in c.ARTICLE
-    assert c.ARTICLE_URL.endswith(f"oldid={c.ARTICLE_REVISION}") and c.ARTICLE_REVISION.isdigit()
+def test_programme_is_the_text_without_the_attribution_block():
+    assert c.PROGRAMME.startswith("Future Imaginaries of Indigenous AI is a two-day workshop")
+    assert "Title:" not in c.PROGRAMME and "License:" not in c.PROGRAMME
+    assert c.PROGRAMME_URL.startswith("https://abundant-intelligences.net/")
 
 
-def test_the_eight_sections_named_in_section_3():
-    names = [p.splitlines()[0] for p in sections(c.ARTICLE)]
+def test_the_sections_named_in_section_3():
+    names = [p.splitlines()[0] for p in sections(c.PROGRAMME)]
+    assert len(names) == c.N_SECTIONS
     text = (HERE / "cells" / "03-search.md").read_text()
-    listed = text.split("There are 8: ", 1)[1].split(".\n", 1)[0].replace(", and ", ", ").split(", ")
-    assert listed == names and len(names) == 8
+    assert f"There are {{N_SECTIONS}}: " in text
+    listed = text.split("There are {N_SECTIONS}: ", 1)[1].split(", and one per speaker.", 1)[0].split(", ")
+    assert listed[0] == "the Introduction" and listed[1:] == [n.split(":")[0] for n in names[1:7]]
+    assert all(n.startswith("Speakers: ") for n in names[7:])
 
 
-def test_facts_quoted_in_the_notebook_are_in_the_article():
-    for fact in ["July 19, 2026", "1–0 victory for Spain", "extra time", "include a halftime show, which caused the full "
-                 "halftime break to last over 27 minutes", c.MISS_ANSWER, c.CUT_PHRASE]:
-        assert fact in c.ARTICLE, fact
+def test_facts_quoted_in_the_notebook_are_in_the_programme():
+    for fact in ["At 1:00 pm, participants start", "The second day runs", c.MISS_ANSWER, c.CUT_PHRASE, c.CUT_SECOND_PART]:
+        assert fact in c.PROGRAMME, fact
 
 
 # ---------------------------------------------------------------- 2. embeddings
 def test_embedding_has_384_numbers():
-    assert toolkit.MODELS.embedder.embed(["Spain won the final."]).shape == (1, 384)
+    assert toolkit.MODELS.embedder.embed([c.SAME_MEANING[0]]).shape == (1, 384)
 
 
 def test_section_2_compares_one_sentence_with_three_others():
-    """ "The cell below compares "Spain won the final." with three other sentences." """
+    """ "The cell below compares "We learn about machine learning." with three other sentences." """
     assert c.SAME_MEANING[0] == c.SAME_WORD[0] == c.UNRELATED[0]
 
 
 def test_low_scores_are_low():
-    """ "It shares the word "final" with the first one, but its score is low." (close to 0 means unrelated)"""
+    """ "It shares the word "machine" with the first one, but its score is low." (close to 0 means unrelated)"""
     assert score(*c.SAME_WORD) < 0.2 and score(*c.UNRELATED) < 0.2
 
 
@@ -95,7 +97,7 @@ def test_pairs_share_the_words_the_text_says():
     a, b = (set(re.findall(r"[a-z]+", s.lower())) - {"the", "a"} for s in c.SAME_MEANING)
     assert not a & b  # same meaning, no shared word
     a, b = (set(re.findall(r"[a-z]+", s.lower())) for s in c.SAME_WORD)
-    assert a & b == {"final"}
+    assert a & b == {"machine"}
 
 
 def test_love_hate_close():
@@ -108,49 +110,48 @@ def test_hit_question_first():
 
 
 def test_miss_question_not_first():
-    answer_section = next(p for p in sections(c.ARTICLE) if p.startswith(c.MISS_SECTION + "\n"))
+    answer_section = next(p for p in sections(c.PROGRAMME) if p.startswith(c.MISS_SECTION + "\n"))
     assert c.MISS_ANSWER in answer_section
-    assert c.MISS_SECTION not in headings(c.MISS_QUESTION, 3)  # "Is the Introduction in the list?" No.
+    assert headings(c.MISS_QUESTION, 1) != [c.MISS_SECTION]  # "Which section comes first?" Not that one.
 
 
 def test_nonsense_scores_low():
-    assert all(s < 0.3 for s, _ in top_passages(c.NONSENSE_QUESTION, sections(c.ARTICLE), 8))
+    assert all(s < 0.3 for s, _ in top_passages(c.NONSENSE_QUESTION, sections(c.PROGRAMME), 8))
 
 
 # ---------------------------------------------------------------- 4. splitting
 def test_model_reads_about_200_words():
-    assert 190 <= words_read(c.ARTICLE) <= 210
-    for passage in sections(c.ARTICLE):
-        read = words_read(passage)
-        assert 170 <= read <= 210 and len(passage.split()) > read, passage.splitlines()[0]
+    assert 170 <= words_read(c.PROGRAMME) <= 210 < len(c.PROGRAMME.split())  # 183: ʻokina and kahakō cost tokens
+    day2 = next(p for p in sections(c.PROGRAMME) if p.startswith(c.MISS_SECTION + "\n"))
+    assert len(day2.split()) > 150  # "among many times, rooms and talks"
 
 
 def test_chunks_find_what_the_sections_missed():
-    (top,) = best(c.MISS_QUESTION, split(c.ARTICLE, c.DEMO_SIZE))
+    (top,) = best(c.MISS_QUESTION, split(c.PROGRAMME, c.DEMO_SIZE))
     assert c.MISS_ANSWER in toolkit._short(top)  # in the first result, and on screen
 
 
 def test_tiny_size_loses_answer():
-    assert not any(c.MISS_ANSWER in p for p in best(c.MISS_QUESTION, split(c.ARTICLE, c.TINY_SIZE), 3))
+    assert not any(c.MISS_ANSWER in p for p in best(c.MISS_QUESTION, split(c.PROGRAMME, c.TINY_SIZE), 3))
 
 
 def test_whole_article_scores_lower():
-    ((whole, _),) = top_passages(c.MISS_QUESTION, split(c.ARTICLE, 0), 1)
-    ((chunked, _),) = top_passages(c.MISS_QUESTION, split(c.ARTICLE, c.DEMO_SIZE), 1)
+    ((whole, _),) = top_passages(c.MISS_QUESTION, split(c.PROGRAMME, 0), 1)
+    ((chunked, _),) = top_passages(c.MISS_QUESTION, split(c.PROGRAMME, c.DEMO_SIZE), 1)
     assert whole < chunked
 
 
 def test_cut_at_demo_size(capsys):
-    chunks = split(c.ARTICLE, c.DEMO_SIZE)
+    chunks = split(c.PROGRAMME, c.DEMO_SIZE)
     capsys.readouterr()
     where_is(chunks, c.CUT_PHRASE)
     out = capsys.readouterr().out
     assert "was cut in two" in out
-    assert "starts with: disallowed because Merino" in out  # the reason itself is in the next chunk
+    assert f"starts with: {c.CUT_SECOND_PART}" in out  # the second half is in the next chunk
 
 
 def test_overlap_restores(capsys):
-    chunks = split(c.ARTICLE, c.DEMO_SIZE, overlap=c.DEMO_OVERLAP)
+    chunks = split(c.PROGRAMME, c.DEMO_SIZE, overlap=c.DEMO_OVERLAP)
     capsys.readouterr()
     where_is(chunks, c.CUT_PHRASE)
     out = capsys.readouterr().out
@@ -158,37 +159,36 @@ def test_overlap_restores(capsys):
 
 
 def test_split_question_gets_the_reason_only_with_overlap():
-    """Section 5: "Look at the chunks sent to the AI: is the reason still there?" With overlap 0: no."""
-    sent_cut = best(c.SPLIT_QUESTION, split(c.ARTICLE, c.DEMO_SIZE), 3)
-    (top_whole,) = best(c.SPLIT_QUESTION, split(c.ARTICLE, c.DEMO_SIZE, overlap=c.DEMO_OVERLAP))
-    assert not any(has(p, "Merino had stepped") for p in sent_cut)
+    """Section 5: "Look at the chunks sent to the AI: is the speaker's name still there?" With overlap 0: no."""
+    sent_cut = best(c.SPLIT_QUESTION, split(c.PROGRAMME, c.DEMO_SIZE), 3)
+    (top_whole,) = best(c.SPLIT_QUESTION, split(c.PROGRAMME, c.DEMO_SIZE, overlap=c.DEMO_OVERLAP))
+    assert not any(has(p, c.SPLIT_ANSWER) for p in sent_cut)
     assert has(top_whole, c.CUT_PHRASE)
 
 
 # ---------------------------------------------------------------- 5. answering (what search hands to the AI)
 @pytest.fixture(scope="module")
 def chunks():
-    return split(c.ARTICLE, c.DEMO_SIZE, overlap=c.DEMO_OVERLAP)
+    return split(c.PROGRAMME, c.DEMO_SIZE, overlap=c.DEMO_OVERLAP)
 
 
 def test_with_doc_question_answer_in_best_chunk(chunks):
     (top,) = best(c.WITH_DOC_QUESTION, chunks)
-    assert has(top, c.NO_DOC_ANSWER_IN_ARTICLE)
+    assert has(top, c.NO_DOC_ANSWER_IN_PROGRAMME)
 
 
 def test_top1_misses_top3_finds(chunks):
-    found = [has(p, c.TOP1_VS_TOP3_ANSWER_IN_ARTICLE) for p in best(c.TOP1_VS_TOP3_QUESTION, chunks, 3)]
+    found = [has(p, c.TOP1_VS_TOP3_ANSWER_IN_PROGRAMME) for p in best(c.TOP1_VS_TOP3_QUESTION, chunks, 3)]
     assert not found[0] and any(found[1:])
 
 
 def test_out_of_doc_answer_not_in_our_copy():
     for word in c.OUT_OF_DOC_ABSENT:
-        assert word not in c.ARTICLE.lower(), word
+        assert word not in c.PROGRAMME.lower(), word
 
 
-def test_wrap_up_answer_in_best_chunk(chunks):
-    (top,) = best(c.WRAP_UP_QUESTION, chunks)
-    assert has(top, c.WRAP_UP_ANSWER)
+def test_wrap_up_answer_in_the_chunks_sent(chunks):
+    assert any(has(p, c.MISS_ANSWER) for p in best(c.WRAP_UP_QUESTION, chunks, 3))
 
 
 # ---------------------------------------------------------------- the numbers the slides show
