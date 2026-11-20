@@ -4,6 +4,9 @@ Run:  uv run --with-requirements requirements.txt python build_notebook.py
 
 In the cell files:
   ```python ... ```   becomes a code cell that participants see, run and change;
+  ```show ... ```     becomes a collapsed "Code" cell: its first line is the title, the next
+                      lines name functions of toolkit.py, whose exact source the cell holds
+                      (the Setup cell already defines them, so running it changes nothing);
   everything else     becomes Markdown (a ``` fence with no language stays Markdown);
   {NAME}, {NAME[0]}   is replaced by that value from content.py (e.g. {HIT_QUESTION}).
 After the first cell file comes the Setup cell: a collapsed form that holds content.py and
@@ -23,7 +26,7 @@ OUTPUT = HERE.parent / "rag_workshop_beginner.ipynb"
 MODULES = ["content.py", "toolkit.py"]
 LOCAL = {"content", "toolkit"}
 LOAD = re.compile(r'(?<!def )_load\("([^"]+)"\)')
-CODE = re.compile(r"^```python\n(.*?)^```[ \t]*$", re.MULTILINE | re.DOTALL)
+CODE = re.compile(r"^```(python|show)\n(.*?)^```[ \t]*$", re.MULTILINE | re.DOTALL)
 PLACEHOLDER = re.compile(r"\{([A-Z][A-Z0-9_]+)(?:\[(\d+)\])?\}")
 RUNTIME_PACKAGES = "sentence-transformers transformers accelerate"
 
@@ -58,9 +61,9 @@ def inline_modules() -> str:
 
 def setup_cell() -> nbformat.NotebookNode:
     body = f'''
-# You don't need to read this cell. It installs what is missing, defines the helpers the
-# workshop uses (ask, similarity, sections, split, where_is, search, ask_with_documents)
-# and loads the two AI models. Curious? All the code is below.
+# You don't need to read this cell. It installs what is missing, loads the two AI models and
+# defines the helpers the workshop uses. The interesting ones (ask, similarity, search, split,
+# ask_with_documents) are also shown in each section, in a collapsed "Code" cell.
 import logging
 import warnings
 
@@ -101,15 +104,37 @@ def fill(text: str) -> str:
     return PLACEHOLDER.sub(value, text)
 
 
+def function_source(name: str) -> str:
+    """The exact source of a top-level function in toolkit.py."""
+    source = (HERE / "toolkit.py").read_text()
+    lines = source.splitlines()
+    for node in ast.parse(source).body:
+        if isinstance(node, ast.FunctionDef) and node.name == name:
+            return "\n".join(lines[node.lineno - 1 : node.end_lineno])
+    raise ValueError(f"toolkit.py has no function {name!r}")
+
+
+def code_cell(block: str) -> nbformat.NotebookNode:
+    """A collapsed cell that shows the code behind one section's helpers."""
+    title, *names = [line.strip() for line in block.strip().splitlines() if line.strip()]
+    listed = ", ".join(f"{n}()" for n in names)
+    head = (
+        f"# The code behind {listed}, exactly as the Setup cell defines it.\n"
+        "# You don't need to run this cell: Setup already did. Running it again changes nothing."
+    )
+    return form(title, head + "\n\n\n" + "\n\n\n".join(function_source(n) for n in names))
+
+
 def cells_of(text: str) -> list[nbformat.NotebookNode]:
-    """Markdown cells for the prose, a code cell for each ```python block."""
+    """Markdown cells for the prose, a code cell for each ```python block, a collapsed one for ```show."""
     cells = []
-    pieces = CODE.split(text)  # [markdown, code, markdown, code, ..., markdown]
-    for i, piece in enumerate(pieces):
-        if i % 2:
-            cells.append(nbformat.v4.new_code_cell(piece.strip()))
-        elif piece.strip():
-            cells.append(nbformat.v4.new_markdown_cell(piece.strip()))
+    pieces = CODE.split(text)  # [markdown, kind, code, markdown, kind, code, ..., markdown]
+    for i in range(0, len(pieces), 3):
+        if pieces[i].strip():
+            cells.append(nbformat.v4.new_markdown_cell(pieces[i].strip()))
+        if i + 2 < len(pieces):
+            kind, code = pieces[i + 1], pieces[i + 2]
+            cells.append(code_cell(code) if kind == "show" else nbformat.v4.new_code_cell(code.strip()))
     return cells
 
 

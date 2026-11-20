@@ -105,8 +105,38 @@ def test_every_section_has_do_this(nb):
         assert "**Do this:**" in markdown(cells), name
 
 
+def shown_code(cells):
+    """The collapsed "Code" cells that show a section's helpers."""
+    return [cell for cell in code_cells(cells) if cell.source.startswith("#@title 🔍 Code:")]
+
+
+def test_sections_1_to_5_each_show_their_code(nb):
+    import ast
+
+    import toolkit
+
+    expected = {"1.": {"ask"}, "2.": {"embed", "cosine", "score", "similarity"}, "3.": {"top_passages", "search"},
+                "4.": {"chunk_overlap", "split"}, "5.": {"build_prompt", "ask_with_documents"}}
+    for name, cells in by_section(nb).items():
+        shown = shown_code(cells)
+        assert len(shown) == (1 if name in expected else 0), name
+        if not shown:
+            continue
+        (cell,) = shown
+        assert cell.metadata.get("cellView") == "form"  # collapsed: the title shows, the code does not
+        body = cell.source.split("\n", 1)[1]
+        defined = {n.name for n in ast.parse(body).body if isinstance(n, ast.FunctionDef)}
+        assert defined == expected[name], name
+        source = Path(toolkit.__file__).read_text()
+        for function in defined:  # the same code as the Setup cell, word for word
+            assert build_notebook.function_source(function) in source
+            assert build_notebook.function_source(function) in setup_of(nb).source
+
+
 def test_code_cells_are_short_and_visible(nb):
     for cell in code_cells(visible(nb)):
+        if cell in shown_code(visible(nb)):
+            continue
         assert len(cell.source.splitlines()) <= 4, cell.source
         assert "cellView" not in cell.metadata and not cell.source.startswith("#@title")
 
@@ -229,7 +259,7 @@ def test_executes_headless(done):
     for notice in ("Warning", "NOTE:"):  # tqdm's "IProgress not found", torch's macOS "NOTE: Redirects..."
         assert notice not in text_of(setup_of(done)), notice
     for cell in code_cells(done.cells):
-        if cell.source != UPLOAD_STAND_IN:
+        if cell.source != UPLOAD_STAND_IN and cell not in shown_code(done.cells):
             assert text_of(cell).strip(), cell.source  # every cell shows something
 
 

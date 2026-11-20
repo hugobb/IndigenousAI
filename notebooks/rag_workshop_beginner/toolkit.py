@@ -6,81 +6,8 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from queue import Empty
 from threading import Thread
-from typing import Literal
 
 import numpy as np
-
-Strategy = Literal["fixed", "overlap", "sentences", "whole"]
-
-
-# ---------------------------------------------------------------- chunking
-def split_sentences(text: str) -> list[str]:
-    """Cut text after each '.', '?' or '!'."""
-    # Split after . ? ! followed by a capital letter or digit, but not after a lone capital ("E. coli").
-    pattern = r"(?<=[.?!])(?<!\b[A-Z]\.)\s+(?=[A-Z0-9\"“‘(])"
-    return [s.strip() for s in re.split(pattern, text) if s.strip()]
-
-
-def chunk_fixed(text: str, size: int) -> list[str]:
-    """Cut text into pieces of `size` words, one after the other."""
-    words = text.split()
-    return [" ".join(words[i : i + size]) for i in range(0, len(words), size)]
-
-
-def chunk_overlap(text: str, size: int, overlap: int) -> list[str]:
-    """Like chunk_fixed, but each piece repeats the last `overlap` words of the previous one."""
-    overlap = max(0, min(overlap, size - 1))
-    step = size - overlap
-    words = text.split()
-    chunks = []
-    for i in range(0, len(words), step):
-        chunks.append(" ".join(words[i : i + size]))
-        if i + size >= len(words):
-            break
-    return chunks
-
-
-def chunk_sentences(text: str, n: int) -> list[str]:
-    """Group text into pieces of `n` sentences."""
-    sentences = split_sentences(text)
-    return [" ".join(sentences[i : i + n]) for i in range(0, len(sentences), n)]
-
-
-def make_chunks(text: str, strategy: Strategy, size: int, overlap: int) -> list[str]:
-    """One entry point for every chunking strategy. For 'sentences', size = sentences per chunk."""
-    if strategy == "fixed":
-        return chunk_fixed(text, size)
-    if strategy == "overlap":
-        return chunk_overlap(text, size, overlap)
-    if strategy == "sentences":
-        return chunk_sentences(text, size)
-    return [text.strip()]
-
-
-# ---------------------------------------------------------------- similarity and search
-def cosine(a: np.ndarray, b: np.ndarray) -> float:
-    """How close two embeddings point: 1 = same direction (same meaning), 0 = unrelated."""
-    a, b = np.asarray(a, dtype=float), np.asarray(b, dtype=float)
-    return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
-
-
-def similarity_label(score: float) -> str:
-    """Plain-language reading of a similarity score."""
-    if score >= 0.60:
-        return "very similar"
-    if score >= 0.40:
-        return "somewhat related"
-    if score >= 0.20:
-        return "loosely related"
-    return "unrelated"
-
-
-def rank(query_vec: np.ndarray, doc_vecs: np.ndarray, k: int) -> list[tuple[int, float]]:
-    """The k stored texts closest to the query, best first, as (position, score)."""
-    scores = [cosine(query_vec, d) for d in doc_vecs]
-    order = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)
-    return [(i, scores[i]) for i in order[: min(k, len(scores))]]
-
 
 EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
@@ -95,32 +22,6 @@ class MiniLMEmbedder:
 
     def embed(self, texts: list[str]) -> np.ndarray:
         return self.model.encode(list(texts), normalize_embeddings=True, convert_to_numpy=True)
-
-
-# ---------------------------------------------------------------- prompt
-def build_prompt(question: str, contexts: list[str], allow_unknown: bool) -> str:
-    """The exact text sent to the model: instructions, the retrieved passages, the question."""
-    lines = ["Answer the question using the context below."]
-    if allow_unknown:
-        lines.append('If the answer is not in the context, say "I don\'t know based on these documents."')
-    lines += ["", "Context:"]
-    lines += [f"[{i}] {c}" for i, c in enumerate(contexts, start=1)]
-    lines += ["", f"Question: {question}", "Answer:"]
-    return "\n".join(lines)
-
-
-# ---------------------------------------------------------------- map of meaning
-def project_2d(vectors: np.ndarray) -> np.ndarray:
-    """Squash many-number embeddings down to 2 numbers each (PCA), so they can be drawn on a map."""
-    x = np.asarray(vectors, dtype=float)
-    x = x - x.mean(axis=0)
-    out = np.zeros((len(x), 2))
-    if len(x) < 2:
-        return out
-    _, _, vt = np.linalg.svd(x, full_matrices=False)
-    proj = x @ vt[:2].T
-    out[:, : proj.shape[1]] = proj
-    return out
 
 
 # ---------------------------------------------------------------- the answer-writing model
@@ -263,11 +164,6 @@ def status_line(device: str, in_colab: bool | None = None) -> str:
     return slow + (colab if in_colab else "")
 
 
-def answer(models: Models, question: str, contexts: list[str], allow_unknown: bool) -> Iterator[str]:
-    """The whole RAG step: build the prompt from the retrieved passages and stream the model's answer."""
-    return models.generator.generate(build_prompt(question, contexts, allow_unknown))
-
-
 # ---------------------------------------------------------------- plain helpers for the notebook cells
 SHOW = 60  # words of a passage shown on screen: a whole chunk of up to 60 words, the start of a longer one
 
@@ -277,35 +173,52 @@ def _short(text: str) -> str:
     return " ".join(words[:SHOW]) + (" ..." if len(words) > SHOW else "")
 
 
-def _embed(texts: list[str]) -> np.ndarray:
-    return MODELS.embedder.embed(texts)
-
-
-def score(a: str, b: str) -> float:
-    """How close in meaning two texts are (cosine of their embeddings)."""
+def ready() -> bool:
+    """True once the Setup cell has loaded the models; otherwise says to run it."""
     if MODELS is None:
         print(NOT_READY)
-        return 0.0
-    va, vb = _embed([a, b])
-    return cosine(va, vb)
+        return False
+    return True
 
 
-def similarity(a: str, b: str) -> None:
-    """Print how similar two texts are, e.g. 'Similarity: 0.83'."""
-    if MODELS is None:
-        print(NOT_READY)
+def write_answer(prompt: str) -> None:
+    """Send the prompt to the AI model and print its answer as it is written."""
+    for piece in MODELS.generator.generate(prompt):
+        print(piece, end="", flush=True)
+    print()
+
+
+def show_passages(passages: list[str]) -> None:
+    print("Passages sent to the AI:")
+    for n, passage in enumerate(passages, start=1):
+        print(f"{n}. {_short(passage)}")
+    print()
+
+
+def _bare(text: str) -> list[str]:
+    """The words of a text, without the punctuation around them ("foot." and "foot" match)."""
+    return [word.strip(".,;:!?\"'()“”‘’") for word in text.split()]
+
+
+def where_is(chunks: list[str], phrase: str) -> None:
+    """Say which chunks contain a phrase, or show where it was cut in two."""
+    norm = " ".join(phrase.split()).lower()
+    flat = [" ".join(c.split()).lower() for c in chunks]
+    found = [i + 1 for i, c in enumerate(flat) if norm and norm in c]
+    if found:
+        label = "chunk" if len(found) == 1 else "chunks"
+        print(f'"{phrase}" is in {label} {", ".join(map(str, found))}.')
         return
-    print(f"Similarity: {score(a, b):.2f}")
-
-
-def split(document: str, words_per_chunk: int = 60, overlap: int = 0) -> list[str]:
-    """Cut a document into chunks of words. 0 words means one chunk for everything."""
-    if words_per_chunk <= 0:
-        chunks = [document.strip()] if document.strip() else []
-    else:
-        chunks = chunk_overlap(document, words_per_chunk, max(0, overlap))
-    print(f"Cut into {len(chunks)} {'chunk' if len(chunks) == 1 else 'chunks'}.")
-    return chunks
+    words = _bare(norm)
+    for i in range(len(flat) - 1):
+        left, right = _bare(flat[i]), _bare(flat[i + 1])
+        for j in range(len(words) - 1, 0, -1):
+            if left[-j:] == words[:j] and right[: len(words) - j] == words[j:]:
+                print(f'"{phrase}" was cut in two, between chunk {i + 1} and chunk {i + 2}.')
+                print(f"Chunk {i + 1} ends with: ...{chunks[i][-80:]}")
+                print(f"Chunk {i + 2} starts with: {chunks[i + 1][:80]}...")
+                return
+    print(f'"{phrase}" is not in any chunk.')
 
 
 _ATTRIBUTION = ("Title:", "Source:", "Retrieved:", "License:", "Shortened:")
@@ -350,73 +263,113 @@ def sections(document: str) -> list[str]:
     return passages
 
 
-def _bare(text: str) -> list[str]:
-    """The words of a text, without the punctuation around them ("foot." and "foot" match)."""
-    return [word.strip(".,;:!?\"'()“”‘’") for word in text.split()]
+# ---------------------------------------------------------------- shown in the notebook, one section at a time
+# Each function below is also shown, as it is here, in a collapsed "Code" cell of its section.
 
-
-def where_is(chunks: list[str], phrase: str) -> None:
-    """Say which chunks contain a phrase, or show where it was cut in two."""
-    norm = " ".join(phrase.split()).lower()
-    flat = [" ".join(c.split()).lower() for c in chunks]
-    found = [i + 1 for i, c in enumerate(flat) if norm and norm in c]
-    if found:
-        label = "chunk" if len(found) == 1 else "chunks"
-        print(f'"{phrase}" is in {label} {", ".join(map(str, found))}.')
+# Section 1
+def ask(question: str) -> None:
+    """Ask the AI model alone: no documents, only what it learned during its training."""
+    if not ready():
         return
-    words = _bare(norm)
-    for i in range(len(flat) - 1):
-        left, right = _bare(flat[i]), _bare(flat[i + 1])
-        for j in range(len(words) - 1, 0, -1):
-            if left[-j:] == words[:j] and right[: len(words) - j] == words[j:]:
-                print(f'"{phrase}" was cut in two, between chunk {i + 1} and chunk {i + 2}.')
-                print(f"Chunk {i + 1} ends with: ...{chunks[i][-80:]}")
-                print(f"Chunk {i + 2} starts with: {chunks[i + 1][:80]}...")
-                return
-    print(f'"{phrase}" is not in any chunk.')
+    print("Answer:")
+    write_answer(question)  # the question is sent as it is, with nothing added
 
 
+# Section 2
+def embed(texts: list[str]) -> np.ndarray:
+    """Turn each text into an embedding: a list of 384 numbers that captures its meaning."""
+    return MODELS.embedder.embed(texts)
+
+
+def cosine(a: np.ndarray, b: np.ndarray) -> float:
+    """How close two embeddings point: 1 = same direction (same meaning), 0 = unrelated."""
+    a, b = np.asarray(a, dtype=float), np.asarray(b, dtype=float)
+    return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
+
+
+def score(a: str, b: str) -> float:
+    """The similarity score of two texts: embed both, then compare the two lists of numbers."""
+    if MODELS is None:
+        print(NOT_READY)
+        return 0.0
+    numbers_a, numbers_b = embed([a, b])
+    return cosine(numbers_a, numbers_b)
+
+
+def similarity(a: str, b: str) -> None:
+    """Print how similar two texts are, e.g. 'Similarity: 0.83'."""
+    if not ready():
+        return
+    print(f"Similarity: {score(a, b):.2f}")
+
+
+# Section 3
 def top_passages(question: str, passages: list[str], top: int = 3) -> list[tuple[float, str]]:
     """The `top` passages closest in meaning to the question, best first, as (score, passage)."""
     if not passages:
         return []
-    vecs = _embed([question] + list(passages))
-    return [(s, passages[i]) for i, s in rank(vecs[0], vecs[1:], top)]
+    # 1. Embed the question and every passage (one call, so it is fast).
+    question_numbers, *passage_numbers = embed([question] + list(passages))
+    # 2. Score every passage against the question.
+    scored = [(cosine(question_numbers, numbers), passage) for numbers, passage in zip(passage_numbers, passages)]
+    # 3. Sort from the highest score to the lowest, and keep the first `top`.
+    scored.sort(key=lambda pair: pair[0], reverse=True)
+    return scored[:top]
 
 
 def search(question: str, passages: list[str], top: int = 3) -> None:
     """Print the passages closest to the question: rank, score, start of the text."""
-    if MODELS is None:
-        print(NOT_READY)
+    if not ready():
         return
     for n, (s, passage) in enumerate(top_passages(question, passages, top), start=1):
         print(f"{n}. {s:.2f}  {_short(passage)}")
 
 
-def _stream(prompt: str) -> None:
-    for piece in MODELS.generator.generate(prompt):
-        print(piece, end="", flush=True)
-    print()
+# Section 4
+def chunk_overlap(text: str, size: int, overlap: int) -> list[str]:
+    """Cut text into pieces of `size` words; each piece repeats the last `overlap` words of the one before."""
+    overlap = max(0, min(overlap, size - 1))  # an overlap as long as the chunk would never move forward
+    step = size - overlap  # how far each new chunk starts after the previous one
+    words = text.split()
+    chunks = []
+    for start in range(0, len(words), step):
+        chunks.append(" ".join(words[start : start + size]))
+        if start + size >= len(words):  # this chunk reached the last word
+            break
+    return chunks
 
 
-def ask(question: str) -> None:
-    """Ask the AI with no documents."""
-    if MODELS is None:
-        print(NOT_READY)
-        return
-    print("Answer:")
-    _stream(question)
+def split(document: str, words_per_chunk: int = 60, overlap: int = 0) -> list[str]:
+    """Cut a document into chunks of words. 0 words means one chunk for everything."""
+    if words_per_chunk <= 0:
+        chunks = [document.strip()] if document.strip() else []
+    else:
+        chunks = chunk_overlap(document, words_per_chunk, max(0, overlap))
+    print(f"Cut into {len(chunks)} {'chunk' if len(chunks) == 1 else 'chunks'}.")
+    return chunks
+
+
+# Section 5
+def build_prompt(question: str, contexts: list[str], allow_unknown: bool) -> str:
+    """The exact text sent to the model: instructions, the retrieved passages, the question."""
+    lines = ["Answer the question using the context below."]
+    if allow_unknown:
+        lines.append('If the answer is not in the context, say "I don\'t know based on these documents."')
+    lines += ["", "Context:"]
+    lines += [f"[{i}] {c}" for i, c in enumerate(contexts, start=1)]
+    lines += ["", f"Question: {question}", "Answer:"]
+    return "\n".join(lines)
 
 
 def ask_with_documents(question: str, passages: list[str], top: int = 3, say_dont_know: bool = True) -> None:
-    """Find the best passages, show them, and ask the AI to answer from them."""
-    if MODELS is None:
-        print(NOT_READY)
+    """RAG: find the passages closest to the question, then let the AI answer from them."""
+    if not ready():
         return
-    contexts = [p for _, p in top_passages(question, passages, top)]
-    print("Passages sent to the AI:")
-    for n, c in enumerate(contexts, start=1):
-        print(f"{n}. {_short(c)}")
-    print()
+    # 1. Retrieve: embed the question and every passage, keep the `top` closest (section 3).
+    best = [passage for _, passage in top_passages(question, passages, top)]
+    show_passages(best)
+    # 2. Augment: paste those passages into the prompt, above the question.
+    prompt = build_prompt(question, best, say_dont_know)
+    # 3. Generate: the AI writes its answer from that prompt.
     print("Answer:")
-    _stream(build_prompt(question, contexts, say_dont_know))
+    write_answer(prompt)

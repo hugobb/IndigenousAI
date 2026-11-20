@@ -12,6 +12,14 @@ similarity("{SAME_WORD[0]}", "{SAME_WORD[1]}")
 similarity("{UNRELATED[0]}", "{UNRELATED[1]}")
 ```
 
+```show
+🔍 Code: how similarity() works (optional: double-click to see the code)
+embed
+cosine
+score
+similarity
+```
+
 **Do this:**
 1. Guess the score of "{LOVE_HATE[0]}" and "{LOVE_HATE[1]}", then run the cell.
 2. Write two sentences of your own between the quotes and run the cell again.

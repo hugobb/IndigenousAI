@@ -12,4 +12,9 @@ The notebook uses one document: the programme of this workshop, with its schedul
 ask("{NO_DOC_QUESTION}")
 ```
 
+```show
+🔍 Code: how ask() works (optional: double-click to see the code)
+ask
+```
+
 The AI has never read this programme. It may say so, or it may make up an answer that sounds right.

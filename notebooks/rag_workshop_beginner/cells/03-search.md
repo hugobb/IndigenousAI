@@ -10,6 +10,12 @@ passages = sections(PROGRAMME)
 search("{HIT_QUESTION}", passages)
 ```
 
+```show
+🔍 Code: how search() works (optional: double-click to see the code)
+top_passages
+search
+```
+
 **Do this:**
 1. Run the cell below. This is the question from section 1. The answer, {MISS_ANSWER}, is in the section "{MISS_SECTION}". Which section comes first?
 

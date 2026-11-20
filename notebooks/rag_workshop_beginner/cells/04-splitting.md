@@ -13,6 +13,12 @@ chunks = split(PROGRAMME, words_per_chunk={DEMO_SIZE})
 search("{MISS_QUESTION}", chunks)
 ```
 
+```show
+🔍 Code: how split() works (optional: double-click to see the code)
+chunk_overlap
+split
+```
+
 A chunk can also end in the middle of an answer.
 
 **Do this:**

@@ -11,6 +11,12 @@ chunks = split(PROGRAMME, words_per_chunk={DEMO_SIZE}, overlap={DEMO_OVERLAP})
 ask_with_documents("{WITH_DOC_QUESTION}", chunks)
 ```
 
+```show
+🔍 Code: how ask_with_documents() works, the whole RAG (optional: double-click to see the code)
+build_prompt
+ask_with_documents
+```
+
 **Do this:**
 1. Run the cell below. With top=1, the AI gets only the best chunk, and that chunk is about Friday, not Thursday.
 2. Change top=1 to top=3 and run the cell again.
