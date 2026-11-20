@@ -67,6 +67,12 @@ def chunks(size: int = c.SIZE) -> list[str]:
 
 # ---------------------------------------------------------------- 3. generation: alone, then with the chunks
 @pytest.mark.llm
+def test_alone_the_model_gets_the_start_time_wrong(models, capsys):
+    """Before RAG: asked alone when the hands-on session starts, the AI does not say 1:00 pm."""
+    assert plain(c.ALONE_ANSWER) not in plain(answer(capsys, ask, c.ALONE_QUESTION))
+
+
+@pytest.mark.llm
 def test_bare_model_does_not_know(models, capsys):
     assert plain(c.NAME) not in plain(answer(capsys, ask, c.QUESTION))
 

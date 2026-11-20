@@ -13,7 +13,7 @@ import content as c
 
 HERE = Path(build_notebook.__file__).parent
 NOTEBOOK = Path(build_notebook.OUTPUT)
-SECTIONS = ["Setup", "1.", "2.", "3.", "4."]
+SECTIONS = ["Setup", "Before", "1.", "2.", "3.", "4."]
 # Bold in a numbered step must be something the participant can find on screen.
 ON_SCREEN = {
     "Setup", "Run anyway", "✅ Ready", "Save a copy in Drive",
@@ -210,7 +210,7 @@ def test_few_cells(nb):
     for name, cells in by_section(nb).items():
         runnable = [cell for cell in code_cells(cells) if cell not in shown_code(cells)]
         assert len(runnable) == 1, name
-    assert len(nb.cells) <= 17
+    assert len(nb.cells) <= 19
 
 
 # ---------------------------------------------------------------- copy rules
@@ -278,6 +278,8 @@ def test_cells_show_the_promised_results(done):
     assert listed[0].startswith("Indexed ") and listed[1].startswith("#1  chunk ") and c.ANSWER in listed[1]
     found = output_of(done, "search(question").splitlines()
     assert found[0].startswith("1. ") and c.ANSWER in found[0]  # the answer is in the first chunk
+    alone = output_of(done, f'ask("{c.ALONE_QUESTION}")')
+    assert alone.startswith("Answer:")
     answers = output_of(done, "ask_with_documents(question")
     assert answers.startswith("Answer:") and "Passages sent to the AI:" in answers
 

@@ -33,3 +33,7 @@ TRY_SIZE = 80  # step 2 suggests it: the chunk with the answer drops out of the 
 QUESTION = "Who gives the introduction to machine learning?"
 ANSWER = "Hugo Berard and Hamza Abdelhedi"  # in the best chunk at SIZE and OVERLAP
 NAME = "Berard"  # in the AI's answer with the chunks, not without them
+
+# ---------------------------------------------------------------- Before RAG: the AI alone
+ALONE_QUESTION = "When does the hands-on session start at the Future Imaginaries of Indigenous AI workshop?"
+ALONE_ANSWER = "1:00"  # 1:00 pm in the programme; the AI alone does not say it

@@ -10,7 +10,7 @@ import content as c
 import toolkit
 from toolkit import FakeGenerator, MiniLMEmbedder, Models, chunk_overlap, split, top_passages
 
-QUOTED = ["Hugo Berard and Hamza Abdelhedi"]  # named in step 2's text
+QUOTED = ["Hugo Berard and Hamza Abdelhedi", "At 1:00 pm, participants start the 75-minute hands-on session"]
 
 
 @pytest.fixture(scope="module", autouse=True)
