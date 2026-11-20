@@ -121,6 +121,34 @@ def test_setup_inlines_all_code(nb):
     assert "== Background ==" in setup.source
 
 
+# Colab's huggingface_hub prints this on the first model download when no HF_TOKEN secret is set (it starts
+# with a newline). The models are public, so no token is needed.
+HF_TOKEN_NOTICE = (
+    "\nThe secret `HF_TOKEN` does not exist in your Colab secrets.\nTo authenticate with the Hugging Face Hub, "
+    "create a token in your settings tab (https://huggingface.co/settings/tokens), set it as secret in your "
+    "Google Colab and restart your session.\nYou will be able to reuse this secret in all of your notebooks.\n"
+    "Please note that authentication is recommended but still optional to access public models or datasets."
+)
+
+
+def test_setup_hides_only_the_hf_token_notice(nb):
+    import warnings
+
+    lines = [line for line in setup_of(nb).source.splitlines()
+             if line.startswith("warnings.filterwarnings(") and "HF_TOKEN" in line]
+    assert len(lines) == 1, lines
+    with warnings.catch_warnings(record=True) as shown:
+        warnings.simplefilter("always")
+        exec(lines[0], {"warnings": warnings})
+        warnings.warn(HF_TOKEN_NOTICE)
+        warnings.warn("\nError while fetching `HF_TOKEN` secret value from your vault: 'boom'.")  # a real error
+        warnings.warn("Some other warning about HF_TOKEN")
+    assert [str(w.message) for w in shown] == [
+        "\nError while fetching `HF_TOKEN` secret value from your vault: 'boom'.",
+        "Some other warning about HF_TOKEN",
+    ]
+
+
 def test_no_widgets(nb):
     assert "ipywidgets" not in nbformat.writes(nb)
     assert "ipywidgets" not in NOTEBOOK.read_text(encoding="utf-8")

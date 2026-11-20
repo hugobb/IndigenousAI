@@ -5,9 +5,10 @@ checked on both. The tests call the notebook's own helpers (ask, ask_with_docume
 what they print. Run one model per process, so only one is in memory:
 
     uv run --with-requirements requirements.txt pytest -q -m llm -k 1.7B    # about 4 GB
-    uv run --with-requirements requirements.txt pytest -q -m llm -k 0.6B    # about 2.5 GB
+    uv run --with-requirements requirements.txt pytest -q -m llm -k 0.6B    # about 3.5 GB (float32)
 
-The models run on the CPU in bfloat16 here; on Colab's GPU, Qwen3-1.7B runs in float32.
+Here on the CPU, Qwen3-0.6B runs in float32, as on Colab without a GPU, and Qwen3-1.7B in bfloat16;
+on Colab's GPU, Qwen3-1.7B runs in float32.
 """
 
 import gc

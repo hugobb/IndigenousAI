@@ -144,10 +144,10 @@
     "Qwen/Qwen3-0.6B": {
       "question_without_documents": "How long did the halftime break last in the 2026 World Cup final?",
       "question_with_documents": "How long did the halftime break last?",
-      "device": "cpu, bfloat16 (Colab's GPU runs float32, so its wording can differ)",
+      "device": "cpu, float32 (as on Colab without a GPU)",
       "without_documents": "The halftime break in the 2026 World Cup final (which is the 2026 FIFA World Cup) lasted **15 minutes**.",
       "with_documents": "The halftime break lasted over 27 minutes.",
-      "winner_without_documents": "As of the 2026 FIFA World Cup final, the winner is **Brazil**. The 2022 World Cup final was won by Brazil, and the 2026 final will be held in **Brazil**."
+      "winner_without_documents": "As of the 2026 FIFA World Cup final, the winner is **Brazil**. The tournament was held in **Brazil** from **July 26 to August 10, 2026**, and Brazil won the final."
     },
     "Qwen/Qwen3-1.7B": {
       "question_without_documents": "How long did the halftime break last in the 2026 World Cup final?",

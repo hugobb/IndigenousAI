@@ -7,7 +7,7 @@
 
     uv run --with-requirements requirements.txt python find_demo_values.py --answers Qwen/Qwen3-1.7B
         Also records that model's answers, without and with the article (about 4 GB of memory;
-        Qwen/Qwen3-0.6B needs about 2.5 GB).
+        Qwen/Qwen3-0.6B, in float32, about 4 GB too).
 
 The effects that need the AI (it does not know alone, it says "I don't know") are checked by
 tests/test_llm_effects.py, not here.
@@ -253,6 +253,14 @@ def minilm_values() -> dict:
     }
 
 
+def device_note(model_name: str) -> str:
+    """Where the answers were recorded: this Mac's CPU, in the precision the notebook uses for the model."""
+    dtype = str(toolkit.model_dtype("cpu", model_name)).removeprefix("torch.")
+    if dtype == "float32":
+        return "cpu, float32 (as on Colab without a GPU)"
+    return f"cpu, {dtype} (Colab's GPU runs float32, so its wording can differ)"
+
+
 def record_answers(model_name: str) -> dict:
     """The model's answers without the article (section 1) and with it (section 5), as the notebook prints them."""
     toolkit.MODELS = Models(toolkit.MODELS.embedder, QwenGenerator(model_name, "cpu"), "cpu", model_name)
@@ -264,7 +272,7 @@ def record_answers(model_name: str) -> dict:
     return {
         "question_without_documents": c.NO_DOC_QUESTION,
         "question_with_documents": c.WITH_DOC_QUESTION,
-        "device": "cpu, bfloat16 (Colab's GPU runs float32, so its wording can differ)",
+        "device": device_note(model_name),
         "without_documents": answer_part(printed(toolkit.ask, c.NO_DOC_QUESTION)),
         "with_documents": answer_part(printed(toolkit.ask_with_documents, c.WITH_DOC_QUESTION, with_documents)),
         "winner_without_documents": answer_part(printed(toolkit.ask, c.WINNER_QUESTION)),

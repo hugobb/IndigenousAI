@@ -97,13 +97,41 @@ def test_split_sentences_keeps_abbreviations():
     ]
 
 
-def test_model_dtype_full_precision_on_gpu():
+def test_model_dtype_full_precision_on_gpu_and_for_the_cpu_fallback():
+    """R38: float32 on the GPU (float16 can overflow on a T4) and for Qwen3-0.6B on the CPU (bfloat16 can be
+    very slow on Colab's CPUs); other models on the CPU stay in bfloat16, so the 1.7B tests fit this Mac."""
     import torch
 
-    from toolkit import model_dtype
+    from toolkit import CHAT_MODEL_CPU, CHAT_MODEL_GPU, model_dtype
 
-    assert model_dtype("cuda") is torch.float32
-    assert model_dtype("cpu") is torch.bfloat16
+    assert model_dtype("cuda", CHAT_MODEL_GPU) is torch.float32
+    assert model_dtype("cuda", CHAT_MODEL_CPU) is torch.float32
+    assert model_dtype("cpu", CHAT_MODEL_CPU) is torch.float32
+    assert model_dtype("cpu", CHAT_MODEL_GPU) is torch.bfloat16
+
+
+def test_qwen_generator_loads_with_the_precision_for_its_model(monkeypatch):
+    import torch
+    import transformers
+
+    seen = {}
+
+    class Loaded:
+        def to(self, device):
+            return self
+
+        def eval(self):
+            return self
+
+    def from_pretrained(name, **kwargs):
+        seen[name] = list(kwargs.values())
+        return Loaded()
+
+    monkeypatch.setattr(transformers.AutoModelForCausalLM, "from_pretrained", from_pretrained)
+    monkeypatch.setattr(transformers.AutoTokenizer, "from_pretrained", lambda name: object())
+    toolkit.QwenGenerator("Qwen/Qwen3-0.6B", "cpu")
+    toolkit.QwenGenerator("Qwen/Qwen3-1.7B", "cpu")
+    assert seen == {"Qwen/Qwen3-0.6B": [torch.float32], "Qwen/Qwen3-1.7B": [torch.bfloat16]}
 
 
 def test_stream_worker_reports_failure():
@@ -281,5 +309,6 @@ def test_dtype_argument_follows_transformers_version(monkeypatch, version, name)
     from toolkit import dtype_argument
 
     monkeypatch.setattr(transformers, "__version__", version)
-    assert dtype_argument("cpu") == {name: torch.bfloat16}
-    assert dtype_argument("cuda") == {name: torch.float32}
+    assert dtype_argument("cpu", "Qwen/Qwen3-1.7B") == {name: torch.bfloat16}
+    assert dtype_argument("cpu", "Qwen/Qwen3-0.6B") == {name: torch.float32}
+    assert dtype_argument("cuda", "Qwen/Qwen3-1.7B") == {name: torch.float32}

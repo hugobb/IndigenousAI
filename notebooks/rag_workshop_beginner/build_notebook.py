@@ -64,8 +64,10 @@ def setup_cell() -> nbformat.NotebookNode:
 import logging
 import warnings
 
-# Hide two harmless notices seen outside Colab: tqdm's progress bars, and a macOS note from torch.
+# Hide three harmless notices: tqdm's progress bars and a macOS note from torch (outside Colab), and
+# Colab's note that no Hugging Face token is set (the two models are public and need none).
 warnings.filterwarnings("ignore", message="IProgress not found")
+warnings.filterwarnings("ignore", message=r"\\s*The secret `HF_TOKEN` does not exist in your Colab secrets")
 logging.getLogger("torch.distributed.elastic.multiprocessing.redirects").setLevel(logging.ERROR)
 try:
     import sentence_transformers  # noqa: F401

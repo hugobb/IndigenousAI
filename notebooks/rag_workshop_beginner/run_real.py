@@ -1,12 +1,13 @@
 """Run the built notebook top to bottom with the real models and print every output.
 
-    uv run --with-requirements requirements.txt python run_real.py                          # model for this device
+    uv run --with-requirements requirements.txt python run_real.py                          # model for this device (CPU: Qwen3-0.6B, about 4.5 GB)
     uv run --with-requirements requirements.txt python run_real.py --model Qwen/Qwen3-1.7B  # about 4 GB of memory
 
 After each cell whose step asks for a change ("Change 50 to 5", "Change top=1 to top=3", ...), the same
 cell with that change is run too, marked "# CHANGED", so every output a participant can see gets read.
 The bonus upload cell needs a browser, so it is replaced by `my_text = ARTICLE`.
-Without a GPU, the models run on the CPU in bfloat16 (Colab's GPU runs Qwen3-1.7B in float32).
+Without a GPU, Qwen3-0.6B runs in float32, as on Colab without a GPU; Qwen3-1.7B runs in bfloat16 on
+the CPU (Colab's GPU runs it in float32).
 """
 
 import argparse

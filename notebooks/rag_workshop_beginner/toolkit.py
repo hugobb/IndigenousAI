@@ -129,20 +129,22 @@ CHAT_MODEL_CPU = "Qwen/Qwen3-0.6B"
 MAX_NEW_TOKENS = 200
 
 
-def model_dtype(device: str):
-    """Full precision on the GPU: half precision (float16) can overflow with Qwen3 on a T4."""
+def model_dtype(device: str, model_name: str):
+    """Full precision (float32) on the GPU, where half precision (float16) can overflow with Qwen3 on a T4,
+    and for the small CPU model, because bfloat16 can be very slow on CPUs like Colab's. Larger models on
+    the CPU use bfloat16, half the memory."""
     import torch
 
-    return torch.float32 if device == "cuda" else torch.bfloat16
+    return torch.float32 if device == "cuda" or model_name == CHAT_MODEL_CPU else torch.bfloat16
 
 
-def dtype_argument(device: str) -> dict:
+def dtype_argument(device: str, model_name: str) -> dict:
     """The precision argument for from_pretrained. transformers 4.56 renamed torch_dtype to dtype:
     older versions crash on dtype=, newer ones print a warning for torch_dtype=."""
     import transformers
 
     major, minor = (int(part) for part in transformers.__version__.split(".")[:2])
-    return {"dtype" if (major, minor) >= (4, 56) else "torch_dtype": model_dtype(device)}
+    return {"dtype" if (major, minor) >= (4, 56) else "torch_dtype": model_dtype(device, model_name)}
 
 
 def stream_worker(target, streamer) -> Iterator[str]:
@@ -176,7 +178,7 @@ class QwenGenerator:
 
         self.device = device
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForCausalLM.from_pretrained(model_name, **dtype_argument(device)).to(device)
+        self.model = AutoModelForCausalLM.from_pretrained(model_name, **dtype_argument(device, model_name)).to(device)
         self.model.eval()
 
     def generate(self, prompt: str) -> Iterator[str]:
