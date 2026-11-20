@@ -1,10 +1,13 @@
-"""Assemble rag_workshop_beginner.ipynb from cells/*.md and the three Python modules.
+"""Assemble rag_workshop_beginner.ipynb from cells/*.md, content.py and toolkit.py.
 
 Run:  uv run --with-requirements requirements.txt python build_notebook.py
 
-In the Markdown files:
-  {NAME}                           is replaced by that constant from content.py (e.g. {DEMO_SMALL_SIZE})
-  <!-- panel: show_x | Title -->   ends the Markdown cell and inserts a hidden form cell running show_x(MODELS)
+In the cell files:
+  ```python ... ```   becomes a code cell that participants see, run and change;
+  everything else     becomes Markdown (a ``` fence with no language stays Markdown);
+  {NAME}, {NAME[0]}   is replaced by that value from content.py (e.g. {HIT_QUESTION}).
+After the first cell file comes the Setup cell: a collapsed form that holds content.py and
+toolkit.py and loads the two models.
 """
 
 import ast
@@ -17,12 +20,12 @@ import content
 
 HERE = Path(__file__).resolve().parent
 OUTPUT = HERE.parent / "rag_workshop_beginner.ipynb"
-MODULES = ["content.py", "toolkit.py", "ui.py"]
-LOCAL = {"content", "toolkit", "ui"}
+MODULES = ["content.py", "toolkit.py"]
+LOCAL = {"content", "toolkit"}
 LOAD = re.compile(r'(?<!def )_load\("([^"]+)"\)')
-PANEL = re.compile(r"^<!-- panel: (\w+) \| (.+?) -->\s*$", re.MULTILINE)
-RUNTIME_PACKAGES = "sentence-transformers transformers accelerate ipywidgets matplotlib"
-BEFORE_SETUP = "⚠️ Run the Setup box first (section 0, at the top). Then click ▶️ on this box again."
+CODE = re.compile(r"^```python\n(.*?)^```[ \t]*$", re.MULTILINE | re.DOTALL)
+PLACEHOLDER = re.compile(r"\{([A-Z][A-Z0-9_]+)(?:\[(\d+)\])?\}")
+RUNTIME_PACKAGES = "sentence-transformers transformers accelerate"
 
 
 def form(title: str, body: str) -> nbformat.NotebookNode:
@@ -32,7 +35,7 @@ def form(title: str, body: str) -> nbformat.NotebookNode:
 
 
 def inline_modules() -> str:
-    """The three modules as one block of code: shared imports first, local imports removed."""
+    """The modules as one block of code: shared imports first, local imports removed, documents inlined."""
     imports: list[str] = []
     bodies: list[str] = []
     for name in MODULES:
@@ -55,10 +58,17 @@ def inline_modules() -> str:
 
 def setup_cell() -> nbformat.NotebookNode:
     body = f'''
-# You don't need to read this cell. It installs what is missing, defines everything the
-# workshop does, and loads the two AI models. Curious? All the code is below.
+# You don't need to read this cell. It installs what is missing, defines the helpers the
+# workshop uses (ask, similarity, sections, split, where_is, search, ask_with_documents)
+# and loads the two AI models. Curious? All the code is below.
+import logging
+import warnings
+
+# Hide two harmless notices seen outside Colab: tqdm's progress bars, and a macOS note from torch.
+warnings.filterwarnings("ignore", message="IProgress not found")
+logging.getLogger("torch.distributed.elastic.multiprocessing.redirects").setLevel(logging.ERROR)
 try:
-    import sentence_transformers, matplotlib, ipywidgets  # noqa: F401
+    import sentence_transformers  # noqa: F401
 except ImportError:
     %pip install -q {RUNTIME_PACKAGES}
 
@@ -72,28 +82,33 @@ print(status_line(MODELS.device))
     return form("Setup: click ▶️ and wait for ✅ Ready (1 to 2 minutes)", body)
 
 
-def panel_cell(function: str, title: str) -> nbformat.NotebookNode:
-    body = f'''
-if "MODELS" not in globals():
-    print("{BEFORE_SETUP}")
-else:
-    {function}(MODELS)
-'''
-    return form(f"Click ▶️: {title}", body)
+def fill(text: str) -> str:
+    """Replace {NAME} (a str or int in content.py) and {NAME[i]} (item i of a tuple) with the value."""
+
+    def value(match: re.Match) -> str:
+        name, index = match.group(1), match.group(2)
+        if not hasattr(content, name):
+            raise ValueError(f"Unknown placeholder: {match.group(0)}")
+        found = getattr(content, name)
+        if index is not None:
+            found = found[int(index)]
+        if not isinstance(found, (str, int)):
+            raise ValueError(f"Placeholder {match.group(0)} is not a string or a number")
+        return str(found)
+
+    return PLACEHOLDER.sub(value, text)
 
 
-def fill(markdown: str) -> str:
-    """Replace {NAME} and {NAME.question} with values from content.py."""
-    for name in dir(content):
-        value = getattr(content, name)
-        if name.isupper() and isinstance(value, (str, int)):
-            markdown = markdown.replace("{" + name + "}", str(value))
-        if name.isupper() and isinstance(value, content.QuestionSpec):
-            markdown = markdown.replace("{" + name + ".question}", value.question)
-    leftover = re.findall(r"\{[A-Z_]{3,}[.a-z]*\}", markdown)
-    if leftover:
-        raise ValueError(f"Unknown placeholders: {leftover}")
-    return markdown
+def cells_of(text: str) -> list[nbformat.NotebookNode]:
+    """Markdown cells for the prose, a code cell for each ```python block."""
+    cells = []
+    pieces = CODE.split(text)  # [markdown, code, markdown, code, ..., markdown]
+    for i, piece in enumerate(pieces):
+        if i % 2:
+            cells.append(nbformat.v4.new_code_cell(piece.strip()))
+        elif piece.strip():
+            cells.append(nbformat.v4.new_markdown_cell(piece.strip()))
+    return cells
 
 
 def build() -> nbformat.NotebookNode:
@@ -106,13 +121,7 @@ def build() -> nbformat.NotebookNode:
         "gpuClass": "standard",
     }
     for index, path in enumerate(sorted((HERE / "cells").glob("*.md"))):
-        pieces = PANEL.split(fill(path.read_text()))
-        # pieces = [markdown, function, title, markdown, function, title, ..., markdown]
-        for i in range(0, len(pieces), 3):
-            if pieces[i].strip():
-                nb.cells.append(nbformat.v4.new_markdown_cell(pieces[i].strip()))
-            if i + 2 < len(pieces):
-                nb.cells.append(panel_cell(pieces[i + 1], pieces[i + 2]))
+        nb.cells.extend(cells_of(fill(path.read_text(encoding="utf-8"))))
         if index == 0:
             nb.cells.append(setup_cell())
     for n, cell in enumerate(nb.cells):

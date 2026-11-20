@@ -1,39 +1,24 @@
-## 2. Embeddings: how a computer compares meanings (20 min)
+## 2. Embeddings: comparing meanings (22 min)
 
-To search by meaning, the computer turns each sentence into a list of 384 numbers. This list is called an **embedding**. Two sentences with similar meanings get similar numbers, even if they use different words.
-
-By comparing two embeddings, the computer gives a **similarity score**: 0 means unrelated, and the higher the score, the closer the meanings. With this model, scores above 0.6 are rare, and 0.4 is already close.
-
-### 2a. Compare two sentences
+To compare meanings, the computer turns each sentence into a list of 384 numbers, called an embedding. Sentences with similar meanings get similar lists. The similarity score compares two lists: close to 0 means unrelated, and the closer to 1, the closer the meanings.
 
 **Do this:**
-1. Click ▶️ on the box below. You see two sentences and their score.
-2. In the **Example** menu, choose each example in turn:
-   - "Same meaning, different words": a high score, even though the sentences share almost no words.
-   - "Same word, different meaning": a low score, even though both sentences contain the word "record".
-   - "Unrelated": a low score.
-3. Write your own sentences in **Sentence A** and **Sentence B**, then click **Compare**. Try "I love winter." and "I hate winter."
+1. The cell below compares "{SAME_MEANING[0]}" with three other sentences. Guess which one gets the highest score, then run the cell.
+2. Look at the score of the second sentence. It shares the word "final" with the first one, but its score is low.
 
-The score tells you if two sentences talk about the same thing, not if they agree. "I love winter." and "I hate winter." get a high score.
-
-<!-- panel: show_similarity | compare two sentences -->
-
-### 2b. The map of meanings
-
-The map shows 16 sentences. Each dot is a sentence. Dots close together have similar meanings. The colours show 4 topics.
+```python
+similarity("{SAME_MEANING[0]}", "{SAME_MEANING[1]}")
+similarity("{SAME_WORD[0]}", "{SAME_WORD[1]}")
+similarity("{UNRELATED[0]}", "{UNRELATED[1]}")
+```
 
 **Do this:**
-1. Click ▶️ on the box below.
-2. Read the first words of each sentence next to its dot.
-3. Type "Nobody may record a ceremony without the family's permission." in the text box, then click **Add to map**. Your sentence appears as a black star. Which colour is it closest to?
-4. Add your own sentences. Click **Reset** to remove them.
+1. Guess the score of "{LOVE_HATE[0]}" and "{LOVE_HATE[1]}", then run the cell.
+2. Write two sentences of your own between the quotes and run the cell again.
 
-Nobody told the computer what the topics are. It places sentences with similar meanings close together on its own.
+```python
+# Change the two sentences and run the cell again.
+similarity("{LOVE_HATE[0]}", "{LOVE_HATE[1]}")
+```
 
-<!-- panel: show_meaning_map | the map of meanings -->
-
-<details><summary>More detail (optional)</summary>
-
-The embedding model is `all-MiniLM-L6-v2`. The similarity score is the cosine similarity between the two lists of numbers. To draw the map, the 384 numbers are reduced to 2 with a method called PCA, so the map is only an approximation.
-
-</details>
+The score tells you whether two sentences talk about the same thing, not whether they agree.

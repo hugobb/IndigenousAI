@@ -1,8 +1,19 @@
 import time
 
 import numpy as np
+import pytest
 
+import toolkit
 from toolkit import (
+    FakeGenerator,
+    Models,
+    ask,
+    ask_with_documents,
+    search,
+    sections,
+    split,
+    top_passages,
+    where_is,
     build_prompt,
     chunk_fixed,
     chunk_overlap,
@@ -108,3 +119,167 @@ def test_stream_worker_reports_failure():
 
     with pytest.raises(RuntimeError):
         list(stream_worker(broken, streamer))
+
+
+class FakeEmbedder:
+    """Deterministic stand-in for MiniLM: one dimension per keyword."""
+
+    WORDS = ["goal", "stadium", "referee", "tea"]
+
+    def embed(self, texts):
+        out = np.array([[t.lower().count(w) + 0.01 for w in self.WORDS] for t in texts], dtype=float)
+        return out / np.linalg.norm(out, axis=1, keepdims=True)
+
+
+@pytest.fixture
+def models(monkeypatch):
+    m = Models(FakeEmbedder(), FakeGenerator(), "cpu", "fake")
+    monkeypatch.setattr(toolkit, "MODELS", m)
+    return m
+
+
+PASSAGES = ["The referee was Slavko Vincic. referee referee", "A goal was scored in extra time. goal goal", "Tea is a drink. tea tea"]
+
+
+def test_split_sizes_and_count_message(capsys):
+    chunks = split(WORDS25, 10)
+    assert [len(c.split()) for c in chunks] == [10, 10, 5]
+    assert "Cut into 3 chunks." in capsys.readouterr().out
+
+
+def test_split_overlap_clamped_no_hang(capsys):
+    start = time.monotonic()
+    chunks = split(WORDS25, 5, overlap=50)
+    assert time.monotonic() - start < 1
+    assert chunks[-1].split()[-1] == "w24"
+
+
+def test_split_zero_is_whole_document(capsys):
+    assert split(WORDS25, 0) == [WORDS25]
+    assert capsys.readouterr().out == "Cut into 1 chunk.\n"
+
+
+DOC = """Title: T
+Source: S
+
+Opening words.
+
+== Background ==
+Some background.
+
+== Match ==
+=== Extra time ===
+A goal came.
+=== Aftermath ===
+A brawl.
+"""
+
+
+def test_sections_keep_headings():
+    assert sections(DOC) == [
+        "Introduction\nOpening words.",
+        "Background\nSome background.",
+        "Match: Extra time\nA goal came.",
+        "Match: Aftermath\nA brawl.",
+    ]
+
+
+def test_sections_body_only_has_no_attribution():
+    assert sections(DOC.split("\n\n", 1)[1])[0] == "Introduction\nOpening words."
+
+
+def test_where_is_whole_and_cut(capsys):
+    chunks = split(" ".join(f"w{i}" for i in range(30)), 10)
+    capsys.readouterr()
+    where_is(chunks, "w3 w4")
+    assert "chunk 1" in capsys.readouterr().out
+    where_is(chunks, "w18 w19 w20 w21")
+    out = capsys.readouterr().out
+    assert "Chunk 2 ends with" in out and "Chunk 3 starts with" in out
+    where_is(chunks, "nowhere")
+    assert "not in any chunk" in capsys.readouterr().out
+
+
+def test_top_passages_orders_and_caps(models):
+    result = top_passages("who was the referee?", PASSAGES, top=2)
+    assert len(result) == 2
+    assert result[0][1] == PASSAGES[0]
+    assert result[0][0] >= result[1][0]
+
+
+def test_search_prints_ranked(models, capsys):
+    search("a goal", PASSAGES, top=2)
+    lines = capsys.readouterr().out.splitlines()
+    assert lines[0].startswith("1. ") and "A goal was scored" in lines[0]
+    assert len(lines) == 2
+
+
+def test_search_shows_a_whole_chunk_and_cuts_long_passages(models, capsys):
+    chunk = " ".join(["goal"] * 59 + ["END"])  # 60 words: shown whole
+    long = " ".join(["goal"] * 60 + ["HIDDEN"])  # 61 words: cut after 60, with "..."
+    search("goal", [chunk, long], top=2)
+    out = capsys.readouterr().out
+    assert "END" in out and "HIDDEN" not in out
+    assert out.count("...") == 1
+
+
+def test_ask_with_documents_prints_passages_then_answer(models, capsys):
+    ask_with_documents("who was the referee?", PASSAGES, top=1)
+    out = capsys.readouterr().out
+    assert out.index("Passages sent to the AI:") < out.index("1. The referee") < out.index("Answer:")
+    assert "(test answer)" in out
+
+
+def test_ask_prints_answer(models, capsys):
+    ask("hello")
+    assert capsys.readouterr().out.startswith("Answer:\n")
+
+
+def test_helpers_need_setup(monkeypatch, capsys):
+    monkeypatch.setattr(toolkit, "MODELS", None)
+    search("q", PASSAGES)
+    ask("q")
+    ask_with_documents("q", PASSAGES)
+    toolkit.similarity("a", "b")
+    assert capsys.readouterr().out == "Run the Setup cell first.\n" * 4
+
+
+def test_ask_sends_bare_question(models, capsys):
+    seen = []
+
+    class Recorder:
+        def generate(self, prompt):
+            seen.append(prompt)
+            yield "ok"
+
+    models.generator = Recorder()
+    ask("Who won the 2026 final?")
+    assert seen == ["Who won the 2026 final?"]
+
+
+def test_where_is_no_false_cut(capsys):
+    where_is(["alpha beta the", "gamma delta"], "the final")
+    out = capsys.readouterr().out
+    assert "not in any chunk" in out
+    assert "cut" not in out
+
+
+def test_where_is_cut_before_punctuation(capsys):
+    """The phrase ends where the sentence ends: the chunk has "foul." and the phrase has "foul"."""
+    where_is(["a b the goal was", "disallowed because of a foul. More text"], "the goal was disallowed because of a foul")
+    assert "was cut in two, between chunk 1 and chunk 2" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("version, name", [("4.51.3", "torch_dtype"), ("4.55.4", "torch_dtype"),
+                                           ("4.56.0", "dtype"), ("5.23.0", "dtype"), ("5.0.0.dev0", "dtype")])
+def test_dtype_argument_follows_transformers_version(monkeypatch, version, name):
+    """transformers renamed torch_dtype to dtype in 4.56: older versions crash on dtype=, newer ones
+    warn on torch_dtype= under the Setup cell."""
+    import torch
+    import transformers
+
+    from toolkit import dtype_argument
+
+    monkeypatch.setattr(transformers, "__version__", version)
+    assert dtype_argument("cpu") == {name: torch.bfloat16}
+    assert dtype_argument("cuda") == {name: torch.float32}

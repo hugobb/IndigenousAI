@@ -1,0 +1,161 @@
+{
+  "article": {
+    "title": "2026 FIFA World Cup final (Wikipedia)",
+    "url": "https://en.wikipedia.org/w/index.php?title=2026_FIFA_World_Cup_final&oldid=1385698804",
+    "retrieved": "2026-11-20",
+    "license": "CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/",
+    "words": 2847,
+    "sections": [
+      "Introduction",
+      "Background",
+      "Route to the final: Spain",
+      "Route to the final: Argentina",
+      "Match: First half",
+      "Match: Second half",
+      "Match: Extra time",
+      "Post-match"
+    ]
+  },
+  "models": {
+    "embeddings": "sentence-transformers/all-MiniLM-L6-v2",
+    "answers_gpu": "Qwen/Qwen3-1.7B",
+    "answers_cpu": "Qwen/Qwen3-0.6B"
+  },
+  "similarity_pairs": [
+    {
+      "kind": "same meaning, different words",
+      "a": "Spain won the final.",
+      "b": "The Spanish team became world champions.",
+      "score": 0.75
+    },
+    {
+      "kind": "same word, different meaning",
+      "a": "Spain won the final.",
+      "b": "This is my final offer.",
+      "score": 0.04
+    },
+    {
+      "kind": "unrelated",
+      "a": "Spain won the final.",
+      "b": "I had soup for lunch.",
+      "score": 0.08
+    },
+    {
+      "kind": "opposite opinions, same topic",
+      "a": "I love winter.",
+      "b": "I hate winter.",
+      "score": 0.81
+    }
+  ],
+  "search_example": {
+    "question": "Which awards did Spain's players win?",
+    "passages": "the 8 sections",
+    "top3": [
+      {
+        "passage": "Post-match",
+        "score": 0.62
+      },
+      {
+        "passage": "Route to the final: Spain",
+        "score": 0.55
+      },
+      {
+        "passage": "Match: Second half",
+        "score": 0.47
+      }
+    ]
+  },
+  "miss_example": {
+    "question": "Who was the referee of the final?",
+    "answer": "Slavko Vinčić",
+    "answer_in": "Introduction",
+    "top3": [
+      {
+        "passage": "Match: First half",
+        "score": 0.55
+      },
+      {
+        "passage": "Match: Extra time",
+        "score": 0.47
+      },
+      {
+        "passage": "Match: Second half",
+        "score": 0.46
+      }
+    ]
+  },
+  "nonsense_example": {
+    "question": "What is the best pizza topping?",
+    "top3": [
+      {
+        "passage": "Route to the final: Spain",
+        "score": 0.11
+      },
+      {
+        "passage": "Post-match",
+        "score": 0.08
+      },
+      {
+        "passage": "Match: Second half",
+        "score": 0.07
+      }
+    ]
+  },
+  "split_demo": {
+    "words_per_chunk": 50,
+    "overlap": 15,
+    "tiny_size": 5,
+    "chunks": 57,
+    "chunks_with_overlap": 81,
+    "referee_top1": {
+      "passage": "defeated Cape Verde in the round of 32, Egypt in the round of 16, Switzerland in the quarterfinal, and England in the semifinal. The final took place in front of 80,663 spectators, and was refereed by Slavko Vinčić of Slovenia. Spain dominated possession and created numerous goal-scoring opportunities throughout the",
+      "score": 0.61
+    },
+    "referee_top3_tiny": [
+      {
+        "passage": "The final match of the",
+        "score": 0.69
+      },
+      {
+        "passage": "goal of the final, was",
+        "score": 0.64
+      },
+      {
+        "passage": "match, with Argentina goalkeeper Emiliano",
+        "score": 0.61
+      }
+    ],
+    "referee_whole_article": 0.46,
+    "phrase": "the goal was disallowed because Merino had stepped on Otamendi's foot",
+    "cut": "\"the goal was disallowed because Merino had stepped on Otamendi's foot\" was cut in two, between chunk 44 and chunk 45.\nChunk 44 ends with: ...make the save. Three minutes later, Williams appeared to score, but the goal was\nChunk 45 starts with: disallowed because Merino had stepped on Otamendi's foot. Commentators noted tha...",
+    "with_overlap": "\"the goal was disallowed because Merino had stepped on Otamendi's foot\" is in chunk 63."
+  },
+  "prompt_example": {
+    "question": "How long did the halftime break last?",
+    "top": 3,
+    "scores": [
+      0.56,
+      0.45,
+      0.39
+    ],
+    "prompt": "Answer the question using the context below.\nIf the answer is not in the context, say \"I don't know based on these documents.\"\n\nContext:\n[1] full halftime break to last over 27 minutes, against International Football Association Board (IFAB) protocol. Spain became the first country to simultaneously hold the men's and women's World Cup titles, having won the FIFA Women's World Cup in 2023. == Background == The 2026 FIFA World Cup was the 23rd\n[2] Martínez's 11 saves set a record for the most saves by a goalkeeper in a World Cup final. The match was the first ever World Cup final to include a halftime show, which caused the full halftime break to last over 27 minutes, against International Football Association Board (IFAB) protocol.\n[3] 3rd minute of stoppage time, Argentina's Giuliano Simeone made a low cross from the right, but Unai Simón intercepted the ball. On the resulting counterattack, Williams dribbled the ball for 30 meters before taking a shot from the edge of the box, which was also saved by Martínez. A few\n\nQuestion: How long did the halftime break last?\nAnswer:"
+  },
+  "answers": {
+    "Qwen/Qwen3-0.6B": {
+      "question_without_documents": "How long did the halftime break last in the 2026 World Cup final?",
+      "question_with_documents": "How long did the halftime break last?",
+      "device": "cpu, bfloat16 (Colab's GPU runs float32, so its wording can differ)",
+      "without_documents": "The halftime break in the 2026 World Cup final (which is the 2026 FIFA World Cup) lasted **15 minutes**.",
+      "with_documents": "The halftime break lasted over 27 minutes.",
+      "winner_without_documents": "As of the 2026 FIFA World Cup final, the winner is **Brazil**. The 2022 World Cup final was won by Brazil, and the 2026 final will be held in **Brazil**."
+    },
+    "Qwen/Qwen3-1.7B": {
+      "question_without_documents": "How long did the halftime break last in the 2026 World Cup final?",
+      "question_with_documents": "How long did the halftime break last?",
+      "device": "cpu, bfloat16 (Colab's GPU runs float32, so its wording can differ)",
+      "without_documents": "The halftime break in the 2026 World Cup final, like in all other World Cup tournaments, is **45 minutes**. This is the standard duration for a halftime break in international football (soccer).\n\nHowever, it's important to note that the **length of the halftime break** can vary depending on the **tournament format** and the **rules of the competition**. For example:\n\n- In the **2026 World Cup**, the tournament will be held in **Argentina**, and the format will be **16 teams**, with a **group stage** followed by a **knockout stage** (quarterfinals, semifinals, and final).\n- The **halftime break** is a **standard 45-minute period** in the **final** and **semi-finals**, but in the **group stage** and **knockout rounds**, the halftime break is **shorter** (usually 15–20 minutes) to allow for",
+      "with_documents": "The halftime break lasted over 27 minutes. \n\nAnswer: over 27 minutes.",
+      "winner_without_documents": "As of my last update in 2023, I don't have information about the 2026 FIFA World Cup final winner. The 2026 FIFA World Cup is scheduled to be held in the United States, and the final is expected to be played between the USA and Mexico. However, this is a prediction based on current trends and historical patterns, as the actual outcome depends on the performance of the teams in the tournament. For the most accurate and up-to-date information, I recommend checking official FIFA sources or sports news platforms."
+    }
+  }
+}

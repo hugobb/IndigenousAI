@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Part 2 scorecard</title>
+<!-- Source of scorecard.pdf (one A4 page). Rebuild with
+     workshop/hawaii-2026/part2/build_guide.py pdf. LibreOffice reads @page, fonts
+     and backgrounds; table borders come from the border attribute, row heights
+     from td height. -->
+<style>
+@page { size: 21cm 29.7cm; margin: 1.0cm 1.2cm 0.9cm 1.2cm; }
+body { font-family: Helvetica, Arial, sans-serif; font-size: 9.5pt; color: #000000; background-color: #ffffff; }
+h1 { font-family: Helvetica, Arial, sans-serif; font-size: 15pt; margin-top: 0; margin-bottom: 4pt; }
+h2 { font-family: Helvetica, Arial, sans-serif; font-size: 10.5pt; margin-top: 8pt; margin-bottom: 3pt; }
+p { margin-top: 0; margin-bottom: 3pt; }
+th { font-size: 8pt; background-color: #e6e6e6; }
+td { font-size: 8.5pt; }
+p.small { font-size: 8pt; }
+p.score { margin-top: 5pt; }
+</style>
+</head>
+<body>
+<h1>Part 2 scorecard</h1>
+<p>Group: __________ &nbsp;&nbsp; Model: ______________________</p>
+<p class="small">Questions, keys and the passage: github.com/hugobb/IndigenousAI/blob/main/notebooks/hawaii-workshop/part2-guide.md</p>
+<p class="small"><b>Correct</b>: matches the key (task 2: the passage says it). <b>Hallucination</b>: a confident wrong answer, or any made-up detail (task 2: anything not in the passage). <b>"I don't know"</b>: no answer, whatever reason the model gives. <b>Partly right</b>: true, but not precise or complete enough. Tick one label per row.</p>
+
+<h2>Task 1: Does it know, or does it guess?</h2>
+<table border="1" cellpadding="2" cellspacing="0" width="100%">
+<tr><th width="4%">#</th><th width="39%">Question</th><th width="10%">Key</th><th width="11%">Correct</th><th width="14%">Hallucination</th><th width="11%">I don't know</th><th width="11%">Partly right</th></tr>
+<tr class="question"><td height="21">1</td><td>Turtle experiment: distance in km</td><td class="key">337</td><td></td><td></td><td></td><td></td></tr>
+<tr class="question"><td height="21">2</td><td>Dart: static method and instance field</td><td class="key">No</td><td></td><td></td><td></td><td></td></tr>
+<tr class="question"><td height="21">3</td><td>PHP: fatal errors became exceptions</td><td class="key">PHP 7</td><td></td><td></td><td></td><td></td></tr>
+<tr class="question"><td height="21">4</td><td>Python: sixth item of the reduce tuple</td><td class="key">3.8</td><td></td><td></td><td></td><td></td></tr>
+<tr class="question"><td height="21">5</td><td>Fairtrade campaign: year</td><td class="key">2017</td><td></td><td></td><td></td><td></td></tr>
+<tr class="question"><td height="21">6</td><td>Pirelli MIRS plant: year</td><td class="key">2000</td><td></td><td></td><td></td><td></td></tr>
+<tr class="question"><td height="21">7</td><td>Negus: rabbits or humans</td><td class="key">Humans</td><td></td><td></td><td></td><td></td></tr>
+<tr class="question"><td height="21">8</td><td>da Vinci 5 mm instruments: year</td><td class="key">2004</td><td></td><td></td><td></td><td></td></tr>
+<tr class="question"><td height="21">9</td><td>Zhu Xi: year of birth</td><td class="key">1130</td><td></td><td></td><td></td><td></td></tr>
+<tr class="question"><td height="21">10</td><td>Arnold: passages from Milton</td><td class="key">3</td><td></td><td></td><td></td><td></td></tr>
+<tr class="total"><td height="21"></td><td><b>Total</b></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+<p class="score">Score = correct − hallucinations = ________ − ________ = ________</p>
+
+<h2>Task 2: Does it stick to the text? One row per sentence of the summary</h2>
+<table border="1" cellpadding="2" cellspacing="0" width="100%">
+<tr><th width="10%">Sentence</th><th width="24%">Correct: the passage says it</th><th width="27%">Hallucination: not in the passage</th><th width="39%">What is wrong?</th></tr>
+<tr class="sentence"><td height="21">1</td><td></td><td></td><td></td></tr>
+<tr class="sentence"><td height="21">2</td><td></td><td></td><td></td></tr>
+<tr class="sentence"><td height="21">3</td><td></td><td></td><td></td></tr>
+<tr class="sentence"><td height="21">4</td><td></td><td></td><td></td></tr>
+<tr class="sentence"><td height="21">5</td><td></td><td></td><td></td></tr>
+<tr class="sentence"><td height="21">6</td><td></td><td></td><td></td></tr>
+<tr class="sentence"><td height="21">7</td><td></td><td></td><td></td></tr>
+<tr class="sentence"><td height="21">8</td><td></td><td></td><td></td></tr>
+<tr class="total"><td height="21"><b>Total</b></td><td></td><td></td><td></td></tr>
+</table>
+
+<h2>Task 3: Explore. Write a few words about what you asked</h2>
+<table border="1" cellpadding="2" cellspacing="0" width="100%">
+<tr><th width="20%">Try</th><th width="33%">What you asked</th><th width="11%">Correct</th><th width="14%">Hallucination</th><th width="11%">I don't know</th><th width="11%">Partly right</th></tr>
+<tr class="explore"><td height="27">A recent event</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr class="explore"><td height="27">A logic puzzle</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr class="explore"><td height="27">Something that does not exist</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr class="explore"><td height="27">A language you speak</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr class="explore"><td height="27">Your own idea</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr class="total"><td height="21"><b>Total</b></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+
+<h2>Task 4: For the board</h2>
+<p>Group ______ &nbsp;&nbsp; Model ________________ &nbsp;&nbsp; Task 1 score ______ &nbsp;&nbsp; Task 2: ______ hallucinations out of ______ sentences</p>
+</body>
+</html>

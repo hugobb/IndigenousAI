@@ -1,41 +1,19 @@
-# RAG workshop: how an AI answers questions from your documents
+# RAG workshop: an AI that looks things up
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/hugobb/IndigenousAI/blob/main/notebooks/rag_workshop_beginner.ipynb)
 
-An AI chatbot answers from what it learned during its training. It has never read your documents.
+An AI chatbot answers from what it learned during its training. RAG (Retrieval-Augmented Generation) lets it look things up first. RAG finds the passages of a document that match your question, and the AI writes its answer from them.
 
-RAG (Retrieval-Augmented Generation) fixes this in two steps:
-1. It searches your documents for the passages that match the question.
-2. It gives those passages to the AI, and the AI writes the answer from them.
+In this notebook you try each step of RAG on one Wikipedia article. You don't need to know how to code. The grey boxes are cells. To run a cell, click the ▶️ button on its left. Go from top to bottom.
 
-In this notebook you try each part of RAG yourself. You don't need to read or write code.
-
-### How this notebook works
-
-- The grey boxes with a ▶️ button are the things you run. To run one, click its ▶️ button (on the left of the box).
-- After a few seconds, buttons, sliders or text boxes appear under it. Use them.
-- Go from top to bottom.
-- If you are stuck, raise your hand.
-
-### The plan
-
-| Part | Topic | Time |
-|---|---|---|
-| 0 | Setup | 10 min |
-| 1 | The problem | 5 min |
-| 2 | Embeddings: how a computer compares meanings | 20 min |
-| 3 | Search: finding the right passage | 10 min |
-| 4 | Chunking: cutting a document into pieces | 20 min |
-| 5 | The AI writes the answer | 15 min |
-| 6 | Summary and discussion | 10 min |
-| Bonus | Your own documents | at home |
-
-## 0. Setup (10 min)
+## 0. Setup (5 min)
 
 **Do this:**
-1. In the menu at the top of the page, click **Runtime**, then **Change runtime type**. Check that **T4 GPU** is selected and click **Save**. (A GPU is a chip that makes the AI fast.)
-2. Click ▶️ on the **Setup** box below.
+1. In the menu at the top, click **Runtime**, then **Change runtime type**. Choose **T4 GPU** and click **Save**.
+2. Click ▶️ on the **Setup** cell below.
 3. If a message says "This notebook was not authored by Google", click **Run anyway**.
-4. Wait until the box shows **✅ Ready**. This takes 1 to 2 minutes.
+4. Wait until the cell shows **✅ Ready**. This takes 1 to 2 minutes.
 
-If the box shows ⚠️ instead, everything still works, but the AI is slower. Tell an assistant.
+If the cell shows ⚠️ instead, everything still works, only slower. Tell an assistant.
+
+If a cell later shows an error that ends with "is not defined", run the Setup cell again, then that cell.

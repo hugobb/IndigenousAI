@@ -1,14 +1,31 @@
-## 3. Search: finding the right passage (10 min)
+## 3. Search: finding the right passage (15 min)
 
-Search uses embeddings. The computer keeps an embedding for every passage. When you ask a question, it computes the score between your question and each passage, and sorts the passages from the highest score to the lowest.
-
-Here the passages are the 9 sections of the charter.
+Search uses the same scores. It compares your question with every passage and lists the closest ones first, with their scores. Here a passage is one section of our shortened copy of the article. There are 8: Introduction, Background, Route to the final: Spain, Route to the final: Argentina, Match: First half, Match: Second half, Match: Extra time, and Post-match.
 
 **Do this:**
-1. Click ▶️ on the box below. It has already searched for "{SEARCH_EXAMPLE}". Section 8 (Storage) comes first. Correct.
-2. Replace the question with "{SEARCH_MISS_EXAMPLE}" and click **Search**. The right answer is Section 6 (Outside requests): the Council votes. Is Section 6 first?
-3. Search for "{SEARCH_NOTHING_EXAMPLE}". No section is about pizza. Look at the scores.
+1. Guess which section will come first for "{HIT_QUESTION}", then run the cell.
 
-Search is not perfect. It can put the wrong passage first. And it always returns passages, even when none of them is relevant.
+```python
+passages = sections(ARTICLE)
+search("{HIT_QUESTION}", passages)
+```
 
-<!-- panel: show_search | search the charter -->
+**Do this:**
+1. Run the cell below. The referee's name, {MISS_ANSWER}, is in the {MISS_SECTION}. Is the {MISS_SECTION} in the list?
+
+```python
+passages = sections(ARTICLE)
+search("{MISS_QUESTION}", passages)
+```
+
+**Do this:**
+1. Run the cell below. No section is about pizza. Look at the scores.
+2. Change the question to one of your own and run the cell again.
+
+```python
+# Change the question and run the cell again.
+passages = sections(ARTICLE)
+search("{NONSENSE_QUESTION}", passages)
+```
+
+Search always returns passages, even when none of them answers the question, and the best one is not always first.

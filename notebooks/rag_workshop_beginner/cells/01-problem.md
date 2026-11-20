@@ -1,18 +1,15 @@
-## 1. The problem (5 min)
+## 1. The problem (3 min)
 
-In this workshop we use two documents:
-- **The CARE Principles for Indigenous Data Governance** (Carroll et al. 2020), a real paper.
-- **The Example Community Data Charter**, the rules of a community data council. This charter is **made up** for the workshop, so the AI has never seen it.
-
-First, let's ask the AI a question about the charter without giving it the charter.
+The notebook uses one document: a shortened copy of the Wikipedia article about the 2026 FIFA World Cup final, played on July 19, 2026. Spain beat Argentina 1–0 after extra time. The AI model in this notebook was trained before that day, so it has never read about this match.
 
 **Do this:**
-1. Click ▶️ on the box below.
-2. Click **Ask the AI**.
-3. Read the answer. The charter says: the Council answers within 45 days. Did the AI get it right?
+1. Run the cell below. It asks the AI how long the halftime break lasted in the final. The article says over 27 minutes, because of a halftime show.
+2. Read the answer. Is it right?
+3. Change the question to "{WINNER_QUESTION}" and run the cell again. Keep the quotes.
 
-The AI does not know the charter, but it usually answers anyway and makes something up. This is called a **hallucination**.
+```python
+# Change the question and run the cell again.
+ask("{NO_DOC_QUESTION}")
+```
 
-RAG solves this. Before the AI answers, RAG finds the right part of the charter and gives it to the AI. Sections 2 to 5 show how.
-
-<!-- panel: show_problem | ask the AI without the charter -->
+The AI has never read about this final. It may say so, or it may make up an answer that sounds right.
